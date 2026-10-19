@@ -1,0 +1,23 @@
+{
+  "project_version": "0.2",
+  "appworld_root": "data/appworld",
+  "inference_url": "http://127.0.0.1:8765",
+  "model": "Qwen/Qwen3-1.7B",
+  "model_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+  "seed": 42,
+  "environment_seed": 42,
+  "policy": {"temperature": 0.8, "top_p": 0.95, "max_input_tokens": 16384, "max_new_tokens": 1024},
+  "normal": {"max_model_turns": 40, "max_tool_calls": 40, "max_generated_tokens": 8192},
+  "recovery": {"max_model_turns": 15, "max_tool_calls": 15, "max_generated_tokens": 4096},
+  "group_size": 4,
+  "continuation_prompt": "Continue the original task from the current state and visible history. Check what has already been done and avoid duplicating completed operations.",
+  "max_train_tasks": 10,
+  "total_generated_tokens": 150000,
+  "wall_minutes": 90,
+  "max_infrastructure_retries": 1,
+  "tool_timeout_seconds": 60,
+  "model_timeout_seconds": 120,
+  "episode_wall_time_seconds": 900,
+  "training_enabled": false,
+  "teacher_sft_required": true
+}

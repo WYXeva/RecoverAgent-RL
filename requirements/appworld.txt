@@ -1,0 +1,3 @@
+appworld @ https://codeload.github.com/StonyBrookNLP/appworld/zip/42b5bcf3cd334fee33f0c37c02070a9f5807add5
+pydantic==2.12.3
+jsonschema==4.25.1

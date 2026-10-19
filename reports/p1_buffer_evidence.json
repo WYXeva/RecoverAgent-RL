@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "record_count": 1,
+  "failure_id": "d542977d2554d3729dbcc32ac8a5bb9fdb0ac533ae0b86fe50d9c16a1223d1da",
+  "task_id": "82e2fac_1",
+  "split": "train",
+  "position": "budget_exhausted",
+  "history_end_index": 82,
+  "history_hash": "056b49afe4c36ae84c493765955ae2b59ddf6cbd64bf2db0a40ac1094e97a8a5",
+  "tool_schema_hash": "27331119696ffbef6007e8d05d2f576513750c9a86d2fb3b1bb3c4bff64ad669",
+  "checkpoint_id": "b6e64bbe603534c08ccb2ff6392bf706944a46724c04ea62f51a02dd6717fa63",
+  "logical_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+  "official_reward": 0,
+  "usage": {
+    "generation_reservation_tokens": 0,
+    "model_turns": 40,
+    "requested_tool_calls": 22,
+    "dispatched_tool_calls": 22,
+    "prompt_tokens": 266862,
+    "generated_tokens": 1471,
+    "wall_seconds": 130.6972527509788
+  },
+  "source_policy": {
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "thinking": false,
+    "backend": "transformers",
+    "dtype": "bfloat16",
+    "chat_template_hash": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+  },
+  "persisted_buffer_reread": true,
+  "snapshot_integrity_checked": true
+}

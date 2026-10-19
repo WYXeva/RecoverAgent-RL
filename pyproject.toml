@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recoveragent-rl"
+version = "0.2.0"
+description = "AppWorld natural failure collection and isolated recovery"
+requires-python = ">=3.11"
+dependencies = ["jsonschema==4.25.1"]
+
+[project.optional-dependencies]
+appworld = [
+  "appworld @ https://codeload.github.com/StonyBrookNLP/appworld/zip/42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+  "pydantic==2.12.3",
+]
+
+[project.scripts]
+recoveragent = "recoveragent.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

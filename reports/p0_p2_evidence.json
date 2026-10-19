@@ -1,0 +1,185 @@
+{
+  "source_run": "runs/p0_p2_20261019_a",
+  "summary": {
+    "status": "PASS",
+    "normal_valid": 1,
+    "natural_failure_collected": true,
+    "generated_tokens": 4404,
+    "budget_charged_tokens": 4404,
+    "wall_seconds": 1647.6278685039724,
+    "attempts": 5,
+    "infrastructure_errors": 0,
+    "training_started": false
+  },
+  "policy": {
+    "model": "Qwen/Qwen3-1.7B",
+    "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+    "thinking": false,
+    "backend": "transformers",
+    "dtype": "bfloat16",
+    "chat_template_hash": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+  },
+  "trajectories": [
+    {
+      "trajectory_id": "normal_dbf9101f8c55",
+      "mode": "normal",
+      "task_id": "82e2fac_1",
+      "status": "valid",
+      "seed": 42,
+      "worker_pid": 1858206,
+      "reward": 0,
+      "termination_reason": "budget_exhausted",
+      "usage": {
+        "generation_reservation_tokens": 0,
+        "model_turns": 40,
+        "requested_tool_calls": 22,
+        "dispatched_tool_calls": 22,
+        "prompt_tokens": 266862,
+        "generated_tokens": 1471,
+        "wall_seconds": 130.6972527509788
+      },
+      "start": null,
+      "evidence": "runs/p0_p2_20261019_a/normal_dbf9101f8c55/trajectory.json"
+    },
+    {
+      "trajectory_id": "recovery_05c0308f6653",
+      "mode": "recovery",
+      "task_id": "82e2fac_1",
+      "status": "valid",
+      "seed": 10242,
+      "worker_pid": 1864251,
+      "reward": 0,
+      "termination_reason": "budget_exhausted",
+      "usage": {
+        "generation_reservation_tokens": 0,
+        "model_turns": 15,
+        "requested_tool_calls": 7,
+        "dispatched_tool_calls": 7,
+        "prompt_tokens": 164142,
+        "generated_tokens": 902,
+        "wall_seconds": 542.3114216700196
+      },
+      "start": {
+        "checkpoint_id": "b6e64bbe603534c08ccb2ff6392bf706944a46724c04ea62f51a02dd6717fa63",
+        "logical_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+        "history_hash": "056b49afe4c36ae84c493765955ae2b59ddf6cbd64bf2db0a40ac1094e97a8a5",
+        "tool_schema_hash": "27331119696ffbef6007e8d05d2f576513750c9a86d2fb3b1bb3c4bff64ad669",
+        "runtime_hash": "5e490f1600b640ba253aa60255acb55e53f3bb6a68761f0cc2772a6139face1f"
+      },
+      "evidence": "runs/p0_p2_20261019_a/recovery_05c0308f6653/trajectory.json"
+    },
+    {
+      "trajectory_id": "recovery_703f9ce0f676",
+      "mode": "recovery",
+      "task_id": "82e2fac_1",
+      "status": "valid",
+      "seed": 10342,
+      "worker_pid": 1868072,
+      "reward": 0,
+      "termination_reason": "budget_exhausted",
+      "usage": {
+        "generation_reservation_tokens": 0,
+        "model_turns": 15,
+        "requested_tool_calls": 7,
+        "dispatched_tool_calls": 7,
+        "prompt_tokens": 162588,
+        "generated_tokens": 667,
+        "wall_seconds": 270.5765599210281
+      },
+      "start": {
+        "checkpoint_id": "b6e64bbe603534c08ccb2ff6392bf706944a46724c04ea62f51a02dd6717fa63",
+        "logical_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+        "history_hash": "056b49afe4c36ae84c493765955ae2b59ddf6cbd64bf2db0a40ac1094e97a8a5",
+        "tool_schema_hash": "27331119696ffbef6007e8d05d2f576513750c9a86d2fb3b1bb3c4bff64ad669",
+        "runtime_hash": "5e490f1600b640ba253aa60255acb55e53f3bb6a68761f0cc2772a6139face1f"
+      },
+      "evidence": "runs/p0_p2_20261019_a/recovery_703f9ce0f676/trajectory.json"
+    },
+    {
+      "trajectory_id": "recovery_c95176eb2375",
+      "mode": "recovery",
+      "task_id": "82e2fac_1",
+      "status": "valid",
+      "seed": 10142,
+      "worker_pid": 1861257,
+      "reward": 0,
+      "termination_reason": "budget_exhausted",
+      "usage": {
+        "generation_reservation_tokens": 0,
+        "model_turns": 15,
+        "requested_tool_calls": 7,
+        "dispatched_tool_calls": 7,
+        "prompt_tokens": 162924,
+        "generated_tokens": 691,
+        "wall_seconds": 409.35101995401783
+      },
+      "start": {
+        "checkpoint_id": "b6e64bbe603534c08ccb2ff6392bf706944a46724c04ea62f51a02dd6717fa63",
+        "logical_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+        "history_hash": "056b49afe4c36ae84c493765955ae2b59ddf6cbd64bf2db0a40ac1094e97a8a5",
+        "tool_schema_hash": "27331119696ffbef6007e8d05d2f576513750c9a86d2fb3b1bb3c4bff64ad669",
+        "runtime_hash": "5e490f1600b640ba253aa60255acb55e53f3bb6a68761f0cc2772a6139face1f"
+      },
+      "evidence": "runs/p0_p2_20261019_a/recovery_c95176eb2375/trajectory.json"
+    },
+    {
+      "trajectory_id": "recovery_db354962cc29",
+      "mode": "recovery",
+      "task_id": "82e2fac_1",
+      "status": "valid",
+      "seed": 10042,
+      "worker_pid": 1859165,
+      "reward": 0,
+      "termination_reason": "budget_exhausted",
+      "usage": {
+        "generation_reservation_tokens": 0,
+        "model_turns": 15,
+        "requested_tool_calls": 7,
+        "dispatched_tool_calls": 7,
+        "prompt_tokens": 162672,
+        "generated_tokens": 673,
+        "wall_seconds": 287.81921185500687
+      },
+      "start": {
+        "checkpoint_id": "b6e64bbe603534c08ccb2ff6392bf706944a46724c04ea62f51a02dd6717fa63",
+        "logical_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+        "history_hash": "056b49afe4c36ae84c493765955ae2b59ddf6cbd64bf2db0a40ac1094e97a8a5",
+        "tool_schema_hash": "27331119696ffbef6007e8d05d2f576513750c9a86d2fb3b1bb3c4bff64ad669",
+        "runtime_hash": "5e490f1600b640ba253aa60255acb55e53f3bb6a68761f0cc2772a6139face1f"
+      },
+      "evidence": "runs/p0_p2_20261019_a/recovery_db354962cc29/trajectory.json"
+    }
+  ],
+  "group": {
+    "infrastructure_status": "PASS",
+    "rewards": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "valid_branches": 4,
+    "expected_branches": 4,
+    "same_start": true,
+    "source_unchanged": true,
+    "recoverability_status": "no_success_observed",
+    "statistics_policy": {
+      "model": "Qwen/Qwen3-1.7B",
+      "revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
+      "thinking": false,
+      "backend": "transformers",
+      "dtype": "bfloat16",
+      "chat_template_hash": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+    },
+    "success_at_1": 0,
+    "suffix_success_rate": 0.0,
+    "any_success_at_4": 0,
+    "reward_variance_available": false,
+    "grpo_ready": false,
+    "grpo_blocker": "Teacher SFT has not been performed",
+    "safety": "NOT_MEASURED",
+    "group_id": "6a37637f047ba64d5256cc52e5d70df2ff0372683992d58b2a6e51e4ca110b77"
+  },
+  "raw_task_content_included": false,
+  "recomputed_from_raw_events": true
+}

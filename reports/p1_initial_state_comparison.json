@@ -1,0 +1,7 @@
+{
+  "task_id": "82e2fac_1",
+  "baseline_logical_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+  "failure_logical_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+  "same_logical_records": true,
+  "comparison_scope": "same task, pinned environment and base data; normalized database records, not actor history"
+}

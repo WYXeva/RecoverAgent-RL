@@ -1,0 +1,14 @@
+{
+  "source_trajectory": "runs/p0_p2_20261019_a/normal_dbf9101f8c55/trajectory.json",
+  "terminal_reason": "budget_exhausted",
+  "format_protocol_errors": 18,
+  "environment_execution_errors": 2,
+  "requested_tools": {
+    "api_docs__show_app_descriptions": 1,
+    "api_docs__show_api_descriptions": 1,
+    "api_docs__show_api_doc": 18,
+    "spotify__like_song": 2
+  },
+  "root_cause": "NOT_DETERMINED",
+  "artificial_fault_injection": false
+}

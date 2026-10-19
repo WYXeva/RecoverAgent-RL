@@ -11,6 +11,7 @@
 
 # Python environments and generated files
 .venv/
+.venv-*/
 venv/
 __pycache__/
 *.py[cod]
@@ -30,6 +31,7 @@ dist/
 /snapshots/
 /models/
 /outputs/
+/experiments/outputs/
 /wandb/
 .cache/
 *.safetensors

@@ -1,0 +1,6 @@
+{
+  "save_state": "(self, state_id: 'str | None' = None) -> 'str | None'",
+  "load_state": "(self, state_id: 'str') -> 'None'",
+  "execute": "(self, code: 'str') -> 'str'",
+  "evaluate": "(self, suppress_errors: 'bool' = True) -> 'TestTracker'"
+}

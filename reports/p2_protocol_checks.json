@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "source_checkpoint_id": "b6e64bbe603534c08ccb2ff6392bf706944a46724c04ea62f51a02dd6717fa63",
+  "source_integrity_after_four_branches": true,
+  "sampling_code_unchanged": true,
+  "actual_visible_start_hash": "45f353f05ceaccd14d2a9ba5dd20934ecf4a46ba20fa8a88d0804ad6b31fbe4f",
+  "branches": [
+    {
+      "trajectory_id": "recovery_db354962cc29",
+      "pid": 1859165,
+      "seed": 10042,
+      "actual_prefix_matches": true,
+      "actual_schema_matches": true,
+      "runtime_matches": true,
+      "token_ids_match_counts": true,
+      "official_api_call_count": 7,
+      "official_reward": 0
+    },
+    {
+      "trajectory_id": "recovery_c95176eb2375",
+      "pid": 1861257,
+      "seed": 10142,
+      "actual_prefix_matches": true,
+      "actual_schema_matches": true,
+      "runtime_matches": true,
+      "token_ids_match_counts": true,
+      "official_api_call_count": 7,
+      "official_reward": 0
+    },
+    {
+      "trajectory_id": "recovery_05c0308f6653",
+      "pid": 1864251,
+      "seed": 10242,
+      "actual_prefix_matches": true,
+      "actual_schema_matches": true,
+      "runtime_matches": true,
+      "token_ids_match_counts": true,
+      "official_api_call_count": 7,
+      "official_reward": 0
+    },
+    {
+      "trajectory_id": "recovery_703f9ce0f676",
+      "pid": 1868072,
+      "seed": 10342,
+      "actual_prefix_matches": true,
+      "actual_schema_matches": true,
+      "runtime_matches": true,
+      "token_ids_match_counts": true,
+      "official_api_call_count": 7,
+      "official_reward": 0
+    }
+  ]
+}

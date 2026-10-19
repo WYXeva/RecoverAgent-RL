@@ -1,0 +1,22 @@
+{
+  "python": "3.14.4",
+  "executable": "/home/eva/project/RecoverAgent-RL/.venv-inference/bin/python",
+  "system": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "cpu_count": 16,
+  "packages": {
+    "appworld": "NOT_INSTALLED",
+    "pydantic": "NOT_INSTALLED",
+    "torch": "2.10.0+cu128",
+    "transformers": "4.57.6",
+    "trl": "NOT_INSTALLED",
+    "peft": "NOT_INSTALLED",
+    "jsonschema": "NOT_INSTALLED"
+  },
+  "gpu": "NVIDIA GeForce RTX 5050, 8151 MiB, 1764 MiB, 610.62",
+  "credential_presence": {
+    "STUDENT_API_KEY": false,
+    "OPENAI_API_KEY": false,
+    "HF_TOKEN": false
+  },
+  "disk_free_bytes": 978303815680
+}

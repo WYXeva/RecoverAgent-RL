@@ -3,7 +3,7 @@
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
 > 版本：v0.2  
 > 创建日期：2026-10-19  
-> 状态：设计稿；尚未在目标开发环境中完成安装、真实运行或训练验证。  
+> 状态：v0.2 需求基线；实际安装、运行与各阶段验收状态见 `docs/STATUS.md`，本计划不预先宣称训练或效果通过。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 
