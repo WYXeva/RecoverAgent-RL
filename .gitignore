@@ -1,0 +1,50 @@
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+.aws/
+.codex/
+.agents/
+
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Local benchmark data, snapshots, trajectories, and model weights
+/data/
+/runs/
+/checkpoints/
+/snapshots/
+/models/
+/outputs/
+/wandb/
+.cache/
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+*.gguf
+*.bin
+*.sqlite
+*.sqlite3
+*.db
+*.log
+
+# Editor and operating-system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
