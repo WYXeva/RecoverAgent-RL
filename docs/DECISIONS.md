@@ -1,6 +1,6 @@
 # 技术决策
 
-当前需求为 `AGENTS.md` / `PROJECT_PLAN.md` v0.3；D001–D006 是 2026-10-19 P0–P2 的历史工程记录，不因本次方案改变而修改。
+当前需求为 `AGENTS.md` / `PROJECT_PLAN.md` v0.4；D001–D006 是 2026-10-19 P0–P2 1.7B 的历史工程记录，不因本次模型/硬件调整而改写。
 
 ## D001 · 2026-10-19 · 固定源码与独立环境
 
@@ -53,3 +53,11 @@ AppWorld 与推理分别使用 `.venv`、`.venv-inference`；实际依赖另存 
 - Base-SFT 只监督 Teacher 正常成功全轨迹 Assistant token；Recovery-SFT 仅监督 Student 失败状态后 Teacher 恢复后缀的 Assistant token。系统、用户、工具输出、隐藏评价都不能成为 SFT target。
 - 多检查点 V1 为规则选择，主研究对象为 Post-error 与 Late-failure；Pre-error 仅作错误预防消融。V2 U_SFT=p_T(1-p_S)、U_RL=4p_S(1-p_S) 为待验证启发式。必须控制 Teacher 全尝试成本、每任务数据权重及 SFT/RL token。
 - P0–P2 老实验仍有效但只说明基础设施；本次仅更新 GitHub 文档，未运行新实验、没有 Teacher 数据、两阶段 SFT 或 GRPO 的通过证据。无授权不得调用付费 Teacher。
+
+## D008 · 2026-10-20 · Qwen3-4B 正式主模型与本机 Teacher / 远程 96GB 训练
+
+- 用户指定正式 Student 使用 `Qwen/Qwen3-4B`；本机保留 AppWorld 与 Teacher 正常成功示范采集及验证，Teacher 数据完成后在计划中的单张 NVIDIA RTX PRO 6000 96GB 上远程执行 4B Base-SFT、Student 新自然失败、Multi-Checkpoint Teacher 恢复、Recovery-SFT、GRPO 和增量迭代。
+- 本机 P0–P2 的 Qwen3-1.7B 不再作为正式主模型；旧轨迹、模型配置和已通过的基础设施证据原样保存，不重标为 4B。
+- 要求 train-only、未分词结构化完整多轮 Teacher 消息与可验证 success/filter/成本清单，manifest 绑定 AppWorld data/commit、Teacher revision、工具 schema、sha256；远程使用固定 Qwen3-4B tokenizer 重建 Assistant-only SFT mask。通过有权限的安全传输，不把受限 AppWorld 数据/凭据上传公开 GitHub。
+- 96GB 机器尚未核验。远程 AppWorld worker/数据版本/快照一致性、模型 revision、驱动/CUDA/Torch/TRl/PEFT/vLLM、显存峰值和单卡推理训练共存需正式预检。优先 BF16 LoRA 和低负载 GRPO 试跑；未经授权不得租 GPU 或调用付费 Teacher。
+- 本次是方案文档修改，没有新的教师数据、训练结果或 4B 实验。参考：Qwen3-4B 官方模型卡与 NVIDIA RTX PRO 6000 Blackwell 官方规格。
