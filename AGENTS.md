@@ -1,12 +1,12 @@
 # AGENTS.md — RecoverAgent-RL
 
-> 工作约定 v0.3 · 2026-10-20  
+> 工作约定 v0.4 · 2026-10-20  
 > 适用范围：本项目及子目录。需求与完整验收见 `PROJECT_PLAN.md`。  
 > 本文件中的规则可随项目证据与用户后续要求更新；不要把第一版设计当作不可更改的既定结论。
 
 ## 1. 项目目标和用户确认的强制训练顺序（v0.3）
 
-只使用 AppWorld，训练一个 Student 从基础工具使用逐渐学会错误后的状态修复，并由 Teacher 辅助持续迭代。**不要先让基座 Student 失败、Teacher 接管并把恢复 SFT 当作第一次基础训练。**
+只使用 AppWorld。**正式 Student 锁定为 `Qwen/Qwen3-4B`**，在本机采集并验证 Teacher 正常成功轨迹，转移到计划中的远程 RTX PRO 6000 Blackwell 96GB（未实测）完成 Base-SFT、4B Student 新失败、Recovery-SFT、GRPO 与迭代。旧本机 1.7B 只作为 P0–P2 基础设施历史记录。**不要先让基座 Student 失败、Teacher 接管并把恢复 SFT 当作第一次基础训练。**
 
 训练顺序必须是：
 1. 固定更强 Teacher 从干净原始 train 任务初态执行真实公开工具，生成经官方验证的**正常成功任务完整轨迹**。
@@ -45,9 +45,9 @@
 ## 4. 实现范围与默认技术选择
 
 - 只使用 AppWorld；不自动加入 AWM 或另一套环境。
-- 一个可训练 Student 策略模型，另使用参数固定的更强 Teacher 生成恢复示范。Student 默认候选 Qwen3-4B，资源不足可调整；Student 与 Teacher 的实际模型和 revision 必须记录。
+- 唯一正式 Student 是 **`Qwen/Qwen3-4B`**；模型版本、tool chat template 和 thinking 配置必须锁定。Teacher 固定且实际能力经验证。资源不足时不把主线私自改回 1.7B；本机 1.7B 仅属早期 P0–P2 历史/协议检查。
 - 首版使用文本 Function Calling；不增加网页、多模态、MCP 部署或前端平台。
-- 先串行运行四个独立恢复分支，通过隔离检查后再提高并发。
+- 恢复分支必须隔离；本机 Teacher 轨迹采集可串行，正式 Qwen3-4B 执行与在线 GRPO 在远程 AppWorld worker 上完成。跨主机快照恢复和依赖版本均须真实验收。
 - 状态、Buffer、rollout、训练桥接和评价模块职责清晰；按阶段创建需要的模块，避免大量空壳。
 - 优先复用上游工具映射与成熟训练器，不从头重写 GRPO 或复制完整 ReTerm 分布式栈。
 - 初始奖励仍为官方严格成功 0/1。基础正常 Teacher Base-SFT 和后续错误恢复 Teacher Recovery-SFT 两者均为强制阶段；安全/成本项须验证后开启。
@@ -112,6 +112,15 @@ V2 的 U_SFT=p_T(1-p_S)、U_RL=4p_S(1-p_S) 只是启发式；估计须有多次�
 
 每轮由最新 Student 产生新失败、Teacher 再产生新成功修复后缀、Student 增量 SFT 与 GRPO 连续更新；不每轮重置到 Base-SFT checkpoint。比较只有初始 Teacher 与每轮 Teacher，记录真实教师成本和正常任务遗忘情况。
 
+### 8.4 本机/远程分工与 4B 数据迁移（v0.4）
+
+1. 本机 RTX 5050 8GB 只负责 AppWorld Teacher 正常成功数据的真实执行、官方验证、过滤、数据清单与轻量协议测试。Teacher 模型能否访问和成本需实际核实；不能用基座 Student 代替更强 Teacher。
+2. 本机输出原始结构化消息而不是 1.7B tokenizer token IDs。manifest 必须包含 AppWorld 源码/data 版本、train task_id、Teacher 模型/revision、工具 schema、轨迹成功证据与过滤状态、文件 SHA-256、唯一任务数、token/API 开销；不得上传凭据和受限制原始任务数据至公开 GitHub。
+3. 正式数据使用授权 SSH/rsync/scp 迁移；远程校验哈希和样本顺序，再使用固定 Qwen/Qwen3-4B tokenizer/chat template 在远程生成 Assistant-only loss mask。基础 SFT 只监督 Teacher 正常完整轨迹，恢复 SFT 只监督 Teacher 失败状态后的恢复后缀。
+4. 远程目标单张 NVIDIA RTX PRO 6000 96GB，需检查真实 nvidia-smi、驱动、CUDA、PyTorch、TRL、PEFT、vLLM、存储及 AppWorld 同版本。Student Base-SFT、Student 新失败、Recovery-SFT、GRPO 和增量迭代均安排远程。在线 GRPO 的 AppWorld 真实 worker 也须在远程可执行，不能只复制训练文本。
+5. 优先 4B BF16 LoRA；验证单 GPU 下简单 rollout 或 vLLM colocate 的显存和真实参数更新。不可误将需要独立 GPU 的 vLLM server 模式放在同一张卡。每项训练先极小 smoke，记录 GPU 峰值/输入输出 token/耗时与中断恢复。
+6. 远程尚未可用时只做本机 P3-A 和迁移接口/预检准备，不得报告远程训练 PASS。P0–P2 1.7B 结果保留为历史，不可混入 4B 正式效果。
+
 ## 9. 实验解释与奖励规范
 
 - 两项增量先独立验证，再组合。只写“待验证假设”，获得证据后再写结果。
@@ -129,7 +138,7 @@ V2 的 U_SFT=p_T(1-p_S)、U_RL=4p_S(1-p_S) 只是启发式；估计须有多次�
 
 首轮使用计划第 10 节的上限：先扫描 10 个训练任务，最多 20 个；最多三个失败起点各四次恢复；单环境 worker；总生成 token 与总时间达到任一上限后保存并报告。
 
-P0–P2 已完成基础设施验收。下一轮首先是 Teacher 正常成功轨迹和基础 SFT 的低负载准备；不得擅自进入付费 Teacher、长时 GPU 训练或 GRPO。两阶段 Teacher SFT 不可跳过。
+P0–P2 已完成本地基础设施验收。下一轮在**本机 P3-A**收集/验证 Teacher 正常成功轨迹并导出有哈希 manifest 的**未分词结构化多轮数据**；之后在远程 96GB 机器验收 4B 环境，再启动 P3-B/P3-C。不得擅自调用付费 Teacher、租 GPU、长时训练或直接进入 GRPO；两阶段 Teacher SFT 不可跳过。
 
 正常/恢复的生成回合、工具调用和 token 都设上限，不能只限制一种指标。超时与基础设施错误有限重试，不无期限等待或循环重跑。
 
@@ -176,3 +185,4 @@ P0–P2 已完成基础设施验收。下一轮首先是 Teacher 正常成功轨
 | v0.1 | 2026-10-19 | 建立项目方向、首轮任务、阶段推进、状态/历史隔离、训练与评测约束、持续更新约定。 |
 | v0.2 | 2026-10-19 | 将 Teacher 恢复 SFT 设为强制前置，规定 Teacher 数据、Student 后缀监督、真实验收与共同 SFT 起点，并同步 P3-A/B/C 顺序。 |
 | v0.3 | 2026-10-20 | 用户确认先 Teacher 正常成功轨迹→Student 基础 SFT，再新 Student 自然失败、Teacher 多检查点恢复→Recovery-SFT→GRPO 与每轮 Teacher 增量学习；重排 P3–P6。 |
+| v0.4 | 2026-10-20 | 锁定 Qwen3-4B 唯一正式 Student；本机只采集/验证 Teacher 成功示范，远程 RTX PRO 6000 96GB 执行两次 4B SFT、Agent rollout、GRPO 与迭代；要求结构化数据哈希交接和远程预检。 |
