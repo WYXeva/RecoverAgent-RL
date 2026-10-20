@@ -1,0 +1,15 @@
+{
+  "status": "BLOCKED",
+  "reasons": [
+    "COST_LIMIT_REQUIRED",
+    "PAID_TEACHER_NOT_AUTHORIZED",
+    "PRICE_SOURCE_REQUIRED",
+    "VERIFIED_PRICE_REQUIRED"
+  ],
+  "attempts": 0,
+  "provider_requests": 0,
+  "successful_tasks": 0,
+  "success_rate": null,
+  "training_started": false,
+  "actual_cost": 0
+}

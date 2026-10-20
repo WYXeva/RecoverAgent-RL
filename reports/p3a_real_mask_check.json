@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "scope": "actual accepted Teacher messages with pinned Qwen3-4B tokenizer; no optimizer",
+  "examples": 8,
+  "native_tool_calls_roundtripped": 29,
+  "max_example_tokens": 12115,
+  "supervised_tokens": 1146,
+  "non_target_context_and_padding_masked": true,
+  "complete_batch_one_assistant_target": true,
+  "no_truncation": true,
+  "weights_loaded": false,
+  "training_started": false
+}

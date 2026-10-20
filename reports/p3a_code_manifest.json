@@ -1,0 +1,32 @@
+{
+  "baseline_commit": "40836c4c02a3b3785083fe2d5c89eb6c0c2da120",
+  "p0_p2_sampling_files_unchanged": true,
+  "files": {
+    "configs/p0_p2.json": "8cc7213fe4a1ef177b61548544dc4d766b2f5e4e845145c76bee764424801385",
+    "configs/p3a_teacher.json": "ec0cedf3287547e1510d733a7635e4cf50e1c9bbb91a192b72e9f36e80b67d76",
+    "scripts/check_qwen_protocol.py": "f4c5c856c8a0fcc511391990cd1e1cd17c7b87071b33864be73b3e9333efe3e1",
+    "scripts/complete_appworld_install.py": "63cf1cb2cf5caf0f8eef6902686263a498cba06bf0cc4d201e27d0b019ad48f3",
+    "scripts/download_base_tokenizer.py": "6baa2703d7e1e6a9cf68cd4ef03f2a0a4fbf4b776b932369d11442d5daa9a484",
+    "scripts/download_student.py": "56c8be4461cedf6ca2c6937f842c8e7e81005992ffe8ed08f92dcdbc2ae4b5f8",
+    "scripts/preflight.py": "2716333c6184fe6463de362e57c33e8dc59d64e397a19317b23d3a4813e82eef",
+    "scripts/remote_preflight.py": "1a653f21257c9e38882bb178523007a3e830819c41c0789f9e13a1ad072032e0",
+    "scripts/state_probe.py": "014e321ddb2e2de9a231a762aaeb5920f1ce0bcade6cd2eb24dfcb121ca9eb98",
+    "scripts/summarize_run.py": "b476630ef438edf607326a3c594c2230c9347a7220302cd286afa30121fe208b",
+    "src/recoveragent/__init__.py": "1a0b9ed5db89edd541cc72bf069aa12389eda56852632c94c6e220db8e9c7023",
+    "src/recoveragent/adapter.py": "5720c819260d2f066acc1003b733f38e8218952efe33cbf40f7ce17b5b3d60eb",
+    "src/recoveragent/base_sft.py": "294215a231758e7658cd4c92b2c056abcd09d7c14b65926165a6ae2f5b1f379f",
+    "src/recoveragent/buffer.py": "bc967e05d73e59eae632a8b2b248bc3eb91837f5ea37c9be84fc3bff872258d2",
+    "src/recoveragent/cli.py": "c377050fa7458822d8022878a94c09ad3c4f859d642003e1623fa3f4e9be83b0",
+    "src/recoveragent/demonstrations.py": "07392e318d9435367708bdfc8802be5b051fa64362d69b9af5ef888bf270048a",
+    "src/recoveragent/inference.py": "24b4904655d88b3e5f560ab9b5d0f548d825c774867a92aecda1b68ce89c31d5",
+    "src/recoveragent/io.py": "8d422428dee7f299e8bea03f050b699f5ed4f50bd0951d78d380c2fe8fa715cd",
+    "src/recoveragent/p3a.py": "be14972f50f3c7b2eb91cc74787faa0c3d25e4ef36a6402b66f66c80fc5b7560",
+    "src/recoveragent/policy.py": "910ee3ef48fd26cb42ac7c525ba0428d4131411902d2b396fd22a671c530acbe",
+    "src/recoveragent/runner.py": "0ac5145c3828ad3d04402ee412045ee39d9bc9b3dc27c62df4420c329a9d55af",
+    "src/recoveragent/state.py": "2a1d0b43fdc8f1d075db12032f029526f5b8f8d3ac4d38a21b893ac707bf53e8",
+    "src/recoveragent/teacher.py": "8c0590767d77f456505567f0596ecd4183ba14e2b49b2b07e5c651e7a4e69609",
+    "tests/test_contracts.py": "03e1a2faf3032c188f9abbba6e439dad2fed4d909b4b52dfffb4c6be5f7375b1",
+    "tests/test_runner.py": "a445825a405d8e66dafd9eaf7710b2a27bee747df0bfc6436d1f0c4eaf14d6c6",
+    "tests/test_teacher_data.py": "de37ddc3eda182fb1284e287ea14ae9e9b44bc5dadad83ae80597bcbb16c64e1"
+  }
+}

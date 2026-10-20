@@ -1,0 +1,174 @@
+{
+  "scope": "actual pilot configuration metadata; no credentials; not an executable authorization",
+  "runs": [
+    {
+      "run_id": "p3a_teacher_20261020_a",
+      "config_sha256": "bf245aafc9e4fa51d0af040b49ab5cc6cf6c24dffc4289e4cf41cc27110b8cc3",
+      "teacher": {
+        "provider": "deepseek",
+        "base_url": "https://api.deepseek.com",
+        "allowed_host": "api.deepseek.com",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "model": "deepseek-flash",
+        "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+        "revision_is_immutable": false,
+        "revision_source": "https://api-docs.deepseek.com/",
+        "thinking": false,
+        "temperature": 0.2,
+        "timeout_seconds": 120,
+        "max_new_tokens": 2048,
+        "max_request_bytes": 131072,
+        "billing_context_tokens": 1048576,
+        "pricing": {
+          "currency": "USD",
+          "input_per_million": 0.3,
+          "cached_input_per_million": 0.006,
+          "output_per_million": 1.2,
+          "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+          "checked_at": "2026-10-20",
+          "basis": "published peak-rate upper estimate; actual off-peak billing may be lower"
+        }
+      },
+      "student": {
+        "model": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "thinking": false
+      },
+      "limits": {
+        "max_tasks": 2,
+        "max_requests": 80,
+        "total_generated_tokens": 32768,
+        "max_model_turns": 40,
+        "max_tool_calls": 40,
+        "episode_generated_tokens": 16384,
+        "episode_wall_seconds": 900,
+        "total_wall_seconds": 1800,
+        "tool_timeout_seconds": 60,
+        "max_infrastructure_retries": 0,
+        "repeated_identical_call_limit": 3
+      },
+      "task_selection": {
+        "split": "train",
+        "order": "official",
+        "tasks": [
+          "82e2fac_1",
+          "82e2fac_2"
+        ]
+      },
+      "source_manifest": "reports/p3a_code_manifest.json"
+    },
+    {
+      "run_id": "p3a_teacher_20261020_b",
+      "config_sha256": "8dfe7d7c85eee4ece9ee8bb9783980b872ddc41aa2f6d4cfcbd5e8705fd0aecc",
+      "teacher": {
+        "provider": "deepseek",
+        "base_url": "https://api.deepseek.com",
+        "allowed_host": "api.deepseek.com",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "model": "deepseek-flash",
+        "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+        "revision_is_immutable": false,
+        "revision_source": "https://api-docs.deepseek.com/",
+        "thinking": false,
+        "temperature": 0.2,
+        "timeout_seconds": 120,
+        "max_new_tokens": 2048,
+        "max_request_bytes": 131072,
+        "billing_context_tokens": 1048576,
+        "pricing": {
+          "currency": "USD",
+          "input_per_million": 0.3,
+          "cached_input_per_million": 0.006,
+          "output_per_million": 1.2,
+          "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+          "checked_at": "2026-10-20",
+          "basis": "published peak-rate upper estimate; actual off-peak billing may be lower"
+        }
+      },
+      "student": {
+        "model": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "thinking": false
+      },
+      "limits": {
+        "max_tasks": 2,
+        "max_requests": 70,
+        "total_generated_tokens": 30226,
+        "max_model_turns": 70,
+        "max_tool_calls": 70,
+        "episode_generated_tokens": 16384,
+        "episode_wall_seconds": 900,
+        "total_wall_seconds": 1743,
+        "tool_timeout_seconds": 60,
+        "max_infrastructure_retries": 0,
+        "repeated_identical_call_limit": 3
+      },
+      "task_selection": {
+        "split": "train",
+        "order": "official",
+        "tasks": [
+          "82e2fac_1",
+          "82e2fac_2"
+        ]
+      },
+      "source_manifest": "reports/p3a_second_pilot_code_manifest.json"
+    },
+    {
+      "run_id": "p3a_teacher_20261020_c",
+      "config_sha256": "a6691165f4753ec06029b1b35c119f43fe3953ebf82a185990b347e675f4ac2d",
+      "teacher": {
+        "provider": "deepseek",
+        "base_url": "https://api.deepseek.com",
+        "allowed_host": "api.deepseek.com",
+        "api_key_env": "DEEPSEEK_API_KEY",
+        "model": "deepseek-flash",
+        "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+        "revision_is_immutable": false,
+        "revision_source": "https://api-docs.deepseek.com/",
+        "thinking": false,
+        "temperature": 0.2,
+        "timeout_seconds": 120,
+        "max_new_tokens": 2048,
+        "max_request_bytes": 131072,
+        "billing_context_tokens": 1048576,
+        "pricing": {
+          "currency": "USD",
+          "input_per_million": 0.3,
+          "cached_input_per_million": 0.006,
+          "output_per_million": 1.2,
+          "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+          "checked_at": "2026-10-20",
+          "basis": "published peak-rate upper estimate; actual off-peak billing may be lower"
+        },
+        "max_tool_calls_per_turn": 64
+      },
+      "student": {
+        "model": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "thinking": false
+      },
+      "limits": {
+        "max_tasks": 2,
+        "max_requests": 66,
+        "total_generated_tokens": 29908,
+        "max_model_turns": 66,
+        "max_tool_calls": 80,
+        "episode_generated_tokens": 16384,
+        "episode_wall_seconds": 900,
+        "total_wall_seconds": 1694,
+        "tool_timeout_seconds": 60,
+        "max_infrastructure_retries": 0,
+        "repeated_identical_call_limit": 3
+      },
+      "task_selection": {
+        "split": "train",
+        "order": "official",
+        "tasks": [
+          "82e2fac_1",
+          "82e2fac_2"
+        ]
+      },
+      "source_manifest": "reports/p3a_third_pilot_code_manifest.json"
+    }
+  ]
+}

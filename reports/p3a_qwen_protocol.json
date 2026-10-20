@@ -1,0 +1,26 @@
+{
+  "model": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "historical_run": "runs/p0_p2_20261019_a",
+  "historical_counts": {
+    "model_turns": 100,
+    "environment_execution_errors": 2,
+    "format_errors": 50,
+    "no_call_text_mentions_access_token": 50
+  },
+  "format_categories": {
+    "plain_text_no_tool_tags": 50
+  },
+  "tokenizer_check": "PASS",
+  "synthetic_examples": 2,
+  "synthetic_supervised_tokens": 60,
+  "prefix_token_alignment": true,
+  "future_schema_excluded": true,
+  "system_user_tool_padding_masked": true,
+  "structured_argument_roundtrip": true,
+  "teacher_demonstrations_generated": 0,
+  "model_weights_loaded": false,
+  "training_started": false,
+  "scope": "real tokenizer with synthetic messages; historical Student outputs are diagnosis only"
+}

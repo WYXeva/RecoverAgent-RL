@@ -61,3 +61,43 @@ AppWorld 与推理分别使用 `.venv`、`.venv-inference`；实际依赖另存 
 - 要求 train-only、未分词结构化完整多轮 Teacher 消息与可验证 success/filter/成本清单，manifest 绑定 AppWorld data/commit、Teacher revision、工具 schema、sha256；远程使用固定 Qwen3-4B tokenizer 重建 Assistant-only SFT mask。通过有权限的安全传输，不把受限 AppWorld 数据/凭据上传公开 GitHub。
 - 96GB 机器尚未核验。远程 AppWorld worker/数据版本/快照一致性、模型 revision、驱动/CUDA/Torch/TRl/PEFT/vLLM、显存峰值和单卡推理训练共存需正式预检。优先 BF16 LoRA 和低负载 GRPO 试跑；未经授权不得租 GPU 或调用付费 Teacher。
 - 本次是方案文档修改，没有新的教师数据、训练结果或 4B 实验。参考：Qwen3-4B 官方模型卡与 NVIDIA RTX PRO 6000 Blackwell 官方规格。
+
+## D009 · 2026-10-20 · 初始 Teacher 协议与授权前预检（后续授权及批量修订见 D012）
+
+新增独立 P3-A 入口，复用已验收的 AppWorld Adapter/状态模块，不改变 P0–P2 采样代码与历史配置。Teacher 使用原生 `tool_calls`，保留 ID、文本和参数；一回合多调用或截断整轮拒绝。普通文本是合法 Assistant 消息，但没有实际工具动作时结束并评价，不伪造调用。模型始终从原始 train 初态执行，官方评价在保存终态/关闭 world 后进行。
+
+本地 `.env` 有 DeepSeek 配置，但本轮用户明确禁止未授权付费服务；凭据存在不构成费用授权。默认配置关闭 paid 调用且费率未填，预检在任何请求前阻断。费用按供应商 usage 和核验费率计算，区分估算与账单；中断预留未知费用并停止，无自动付费重试。
+
+供应商文档当前将 `deepseek-flash` 对应到 DeepSeek-V4.1-Flash-1017，但 API alias 不等于不可变权重 revision。记录文档版本来源、实际响应 model/fingerprint，并拒绝本次采样内身份变化；真实更强能力仍需 train 试点证据。此预检阶段没有发出 Teacher 请求，后续真实试点见 D012/D013。[官方 API 契约](https://api-docs.deepseek.com/api/create-chat-completion/)、[官方版本说明](https://api-docs.deepseek.com/)。
+
+## D010 · 2026-10-20 · 未分词 Teacher 数据与可核验交接
+
+成功示范保留完整原始结构化消息及逐回合实际 schema。原始请求/响应和官方评价放在控制侧 evidence；Base-SFT 只读取明确的 messages/schema 字段。manifest 绑定 Teacher/AppWorld/正式 Student、文件 SHA-256、数据顺序、官方成功与筛选分母、成本。拒绝来源为 Student、非 train、非干净初态、格式错误或已确认违规；连续相同调用与相同观察三次是明确标注的无进展过滤启发式，额外安全未测。
+
+迁移核验重新检查训练划分、原始回执、来源、顺序和哈希。数据不依赖本机绝对路径；远程须从可信交接记录获取 manifest SHA-256，不能用同目录校验和代替真实性来源。初始预检只有零样本包和 pytest 合成 fixture 验证；获得费用授权后形成真实非空数据，见 D013。远程迁移仍未执行。
+
+## D011 · 2026-10-20 · 4B 逐回合 Assistant-only mask 与格式诊断
+
+正式 Qwen3-4B model/tokenizer revision 固定为 `1cfa9a7208912126459214e8b04321603b3df60c`，non-thinking，模板哈希 `a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8`。只下载 tokenizer/配置，不在本机加载 4B 权重。
+
+每个 Teacher Assistant 回合单独构建有完整上下文的训练样本，使用该回合实际可见 schema，仅对新 Assistant 后缀和结束格式计算 loss；此前 Assistant、system/user/tool、固定 non-thinking 提示与 padding 全部屏蔽。每回合字符串和 token 两层前缀保持检查必须通过，不静默截断，不用最终 schema 重渲染所有早期目标。这样既覆盖正常全轨迹全部 Assistant 行为，又防止未来工具泄漏和多轮模板改写导致错位。
+
+对旧 100 回合重算发现：50 次解析拒绝全部是无 tool tags 的普通文本，均提及 access token；不是已观察到的坏 JSON 或批量调用。真实 4B tokenizer 合成样例的参数往返、工具输出屏蔽与动态 schema 检查通过，但没有新模型生成来证明错误已消失。保留历史协议与结果，正式改进须由后续 Base-SFT 和真实执行验证。[Qwen 官方工具协议](https://qwen.readthedocs.io/en/latest/framework/function_call.html)、[固定 tokenizer 文件](https://huggingface.co/Qwen/Qwen3-4B/blob/1cfa9a7208912126459214e8b04321603b3df60c/tokenizer_config.json)。
+
+## D012 · P3-A 原生批量调用的完整边界（2026-10-20）
+
+- 用户在异步授权问题中回复“费用不限”，授权现有 DeepSeek Teacher 实际试点；不再将费用授权列为阻塞。本轮仍限制两个唯一 train 任务、累计 80 次模型请求、32,768 生成 token、1,800 秒采样时间，保留操作性 USD 5 上限，不启动训练。
+- 实际 A/B 两轮共 14 次请求、2,860 生成 token、4 次官方失败。A 的单调用拒绝与 B 的 `parallel_tool_calls=false` 都不能阻止服务返回多调用；失败批次未执行任何子调用。官方 Chat Completions 文档允许多个 tool_calls，不承诺该额外参数能强制单调用。原始证据位于 `runs/p3a_teacher_20261020_{a,b}/teacher_*/requests/`。
+- P3-A 接受有上限的原生 batch（最多 64 调用/回合），整批先检查当时可见 schema、参数、唯一 ID、剩余工具预算及完成调用的位置，然后顺序执行。所有真实结果返回后才建立历史边界、请求下一轮或保存终态。不会截取第一条调用，也不会将一条 Teacher Assistant 改写为多条。
+- P3-A 的 `teacher_history.py` 单独实现完整 batch 历史校验与评价前终态证据（格式 `p3a-terminal-batch-v1`）。它不冒充 P0/P2 可重放快照；P0/P2 adapter/state/runner/io、原配置及旧结果保持原样。若未来需要多调用恢复，另做实际重放验收。
+- 重试仍从两个原始 train 初态独立开始，不注入任务解法、隐藏标签或前轮验证结果。默认配置继续关闭付费授权；本次授权与费率保存在忽略的本地配置。USD 价格计算是公开高峰费率估计，实际人民币扣费另查账户差额；两者不可混称。
+
+## D013 · 2026-10-20 · 小样本成功、完整分母与真实 mask 验收
+
+C 轮启用完整批量协议后，两个任务中一个因 2048 token 单响应截断失败，一个从原始初态经 29 次真实工具调用完成并获官方成功。保留 A/B/C 共六次尝试，不将最终 1/2 的协议试点结果冒充全部采集成功率（总计 1/6），也不作为模型公平比较或恢复效果证据。Teacher 成功示范是 `teacher_ad808a15ce5a`，不是 Student 或合成 fixture。
+
+合并包 `data/p3a_clean_20261020_all/` 保存全部尝试/回执/成本与一条成功示范，SHA-256、官方 train 成员、来源和顺序可重算。账户余额差额人民币 0.04 元与 token 高峰费率估算 USD 0.027231792 分别记录，不将估算当账单，不公开账户绝对余额。来源和命令见 `reports/p3a_pilot_audit.json`、`reports/p3a_report.md`。
+
+真实 4B tokenizer 上得到 8 个 Assistant 训练格式样本、1146 个监督 token；批量调用保持一条 Assistant，所有 29 次函数参数往返、完整前缀及非目标上下文/padding mask 均通过。这个结果只验收格式，不代表 SFT 参数更新、4B 自主任务成功或效果提升。一条示范/一个场景不能支持正式训练规模和开发集划分。
+
+同机独立目录的真实数据迁移演练通过。远程主机未连接，没有宣称 96GB 环境、跨主机快照或远程训练通过。下一阶段须保留数据 SHA-256 和按场景分组规则；当前正式训练仍禁止启动。采样结束后的中断计费修复只做软件测试：从已落盘回执恢复已知用量，仅对缺失响应保留未知费用，不新增模型调用。

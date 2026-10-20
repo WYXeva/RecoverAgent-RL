@@ -1,0 +1,55 @@
+{
+  "project_version": "0.4",
+  "appworld_root": "data/appworld",
+  "student": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false
+  },
+  "teacher": {
+    "provider": "deepseek",
+    "base_url": "https://api.deepseek.com",
+    "allowed_host": "api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-flash",
+    "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+    "revision_is_immutable": false,
+    "revision_source": "https://api-docs.deepseek.com/",
+    "thinking": false,
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 2048,
+    "max_tool_calls_per_turn": 64,
+    "max_request_bytes": 131072,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "CNY",
+      "input_per_million": null,
+      "cached_input_per_million": null,
+      "output_per_million": null,
+      "source": null,
+      "checked_at": null
+    }
+  },
+  "authorization": {
+    "approved": false,
+    "reference": null,
+    "currency": "CNY",
+    "max_cost": null
+  },
+  "limits": {
+    "max_tasks": 2,
+    "max_requests": 80,
+    "total_generated_tokens": 32768,
+    "max_model_turns": 40,
+    "max_tool_calls": 40,
+    "episode_generated_tokens": 16384,
+    "episode_wall_seconds": 900,
+    "total_wall_seconds": 1800,
+    "tool_timeout_seconds": 60,
+    "max_infrastructure_retries": 0,
+    "repeated_identical_call_limit": 3
+  },
+  "environment_seed": 42,
+  "training_enabled": false
+}

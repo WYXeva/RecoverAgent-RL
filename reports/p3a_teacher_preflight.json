@@ -1,0 +1,15 @@
+{
+  "status": "BLOCKED",
+  "reasons": [
+    "COST_LIMIT_REQUIRED",
+    "PAID_TEACHER_NOT_AUTHORIZED",
+    "PRICE_SOURCE_REQUIRED",
+    "VERIFIED_PRICE_REQUIRED"
+  ],
+  "credential_present": true,
+  "model": "deepseek-flash",
+  "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+  "revision_is_immutable": false,
+  "capability": "UNVERIFIED_UNTIL_OFFICIAL_TASK_SUCCESS",
+  "provider_requests": 0
+}

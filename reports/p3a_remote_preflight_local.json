@@ -1,0 +1,35 @@
+{
+  "scope": "local-preparation",
+  "status": "BLOCKED",
+  "python": "3.14.4",
+  "packages": {
+    "torch": "2.10.0+cu128",
+    "transformers": "4.57.6",
+    "trl": "NOT_INSTALLED",
+    "peft": "NOT_INSTALLED",
+    "vllm": "NOT_INSTALLED",
+    "appworld": "NOT_INSTALLED"
+  },
+  "gpu": "NVIDIA GeForce RTX 5050, 8151, 610.62",
+  "cuda": {
+    "available": true,
+    "runtime": "12.8"
+  },
+  "disk_free_bytes": 977117573120,
+  "issues": [
+    "TARGET_96GB_GPU_NOT_VERIFIED",
+    "TRL_MISSING",
+    "PEFT_MISSING",
+    "THIS_IS_NOT_THE_REMOTE_HOST"
+  ],
+  "remaining_checks": [
+    "authorized SSH and remote paths",
+    "same-version AppWorld worker execution",
+    "dataset SHA-256 and train membership",
+    "cross-host snapshot/history import",
+    "pinned 4B tokenizer mask",
+    "single-GPU BF16 LoRA update/save/reload (future authorization)"
+  ],
+  "training_started": false,
+  "remote_training_pass": false
+}

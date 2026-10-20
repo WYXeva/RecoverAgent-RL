@@ -1,0 +1,29 @@
+{
+  "scope": "final local software checks; real acceptance separately recorded",
+  "results": [
+    {
+      "check": "pytest",
+      "chunk_id": "e9bc1e",
+      "wall_time_seconds": 0.361909116,
+      "exit_code": 0,
+      "original_token_count": 25,
+      "output": "....................................................                     [100%]\n52 passed in 0.14s\n"
+    },
+    {
+      "check": "ruff_format_compileall",
+      "chunk_id": "214f94",
+      "wall_time_seconds": 0.0000149,
+      "exit_code": 0,
+      "original_token_count": 12,
+      "output": "All checks passed!\n26 files already formatted\n"
+    },
+    {
+      "check": "both_venv_pip_check",
+      "chunk_id": "56be32",
+      "wall_time_seconds": 0.44174062,
+      "exit_code": 0,
+      "original_token_count": 146,
+      "output": "WARNING: The directory '/home/eva/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nNo broken requirements found.\nWARNING: The directory '/home/eva/.cache/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.\nNo broken requirements found.\n"
+    }
+  ]
+}

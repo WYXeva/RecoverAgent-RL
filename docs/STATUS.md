@@ -1,13 +1,29 @@
 # 项目状态
 
-- 最后更新：2026-10-20（v0.3 文档修订；P0–P2 实验仍为 2026-10-19）
-- 当前研究阶段：P0–P2 基础设施通过；v0.4 的 P3–P6 尚未开始；远程 RTX PRO 6000 96GB 未核验或部署。
-- 本轮任务：按用户要求将正式主模型固定为 Qwen/Qwen3-4B，确定本机 Teacher 数据采集与远程 96GB GPU 训练的分工；仅修改文档。
-- 本轮状态：`DOCS_UPDATED`。此前 P0–P2 基础设施 PASS 保留：1 条自然失败、4 条奖励 `[0, 0, 0, 0]` 的恢复，26 项软件测试为旧实验结果；本次无新运行。Teacher 正常 Base-SFT、Teacher Recovery-SFT、GRPO、自迭代均 `NOT_STARTED`。
-- 远端仓库：<https://github.com/WYXeva/RecoverAgent-RL>，默认分支 `main`。
-- 实际可见性：公开。继续执行时发现该仓库已经存在且设为公开，本轮保留其可见性与初始提交；此前拟建私有仓库的方案未执行。
+- 最后更新：2026-10-20 13:20（Asia/Shanghai）
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.4；正式 Student `Qwen/Qwen3-4B`。
+- 本轮状态：**P3-A 本机小样本闭环 PASS**：真实 Teacher 正常任务执行、官方筛选、非空数据导出和 4B Assistant-only mask 均有证据。1 条示范只验证流程，不足以代表正式训练数据规模或效果。P3-B 及以后 `NOT_STARTED`。
+- P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，基线 `40836c4c02a3b3785083fe2d5c89eb6c0c2da120`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
 
-## v0.4 模型与硬件路线（2026-10-20，仅文档）
+## 本轮 P3-A 开发与真实验证（2026-10-20）
+
+- 用户在异步费用授权问题回复“费用不限”后才启动 DeepSeek 请求。本轮保留 2 个唯一 train 任务、累计 80 次请求/32768 生成 token/1800 秒的小试上限，未购买算力或启动训练。默认配置仍关闭付费调用。
+- Teacher 为 `deepseek-flash`，供应商文档版本 DeepSeek-V4.1-Flash-1017；实际响应 fingerprint `e72d3c7f663d3e1383b00b3884cb4501` 全程一致。该 API alias 不是不可变权重 revision，也没有与 4B Student 做正式能力比较。
+- 原生 Teacher adapter、正常任务 Runner 和批量历史模块已实现。所有业务步骤由 Teacher 决定，只看到公开任务/工具/已发生历史；终态先保存，再关闭 world 并调用官方 `evaluate_task`，隐藏评价不进入消息。
+- 三轮均从官方前两个 train 任务 `82e2fac_1` / `82e2fac_2` 的原始初态执行。A：2 次失败（单调用协议拒绝批量）；B：2 次失败（禁用并行参数仍返回批量）；C：1 次截断失败、1 次官方成功。共 **6 次尝试、6 次有效评价、0 基础设施异常、1 次成功**，全尝试成功率 **1/6**；最终协议 C 为 **1/2**。协议不同，不能当作固定策略基准成绩。
+- 成功轨迹 `runs/p3a_teacher_20261020_c/teacher_ad808a15ce5a/`：8 个 Teacher 回合、29 次真实工具调用、官方严格奖励 1。其余失败、回执、终态和筛选原因全部保留，不进入成功示范。
+- P3-A 允许最多 64 个原生调用组成一批，整批先校验、逐个执行、收齐全部结果再保存边界；截断或无效批次整体拒绝。新终态格式只用于 P3-A 评价证据，不冒充 P0/P2 恢复快照。设计见 D012。
+- `data/p3a_clean_20261020_all/`：合并所有 A/B/C 尝试成本，筛得 1 条完整正常 Teacher 示范。Dataset ID `868da089c98626a256308edfa3111d6b914d95ebd3d375d74536a1268181e9bd`；manifest SHA-256 `464ea9bef9e794082b266ae6ed53bc5be358eba3e0c74a026325526a70214b30`。官方 train 成员核验、哈希/来源/顺序重算、同机换目录交接检查通过。原始数据不上传公开 GitHub。
+- 正式 4B tokenizer revision `1cfa9a7208912126459214e8b04321603b3df60c`。真实示范转换为 **8 样本、1146 监督 token**，最大样本 12115 token；29 次工具参数往返、前缀保持、非目标上下文及 padding mask 通过。仅 tokenizer/CPU 准备，没有模型权重、optimizer 或 SFT 更新。
+- 旧 Qwen 格式问题重算：100 回合中 50 次格式拒绝均为无 tool tags 的普通文本，全部提及 access token；另有 2 次工具执行错误。没有证据说明 JSON parser 丢失了合法调用，也没有证据说明 4B 的错误已被训练解决。
+- 软件测试 **52 passed**（含合成 transport/world，仅验证软件）；Ruff、格式、compileall 和两个 venv 的 pip check 通过。真实 API/AppWorld 验收与软件测试分开报告。
+- 资源：28 次模型请求、140388 输入 token（含 79232 缓存命中）、7008 输出 token、47 次工具调用；三轮累计采样墙钟 170.22 秒。按公开高峰 USD 费率估算 0.027231792 美元；官方账户前后余额减少 **人民币 0.04 元**，仅为账户级观察差额，未排除其他并发使用，逐请求账单未取得。
+- 初始授权前预检和空包 (`p3a_preflight_20261020_a`、`p3a_empty_handoff_20261020_a`) 仅保留为历史记录；不是当前阻塞或成功数据。首次 tokenizer 检查缺 jsonschema，固定安装 4.25.1 后通过。
+- 完整命令/限制/证据索引：`reports/p3a_report.md`。交接说明：`docs/P3A_HANDOFF.md`。主要新增代码：`teacher.py`、`teacher_history.py`、`p3a.py`、`demonstrations.py`、`base_sft.py`。
+- 远程 RTX PRO 6000 96GB、SSH 传输、远程 AppWorld worker 均未实际验证。下一项工作是扩大 train 场景覆盖、按场景分组准备数据及完成远程预检/迁移；本轮到此停止，不进入正式 Base-SFT、Recovery-SFT 或 GRPO。
+
+## 此前 v0.4 模型与硬件路线记录（2026-10-20，仅文档）
 
 - **唯一正式 Student**：`Qwen/Qwen3-4B`。此前本机 RTX 5050 8GB 上的 `Qwen3-1.7B` 是 P0–P2 基础设施历史，不作为正式 4B SFT/GRPO 的模型或算法结论。
 - **本机 P3-A**：执行 AppWorld Teacher 正常任务、真实官方验证/过滤、导出含 SHA-256 manifest 的未分词多轮轨迹；Teacher 是否可用与费用仍需检查。

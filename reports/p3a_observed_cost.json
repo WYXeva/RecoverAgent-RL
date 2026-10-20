@@ -1,0 +1,13 @@
+{
+  "method": "official /user/balance before/after; account-wide delta, not per-request invoice",
+  "observations": [
+    {
+      "currency": "CNY",
+      "observed_account_debit": "0.04"
+    }
+  ],
+  "absolute_balances_published": false,
+  "concurrent_account_usage_excluded": false,
+  "model_requests_in_scope": 28,
+  "balance_checks": 2
+}

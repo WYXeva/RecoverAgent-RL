@@ -1,0 +1,33 @@
+{
+  "dataset_id": "df3081b3891307665f28ec229e93e85c39b4d1f4c358785e8c3ac01084b55215",
+  "dataset_status": "EMPTY_NO_TRAINING_DATA",
+  "counts": {
+    "attempted": 0,
+    "valid": 0,
+    "infrastructure_errors": 0,
+    "official_successes": 0,
+    "accepted": 0,
+    "unique_tasks": 0,
+    "success_per_attempt": null,
+    "success_per_valid": null
+  },
+  "costs": {
+    "provider_requests": 0,
+    "prompt_tokens": 0,
+    "generated_tokens": 0,
+    "cached_prompt_tokens": 0,
+    "tool_calls": 0,
+    "usage_priced_cost": 0,
+    "unknown_cost_reservation": 0,
+    "unknown_generation_reservation": 0,
+    "billed_cost": 0,
+    "currency": "CNY",
+    "unknown_usage_attempts": 0
+  },
+  "sample_order_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "manifest_sha256": "ae594282f2b4a8b6d40232fa84e846c79fc0cdedbb5fa88a235f906878de043a",
+  "verification": "PASS for empty package integrity only",
+  "teacher_data_acceptance": "BLOCKED: no attempts or demonstrations",
+  "source": "data/p3a_empty_handoff_20261020_a",
+  "remote_transfer_performed": false
+}

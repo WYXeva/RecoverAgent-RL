@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "scope": "same-host copy to different directory; remote transfer NOT_RUN",
+  "source": "data/p3a_clean_20261020_all",
+  "destination": "data/p3a_transfer_rehearsal_20261020",
+  "manifest_sha256": "464ea9bef9e794082b266ae6ed53bc5be358eba3e0c74a026325526a70214b30",
+  "dataset_id": "868da089c98626a256308edfa3111d6b914d95ebd3d375d74536a1268181e9bd",
+  "counts": {
+    "attempted": 6,
+    "valid": 6,
+    "infrastructure_errors": 0,
+    "official_successes": 1,
+    "accepted": 1,
+    "unique_tasks": 1,
+    "success_per_attempt": 0.16666666666666666,
+    "success_per_valid": 0.16666666666666666
+  },
+  "total_bytes": 1373144,
+  "expected_digest_from_public_export_receipt": "464ea9bef9e794082b266ae6ed53bc5be358eba3e0c74a026325526a70214b30",
+  "remote_contacted": false
+}
