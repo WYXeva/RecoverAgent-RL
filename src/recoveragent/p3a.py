@@ -15,6 +15,12 @@ from .adapter import AppWorldAdapter, call_code
 from .io import digest, read_json, write_json
 from .runner import SYSTEM, now
 from .teacher_history import capture_terminal, validate_history
+from .tool_modes import (
+    MODES,
+    DISCOVERY_INSTRUCTION,
+    initialize_tools,
+    execute_with_mode,
+)
 from .teacher import (
     TeacherPolicy,
     normalize_message,
@@ -26,8 +32,13 @@ from .teacher import (
 
 
 def validate_config(config):
-    if config["project_version"] != "0.4" or config["training_enabled"] is not False:
-        raise ValueError("Only v0.4 P3-A collection is allowed")
+    if (
+        config["project_version"] not in {"0.4", "0.5"}
+        or config["training_enabled"] is not False
+    ):
+        raise ValueError("Only v0.4/v0.5 P3-A collection is allowed")
+    if config.get("tool_mode", "dynamic_discovery") not in MODES:
+        raise ValueError("Unknown tool mode")
     if config["student"]["model"] != "Qwen/Qwen3-4B":
         raise ValueError("Formal Student must be Qwen3-4B")
     limits = config["limits"]
@@ -137,6 +148,7 @@ def run_teacher_episode(config, task_id, output, credentials):
         "task_id": task_id,
         "split": "train",
         "mode": "teacher_normal",
+        "tool_mode": config.get("tool_mode", "dynamic_discovery"),
         "actor_role": "teacher",
         "start_kind": "original_initial",
         "teacher": copy.deepcopy(teacher),
@@ -164,11 +176,18 @@ def run_teacher_episode(config, task_id, output, credentials):
         trajectory["scenario_id"] = adapter.world.task.generator_id
         trajectory["appworld"] = adapter.versions
         trajectory["initial_state_hash"] = adapter.fingerprint()
+        system = SYSTEM
+        if trajectory["tool_mode"] == "api_predictor":
+            system = system.replace(
+                DISCOVERY_INSTRUCTION,
+                "The available APIs were selected before execution. "
+                "Their schemas are fixed for this task.",
+            )
         messages.extend(
             [
                 {
                     "role": "system",
-                    "content": SYSTEM.replace(
+                    "content": system.replace(
                         "Call exactly one function per turn.",
                         "You may request a bounded batch of independent calls. "
                         "Calls execute serially in the order requested. Every call "
@@ -183,15 +202,17 @@ def run_teacher_episode(config, task_id, output, credentials):
                 },
             ]
         )
-        tools = adapter.initial_tools()
+        tools, prediction_valid = initialize_tools(
+            adapter, policy, config, output, usage, trajectory
+        )
         trajectory["initial_tools"] = copy.deepcopy(tools)
-        termination = "budget_exhausted"
+        termination = "budget_exhausted" if prediction_valid else "invalid_prediction"
         backend = (
-            tuple(config["expected_backend"])
-            if config.get("expected_backend")
+            tuple(trajectory.get("observed_backend") or config.get("expected_backend"))
+            if trajectory.get("observed_backend") or config.get("expected_backend")
             else None
         )
-        for index in range(limits["max_model_turns"]):
+        for index in range(limits["max_model_turns"] if prediction_valid else 0):
             left = (
                 min(
                     limits["episode_generated_tokens"],
@@ -316,7 +337,9 @@ def run_teacher_episode(config, task_id, output, credentials):
                 name = call["function"]["name"]
                 arguments = call["function"]["arguments"]
                 usage["tool_calls"] += 1
-                result, tools = adapter.execute(name, arguments, tools)
+                result, tools = execute_with_mode(
+                    adapter, name, arguments, tools, trajectory["tool_mode"]
+                )
                 observation = {
                     "role": "tool",
                     "tool_call_id": call["id"],
@@ -416,18 +439,36 @@ def collect(config, output, credentials_file=None):
 
     update_root(str(Path(config["appworld_root"]).resolve()))
     tasks = load_task_ids("train")[: config["limits"]["max_tasks"]]
+    comparison = config.get("compare_tool_modes", False)
+    schedule = [
+        (task, mode)
+        for index, task in enumerate(tasks)
+        for mode in (
+            (MODES if index % 2 == 0 else tuple(reversed(MODES)))
+            if comparison
+            else (config.get("tool_mode", "dynamic_discovery"),)
+        )
+    ]
     write_json(
         output / "task_selection.json",
-        {"split": "train", "order": "official", "tasks": tasks},
+        {
+            "split": "train",
+            "order": "official",
+            "tasks": tasks,
+            "schedule": schedule,
+            "mode_order": "counterbalanced" if comparison else "single",
+            "selection_before_results": True,
+        },
     )
     attempts = []
     started = now()
     limits = config["limits"]
-    for task_id in tasks:
+    for task_id, tool_mode in schedule:
         remaining_wall = limits["total_wall_seconds"] - (now() - started)
         if remaining_wall <= 0:
             break
         worker_config = copy.deepcopy(config)
+        worker_config["tool_mode"] = tool_mode
         worker_config.update(
             remaining_generated_tokens=limits["total_generated_tokens"]
             - sum(x["usage"]["generated_tokens"] for x in attempts),
@@ -436,6 +477,28 @@ def collect(config, output, credentials_file=None):
             remaining_cost=config["authorization"]["max_cost"]
             - sum(x["usage"]["usage_priced_cost"] for x in attempts),
         )
+        if comparison:
+            # Reserve equal end-to-end allowances for every arm, including selector.
+            worker_config["remaining_generated_tokens"] = min(
+                worker_config["remaining_generated_tokens"],
+                limits["total_generated_tokens"] // len(schedule),
+            )
+            worker_config["remaining_requests"] = min(
+                worker_config["remaining_requests"],
+                limits["max_requests"] // len(schedule),
+            )
+            worker_config["remaining_cost"] = min(
+                worker_config["remaining_cost"],
+                config["authorization"]["max_cost"] / len(schedule),
+            )
+            worker_config["limits"]["episode_generated_tokens"] = min(
+                limits["episode_generated_tokens"],
+                worker_config["remaining_generated_tokens"],
+            )
+            worker_config["limits"]["episode_wall_seconds"] = min(
+                limits["episode_wall_seconds"],
+                limits["total_wall_seconds"] // len(schedule),
+            )
         if attempts and attempts[0].get("observed_backend"):
             worker_config["expected_backend"] = attempts[0]["observed_backend"]
         if (
@@ -473,7 +536,10 @@ def collect(config, output, credentials_file=None):
                     command,
                     stdout=log,
                     stderr=subprocess.STDOUT,
-                    timeout=min(limits["episode_wall_seconds"] + 30, remaining_wall),
+                    timeout=min(
+                        worker_config["limits"]["episode_wall_seconds"] + 30,
+                        remaining_wall,
+                    ),
                 )
             if result.returncode:
                 raise RuntimeError("Worker failed")
@@ -492,6 +558,7 @@ def collect(config, output, credentials_file=None):
                 "reward": None,
                 "termination_reason": "worker_interrupted",
                 "actor_role": "teacher",
+                "tool_mode": tool_mode,
                 "usage": interrupted_usage(output / name, config["teacher"]),
             }
             if (output / name / "trajectory.json").exists():
@@ -522,18 +589,26 @@ def collect(config, output, credentials_file=None):
         else "NOT_ESTABLISHED",
     }
     write_json(output / "summary.json", summary)
+    if comparison:
+        from .compare_tools import summarize_comparison
+
+        write_json(output / "comparison.json", summarize_comparison(output))
     return summary
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["preflight", "collect", "worker"])
+    parser.add_argument(
+        "command", choices=["preflight", "collect", "compare", "worker"]
+    )
     parser.add_argument("--config", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--credentials-file")
     parser.add_argument("--task")
     args = parser.parse_args()
     config = read_json(args.config)
+    if args.command == "compare":
+        config["compare_tool_modes"] = True
     validate_config(config)
     if args.command == "preflight":
         result = preflight(config, read_credentials(args.credentials_file))

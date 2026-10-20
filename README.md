@@ -2,13 +2,15 @@
 
 Self-Improving Tool Agents through Failure Recovery
 
-在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.4 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
+在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.5 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
 
 **P3-A 本机小样本闭环 PASS**：Teacher 在真实 AppWorld train 任务中取得 1 条官方成功示范，完成 SHA-256 数据交接与 Qwen3-4B Assistant-only 格式检查。含协议调试共 6 次尝试、1 次成功；59 项软件测试通过。真实数据得到 8 个 Assistant 样本、1146 个监督 token。**未启动 SFT/GRPO，远程尚未连接，没有效果提升结论。** 见 [P3-A 报告](reports/p3a_report.md)、[执行与交接说明](docs/P3A_HANDOFF.md)、[STATUS](docs/STATUS.md) 和 [DECISIONS](docs/DECISIONS.md)。
 
 2026-10-19 真实验收：**P0 / P1 / P2 基础设施 PASS**，取得 1 条 train 自然失败和 4 条独立恢复，官方恢复奖励为 `[0, 0, 0, 0]`；26 项软件测试通过。实际命令、成本、隔离证据与限制见 [阶段报告](reports/p0_p2_report.md)。
 
-v0.4 路线为 AppWorld → Teacher 正常成功轨迹 → Qwen3-4B Base-SFT → Student 新自然失败 → Teacher 多检查点真实恢复 → Recovery-SFT → Student 自主恢复 GRPO → 多轮 Teacher 辅助增量学习。两次 SFT 均不可跳过；Multi-Checkpoint Recovery 和自适应检查点评分仍待验证，ReTerm-style 恢复训练为参考基线。
+v0.5 延续路线：AppWorld → Teacher 正常成功轨迹 → Qwen3-4B Base-SFT → Student 新自然失败 → Teacher 多检查点真实恢复 → Recovery-SFT → Student 自主恢复 GRPO → 多轮 Teacher 辅助增量学习。两次 SFT 均不可跳过；Multi-Checkpoint Recovery 和自适应检查点评分仍待验证，ReTerm-style 恢复训练为参考基线。
+
+工具模式新增 [官方 API Predictor 与动态发现的配对比较](docs/TOOL_MODES.md)，当前单回复输出上限 4096 token。[真实小试报告](reports/tool_modes_report.md)区分 Teacher 结果、完整成本和 Student 尚未验证项，不启动训练。
 
 现在可以离线查看每轮 LLM 实际收到的 messages/tools、原始响应、截断和工具反馈，详见 [LLM 请求视图](docs/LLM_VIEW.md)。无需模型调用或 GPU。
 

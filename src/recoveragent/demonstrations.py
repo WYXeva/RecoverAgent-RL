@@ -21,6 +21,7 @@ from .io import (
 )
 from .teacher import normalize_message, response_usage, usage_cost
 from .teacher_history import validate_history
+from .tool_modes import validate_predictor_receipts
 
 FORMAT = "clean-teacher-normal-v1"
 FILTER = "official-success-format-loop-v1"
@@ -81,6 +82,10 @@ def validate_receipts(trajectory, directory):
     messages = trajectory["messages"]
     totals = {"prompt_tokens": 0, "generated_tokens": 0, "cached_prompt_tokens": 0}
     cost, calls = 0.0, 0
+    predictor = validate_predictor_receipts(trajectory, directory)
+    if predictor:
+        totals.update(predictor["usage"])
+        cost += predictor["usage_priced_cost"]
     for turn in trajectory["turns"]:
         request_id = turn["request_id"]
         if not request_id.isdecimal():
@@ -132,7 +137,8 @@ def validate_receipts(trajectory, directory):
             raise ValueError("Total usage mismatch")
     if (
         calls != trajectory["usage"]["tool_calls"]
-        or len(trajectory["turns"]) != trajectory["usage"]["provider_requests"]
+        or len(trajectory["turns"]) + int(predictor is not None)
+        != trajectory["usage"]["provider_requests"]
         or abs(cost - trajectory["usage"]["usage_priced_cost"]) > 1e-9
     ):
         raise ValueError("Call/cost accounting mismatch")
@@ -230,6 +236,8 @@ def as_demo(trajectory):
     )
     record = {k: copy.deepcopy(trajectory[k]) for k in keys}
     record["kind"] = FORMAT
+    if "tool_mode" in trajectory:
+        record["tool_mode"] = trajectory["tool_mode"]
     record["turns"] = [
         {k: copy.deepcopy(t[k]) for k in ("assistant_index", "history_hash", "tools")}
         for t in trajectory["turns"]

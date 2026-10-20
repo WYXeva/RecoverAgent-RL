@@ -1,5 +1,6 @@
 {
-  "project_version": "0.4",
+  "project_version": "0.5",
+  "tool_mode": "dynamic_discovery",
   "appworld_root": "data/appworld",
   "student": {
     "model": "Qwen/Qwen3-4B",
@@ -18,7 +19,7 @@
     "thinking": false,
     "temperature": 0.2,
     "timeout_seconds": 120,
-    "max_new_tokens": 2048,
+    "max_new_tokens": 4096,
     "max_tool_calls_per_turn": 64,
     "max_request_bytes": 131072,
     "billing_context_tokens": 1048576,

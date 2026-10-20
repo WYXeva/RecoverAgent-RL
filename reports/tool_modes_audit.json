@@ -1,0 +1,121 @@
+{
+  "status": "PASS",
+  "run": "runs/tool_modes_20261020_a",
+  "audit_is_offline": true,
+  "new_model_requests": 0,
+  "training_started": false,
+  "receipt_count": 21,
+  "same_per_attempt_budgets": true,
+  "public_only_predictor_rebuilt": true,
+  "upstream_source_hash_checked": true,
+  "p0_p2_unchanged_files": 17,
+  "dataset_id": "ea3c3add27540544aff962d6d90203e571cc53908e7751cc70a05c75fcfc8e3f",
+  "manifest_sha256": "fc1367decb73b4e70d1bbe9cb052ba3c291f721942f33edaa914cdc03dbe4932",
+  "dataset_counts": {
+    "attempted": 4,
+    "valid": 4,
+    "infrastructure_errors": 0,
+    "official_successes": 1,
+    "accepted": 1,
+    "unique_tasks": 1,
+    "success_per_attempt": 0.25,
+    "success_per_valid": 0.25
+  },
+  "receipts": [
+    {
+      "trajectory_id": "teacher_522c2e363712",
+      "trajectory_sha256": "70b202bb074e51f5e992b4bb32658bada8f86dd3662113645ad7786677a73ca4",
+      "evaluation_sha256": "63942e511aa5e9b16bda2a33ffff3f576a1c6f72f4d5144f679fddd93948fed7",
+      "config_sha256": "b299ab85bb02383b270d9fa7c062d149b9858d9ef02a0378f477437c19748be5",
+      "terminal_checkpoint_id": "de5b68145fd385e5f873eebfe57a60c4af8588bab243f90712307afa0e75beca",
+      "tool_mode": "dynamic_discovery",
+      "predictor_rebuilt_from_public_task": false,
+      "requested_max_tokens": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls"
+      ]
+    },
+    {
+      "trajectory_id": "teacher_5601c6f4d156",
+      "trajectory_sha256": "66335e06b16042bafec2ac7208e78bd6cdb2ee30273b2badf7c6637e0d7b1b51",
+      "evaluation_sha256": "95c06e44b51839a708a1147510d384eb06ffa5b3eed42cc67953280318a03018",
+      "config_sha256": "c792ac4d9e0480b2430e3488ca0586caea22d6dbb9c728fcb163ee6c43de90e1",
+      "terminal_checkpoint_id": "318f1860893d897e57d76394839552bf10275092c5b1e42edd67a70918bad9f4",
+      "tool_mode": "dynamic_discovery",
+      "predictor_rebuilt_from_public_task": false,
+      "requested_max_tokens": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls"
+      ]
+    },
+    {
+      "trajectory_id": "teacher_608963737f80",
+      "trajectory_sha256": "fb62232742be81189e2076ae1bb059f1994d69992078f9c7785d3fd2570f1e4b",
+      "evaluation_sha256": "5f058fcc232a9eabbee2adde5314ca474da75a19efc28a46db6de0dde6d27c60",
+      "config_sha256": "e44e90bcdfdc5d4e3f1c44cdebd8bfd6217fdb440e62a5570ccb2062a52c005f",
+      "terminal_checkpoint_id": "f13eb1b1aa3ce021af6a6686386f84f630c5bfa864ee8cde9a4760d26fae1f1e",
+      "tool_mode": "api_predictor",
+      "predictor_rebuilt_from_public_task": true,
+      "requested_max_tokens": [
+        4096,
+        4096
+      ],
+      "finish_reasons": [
+        "stop",
+        "tool_calls"
+      ]
+    },
+    {
+      "trajectory_id": "teacher_bc344b80fb2d",
+      "trajectory_sha256": "c2e6a54ae3bd2f333f5ae83108232daa73992bda3a59da0c9e31b337e66e5205",
+      "evaluation_sha256": "cf1fb72dda1111ee05110e8d116b868321834e687d117e40b4b013a843562579",
+      "config_sha256": "e44e90bcdfdc5d4e3f1c44cdebd8bfd6217fdb440e62a5570ccb2062a52c005f",
+      "terminal_checkpoint_id": "a2f8ed5b3ec81104172d1c5362128c6820253beb5aeb85e870a3bc70a8a87d1e",
+      "tool_mode": "api_predictor",
+      "predictor_rebuilt_from_public_task": true,
+      "requested_max_tokens": [
+        4096,
+        4096,
+        4096
+      ],
+      "finish_reasons": [
+        "stop",
+        "tool_calls",
+        "tool_calls"
+      ]
+    }
+  ],
+  "source_execution_manifest_sha256": "1262e6f9641376a6320605b2b4f7a989d970ea98d24bbfa37dfd5241ad95c063"
+}

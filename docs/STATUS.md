@@ -1,10 +1,20 @@
 # 项目状态
 
-- 最后更新：2026-10-20 13:49（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.4；正式 Student `Qwen/Qwen3-4B`。
+- 最后更新：2026-10-20 14:38（Asia/Shanghai）
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.5；正式 Student `Qwen/Qwen3-4B`。
 - 本轮状态：**P3-A 本机小样本闭环 PASS**：真实 Teacher 正常任务执行、官方筛选、非空数据导出和 4B Assistant-only mask 均有证据。1 条示范只验证流程，不足以代表正式训练数据规模或效果。P3-B 及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，基线 `40836c4c02a3b3785083fe2d5c89eb6c0c2da120`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## 双工具模式比较与 4096 token 上限（2026-10-20）
+
+- **实现和真实配对验证 PASS**：`api_predictor` 复用固定上游官方源码和提示，只用公开任务/API 简介、零 gold 示例；执行开始后工具固定。`dynamic_discovery` 保留动态注册。所有新默认 Teacher/Predictor 回复最多 4096 token，预算不足时下调；旧记录的 2048 不改写。协议及命令见 `docs/TOOL_MODES.md`。
+- 两个官方 train 任务、四条全新 Teacher 轨迹：B1/A1/A2/B2 串行独立 world/进程，同任务初态与 Teacher backend 一致；每次相同 20 总请求/8192 输出 token/40 工具调用/450 秒预算，A 预测开销包含在内。结果 **B 动态发现 1/2，A 官方零示例 Predictor 0/2**，0 基础设施错误；这不是正式 Student 或完整官方 benchmark 成绩，不支持总体优劣结论。
+- A 两次预测都漏选登录/凭据工具；B1 在已执行 28 次后申请 20 次工具调用、超过剩余 12 次额度，整批拒绝，非 token 截断。B2 `teacher_5601c6f4d156` 经 8 回合/29 次调用获官方成功。没有自动补认证工具或根据失败结果改写本次协议。
+- 真实开销：21 模型请求（含 2 次 Predictor）、60 工具调用、4314 生成 token、122290 输入 token、120.92 秒。公开高峰费率估算 USD 0.023085432；前后余额回执观察差额 CNY 0.00，逐请求实扣未知，不能写成免费。无 GPU 训练、无新付费服务。原始数据在 `runs/tool_modes_20261020_a/`。
+- 新 Clean Dataset 接受 1/4 条，SHA-256/train/来源/成本复核通过；固定 4B tokenizer 得到 8 个 Assistant 目标、1474 监督 token，未加载权重或更新参数。Dataset manifest SHA-256 `fc1367decb73b4e70d1bbe9cb052ba3c291f721942f33edaa914cdc03dbe4932`。未宣称远程迁移/训练已执行。
+- 65 项软件测试与 Ruff/格式检查通过；离线审计全部 21 份响应，按官方公开输入重建两次 Predictor 消息、解析结果及 schema 一致。P0–P2 原 17 项哈希不变。证据 `reports/tool_modes_report.md`、`tool_modes_comparison.json`、`tool_modes_audit.json`、`tool_modes_sft_format.json`；测试命令见报告。
+- 查看器 `--all` 已能分开展示 Predictor 和 Actor：本地四份视图 `outputs/tool_modes_20261020_a/teacher_<ID>.md`，无哈希警告。原始/派生任务数据不公开。下一步是预先固定更多 train 场景与重复采样；若补入认证工具，作为另一个明确标记的变体保留本次负结果。SFT/GRPO 仍 `NOT_STARTED`。
 
 ## LLM 请求视图与排错工具（2026-10-20）
 
@@ -12,7 +22,7 @@
 - 严格区分请求前输入、响应后观察与控制侧奖励；不读取官方 evaluator 文件，不从最终历史/最终 schema 回填早期请求，截断响应不会被修补。展示时一致隐藏已识别的密码/访问令牌/API Key；原始记录只读，输出不覆盖已有文件。
 - 实际产物：`outputs/llm_view_20261020/success_turn1.md`、`success_all.md`、`truncated_turn6.md`，仅本地保留。用法和当前预算/动态工具发现规则见 `docs/LLM_VIEW.md`。
 - 验证：新增 7 项测试，全套 **59 passed**，Ruff/格式检查通过。离线核对现有 6 条真实 Teacher 轨迹的 28 次请求，历史/工具数量、响应终止原因一致、回执无哈希警告，原始文件未修改；证据 `reports/llm_viewer_validation.json`、`reports/llm_viewer_checks.json`。
-- 本轮模型请求、AppWorld 新执行、GPU 训练及费用均为 0；此前 P0–P3 的采样逻辑、预算、筛选、数据包及成功率保持不变。当前 2048 是单回复输出上限、16384 是每轨迹累计输出上限；C 轮失败为单响应截断，不能据此推断 Teacher 在更宽预算下必然失败。
+- 该查看器开发轮的模型请求、AppWorld 新执行、GPU 训练及费用均为 0；当时单回复上限 2048、每轨迹累计上限 16384。后续 v0.5 上限及新采样见上节；历史 C 轮失败为单响应截断，不能据此推断 Teacher 在更宽预算下必然失败。
 - 下一步可先用 `--turn N` 定位上下文、工具可见性或截断问题，再决定后续采集参数；本轮没有扩大采样或进入训练。
 
 ## P3-A 开发与真实验证（2026-10-20）

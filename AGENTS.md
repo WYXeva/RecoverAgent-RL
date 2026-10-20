@@ -1,6 +1,6 @@
 # AGENTS.md — RecoverAgent-RL
 
-> 工作约定 v0.4 · 2026-10-20  
+> 工作约定 v0.5 · 2026-10-20
 > 适用范围：本项目及子目录。需求与完整验收见 `PROJECT_PLAN.md`。  
 > 本文件中的规则可随项目证据与用户后续要求更新；不要把第一版设计当作不可更改的既定结论。
 
@@ -17,6 +17,8 @@
 6. 最新 Student 每轮产生新失败，Teacher 新示范驱动增量 Recovery-SFT，并继续当前策略 GRPO；至少两轮再研究效率与提升。
 
 基础 Base-SFT 和后续 Recovery-SFT **都是强制阶段**。Pre-error 是错误预防的消融，不计作修复已发生错误。多检查点恢复是主要算法方向；U_SFT/U_RL 自适应检查点评分属于后续待验证增强。ReTerm 已有的 Teacher 恢复与 GRPO 不冒充原创。
+
+v0.5 工具选择比较：`dynamic_discovery` 与官方 `api_predictor` 两种模式均保留，单回复输出上限 4096 token（剩余额度不足时下调）。官方 Predictor 只用公开目录和任务进行真实预测，不用 ground_truth 或隐藏 required_apis 标签。配对比较固定模型、任务初态与端到端预算，包含 Predictor 开销；必须区分 Teacher 小试与正式 Student 评价，不能把该组件对比称为完整官方 benchmark 复现。旧 P0–P2 配置与证据不改写。
 
 ## 2. 每次开始工作
 
@@ -186,3 +188,4 @@ P0–P2 已完成本地基础设施验收。下一轮在**本机 P3-A**收集/�
 | v0.2 | 2026-10-19 | 将 Teacher 恢复 SFT 设为强制前置，规定 Teacher 数据、Student 后缀监督、真实验收与共同 SFT 起点，并同步 P3-A/B/C 顺序。 |
 | v0.3 | 2026-10-20 | 用户确认先 Teacher 正常成功轨迹→Student 基础 SFT，再新 Student 自然失败、Teacher 多检查点恢复→Recovery-SFT→GRPO 与每轮 Teacher 增量学习；重排 P3–P6。 |
 | v0.4 | 2026-10-20 | 锁定 Qwen3-4B 唯一正式 Student；本机只采集/验证 Teacher 成功示范，远程 RTX PRO 6000 96GB 执行两次 4B SFT、Agent rollout、GRPO 与迭代；要求结构化数据哈希交接和远程预检。 |
+| v0.5 | 2026-10-20 | 增加两种工具选择模式的公平配对验证、4096 单回复上限与预测成本归属；保留此前模型及训练约束。 |

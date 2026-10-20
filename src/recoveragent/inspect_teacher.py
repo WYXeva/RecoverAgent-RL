@@ -94,17 +94,50 @@ def build_view(path, turn=None, all_turns=False):
         (
             p
             for p in (directory / "requests").glob("*.request.json")
-            if p.name.split(".")[0].isdecimal()
+            if p.name.split(".")[0].isdecimal() and p.name.split(".")[0] != "000"
         ),
         key=lambda p: int(p.name.split(".")[0]),
     )
-    if not requests:
+    predictor_path = directory / "requests" / "000.request.json"
+    if not requests and not predictor_path.exists():
         raise ValueError("No saved Teacher requests in this directory")
     config_path = directory.parent / (directory.name + ".config.json")
     config = read_json(config_path) if config_path.exists() else {}
     events = {t["request_id"]: t for t in trajectory.get("turns", [])}
     details, overview, previous_names, raw_values = [], [], [], []
     source_hashes = {}
+    predictor_view = None
+    if predictor_path.exists():
+        prediction_request = read_json(predictor_path)
+        response_path = predictor_path.with_name("000.response.json")
+        prediction_response = (
+            read_json(response_path) if response_path.exists() else None
+        )
+        record = trajectory.get("predictor", {})
+        warnings = []
+        for label, value, path in (
+            ("request_hash", prediction_request, predictor_path),
+            ("response_hash", prediction_response, response_path),
+        ):
+            if value is not None:
+                source_hashes[str(path.relative_to(directory))] = hashlib.sha256(
+                    path.read_bytes()
+                ).hexdigest()
+                if record.get(label) and digest(value) != record[label]:
+                    warnings.append(label + "_mismatch")
+        predictor_view = {
+            "purpose": "Pre-execution API selection; separate from Actor history and SFT targets.",
+            "requested_max_tokens": prediction_request.get("max_tokens"),
+            "selected_names": record.get("selected_names"),
+            "usage": record.get("usage"),
+            "format_error": record.get("format_error"),
+            "receipt_warnings": warnings,
+        }
+        if all_turns:
+            predictor_view.update(
+                llm_input=prediction_request, response_receipt=prediction_response
+            )
+        raw_values.extend([prediction_request, prediction_response])
     known_generated = 0
     for request_path in requests:
         request_id = request_path.name.split(".")[0]
@@ -218,6 +251,7 @@ def build_view(path, turn=None, all_turns=False):
                     "reward",
                     "termination_reason",
                     "error_type",
+                    "tool_mode",
                 )
             },
             "limits": config.get("limits"),
@@ -235,6 +269,7 @@ def build_view(path, turn=None, all_turns=False):
             "config_source": str(config_path) if config else None,
         },
         "overview": overview,
+        "predictor": predictor_view,
         "turns": selected,
         "source_receipt_sha256": source_hashes,
     }
@@ -286,6 +321,14 @@ def render_markdown(view):
     ]
     if issues:
         lines.extend(["\n控制侧异常摘要（不是 LLM 输入）：\n", _json_block(issues)])
+    if view.get("predictor"):
+        lines.extend(
+            [
+                "\n## 执行前的 API Predictor（独立请求，不属于 Actor 对话）\n",
+                "使用 `--all` 显示 Predictor 的完整目录输入和原始预测响应。\n",
+                _json_block(view["predictor"]),
+            ]
+        )
     for row in view["turns"]:
         overview = next(v for v in view["overview"] if v["turn"] == row["turn"])
         lines.extend(

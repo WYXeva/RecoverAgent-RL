@@ -59,9 +59,9 @@ export PYTHONPATH="$PWD/src"
 
 | 限制 | 当前值 | 统计范围与处理 |
 | --- | --- | --- |
-| 单次响应输出 | 2048 token | 每次请求的 `max_tokens`；还受剩余轨迹/全局输出额度约束 |
+| 单次响应输出 | 4096 token（v0.5） | 每次请求的 `max_tokens`；还受剩余轨迹/全局输出额度约束；旧 A/B/C 实际为 2048 |
 | 单条轨迹累计输出 | 16384 token | 累计供应商 `completion_tokens`，包含文本和函数调用输出；达到后停止继续请求 |
-| 三轮试点累计输出 | 32768 token | 包含失败和协议重试；每个新 run 的配置扣除此前实际用量 |
+| 每轮采集累计输出 | 32768 token | 包含失败和预测开销；本次双模式四次比较均分为每次 8192，旧三轮试点记录保持原样 |
 | 请求体大小 | 131072 字节 | 序列化后的完整 API 请求，不是 token 数 |
 | 其他预算 | 回合、工具调用、请求数、时间和费用 | 也会停止采样，具体读取该 worker 配置 |
 
@@ -78,7 +78,7 @@ min(单次响应上限,
 
 - **累计预算耗尽**：记录 `budget_exhausted`，保存已有终态再运行官方验证，reward 由验证结果决定。这个终止标签目前也用于回合/工具/请求/时间限制，不能只凭标签断定是 token 耗尽。用量和 worker 配置可辅助定位。
 - **单次响应截断**：供应商返回 `finish_reason=length`，当前协议整轮拒绝，不执行其中的任何调用，终止为 `invalid_completion`，再评价已有状态。即使已有状态偶然成功，带格式错误的轨迹仍不能进入 Clean Dataset。
-- **达到数值不等于截断**：恰好生成 2048 token 且返回正常 `tool_calls`/`stop`，不会单凭等于上限判错；还要校验调用和历史。
+- **达到数值不等于截断**：恰好生成请求上限的 token 且返回正常 `tool_calls`/`stop`，不会单凭等于上限判错；还要校验调用和历史。
 - **基础设施或供应商异常**：例如请求体超限、网络/进程中断，或供应商实际用量越过约定上限，按当前代码单列基础设施错误，reward 为 null，保留已知用量和未知预留。
 
 本次 C 轮失败是**第 6 次响应达到 2048 token 且 `finish_reason=length`**；该轨迹累计仅 2619 输出 token，远未达到 16384。这是单响应截断导致的数据不合格，不能推断模型在更宽预算下仍无法完成任务。
@@ -88,6 +88,8 @@ min(单次响应上限,
 接口名称、说明和参数 schema 来自固定版本 AppWorld 的 `world.task.api_docs.function_calling()`。项目 `AppWorldAdapter` 负责哪些 schema 当前传给模型，`TeacherPolicy` 将它们写入每次请求的 `tools` 字段。
 
 初始状态只传 `api_docs` 与 `supervisor` 的公开工具，本次实际为 10 个。任务消息同时提供应用简介，模型可以知道 Spotify、Gmail 等应用存在，但没有一次获得全部应用的可调用函数定义。
+
+以上是 `dynamic_discovery` 模式。v0.5 新增 `api_predictor`：执行前由官方预测组件读取任务和完整公开 API 简介目录，随后将选中的完整 schema 一次性固定给 Actor。查看器用独立 Predictor 区域显示选择结果，`--all` 包含实际 `000.request/response`；`--turn N` 仍只编号 Actor 回合。两种模式协议、预算和比较命令见 [TOOL_MODES.md](TOOL_MODES.md)。
 
 LLM 自己选择要探索的应用/API：
 

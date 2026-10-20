@@ -1,0 +1,18 @@
+{
+  "model": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "thinking": false,
+  "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "source_dataset_id": "ea3c3add27540544aff962d6d90203e571cc53908e7751cc70a05c75fcfc8e3f",
+  "source_manifest_sha256": "fc1367decb73b4e70d1bbe9cb052ba3c291f721942f33edaa914cdc03dbe4932",
+  "counts": {
+    "examples": 8,
+    "input_tokens": 51108,
+    "supervised_tokens": 1474
+  },
+  "strategy": "one_assistant_turn_with_actual_visible_schema",
+  "examples_sha256": "04a429a9880ee94acf9167789f054289b365db6a6dba163c7d6b5beae93593e1",
+  "training_started": false,
+  "weights_loaded": false,
+  "split_rule": "keep all turns of each task/scenario together; no random suffix split"
+}

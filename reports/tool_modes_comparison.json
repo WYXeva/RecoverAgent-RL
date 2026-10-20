@@ -1,0 +1,246 @@
+{
+  "format": "paired-tool-mode-pilot-v1",
+  "status": "PASS",
+  "actor_role": "teacher",
+  "model": "deepseek-flash",
+  "student_benchmark": false,
+  "training_started": false,
+  "request_max_tokens": 4096,
+  "budget_scope": "end_to_end_including_predictor; equal reserved allowances per attempt",
+  "selection": {
+    "split": "train",
+    "order": "official",
+    "tasks": [
+      "82e2fac_1",
+      "82e2fac_2"
+    ],
+    "schedule": [
+      [
+        "82e2fac_1",
+        "dynamic_discovery"
+      ],
+      [
+        "82e2fac_1",
+        "api_predictor"
+      ],
+      [
+        "82e2fac_2",
+        "api_predictor"
+      ],
+      [
+        "82e2fac_2",
+        "dynamic_discovery"
+      ]
+    ],
+    "mode_order": "counterbalanced",
+    "selection_before_results": true
+  },
+  "pairs": [
+    {
+      "task_id": "82e2fac_1",
+      "complete": true,
+      "same_initial_state": true,
+      "same_backend": true,
+      "independent_workers": true
+    },
+    {
+      "task_id": "82e2fac_2",
+      "complete": true,
+      "same_initial_state": true,
+      "same_backend": true,
+      "independent_workers": true
+    }
+  ],
+  "metrics": {
+    "dynamic_discovery": {
+      "attempts": 2,
+      "official_successes": 1,
+      "infrastructure_errors": 0,
+      "success_per_attempt": 0.5,
+      "provider_requests": 16,
+      "tool_calls": 57,
+      "prompt_tokens": 102543,
+      "generated_tokens": 4057,
+      "cached_prompt_tokens": 55168,
+      "usage_priced_cost": 0.019411908,
+      "wall_seconds": 68.31804359401576,
+      "unknown_cost_reservation": 0.0,
+      "unknown_generation_reservation": 0
+    },
+    "api_predictor": {
+      "attempts": 2,
+      "official_successes": 0,
+      "infrastructure_errors": 0,
+      "success_per_attempt": 0.0,
+      "provider_requests": 5,
+      "tool_calls": 3,
+      "prompt_tokens": 19747,
+      "generated_tokens": 257,
+      "cached_prompt_tokens": 8704,
+      "usage_priced_cost": 0.0036735239999999996,
+      "wall_seconds": 47.563499903073534,
+      "unknown_cost_reservation": 0.0,
+      "unknown_generation_reservation": 0
+    }
+  },
+  "attempts": [
+    {
+      "trajectory_id": "teacher_522c2e363712",
+      "task_id": "82e2fac_1",
+      "scenario_id": "82e2fac",
+      "tool_mode": "dynamic_discovery",
+      "status": "valid",
+      "official_reward": 0,
+      "termination_reason": "invalid_completion",
+      "initial_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+      "observed_backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "worker_pid": 2071067,
+      "predictor_requests": 0,
+      "predictor_generated_tokens": 0,
+      "predictor_prompt_tokens": 0,
+      "predictor_usage_priced_cost": 0,
+      "actor_model_turns": 8,
+      "initial_visible_tools": 10,
+      "final_visible_tools": 14,
+      "discovery_tool_calls": 5,
+      "business_tool_calls": 23,
+      "usage": {
+        "provider_requests": 8,
+        "model_turns": 8,
+        "tool_calls": 28,
+        "prompt_tokens": 51281,
+        "generated_tokens": 2245,
+        "cached_prompt_tokens": 27648,
+        "usage_priced_cost": 0.009949788000000001,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "wall_seconds": 36.212308207992464
+      }
+    },
+    {
+      "trajectory_id": "teacher_5601c6f4d156",
+      "task_id": "82e2fac_2",
+      "scenario_id": "82e2fac",
+      "tool_mode": "dynamic_discovery",
+      "status": "valid",
+      "official_reward": 1,
+      "termination_reason": "completion_claim",
+      "initial_state_hash": "47e17ec128f5f5e194cf7ad144e7125dc14e77c13c29a88d8d16a18763577d7b",
+      "observed_backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "worker_pid": 2071737,
+      "predictor_requests": 0,
+      "predictor_generated_tokens": 0,
+      "predictor_prompt_tokens": 0,
+      "predictor_usage_priced_cost": 0,
+      "actor_model_turns": 8,
+      "initial_visible_tools": 10,
+      "final_visible_tools": 14,
+      "discovery_tool_calls": 5,
+      "business_tool_calls": 24,
+      "usage": {
+        "provider_requests": 8,
+        "model_turns": 8,
+        "tool_calls": 29,
+        "prompt_tokens": 51262,
+        "generated_tokens": 1812,
+        "cached_prompt_tokens": 27520,
+        "usage_priced_cost": 0.00946212,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "wall_seconds": 32.1057353860233
+      }
+    },
+    {
+      "trajectory_id": "teacher_608963737f80",
+      "task_id": "82e2fac_1",
+      "scenario_id": "82e2fac",
+      "tool_mode": "api_predictor",
+      "status": "valid",
+      "official_reward": 0,
+      "termination_reason": "completion_claim",
+      "initial_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+      "observed_backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "worker_pid": 2071348,
+      "predictor_requests": 1,
+      "predictor_generated_tokens": 44,
+      "predictor_prompt_tokens": 7294,
+      "predictor_usage_priced_cost": 0.002241,
+      "actor_model_turns": 1,
+      "initial_visible_tools": 7,
+      "final_visible_tools": 7,
+      "discovery_tool_calls": 0,
+      "business_tool_calls": 1,
+      "usage": {
+        "provider_requests": 2,
+        "model_turns": 1,
+        "tool_calls": 1,
+        "prompt_tokens": 9659,
+        "generated_tokens": 101,
+        "cached_prompt_tokens": 0,
+        "usage_priced_cost": 0.0030188999999999997,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "wall_seconds": 23.802945977076888
+      }
+    },
+    {
+      "trajectory_id": "teacher_bc344b80fb2d",
+      "task_id": "82e2fac_2",
+      "scenario_id": "82e2fac",
+      "tool_mode": "api_predictor",
+      "status": "valid",
+      "official_reward": 0,
+      "termination_reason": "completion_claim",
+      "initial_state_hash": "47e17ec128f5f5e194cf7ad144e7125dc14e77c13c29a88d8d16a18763577d7b",
+      "observed_backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "worker_pid": 2071524,
+      "predictor_requests": 1,
+      "predictor_generated_tokens": 22,
+      "predictor_prompt_tokens": 7294,
+      "predictor_usage_priced_cost": 0.00014484,
+      "actor_model_turns": 2,
+      "initial_visible_tools": 4,
+      "final_visible_tools": 4,
+      "discovery_tool_calls": 0,
+      "business_tool_calls": 2,
+      "usage": {
+        "provider_requests": 3,
+        "model_turns": 2,
+        "tool_calls": 2,
+        "prompt_tokens": 10088,
+        "generated_tokens": 156,
+        "cached_prompt_tokens": 8704,
+        "usage_priced_cost": 0.0006546239999999999,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "wall_seconds": 23.760553925996646
+      }
+    }
+  ],
+  "limitations": [
+    "Two tasks from one scenario family; no statistical superiority claim.",
+    "Official zero-shot predictor component, not a full upstream benchmark reproduction.",
+    "API alias not immutable; fingerprint equality is observed evidence only.",
+    "Costs are usage-priced estimates, not invoices; cache/order affect latency and cost."
+  ]
+}

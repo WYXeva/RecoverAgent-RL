@@ -1,9 +1,9 @@
 # RecoverAgent-RL：项目计划与需求文档
 
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
-> 版本：v0.4  
+> 版本：v0.5
 > 创建日期：2026-10-19  
-> 状态：v0.4 模型与硬件部署需求基线；P0–P2 历史验收及 P3 以后当前状态见 `docs/STATUS.md`；远程训练尚未验证。
+> 状态：v0.5 在 v0.4 模型与硬件基线上增加双工具模式对比；P0–P2 历史验收及 P3 以后当前状态见 `docs/STATUS.md`；远程训练尚未验证。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 
@@ -24,6 +24,8 @@
 - **阶段验收**：推进工作的证据条件，不是每一步重新请求确认的要求。
 
 ### 当前执行入口
+
+2026-10-20 用户新增要求：保留 `dynamic_discovery`，增加 `api_predictor`，比较动态发现与官方 API Predictor 的工具选择方式；单次模型回复输出上限调整为 **4096 token**。本机先以相同 Teacher、相同 train 任务、相同端到端预算进行小样本配对验证，Predictor 请求计入预算与成本。这个比较不代表 Qwen3-4B 正式成绩，不启动 SFT/GRPO。完整协议和结果见 `docs/TOOL_MODES.md`、`docs/STATUS.md`。P0–P2 历史实现与证据保持原样。
 
 首次收到“开始实现项目”的指令时，默认完成 **P0–P2 的最小闭环**：
 
@@ -797,3 +799,4 @@ P0–P2 已有代码和真实最低验收，不得因新方案重建或覆盖历
 | v0.2 | 2026-10-19 | 根据用户明确要求，将 Teacher SFT 设为主线 GRPO 的强制前置；加入五步示范流程、loss mask 与 SFT 验收、P3-A/B/C 子阶段和共同 Teacher-SFT 初始化，保留 P0–P2 先行验证。 |
 | v0.3 | 2026-10-20 | 用户明确要求：先 Teacher 正常成功轨迹教会 Student 基础工具能力，然后 Student 自主执行新任务、Teacher 从多检查点恢复、Student 恢复 SFT + GRPO，并由每轮新错误与 Teacher 新示范增量自迭代。重排 P3–P6 与实验对照。 |
 | v0.4 | 2026-10-20 | 正式 Student 固定 Qwen3-4B；本机负责 Teacher 成功数据采集与验证，远程 RTX PRO 6000 96GB 负责 4B Base-SFT、Student 新失败、多检查点 Recovery-SFT、GRPO 和持续迭代；规定可移植数据交接与远程预检门槛。 |
+| v0.5 | 2026-10-20 | 按用户要求增加官方 API Predictor 与动态发现的双工具模式配对比较；单回复上限 4096 token，计入预测开销，不改变模型、训练顺序、硬件分工或 P0–P2 历史基线。 |

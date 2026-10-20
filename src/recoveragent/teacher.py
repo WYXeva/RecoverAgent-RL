@@ -220,6 +220,20 @@ class TeacherPolicy:
             raise TeacherBlocked("REQUEST_SIZE_LIMIT")
         return payload
 
+    def build_text_request(self, messages, max_tokens):
+        """Predictor uses upstream text messages; no Actor tools or hidden labels."""
+        payload = {
+            "model": self.config["model"],
+            "messages": copy.deepcopy(messages),
+            "stream": False,
+            "max_tokens": max_tokens,
+            "temperature": self.config["temperature"],
+            "thinking": {"type": "disabled"},
+        }
+        if len(canonical(payload).encode()) > self.config["max_request_bytes"]:
+            raise TeacherBlocked("REQUEST_SIZE_LIMIT")
+        return payload
+
     def generate(self, messages, tools, max_tokens):
         payload = self.build_request(messages, tools, max_tokens)
         return payload, self.transport(payload)

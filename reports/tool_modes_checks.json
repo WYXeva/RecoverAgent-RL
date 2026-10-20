@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-10-20T06:42:06.671486+00:00",
+  "workspace_pytest": {
+    "passed": 65,
+    "failed": 0
+  },
+  "clone_pytest": {
+    "passed": 65,
+    "failed": 0
+  },
+  "ruff_check": "PASS",
+  "ruff_format_check": "PASS",
+  "real_appworld_attempts": 4,
+  "official_successes": 1,
+  "receipt_audit_count": 21,
+  "p0_p2_unchanged_files": 17,
+  "new_model_calls_during_audit": 0,
+  "training_started": false,
+  "test_scope": "Synthetic software tests plus separately audited real AppWorld/Teacher attempts"
+}
