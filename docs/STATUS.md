@@ -1,10 +1,21 @@
 # 项目状态
 
-- 最后更新：2026-10-20 14:38（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.5；正式 Student `Qwen/Qwen3-4B`。
-- 本轮状态：**P3-A 本机小样本闭环 PASS**：真实 Teacher 正常任务执行、官方筛选、非空数据导出和 4B Assistant-only mask 均有证据。1 条示范只验证流程，不足以代表正式训练数据规模或效果。P3-B 及以后 `NOT_STARTED`。
+- 最后更新：2026-10-20 15:08（Asia/Shanghai）
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.6；正式 Student `Qwen/Qwen3-4B`。
+- 本轮状态：**P3-A 本机小样本闭环 PASS**：真实 Teacher 正常任务执行、官方筛选、非空数据导出和 4B Assistant-only mask 均有证据。当前示范数量少且来自同族任务，不代表正式训练规模或总体效果。P3-B 及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，基线 `40836c4c02a3b3785083fe2d5c89eb6c0c2da120`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## 取消调用次数配额与 prompt 诊断（2026-10-20，v0.6）
+
+- **实现/真实环境验证 PASS**：用户明确取消工具调用次数限制。新默认 `max_tool_calls=null`、`max_tool_calls_per_turn=null`，不存在原 40/64 数量配额；通过官方整数构造参数的 sys.maxsize 哨兵避免旧底层 100 次限制。4096 单回复、累计 token/请求/时间/费用预算及完整调用校验保留，P0–P2 不改写。
+- 原 B1 任务的真实公开反馈含 8 歌单、60 条记录、57 首独立歌曲。模型先查 20 首再查 20 首，两批无重复、ID 均来自历史观察；第二批仅 696 输出 token。旧 prompt 允许批量却没有告知 40 次总额度。按原逐首路线预计需 66 次，不能把截停归结为模型不会调用工具。
+- 原历史重放：28 条观察逐条一致，原拒绝的 20 次全部真实执行（累计 48）；另一个 world 连续 101 次公开读调用通过。149 次环境动作、0 模型请求，36.14 秒。明确不作为新 Teacher 示范。证据 `reports/unlimited_replay.json`。
+- 新鲜原始初态、相同 Teacher/预算/Actor v2、三个独立进程：B 动态发现 **67 调用成功**；A 官方原提示 **5 调用失败**（仍漏登录/凭据）；A `dependency_aware_v1` **61 调用成功**，模型自行选择认证工具。每条件一次；只支持该案例诊断，不支持总体/Student 优势。官方原提示仍保留为默认 A，增强版单独标记。
+- 实际新 Teacher 开销：21 请求、128735 输入（85888 缓存命中）、5737 输出 token、133 工具调用、99.99 秒。高峰费率估算 USD 0.020253828，账户观察差额 CNY 0.00、逐请求实扣未知；无训练。每组预算20请求/8192输出/450秒/USD1.50，三组总请求/token/时间预算均未触达。
+- 新合并包 `data/unlimited_clean_20261020_a/` 接受 2/3 条，1 个唯一任务；manifest SHA-256 `0a13edb56232ceff8b554f09c2f3885c7e93522423da0c573c3019a3ed994d7f`。真实 4B tokenizer 得到 14 个 Assistant 目标、3988 监督 token；预测提示不入目标，未加载权重。原失败/重放证据不混入成功样本。
+- 软件 **75 passed**，Ruff/格式通过；真实 21 回执离线审计重算、两种 A Predictor 公开输入重建、A Actor 提示相同、初态/模型/预算一致、P0–P2 17 哈希未变。证据 `reports/unlimited_prompt_report.md`、`unlimited_prompt_comparison.json`、`unlimited_prompt_audit.json`、`unlimited_sft_format.json`。
+- 三份本地完整视图 `outputs/unlimited_prompt_20261020_a/{b_dynamic,a_official,a_dependency}.md`。实际命令见报告。下一步为更多预先固定 train 场景的重复提示对照；保持原版与增强版独立、所有失败完整计入，不启动训练。
 
 ## 双工具模式比较与 4096 token 上限（2026-10-20）
 

@@ -12,6 +12,16 @@ from .io import canonical, digest, read_json, write_json
 from .teacher import normalize_message, response_usage, usage_cost
 
 MODES = ("dynamic_discovery", "api_predictor")
+PREDICTOR_PROMPTS = ("official_zero_shot", "dependency_aware_v1")
+DEPENDENCY_CHECK = (
+    "Dependency check before finalizing the API list: the execution agent starts "
+    "without pre-obtained credentials or access tokens. Include the public APIs "
+    "needed to obtain required inputs and satisfy dependencies of your selected "
+    "APIs, including credential retrieval and login where authentication is "
+    "required. Consider discovery of identifiers, pagination, and task completion. "
+    "Do not assume prerequisites have already been performed by another agent. "
+    "Only select APIs from the supplied catalogue; still output one app.api per line."
+)
 SOURCES = {
     "api_predictor.py": (
         "experiments/code/common/api_predictor.py",
@@ -80,6 +90,16 @@ def select_tools(adapter, names):
     return [copy.deepcopy(doc) for name, doc in catalogue.items() if name in names]
 
 
+def predictor_messages(predictor, task, variant="official_zero_shot"):
+    messages = predictor.build_messages(task, include_cache_control=False)
+    if variant not in PREDICTOR_PROMPTS:
+        raise ValueError("Unknown Predictor prompt variant")
+    if variant == "dependency_aware_v1":
+        messages = copy.deepcopy(messages)
+        messages[-1]["content"] += "\n\n" + DEPENDENCY_CHECK
+    return messages
+
+
 def initialize_tools(adapter, policy, config, output, usage, trajectory):
     mode = config.get("tool_mode", "dynamic_discovery")
     if mode == "dynamic_discovery":
@@ -87,7 +107,8 @@ def initialize_tools(adapter, policy, config, output, usage, trajectory):
     predictor = official_predictor(config.get("predictor_source", DEFAULT_SOURCE))
     # With zero demos, upstream cache_control=True indexes an empty list.
     # This documented public option avoids the issue without modifying upstream.
-    messages = predictor.build_messages(adapter.world.task, include_cache_control=False)
+    variant = config.get("predictor_prompt_variant", "official_zero_shot")
+    messages = predictor_messages(predictor, adapter.world.task, variant)
     maximum = min(
         config["teacher"]["max_new_tokens"],
         config["limits"]["episode_generated_tokens"],
@@ -143,6 +164,10 @@ def initialize_tools(adapter, policy, config, output, usage, trajectory):
         "max_predicted_apis": 20,
         "selected_names": [],
         "selected_tools": [],
+        "prompt_variant": variant,
+        "supplement_sha256": digest(DEPENDENCY_CHECK)
+        if variant == "dependency_aware_v1"
+        else None,
         "allowed_api_names": [
             f"{app}.{api}".lower()
             for app, docs in adapter.world.task.api_docs.items()
@@ -208,6 +233,17 @@ def validate_predictor_receipts(trajectory, directory):
         or response_usage(response)["generated_tokens"] > request["max_tokens"]
     ):
         raise ValueError("Predictor receipt mismatch")
+    variant = record.get("prompt_variant", "official_zero_shot")
+    if (
+        variant not in PREDICTOR_PROMPTS
+        or trajectory.get("predictor_prompt_variant", "official_zero_shot") != variant
+    ):
+        raise ValueError("Predictor prompt variant mismatch")
+    if variant == "dependency_aware_v1" and (
+        record.get("supplement_sha256") != digest(DEPENDENCY_CHECK)
+        or not request["messages"][-1]["content"].endswith("\n\n" + DEPENDENCY_CHECK)
+    ):
+        raise ValueError("Predictor supplement mismatch")
     message = normalize_message(response)
     if message.get("tool_calls") or len(record["selected_names"]) > 20:
         raise ValueError("Invalid predictor output")

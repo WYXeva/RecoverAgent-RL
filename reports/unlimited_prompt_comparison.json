@@ -1,0 +1,155 @@
+{
+  "status": "PASS",
+  "comparison_scope": "one-task prompt diagnostic; no statistical superiority claim",
+  "training_started": false,
+  "results": [
+    {
+      "condition": "b_dynamic",
+      "task_id": "82e2fac_1",
+      "trajectory_id": "teacher_14608f1133b8",
+      "path": "runs/unlimited_prompt_20261020_a/b_dynamic/teacher_14608f1133b8",
+      "status": "valid",
+      "reward": 1,
+      "termination_reason": "completion_claim",
+      "initial_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+      "observed_backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "actor_prompt_variant": "budget_batched_v2",
+      "predictor_prompt_variant": "official_zero_shot",
+      "selected_names": null,
+      "usage": {
+        "provider_requests": 8,
+        "model_turns": 8,
+        "tool_calls": 67,
+        "prompt_tokens": 69231,
+        "generated_tokens": 2830,
+        "cached_prompt_tokens": 41856,
+        "usage_priced_cost": 0.011859636,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "wall_seconds": 36.88896753406152
+      },
+      "clean_dataset_counts": {
+        "attempted": 1,
+        "valid": 1,
+        "infrastructure_errors": 0,
+        "official_successes": 1,
+        "accepted": 1,
+        "unique_tasks": 1,
+        "success_per_attempt": 1.0,
+        "success_per_valid": 1.0
+      }
+    },
+    {
+      "condition": "a_official",
+      "task_id": "82e2fac_1",
+      "trajectory_id": "teacher_a70a23bf306d",
+      "path": "runs/unlimited_prompt_20261020_a/a_official/teacher_a70a23bf306d",
+      "status": "valid",
+      "reward": 0,
+      "termination_reason": "completion_claim",
+      "initial_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+      "observed_backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "actor_prompt_variant": "budget_batched_v2",
+      "predictor_prompt_variant": "official_zero_shot",
+      "selected_names": [
+        "supervisor__complete_task",
+        "spotify__show_playlist_library",
+        "spotify__show_playlist",
+        "spotify__show_song",
+        "spotify__show_song_privates"
+      ],
+      "usage": {
+        "provider_requests": 6,
+        "model_turns": 5,
+        "tool_calls": 5,
+        "prompt_tokens": 17154,
+        "generated_tokens": 580,
+        "cached_prompt_tokens": 14464,
+        "usage_priced_cost": 0.001589784,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "wall_seconds": 28.144036790006794
+      },
+      "clean_dataset_counts": {
+        "attempted": 1,
+        "valid": 1,
+        "infrastructure_errors": 0,
+        "official_successes": 0,
+        "accepted": 0,
+        "unique_tasks": 0,
+        "success_per_attempt": 0.0,
+        "success_per_valid": 0.0
+      }
+    },
+    {
+      "condition": "a_dependency",
+      "task_id": "82e2fac_1",
+      "trajectory_id": "teacher_f48e51cdaecc",
+      "path": "runs/unlimited_prompt_20261020_a/a_dependency/teacher_f48e51cdaecc",
+      "status": "valid",
+      "reward": 1,
+      "termination_reason": "completion_claim",
+      "initial_state_hash": "0c157a3dc0ea02cff3edcacd55010be0cbb68a075e60313bb4c1779cc1462374",
+      "observed_backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "actor_prompt_variant": "budget_batched_v2",
+      "predictor_prompt_variant": "dependency_aware_v1",
+      "selected_names": [
+        "supervisor__complete_task",
+        "spotify__show_playlist_library",
+        "spotify__show_playlist",
+        "spotify__show_song",
+        "spotify__show_song_privates",
+        "spotify__show_liked_songs",
+        "spotify__show_account",
+        "spotify__login",
+        "supervisor__show_account_passwords"
+      ],
+      "usage": {
+        "provider_requests": 7,
+        "model_turns": 6,
+        "tool_calls": 61,
+        "prompt_tokens": 42350,
+        "generated_tokens": 2327,
+        "cached_prompt_tokens": 29568,
+        "usage_priced_cost": 0.006804408,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "wall_seconds": 34.961601612041704
+      },
+      "clean_dataset_counts": {
+        "attempted": 1,
+        "valid": 1,
+        "infrastructure_errors": 0,
+        "official_successes": 1,
+        "accepted": 1,
+        "unique_tasks": 1,
+        "success_per_attempt": 1.0,
+        "success_per_valid": 1.0
+      }
+    }
+  ],
+  "costs": {
+    "provider_requests": 21,
+    "prompt_tokens": 128735,
+    "generated_tokens": 5737,
+    "cached_prompt_tokens": 85888,
+    "tool_calls": 133,
+    "usage_priced_cost": 0.020253827999999998,
+    "wall_seconds": 99.99460593611002
+  }
+}

@@ -2,6 +2,8 @@
 
 本功能属于 P3-A 正常 Teacher 采集和工具协议验证。正式 Student 仍为 Qwen/Qwen3-4B，当前执行模型是已授权的 DeepSeek Teacher；没有开始训练，也没有改动 P0–P2 Runner。
 
+**v0.6 当前默认**：整轨迹和单回复工具数量都为 `null`（无数量配额），单回复仍为 4096 token；累计生成 token、模型请求、时间和费用限制保留。下文 v0.5 的 40 次预算是历史实验设置，不能套用于新默认配置。
+
 | 项目 | A：`api_predictor` | B：`dynamic_discovery` |
 | --- | --- | --- |
 | 执行前 | Predictor 读取公开任务 instruction 和全部非 api_docs 应用的 API 功能简介目录 | 无独立预测请求 |
@@ -46,9 +48,9 @@ PYTHONPATH=src .venv/bin/python -m recoveragent.compare_tools \
 
 输出目录必须不存在。单独采集可在私有配置中指定 `tool_mode`，运行已有 `p3a collect`。默认配置的付费开关仍关闭，实际运行需要当前会话已有授权或新操作者的明确授权及费率配置。
 
-本轮预先固定官方 train 列表前两个任务 `82e2fac_1`、`82e2fac_2`，不根据成功结果选任务；它们属于同一场景家族。四次按 `B1 → A1 → A2 → B2` 串行执行，独立进程、独立 world、原始任务初态，环境种子 42。相同 Teacher/temperature，跨请求核对 backend fingerprint。每次预留 **20 次总模型请求、8192 累计生成 token、40 工具调用、450 秒**；单回复最多 **4096 token**。A 的 Predictor 消耗这些额度，不额外赠送免费 token。四次累计不超过 80 次请求/32768 输出 token/1800 秒（单次退出允许最多 30 秒清理，受全局墙钟限制）。操作性费用上限 USD 5，沿用用户“费用不限”授权，无自动付费重试。
+此前 v0.5 试点预先固定官方 train 列表前两个任务 `82e2fac_1`、`82e2fac_2`，不根据成功结果选任务；它们属于同一场景家族。四次按 `B1 → A1 → A2 → B2` 串行执行，独立进程、独立 world、原始任务初态，环境种子 42。相同 Teacher/temperature，跨请求核对 backend fingerprint。每次预留 **20 次总模型请求、8192 累计生成 token、40 工具调用、450 秒**；单回复最多 **4096 token**。A 的 Predictor 消耗这些额度，不额外赠送免费 token。四次累计不超过 80 次请求/32768 输出 token/1800 秒（单次退出允许最多 30 秒清理，受全局墙钟限制）。操作性费用上限 USD 5，沿用用户“费用不限”授权，无自动付费重试。
 
-通用采集配置的单轨迹累计输出上限仍是 16384；本轮四次比较将全局额度均分为 8192/次。旧 A/B/C 试点的实际单响应上限 2048 不改写。达到预算先停止，再以官方验证决定奖励；`finish_reason=length` 是响应不完整，拒绝执行该批次，不能入 Clean Dataset。
+通用采集配置的单轨迹累计输出上限仍是 16384；v0.5 四次比较将全局额度均分为 8192/次。旧 A/B/C 试点的实际单响应上限 2048 不改写。达到预算先停止，再以官方验证决定奖励；`finish_reason=length` 是响应不完整，拒绝执行该批次，不能入 Clean Dataset。
 
 ## 证据、排错和数据
 
@@ -72,3 +74,25 @@ PYTHONPATH=src .venv/bin/python -m recoveragent.inspect_teacher \
 ## 解释限制
 
 两任务、同一场景、每种模式每任务一次，只能检查接口和观察开销，不能估计总体优劣。A 若漏选会锁住后续能力；B 需花费发现调用。哪种更好必须以后在固定模型、更广任务族、多次采样、相同端到端预算下验证。缓存命中与执行顺序影响实际计费和时延；同时报告输入/输出 token、预测和执行分项，按公开费率估算与账户余额差额分别表述。
+
+## v0.6 无工具数量配额和提示诊断
+
+`null` 表示不检查工具调用次数，不是一个更大的固定配额。旧整数配置仍可复现历史。AppWorld 固定版本的构造参数 `max_interactions` 只接受整数，并用 `>=` 直接比较，不能传 `None`；P3-A 通过官方构造参数使用 `sys.maxsize` 作为兼容哨兵，避免旧 adapter 默认 100 次在底层重新截停。没有修改上游源码或 P0–P2 adapter。每次 `execute` 仍只执行一个公开函数，模型 batch 顺序展开为多次 execute；这不是整轨迹次数限制。token/时间预算先于该兼容哨兵起作用。
+
+默认 Actor 提示 `budget_batched_v2` 允许独立调用批量执行，要求参数来自已有观察、依赖调用等待真实反馈、每批完整 JSON 适配输出预算、避免重复查询，并显示任务实际 token/模型请求/时间预算及“无工具数量配额”。`legacy_v1` 保留旧提示以便历史重建。取消数量额度不取消 schema/参数/唯一调用 ID/完整批次校验。
+
+Predictor 提示配置：
+
+- `official_zero_shot`：原样官方提示，继续作为默认 A。
+- `dependency_aware_v1`：在同一官方公开目录和任务后追加通用依赖检查，提醒执行者没有现成 credentials/access token，需要预测获取输入、认证、标识、分页和任务完成所需的 API。它没有硬塞登录工具，没有任务答案；最终工具仍由模型选择。**这是项目修改的提示变体，不叫官方原版。**
+
+针对已观察到的 train 失败做一次诊断，不作为未见任务泛化评测：三个条件为 B 动态发现、A 官方、A 依赖增强，均从原始初态开始、相同 Actor v2、4096 单回复、8192 总输出、20 总模型请求、450 秒，无工具次数配额。执行代码和实际报告：
+
+```bash
+APPWORLD_CACHE="$PWD/.cache/appworld" IPYTHONDIR="$PWD/.cache/ipython" \
+PYTHONPATH=src .venv/bin/python scripts/compare_predictor_prompts.py \
+  --config .cache/unlimited_prompt_20261020_a.json \
+  --output runs/unlimited_prompt_20261020_a --credentials-file .env
+```
+
+三组总预算不超过 60 模型请求/24576 输出 token/1350 秒，费用配置 USD 1.50/组。原 28 次调用加被拒绝 20 次的确定性真实重放、跨越 100 次的执行探测分别记录为基础设施验证，不混入新的 Teacher 示范。详见 `reports/unlimited_prompt_report.md`。

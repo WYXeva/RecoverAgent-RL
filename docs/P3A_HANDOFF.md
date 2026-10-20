@@ -1,6 +1,6 @@
 # P3-A 执行与远程数据交接
 
-需求基线 v0.4。正式 Student 为 Qwen/Qwen3-4B；本文件没有训练入口。2026-10-20 实际结果见 `reports/p3a_report.md`：本机最小闭环通过，实际得到 1 条官方成功 Teacher 示范和 8 条 4B Assistant 监督格式样本；没有启动训练。
+本文件记录 v0.4 的原始数据交接，既有包及哈希保持原样；当前 v0.6 工具数量配额和提示约定见 `docs/TOOL_MODES.md`。正式 Student 为 Qwen/Qwen3-4B；本文件没有训练入口。初次实际结果见 `reports/p3a_report.md`：当时得到 1 条官方成功 Teacher 示范和 8 条 4B Assistant 监督格式样本；后续数据与状态见 `docs/STATUS.md`，没有启动训练。
 
 ## Teacher 配置与正常任务采集
 

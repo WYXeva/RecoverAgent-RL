@@ -1,0 +1,24 @@
+{
+  "checked_at": "2026-10-20T07:14:26.072160+00:00",
+  "workspace_pytest": {
+    "passed": 75,
+    "failed": 0
+  },
+  "clone_pytest": {
+    "passed": 75,
+    "failed": 0
+  },
+  "ruff_check": "PASS",
+  "ruff_format_check": "PASS",
+  "p0_p2_unchanged_files": 17,
+  "real_fresh_teacher_attempts": 3,
+  "official_successes": 2,
+  "real_teacher_tool_calls": 133,
+  "diagnostic_replay_and_probe_calls": 149,
+  "real_provider_responses": 21,
+  "a_actor_system_and_user_identical": true,
+  "runtime_source_matches_frozen_manifest": true,
+  "new_calls_during_audit": 0,
+  "training_started": false,
+  "source_replay_is_teacher_demonstration": false
+}

@@ -10,7 +10,11 @@ from recoveragent.inspect_teacher import build_view
 from recoveragent.io import digest, read_json, write_json
 from recoveragent.p3a import interrupted_usage
 from recoveragent.teacher import normalize_message
-from recoveragent.tool_modes import official_predictor, validate_predictor_receipts
+from recoveragent.tool_modes import (
+    official_predictor,
+    predictor_messages,
+    validate_predictor_receipts,
+)
 
 
 def audit(run):
@@ -59,7 +63,8 @@ def audit(run):
             assert abs(actual[key] - trajectory["usage"][key]) < 1e-9, key
         assert actual["provider_requests"] <= worker["remaining_requests"]
         assert actual["generated_tokens"] <= worker["remaining_generated_tokens"]
-        assert actual["tool_calls"] <= worker["limits"]["max_tool_calls"]
+        if worker["limits"]["max_tool_calls"] is not None:
+            assert actual["tool_calls"] <= worker["limits"]["max_tool_calls"]
         events = {t["request_id"]: t for t in trajectory["turns"]}
         if trajectory.get("predictor"):
             events["000"] = trajectory["predictor"]
@@ -91,8 +96,10 @@ def audit(run):
             assert task.ground_truth is None
             request = read_json(path.parent / "requests/000.request.json")
             response = read_json(path.parent / "requests/000.response.json")
-            assert request["messages"] == policy.build_messages(
-                task, include_cache_control=False
+            assert request["messages"] == predictor_messages(
+                policy,
+                task,
+                worker.get("predictor_prompt_variant", "official_zero_shot"),
             )
             names = policy.predicted_output_to_apis(
                 task, normalize_message(response)["content"]

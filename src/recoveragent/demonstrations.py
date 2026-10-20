@@ -236,8 +236,9 @@ def as_demo(trajectory):
     )
     record = {k: copy.deepcopy(trajectory[k]) for k in keys}
     record["kind"] = FORMAT
-    if "tool_mode" in trajectory:
-        record["tool_mode"] = trajectory["tool_mode"]
+    for key in ("tool_mode", "actor_prompt_variant", "predictor_prompt_variant"):
+        if key in trajectory:
+            record[key] = trajectory[key]
     record["turns"] = [
         {k: copy.deepcopy(t[k]) for k in ("assistant_index", "history_hash", "tools")}
         for t in trajectory["turns"]
@@ -333,7 +334,12 @@ def export_dataset(run, output, train_ids, limits, additional_runs=()):
         "appworld_data_versions": sorted(data_versions),
         "teacher": config["teacher"],
         "target_student": config["student"],
-        "protocol": "native_chat_completions_bounded_batch_non_thinking",
+        "protocol": (
+            "native_chat_completions_non_thinking_no_call_count_quota"
+            if config["limits"]["max_tool_calls"] is None
+            and config["teacher"].get("max_tool_calls_per_turn", 1) is None
+            else "native_chat_completions_bounded_batch_non_thinking"
+        ),
         "source_runs": [
             {"run_id": p.name, "config_sha256": sha256(p / "config.json")}
             for p in sources

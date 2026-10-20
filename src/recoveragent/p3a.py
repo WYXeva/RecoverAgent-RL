@@ -13,11 +13,12 @@ from jsonschema import ValidationError
 
 from .adapter import AppWorldAdapter, call_code
 from .io import digest, read_json, write_json
-from .runner import SYSTEM, now
+from .runner import now
+from .p3a_prompts import ACTOR_PROMPTS, actor_system
 from .teacher_history import capture_terminal, validate_history
 from .tool_modes import (
     MODES,
-    DISCOVERY_INSTRUCTION,
+    PREDICTOR_PROMPTS,
     initialize_tools,
     execute_with_mode,
 )
@@ -33,12 +34,19 @@ from .teacher import (
 
 def validate_config(config):
     if (
-        config["project_version"] not in {"0.4", "0.5"}
+        config["project_version"] not in {"0.4", "0.5", "0.6"}
         or config["training_enabled"] is not False
     ):
-        raise ValueError("Only v0.4/v0.5 P3-A collection is allowed")
+        raise ValueError("Only v0.4/v0.5/v0.6 P3-A collection is allowed")
     if config.get("tool_mode", "dynamic_discovery") not in MODES:
         raise ValueError("Unknown tool mode")
+    if config.get("actor_prompt_variant", "legacy_v1") not in ACTOR_PROMPTS:
+        raise ValueError("Unknown Actor prompt variant")
+    if (
+        config.get("predictor_prompt_variant", "official_zero_shot")
+        not in PREDICTOR_PROMPTS
+    ):
+        raise ValueError("Unknown Predictor prompt variant")
     if config["student"]["model"] != "Qwen/Qwen3-4B":
         raise ValueError("Formal Student must be Qwen3-4B")
     limits = config["limits"]
@@ -47,7 +55,6 @@ def validate_config(config):
         "max_requests": 80,
         "total_generated_tokens": 32768,
         "max_model_turns": 80,
-        "max_tool_calls": 80,
         "episode_generated_tokens": 16384,
         "episode_wall_seconds": 900,
         "total_wall_seconds": 1800,
@@ -60,8 +67,11 @@ def validate_config(config):
     if limits["max_infrastructure_retries"] != 0:
         raise ValueError("P3-A pilot has no automatic paid retries")
     teacher = config["teacher"]
-    if not 1 <= teacher.get("max_tool_calls_per_turn", 1) <= 64:
-        raise ValueError("Native batch limit must be between 1 and 64")
+    for value in (limits["max_tool_calls"], teacher.get("max_tool_calls_per_turn", 1)):
+        if value is not None and (type(value) is not int or value <= 0):
+            raise ValueError(
+                "Tool count limits must be null (unlimited) or positive integers"
+            )
     for key in (
         "timeout_seconds",
         "max_new_tokens",
@@ -149,10 +159,19 @@ def run_teacher_episode(config, task_id, output, credentials):
         "split": "train",
         "mode": "teacher_normal",
         "tool_mode": config.get("tool_mode", "dynamic_discovery"),
+        "actor_prompt_variant": config.get("actor_prompt_variant", "legacy_v1"),
+        "predictor_prompt_variant": config.get(
+            "predictor_prompt_variant", "official_zero_shot"
+        ),
         "actor_role": "teacher",
         "start_kind": "original_initial",
         "teacher": copy.deepcopy(teacher),
-        "protocol": "native_bounded_batch_serial_complete_boundary_v1",
+        "protocol": (
+            "native_serial_complete_boundary_no_call_count_quota_v2"
+            if limits["max_tool_calls"] is None
+            and teacher.get("max_tool_calls_per_turn", 1) is None
+            else "native_bounded_batch_serial_complete_boundary_v1"
+        ),
         "worker_pid": os.getpid(),
         "training_started": False,
         "status": "infrastructure_error",
@@ -172,29 +191,20 @@ def run_teacher_episode(config, task_id, output, credentials):
             output.name,
             seed=config["environment_seed"],
             timeout=limits["tool_timeout_seconds"],
+            # Upstream requires an int and compares it directly (None is invalid).
+            # This compatibility sentinel removes its former hidden 100-execute
+            # ceiling; token/request/time budgets remain the operational bounds.
+            max_interactions=sys.maxsize,
         )
         trajectory["scenario_id"] = adapter.world.task.generator_id
         trajectory["appworld"] = adapter.versions
         trajectory["initial_state_hash"] = adapter.fingerprint()
-        system = SYSTEM
-        if trajectory["tool_mode"] == "api_predictor":
-            system = system.replace(
-                DISCOVERY_INSTRUCTION,
-                "The available APIs were selected before execution. "
-                "Their schemas are fixed for this task.",
-            )
+        trajectory["environment_execution_limit"] = sys.maxsize
         messages.extend(
             [
                 {
                     "role": "system",
-                    "content": system.replace(
-                        "Call exactly one function per turn.",
-                        "You may request a bounded batch of independent calls. "
-                        "Calls execute serially in the order requested. Every call "
-                        "must use an already visible schema and known arguments. "
-                        "Wait for results before making dependent calls. "
-                        "If completing the task, complete_task must be the last call.",
-                    ),
+                    "content": actor_system(config),
                 },
                 {
                     "role": "user",
@@ -222,7 +232,10 @@ def run_teacher_episode(config, task_id, output, credentials):
             )
             if (
                 left <= 0
-                or usage["tool_calls"] >= limits["max_tool_calls"]
+                or (
+                    limits["max_tool_calls"] is not None
+                    and usage["tool_calls"] >= limits["max_tool_calls"]
+                )
                 or usage["provider_requests"] >= config["remaining_requests"]
                 or now() - started >= limits["episode_wall_seconds"]
             ):
@@ -314,7 +327,10 @@ def run_teacher_episode(config, task_id, output, credentials):
                             for call in calls
                         ]
                     )
-                    if len(calls) + usage["tool_calls"] > limits["max_tool_calls"]:
+                    if (
+                        limits["max_tool_calls"] is not None
+                        and len(calls) + usage["tool_calls"] > limits["max_tool_calls"]
+                    ):
                         raise ValueError("Entire batch exceeds remaining tool budget")
                     for offset, call in enumerate(calls):
                         function = call["function"]

@@ -1,6 +1,8 @@
 {
-  "project_version": "0.5",
+  "project_version": "0.6",
   "tool_mode": "dynamic_discovery",
+  "actor_prompt_variant": "budget_batched_v2",
+  "predictor_prompt_variant": "official_zero_shot",
   "appworld_root": "data/appworld",
   "student": {
     "model": "Qwen/Qwen3-4B",
@@ -20,7 +22,7 @@
     "temperature": 0.2,
     "timeout_seconds": 120,
     "max_new_tokens": 4096,
-    "max_tool_calls_per_turn": 64,
+    "max_tool_calls_per_turn": null,
     "max_request_bytes": 131072,
     "billing_context_tokens": 1048576,
     "pricing": {
@@ -43,7 +45,7 @@
     "max_requests": 80,
     "total_generated_tokens": 32768,
     "max_model_turns": 40,
-    "max_tool_calls": 40,
+    "max_tool_calls": null,
     "episode_generated_tokens": 16384,
     "episode_wall_seconds": 900,
     "total_wall_seconds": 1800,

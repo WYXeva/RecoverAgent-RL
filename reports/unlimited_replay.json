@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "source": "runs/tool_modes_20261020_a/teacher_522c2e363712",
+  "output": "runs/unlimited_replay_20261020_a",
+  "source_files_hash": "aa9c7c3965b4a9c295fffae71b50209c09eb22636164f08799484e40d2c5f2e9",
+  "task_id": "82e2fac_1",
+  "new_model_requests": 0,
+  "new_teacher_demonstration": false,
+  "hidden_evaluator_read": false,
+  "training_started": false,
+  "historical_observations_matched": 28,
+  "replay_rows": [
+    {
+      "source_request_id": "001",
+      "source_dispatched": 1,
+      "replay_dispatched": 1,
+      "total_executed": 1
+    },
+    {
+      "source_request_id": "002",
+      "source_dispatched": 3,
+      "replay_dispatched": 3,
+      "total_executed": 4
+    },
+    {
+      "source_request_id": "003",
+      "source_dispatched": 1,
+      "replay_dispatched": 1,
+      "total_executed": 5
+    },
+    {
+      "source_request_id": "004",
+      "source_dispatched": 1,
+      "replay_dispatched": 1,
+      "total_executed": 6
+    },
+    {
+      "source_request_id": "005",
+      "source_dispatched": 1,
+      "replay_dispatched": 1,
+      "total_executed": 7
+    },
+    {
+      "source_request_id": "006",
+      "source_dispatched": 1,
+      "replay_dispatched": 1,
+      "total_executed": 8
+    },
+    {
+      "source_request_id": "007",
+      "source_dispatched": 20,
+      "replay_dispatched": 20,
+      "total_executed": 28
+    },
+    {
+      "source_request_id": "008",
+      "source_dispatched": 0,
+      "replay_dispatched": 20,
+      "total_executed": 48
+    }
+  ],
+  "replayed_tool_calls": 48,
+  "terminal_checkpoint_id": "b4aa728f38a8d10a2cac2ee0555bb86a09d5c88552beff2870b142b7efa8bace",
+  "count_probe_calls": 101,
+  "observed_interactions": 101,
+  "count_probe_logical_state_unchanged": true,
+  "appworld_integer_sentinel": 9223372036854775807,
+  "wall_seconds": 36.137264277087525
+}

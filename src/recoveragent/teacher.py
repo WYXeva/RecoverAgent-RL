@@ -110,7 +110,7 @@ def normalize_message(response, max_calls=1):
     message = {"role": "assistant", "content": content or ""}
     calls = raw.get("tool_calls") or []
     if calls:
-        if len(calls) > max_calls:
+        if max_calls is not None and len(calls) > max_calls:
             raise ValueError("Tool batch exceeds configured limit")
         identities = set()
         for call in calls:

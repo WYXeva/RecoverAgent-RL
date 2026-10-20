@@ -1,0 +1,136 @@
+{
+  "status": "PASS",
+  "new_model_requests": 0,
+  "training_started": false,
+  "same_initial_state_and_backend": true,
+  "independent_processes": 3,
+  "same_budgets_and_teacher": true,
+  "a_actor_prompts_identical": true,
+  "a_predictor_only_prompt_difference": "dependency supplement appended to last public user message",
+  "historical_batch_analysis": {
+    "playlists": 8,
+    "song_entries": 60,
+    "unique_songs": 57,
+    "batch_sizes": [
+      20,
+      20
+    ],
+    "generated_tokens": [
+      932,
+      696
+    ],
+    "overlapping_ids": 0,
+    "all_ids_from_previous_observation": true,
+    "overhead_calls_before_song_reads": 8,
+    "old_total_quota": 40,
+    "old_executed_before_rejection": 28,
+    "old_remaining": 12,
+    "reason_for_exact_batch_size_20": "NOT_OBSERVABLE; model text only states batching"
+  },
+  "rows": [
+    {
+      "condition": "b_dynamic",
+      "trajectory_id": "teacher_14608f1133b8",
+      "trajectory_sha256": "4ef888f3fc80479d285ba03bc8a870979defa0b699afa808aa1ea8e589db8930",
+      "evaluation_sha256": "2e38305c7b8df6e6fb7ed549563b7195ad50966a5bd23ff990c2c02289d6cfd8",
+      "config_sha256": "db66d74a746c77a40b9e57d43265b10d850f97298adb0fa83ad638b263bd508a",
+      "actor_prompt_sha256": "f6c56d9b54ecd9db021fa4ff7b11c42a12093f47b3293d9007b7aaeb0f35c50d",
+      "dataset_manifest_sha256": "7d424c594b0d8e9b20e1c12a72d34e3747b22726331c5b4cffd4969f6ea9ac09",
+      "batch_sizes": [
+        2,
+        3,
+        1,
+        1,
+        2,
+        30,
+        27,
+        1
+      ],
+      "usage_recomputed": {
+        "provider_requests": 8,
+        "prompt_tokens": 69231,
+        "generated_tokens": 2830,
+        "cached_prompt_tokens": 41856,
+        "tool_calls": 67,
+        "usage_priced_cost": 0.011859636,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "usage_known": true,
+        "billed_cost": null,
+        "currency": "USD"
+      }
+    },
+    {
+      "condition": "a_official",
+      "trajectory_id": "teacher_a70a23bf306d",
+      "trajectory_sha256": "d5c22b97c4354e43cd5f4b84d168deef02a07a7c8f2f6812fd54d8ad626f3885",
+      "evaluation_sha256": "6fad544eefda05771b7332c7080d7e292236289d1610a3b7edc4268164083362",
+      "config_sha256": "bb2d3f3159b9b3d08c99e5b75c77a28979192535428581d0ec290cff24121fca",
+      "actor_prompt_sha256": "d66cf89d2c1e06a7cfaf53884603ee24421560377cd0d83b21fb7b3d51b0b32a",
+      "dataset_manifest_sha256": "d1ec60191a3f29fe23e83dbe474728bb5df946e8d28740889409660ac4b6c4ab",
+      "batch_sizes": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "usage_recomputed": {
+        "provider_requests": 6,
+        "prompt_tokens": 17154,
+        "generated_tokens": 580,
+        "cached_prompt_tokens": 14464,
+        "tool_calls": 5,
+        "usage_priced_cost": 0.001589784,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "usage_known": true,
+        "billed_cost": null,
+        "currency": "USD"
+      }
+    },
+    {
+      "condition": "a_dependency",
+      "trajectory_id": "teacher_f48e51cdaecc",
+      "trajectory_sha256": "22f49adfb28365f62c67195377bf5bdf6dfe1105e4c72f790d646908e09c9d9b",
+      "evaluation_sha256": "2e9228f273f67a9da8a8e54fdf0476afb272396e8764f8c6b35adcd7c52ce147",
+      "config_sha256": "9b701fbb7683cbc75d483fa24a4f51e9bb6be3061dfe2ac4514fb55530e204e5",
+      "actor_prompt_sha256": "d66cf89d2c1e06a7cfaf53884603ee24421560377cd0d83b21fb7b3d51b0b32a",
+      "dataset_manifest_sha256": "3c8d34d091895253e7fcbc0cf9b049a2b2f93cb6bce7234889091199ae767292",
+      "batch_sizes": [
+        1,
+        1,
+        1,
+        30,
+        27,
+        1
+      ],
+      "usage_recomputed": {
+        "provider_requests": 7,
+        "prompt_tokens": 42350,
+        "generated_tokens": 2327,
+        "cached_prompt_tokens": 29568,
+        "tool_calls": 61,
+        "usage_priced_cost": 0.006804408,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "usage_known": true,
+        "billed_cost": null,
+        "currency": "USD"
+      }
+    }
+  ],
+  "p0_p2_unchanged_files": 17,
+  "dataset_id": "ffa7369474394df339f6365f7d0449355a07752f6661c2ebb2f8f0279adf1d61",
+  "dataset_counts": {
+    "attempted": 3,
+    "valid": 3,
+    "infrastructure_errors": 0,
+    "official_successes": 2,
+    "accepted": 2,
+    "unique_tasks": 1,
+    "success_per_attempt": 0.6666666666666666,
+    "success_per_valid": 0.6666666666666666
+  },
+  "dataset_manifest_sha256": "0a13edb56232ceff8b554f09c2f3885c7e93522423da0c573c3019a3ed994d7f"
+}
