@@ -1,9 +1,9 @@
 # RecoverAgent-RL：项目计划与需求文档
 
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
-> 版本：v0.3  
+> 版本：v0.4  
 > 创建日期：2026-10-19  
-> 状态：v0.3 训练顺序需求基线；P0–P2 历史验收及 P3 以后当前状态见 `docs/STATUS.md`；训练效果尚未验证。
+> 状态：v0.4 模型与硬件部署需求基线；P0–P2 历史验收及 P3 以后当前状态见 `docs/STATUS.md`；远程训练尚未验证。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 
@@ -81,7 +81,7 @@ ReTerm 已有失败状态恢复、Teacher SFT 与恢复 GRPO。中间状态分�
 ### 2.2 当前已确定的范围
 
 - 环境只使用 **AppWorld**。
-- 只训练一个 Student 策略模型，默认从 Qwen3 小模型开始；另使用参数固定的更强 Teacher 生成恢复示范。
+- **唯一正式主线 Student：`Qwen/Qwen3-4B`**，实际版本和 chat template 必须固定。Qwen3-1.7B 仅为 P0–P2 本机基础设施历史记录，不作为正式主模型或混入 4B 结果。另使用参数固定的更强 Teacher 生成示范。
 - **强制两次 Teacher SFT：正常任务 Base-SFT 在前，失败后 Teacher Recovery-SFT 在后**；所有主线方法从同一个 Base-SFT checkpoint 初始化，纯 GRPO 采样消融再使用同一个固定 Recovery-SFT checkpoint。
 - 基础示范来自 Teacher 在 train 上从原始初态执行的正常成功任务；恢复示范来自 Base-SFT Student 自主执行产生的**新自然失败**及 Teacher 在真实失败状态上的恢复后缀。P0–P2 旧基座失败只作诊断。
 - 初版采用文本与结构化工具调用，不做网页视觉或多模态交互。
@@ -106,15 +106,32 @@ ReTerm 已有失败状态恢复、Teacher SFT 与恢复 GRPO。中间状态分�
 | --- | --- | --- |
 | 环境运行方式 | AppWorld 本地 Unified 模式 | 官方兼容性及目标机器能力 |
 | Agent 接口 | 原生 Function Calling 的交互方式 | 选定版本的实际接口 |
-| 策略模型 | `Qwen/Qwen3-4B` 候选 | 显存、上下文与工具调用预实验 |
-| 资源不足时 | 可退到 Qwen3-1.7B 验证流程 | 不能把弱模型全失败误判成方法失效 |
+| 正式 Student | `Qwen/Qwen3-4B`（需固定 revision） | 不因本机 8GB 自动降级正式模型 |
+| 本地旧模型 | Qwen3-1.7B 仅用于历史 P0–P2 与无训练的兼容性检查 | 与 4B 正式训练及效果严格分开 |
 | 恢复组大小 | 4 | 吞吐、奖励差异和预算 |
 | 环境并发 | 1，四分支串行 | 隔离通过后再提高 |
 | 正常/恢复训练组比例 | 1:1 | 任务能力保持与开发集结果 |
 | 初始奖励 | 官方严格任务成功的 0/1 信号 | 成本/安全项需另行验证 |
-| 参数训练 | LoRA | 先测显存，不承诺特定单卡一定可运行 |
+| 正式训练设备 | 远程 RTX PRO 6000（目标 96GB），初始采用 4B BF16 + LoRA | GPU/驱动/CUDA/TRL/PEFT/推理协议必须先预检 |
 | 训练框架 | 优先评估 TRL，必要时接自定义 rollout | 多轮轨迹、分组、mask 和 worker 契约是否满足 |
 | 两阶段 Teacher SFT | 正常 Teacher 成功轨迹 → Base-SFT；新 Student 失败 → Teacher 恢复轨迹 → Recovery-SFT | Teacher、样本规模和参数可调整；顺序不可变 |
+
+### 2.5 本机 Teacher 数据采集与远程 4B 训练（v0.4）
+
+**本机（已验 RTX 5050 8GB）**：负责 AppWorld 正常 Teacher 工具执行、官方成功验证、过滤与结构化轨迹导出。Teacher 可以是另行合法接入的更强远端/本地服务，实际可用性和费用必须核查。不得把 Qwen3-1.7B 生成的 token IDs 当作 4B 训练标签。正式 4B SFT/GRPO 不安排在本机。
+
+**远程（计划为单张 NVIDIA RTX PRO 6000 Blackwell 96GB，尚未实测）**：负责 P3-B Qwen3-4B 基础 SFT、P3-C Base-SFT Student 执行与新失败、P4 多检查点 Teacher 恢复、Recovery-SFT/GRPO、P5 迭代。远程必须运行匹配版本的 AppWorld worker 才能进行真正的在线 agentic RL；仅复制教师文本不够。
+
+**传输和环境验收契约：**
+1. 本机导出未分词的 **结构化多轮消息**（User/Assistant 工具调用和参数/对应真实 Tool 返回），保留任务与场景 ID、模型身份、轨迹合法性、成功/失败分母及调用成本。只能从 train 构建训练数据。
+2. 提供带 SHA-256 的 manifest，记录 AppWorld commit、数据版本、任务划分、Teacher 模型/revision、公开工具 schema、消息协议、示范与过滤版本、样本数量及许可说明；不将原始基准数据、权重、凭据或其他受限文件提交到公共 GitHub。
+3. 通过经过授权的 SSH/SCP/rsync 或受控存储迁移数据；远程先验证文件哈希、train 来源、schema/消息对齐与版本，再用固定 Qwen/Qwen3-4B tokenizer、chat template 重新分词并生成 Assistant-only SFT loss mask；User/System/Tool/Padding/隐藏评价一律屏蔽。
+4. 远程 AppWorld 使用与本机匹配的源码/data 版本，须实际验证跨主机环境快照与历史一致；不要假设本机绝对路径可直接复用。AppWorld 环境依赖与 4B 训练依赖可隔离为两个 venv/进程，通过受控服务通信。
+5. 单张 96GB GPU 初始验证 BF16 LoRA SFT，然后验证最小当前策略 GRPO；优先简单生成方案或经过兼容测试的 vLLM colocate，**不得**把需要独立训练 GPU 和推理 GPU 的 vLLM server 模式照搬到同一张卡。控制 context、group size、KV cache 和显存峰值，先小负载验收再扩展。
+6. Qwen3-4B 的 thinking/non-thinking 模式、revision、tokenizer、chat template 和工具调用协议必须固定并记录；如调整则重跑格式合法性与损失掩码测试。
+7. 远程机器型号、显存、驱动、CUDA、Python、PyTorch、TRL/PEFT/vLLM、SSH/磁盘和权限均待正式预检。没有资源/付费授权时完成不受阻的数据/代码准备，不标记远程训练成功。
+
+参考：[Qwen3-4B](https://huggingface.co/Qwen/Qwen3-4B)、[RTX PRO 6000](https://www.nvidia.com/en-us/products/workstations/professional-desktop-gpus/rtx-pro-6000-family/)、[TRL GRPO](https://huggingface.co/docs/trl/grpo_trainer)。
 
 ## 3. 上游依据与必须核验的工程事实
 
@@ -492,6 +509,8 @@ Teacher 从 AppWorld train 任务**原始干净状态**独立执行，使用公�
 
 ### P3：正常 Teacher 基础能力训练（下一开发阶段）
 
+**执行地点：** P3-A 在本机收集并验证 Teacher 干净成功示范和可移植数据包；P3-B Base-SFT 与 P3-C Base-SFT Student 自主执行/新自然失败在远程 96GB GPU 环境完成。正式 Student 始终是 Qwen/Qwen3-4B，远程未验证前不得宣称 P3-B 已开始。
+
 - **P3-A Clean Teacher Data**：固定更强 Teacher 从原始 train 任务独立执行，筛选真实官方成功轨迹并输出 Base-SFT 数据与来源；先低负载小样本验证 Teacher 是否真的会做。
 - **P3-B Student Base-SFT**：用正常 Teacher 成功轨迹完成真实 Student Assistant-only SFT、mask 检验、参数更新、保存/重载、固定开发集评价。
 - **P3-C Student New Failures**：加载基础 SFT Student 独立执行 train 任务，收集新自然失败、多检查点与原始状态/历史；不能拿旧基座失败替代。
@@ -777,3 +796,4 @@ P0–P2 已有代码和真实最低验收，不得因新方案重建或覆盖历
 | v0.1 | 2026-10-19 | 建立 AppWorld-only 项目范围、P0–P5 路线、两项待验证增量、首轮任务、隔离与训练契约、预算及实验规范；修正无参 save_state 的旧示例。 |
 | v0.2 | 2026-10-19 | 根据用户明确要求，将 Teacher SFT 设为主线 GRPO 的强制前置；加入五步示范流程、loss mask 与 SFT 验收、P3-A/B/C 子阶段和共同 Teacher-SFT 初始化，保留 P0–P2 先行验证。 |
 | v0.3 | 2026-10-20 | 用户明确要求：先 Teacher 正常成功轨迹教会 Student 基础工具能力，然后 Student 自主执行新任务、Teacher 从多检查点恢复、Student 恢复 SFT + GRPO，并由每轮新错误与 Teacher 新示范增量自迭代。重排 P3–P6 与实验对照。 |
+| v0.4 | 2026-10-20 | 正式 Student 固定 Qwen3-4B；本机负责 Teacher 成功数据采集与验证，远程 RTX PRO 6000 96GB 负责 4B Base-SFT、Student 新失败、多检查点 Recovery-SFT、GRPO 和持续迭代；规定可移植数据交接与远程预检门槛。 |
