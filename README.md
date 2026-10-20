@@ -2,7 +2,7 @@
 
 Self-Improving Tool Agents through Failure Recovery
 
-在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.2 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
+在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.3 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
 
 本轮仅实现 P0–P2：公开工具调用、自然失败采集、状态/历史检查点、串行四进程恢复与官方评价。**没有启动训练，也没有效果提升结论。** 最新验收、错误与限制见 [STATUS](docs/STATUS.md)，技术选择见 [DECISIONS](docs/DECISIONS.md)。
 
@@ -65,4 +65,4 @@ HF_HUB_OFFLINE=1 .venv-inference/bin/python -m recoveragent.inference \
 
 执行 world 不加载 ground truth。官方 `evaluate_task` 在控制侧、终态保存后运行，以原始任务为参照。恢复 schema、历史、环境 RNG 和预算一致，仅改变模型采样种子；同奖励组可以通过基础设施验收。P0–P2 轨迹没有行为 log probabilities，明确禁止直接作为在线 GRPO 批次。
 
-凭据、原始基准内容、解包代码、轨迹、快照和权重不上传 GitHub；仅提交代码、配置和可公开的证据摘要。下一阶段仍须先完成经验证的 Teacher 恢复数据与真实 Student SFT。
+凭据、原始基准内容、解包代码、轨迹、快照和权重不上传 GitHub；仅提交代码、配置和可公开的证据摘要。**下一阶段首先是 P3-A Teacher 正常成功示范**，而不是直接从旧基座失败做 Recovery-SFT。现有 P0–P2 报告仍为历史真实基础设施证据，尚无训练效果。
