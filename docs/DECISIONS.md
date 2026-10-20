@@ -1,6 +1,6 @@
 # 技术决策
 
-需求基线为 `AGENTS.md` / `PROJECT_PLAN.md` v0.2。本轮只做 P0–P2；Teacher 恢复 SFT 仍为后续主线 GRPO 的必经前置。
+当前需求为 `AGENTS.md` / `PROJECT_PLAN.md` v0.3；D001–D006 是 2026-10-19 P0–P2 的历史工程记录，不因本次方案改变而修改。
 
 ## D001 · 2026-10-19 · 固定源码与独立环境
 
@@ -45,3 +45,11 @@ AppWorld 与推理分别使用 `.venv`、`.venv-inference`；实际依赖另存 
 ## D005 · 2026-10-19 · Git 工作目录
 
 原始工作目录 `.git` 为空且只读。保留其现状，使用 `/tmp/recoveragent-dev-20261019` 的真实克隆进行版本管理，remote 为 `https://github.com/WYXeva/RecoverAgent-RL.git`。开发分支 `codex/p0-p2-recovery` 从远端 `14be212003e2af85457377eaf4e154208ea978c7` 创建；保留所有既有提交，不修改 main、不强制推送。源码在用户工作区实现后，显式同步已审查的小型文件到该克隆。
+
+## D007 · 2026-10-20 · 两阶段 Teacher SFT、Multi-Checkpoint 与增量恢复
+
+- 用户明确要求先用固定更强 Teacher 的正常成功轨迹训练 Student **基础执行能力**；只有完成 Base-SFT 后 Student 才自主执行、暴露新错误，由 Teacher 从多个真实检查点接管修复，再训练 Recovery-SFT，随后 Student 在线恢复 GRPO。
+- 改造阶段顺序：P3-A Teacher Clean Data；P3-B Student Base-SFT；P3-C 新 Student Failure Mining；P4-A Multi-Checkpoint Teacher Recovery；P4-B Recovery-SFT；P4-C GRPO；P5 Teacher 辅助增量 SFT+GRPO；P6 官方最终评价。
+- Base-SFT 只监督 Teacher 正常成功全轨迹 Assistant token；Recovery-SFT 仅监督 Student 失败状态后 Teacher 恢复后缀的 Assistant token。系统、用户、工具输出、隐藏评价都不能成为 SFT target。
+- 多检查点 V1 为规则选择，主研究对象为 Post-error 与 Late-failure；Pre-error 仅作错误预防消融。V2 U_SFT=p_T(1-p_S)、U_RL=4p_S(1-p_S) 为待验证启发式。必须控制 Teacher 全尝试成本、每任务数据权重及 SFT/RL token。
+- P0–P2 老实验仍有效但只说明基础设施；本次仅更新 GitHub 文档，未运行新实验、没有 Teacher 数据、两阶段 SFT 或 GRPO 的通过证据。无授权不得调用付费 Teacher。
