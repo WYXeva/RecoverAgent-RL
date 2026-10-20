@@ -1,15 +1,22 @@
 # 项目状态
 
-- 最后更新：2026-10-19 23:30（Asia/Shanghai）
-- 当前研究阶段：P0–P2 实现与真实环境验收完成；P3–P5 未开始。
-- 本轮任务：真实 AppWorld 状态恢复、Student 自然失败与四分支恢复；不训练。
-- 本轮状态：`PASS`（P0 / P1 / P2 基础设施）。1 条真实自然失败和同起点的 4 条恢复全部保存并经官方评价，恢复奖励 `[0, 0, 0, 0]`；26 项软件测试通过。训练管线未验收，未支持效果提升。下方保留上次文档发布记录。
+- 最后更新：2026-10-20（v0.3 文档修订；P0–P2 实验仍为 2026-10-19）
+- 当前研究阶段：P0–P2 基础设施通过；v0.3 的 P3–P6 均未开始。
+- 本轮任务：根据用户要求更新 GitHub 项目训练路线，仅修改文档，未运行新实验。
+- 本轮状态：`DOCS_UPDATED`。此前 P0–P2 基础设施 PASS 保留：1 条自然失败、4 条奖励 `[0, 0, 0, 0]` 的恢复，26 项软件测试为旧实验结果；本次无新运行。Teacher 正常 Base-SFT、Teacher Recovery-SFT、GRPO、自迭代均 `NOT_STARTED`。
 - 远端仓库：<https://github.com/WYXeva/RecoverAgent-RL>，默认分支 `main`。
 - 实际可见性：公开。继续执行时发现该仓库已经存在且设为公开，本轮保留其可见性与初始提交；此前拟建私有仓库的方案未执行。
 
-## 本轮推进（2026-10-19）
+## v0.3 新需求（2026-10-20，仅文档）
 
-- 需求仍为 v0.2；未改变 Teacher SFT 强制前置。
+- **已确定的训练顺序**：P3-A Teacher 从 AppWorld 干净初态完成**正常成功轨迹** → P3-B Student **Base-SFT**（全部 Teacher 正常轨迹 Assistant token）→ P3-C Base-SFT Student 独立执行产生**新自然失败** → P4-A 从多个合法检查点由 Teacher 真实修复 → P4-B Student **Recovery-SFT**（仅 Teacher 恢复后缀 Assistant token）→ P4-C Student 恢复 GRPO → P5 每轮新失败 + 新 Teacher 示范 + 增量 SFT/GRPO → P6 最终评价。
+- **主要增量**：Multi-Checkpoint Recovery Learning；Post-error/Late-failure 主实验、Pre-error 独立预防消融。V1 规则选点先行，U_SFT=p_T(1-p_S)、U_RL=4p_S(1-p_S) 属于 V2 待验证启发式。
+- **下一轮范围**：先核对已知 Qwen 工具调用格式错误及 P3-A Teacher 正常任务成功示范的接口/低负载试点；没有合法可用 Teacher 与费用授权时只做不付费组件/测试。完成经验证的正常 Teacher 轨迹且资源允许才进入 P3-B，绝不按旧方案先做基座失败的 Recovery-SFT 或直接 GRPO。
+- **本次修改**：PROJECT_PLAN.md、AGENTS.md、docs/STATUS.md、docs/DECISIONS.md、README.md；未修改实际运行代码、权重、轨迹或旧报告，没有运行训练。
+
+## P0–P2 历史执行记录（2026-10-19）
+
+- 当时依据 v0.2 完成基础设施；后续执行顺序以 v0.3 新用户要求为准。
 - 独立开发分支 `codex/p0-p2-recovery`，真实 Git 克隆 `/tmp/recoveragent-dev-20261019`，origin 已核对为用户指定仓库。
 - 实现：公开 API 白名单、JSON/schema 参数校验、模型单调用协议、独立推理服务、正常与恢复 Runner、外置不可变快照、完整历史边界、train-only Failure Buffer、四进程串行调度与预算。
 - 软件测试：`.venv/bin/python -m pytest -q` → 26 passed（软件逻辑，不替代 AppWorld），证据 `reports/software_tests.txt`。
@@ -24,7 +31,7 @@
 - 资源：RTX 5050 8GB、约 15GiB 系统 RAM，固定 Qwen3-1.7B BF16、单环境 worker。模型实验共 100 个生成回合、50 次工具调用、919188 输入 token、4404 生成 token、1647.63 秒（27.46 分钟）；基础设施错误和重试均为 0。未触达 150000 生成 token / 90 分钟上限。安装、下载及状态探针另见环境报告。付费服务、租用算力和训练步数均为 0，推理服务已停止。
 - 实际实验命令：`PYTHONPATH=src APPWORLD_CACHE="$PWD/.cache/appworld" IPYTHONDIR="$PWD/.cache/ipython" timeout 5400 .venv/bin/python -m recoveragent.cli run --config configs/p0_p2.json --output runs/p0_p2_20261019_a`，日志 `.cache/p0-p2-a.log`。
 - 复现与验证命令：真实状态探针、推理服务、主实验、摘要重算、pytest 与 Ruff 的完整实际命令见 `reports/p0_p2_report.md`；环境安装和兼容性日志见 `reports/environment_report.md`。
-- 下一步：本轮停止于 P2，代码和公开证据由上述开发分支交付。只有另行授权 P3 后，才配置更强 Teacher 生成经验证的真实恢复示范，并完成 Student 恢复后缀 SFT；真实 SFT 重载与开发评价通过后才考虑 GRPO。
+- 当时的下一步计划已由 v0.3 替代；现在 **先 Teacher 正常成功轨迹与 Student Base-SFT**，再从 Base-SFT Student 新自然失败生成 Teacher 恢复示范与 Recovery-SFT，最后才是 GRPO。
 
 ## 上次文档发布记录：已完成
 
