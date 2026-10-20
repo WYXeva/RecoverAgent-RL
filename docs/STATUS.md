@@ -1,13 +1,21 @@
 # 项目状态
 
 - 最后更新：2026-10-20（v0.3 文档修订；P0–P2 实验仍为 2026-10-19）
-- 当前研究阶段：P0–P2 基础设施通过；v0.3 的 P3–P6 均未开始。
-- 本轮任务：根据用户要求更新 GitHub 项目训练路线，仅修改文档，未运行新实验。
+- 当前研究阶段：P0–P2 基础设施通过；v0.4 的 P3–P6 尚未开始；远程 RTX PRO 6000 96GB 未核验或部署。
+- 本轮任务：按用户要求将正式主模型固定为 Qwen/Qwen3-4B，确定本机 Teacher 数据采集与远程 96GB GPU 训练的分工；仅修改文档。
 - 本轮状态：`DOCS_UPDATED`。此前 P0–P2 基础设施 PASS 保留：1 条自然失败、4 条奖励 `[0, 0, 0, 0]` 的恢复，26 项软件测试为旧实验结果；本次无新运行。Teacher 正常 Base-SFT、Teacher Recovery-SFT、GRPO、自迭代均 `NOT_STARTED`。
 - 远端仓库：<https://github.com/WYXeva/RecoverAgent-RL>，默认分支 `main`。
 - 实际可见性：公开。继续执行时发现该仓库已经存在且设为公开，本轮保留其可见性与初始提交；此前拟建私有仓库的方案未执行。
 
-## v0.3 新需求（2026-10-20，仅文档）
+## v0.4 模型与硬件路线（2026-10-20，仅文档）
+
+- **唯一正式 Student**：`Qwen/Qwen3-4B`。此前本机 RTX 5050 8GB 上的 `Qwen3-1.7B` 是 P0–P2 基础设施历史，不作为正式 4B SFT/GRPO 的模型或算法结论。
+- **本机 P3-A**：执行 AppWorld Teacher 正常任务、真实官方验证/过滤、导出含 SHA-256 manifest 的未分词多轮轨迹；Teacher 是否可用与费用仍需检查。
+- **远程 P3-B 以后**：目标单张 RTX PRO 6000 Blackwell 96GB（尚待 SSH、实际 GPU 型号、显存、CUDA/驱动和权限验证），执行 Qwen3-4B Base-SFT、4B Student 自主任务与新失败、多检查点 Teacher 恢复、Recovery-SFT/GRPO 和迭代。需远程可执行的同版本 AppWorld worker，不只复制模型训练数据。
+- **交接前置**：保存 Teacher/model/任务/划分/AppWorld 源码数据版本、schema、完整消息、官方成功证据摘要、过滤分母、文件 SHA-256；远程重新使用 Qwen3-4B tokenizer 构建 Assistant-only loss mask，不能直接使用 1.7B token IDs。数据通过经授权安全通道转移，不上传受限轨迹/权重/凭据到公共 GitHub。
+- 本次仅文档更新；没有新增 Teacher 成功示范、远程训练、96GB 硬件预检或 4B Student 结果；不得将计划冒充完成。
+
+## v0.3 原训练顺序记录（2026-10-20）
 
 - **已确定的训练顺序**：P3-A Teacher 从 AppWorld 干净初态完成**正常成功轨迹** → P3-B Student **Base-SFT**（全部 Teacher 正常轨迹 Assistant token）→ P3-C Base-SFT Student 独立执行产生**新自然失败** → P4-A 从多个合法检查点由 Teacher 真实修复 → P4-B Student **Recovery-SFT**（仅 Teacher 恢复后缀 Assistant token）→ P4-C Student 恢复 GRPO → P5 每轮新失败 + 新 Teacher 示范 + 增量 SFT/GRPO → P6 最终评价。
 - **主要增量**：Multi-Checkpoint Recovery Learning；Post-error/Late-failure 主实验、Pre-error 独立预防消融。V1 规则选点先行，U_SFT=p_T(1-p_S)、U_RL=4p_S(1-p_S) 属于 V2 待验证启发式。
