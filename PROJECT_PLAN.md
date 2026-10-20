@@ -1,9 +1,9 @@
 # RecoverAgent-RL：项目计划与需求文档
 
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
-> 版本：v0.2  
+> 版本：v0.3  
 > 创建日期：2026-10-19  
-> 状态：v0.2 需求基线；实际安装、运行与各阶段验收状态见 `docs/STATUS.md`，本计划不预先宣称训练或效果通过。
+> 状态：v0.3 训练顺序需求基线；P0–P2 历史验收及 P3 以后当前状态见 `docs/STATUS.md`；训练效果尚未验证。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 
@@ -11,7 +11,7 @@
 
 本文件是项目的需求与实施依据，后续根据实际代码、环境能力和实验结果修改。它规定目标、默认方案和验收条件，不预先宣称算法有效，也不代表文档中列出的程序已经存在。
 
-**用户已确定的训练路线：先完成 Teacher 恢复示范构建与 Student SFT，再进入 GRPO。Teacher SFT 是必经阶段，不能根据基座成功率、工期或预算将其自行改回可选。**
+**用户最新确认的强制顺序：Teacher 从干净初始状态生成正常成功任务轨迹 → Student 基础 SFT → Base-SFT Student 自主执行并暴露真实错误 → Teacher 从错误检查点接管并真实修复 → Student Recovery SFT → Student 自己恢复 rollout 的 GRPO → 多轮 Teacher 辅助增量学习。基础 Teacher SFT 与恢复 Teacher SFT 是两个不同的、都不可跳过的训练阶段。**
 
 开始实现时，先阅读 `AGENTS.md` 和本文件，再检查现有仓库。如果已有代码或阶段报告，应从已经验证的状态继续；不要重新搭建已经完成的部分。首次实现时创建 `docs/STATUS.md`，记录当前阶段、证据、阻塞和下一步。
 
@@ -34,7 +34,7 @@
 5. 从相同失败起点完成四次隔离的恢复尝试。
 6. 得到四份可由官方验证器核查的结果与阶段报告。
 
-**首轮 P0–P2 默认不启动训练。** 用户授权推进训练后，依次完成 P3-A Teacher 示范构建、P3-B Student SFT、P3-C GRPO，不得跳过 Teacher SFT。如果本次请求仅为修改文档，则只修改文档。
+**P0–P2 基础设施已在开发分支完成最低验收，四条恢复奖励均为 0，不能声称恢复能力提升。** 下一阶段是 P3-A Teacher 正常任务成功示范、P3-B Student 基础 SFT、P3-C Base-SFT Student 新自然失败；多检查点恢复、恢复 SFT 和 GRPO 属于后续 P4。本文档修改不代表启动训练或授权付费服务。
 
 ## 1. 项目定位与动机
 
@@ -46,42 +46,44 @@
 
 以 AppWorld 的有状态、多应用任务作为实验载体。业务示例用于说明问题，不代表接入了真实企业系统，也不代表已经具备生产部署能力。
 
-### 1.2 基础方法与拟研究增量
+### 1.2 基础能力与恢复能力分离
 
-基础方法借鉴 ReTerm，分为两个连续训练阶段：先由基座生成自然失败，让更强 Teacher 从保留的状态与历史中完成恢复，筛选示范并进行 Student SFT；随后让当前 Student 从同一起点生成多条恢复后缀，利用真实验证结果进行组内比较，混合正常任务与恢复任务做 GRPO。[S4][S5]
+基础能力阶段：固定的更强 Teacher 从 AppWorld train 的干净任务初态自主执行公开工具，得到官方验证成功的完整正常轨迹。Student 模仿这些 Assistant 行为，学习函数调用格式、API 发现与正常任务规划，形成 Base-SFT checkpoint。
 
-本项目拟研究两个增量：
+恢复学习阶段：只有在 Base-SFT 完成后，Student 才作为新策略自主执行并产生新自然失败。保存合法环境检查点、对应时刻的可见历史和工具 Schema。Teacher 从已失败的真实状态继续操作、修复，并在官方验证成功后输出恢复示范；Student 只模仿 Teacher 的恢复后缀 Assistant token，再从自己的恢复 rollout 中学习 GRPO。
 
-1. **Decision-Point Recovery（恢复起点选择）**：从失败轨迹中的有限候选检查点选择训练起点，比较它与仅从失败终态附近恢复的效果。
-2. **Adaptive Failure Learning（自适应失败经验学习）**：根据当前策略对失败起点的恢复表现，调整经验采样，同时保留探索和旧经验覆盖。
+主要研究增量：**Multi-Checkpoint Recovery Learning**。同一失败任务不局限于终态，可从多个状态与历史对应的检查点生成恢复任务，优先 Post-Error 与 Late-Failure（继承已发生的错误），Pre-Error 单独作为错误预防消融。必须控制同源任务权重和 Teacher/Student 预算。
 
-“失败后分叉 + GRPO”属于已有方法基础。中间状态恢复也已有相关分析；本项目不宣称首次提出这些概念。增量是否成立，需要用固定预算下的对照、消融和误差分析证明。
+自迭代机制：**Teacher-Assisted Iterative Recovery**。每轮由新 Student 自己执行、生成新失败，再由 Teacher 接管选定检查点，生成新的成功恢复示范进行增量 Recovery SFT，结合当前 Student 自主恢复 GRPO 更新参数。属于 Teacher 辅助的持续改进，不是完全无教师自学习。
 
-### 1.3 自迭代的含义
+ReTerm 已有失败状态恢复、Teacher SFT 与恢复 GRPO。中间状态分叉亦非独创。具体的检查点选择与增量训练效果须由公平消融验证，不预先认定有效。
 
-这里的自迭代是受控训练循环：当前模型执行训练任务，产生新的失败经验，再通过训练更新参数。每轮重新采样，并保留模型版本与开发集结果。
+### 1.3 三个核心研究问题
 
-它不要求增加独立的反思模型、诊断模型或记忆 Agent，也不意味着部署期间无限在线更新。
+1. **基础学习是否必要？** Teacher 正常成功轨迹 SFT 能否减少 Qwen 工具格式错误、提升正常任务完成率？
+2. **哪种检查点值得恢复？** 在相同 Teacher 成本、SFT token 和任务权重下，Terminal-only、First-Error、Random、Multi-Checkpoint、Adaptive 分别有什么效果？
+3. **持续 Teacher 接管是否有价值？** 每轮引入新的自然失败和 Teacher 修复示范，与只做一次恢复 SFT / 只做 GRPO 相比，是否提升完整任务成功率、恢复率和样本效率？
 
 ## 2. 目标、范围与成功标准
 
-### 2.1 分层目标
+### 2.1 分层目标与验收
 
-| 目标层级 | 必须完成的结果 | 能支持的结论 |
+| 层级 | 交付要求 | 不能由此宣称 |
 | --- | --- | --- |
-| 基础设施版本 | 一条真实失败 → 状态与历史复现 → 四次恢复 → 官方验证 | 环境与采样机制可用 |
-| 最低训练版本 | 完成 Teacher 恢复示范筛选与 Student SFT，再由 SFT 后策略生成恢复组并完成真实 GRPO 更新，保存并重载 checkpoint | 两阶段训练管线可用；不自动代表能力提升 |
-| 完整项目版本 | 两项方法增量、至少两轮完整更新、公平基线与消融、可复现实验报告 | 可以评价方法是否有效及其局限 |
-| 可展示版本 | 固定案例的执行/恢复轨迹、关键指标、复现入口和来源说明 | 可用于简历与面试解释 |
+| 已验收 P0–P2 | 真实执行、自然失败、检查点与四条恢复分支 | 模型已经能恢复或 RL 已可训练 |
+| P3 基础能力 | Teacher 正常成功轨迹 → Student Base-SFT 真训练/重载 → Base-SFT Student 自然失败 | 已完成 Recovery SFT 或 GRPO |
+| P4 恢复学习 | Student 多检查点 → Teacher 真实恢复 → Recovery SFT 真训练/重载 → 在线 GRPO | 已证明总体算法提升 |
+| P5 自迭代研究 | 至少两轮新失败、增量 Teacher 示范、增量 Recovery SFT 与 GRPO，完成消融 | 无教师完全自进化 |
+| P6 最终报告 | 固定官方测试、训练预算、失败案例、可复现结果、Demo | 单次样例可代表完整性能 |
 
-项目完成的标准是交付可信的实现和实验。正向提升是研究目标，不是保证；负结果同样保留，并用于决定简化或调整方法。
+效果提升是待检验研究假设，负结果必须保留。
 
 ### 2.2 当前已确定的范围
 
 - 环境只使用 **AppWorld**。
 - 只训练一个 Student 策略模型，默认从 Qwen3 小模型开始；另使用参数固定的更强 Teacher 生成恢复示范。
-- Teacher 恢复 SFT 为主训练流程的强制前置，所有主线 RL 方法使用同一份通过验收的 SFT checkpoint 初始化。
-- 主训练数据来自 Agent 在 `train` 上的自然失败。
+- **强制两次 Teacher SFT：正常任务 Base-SFT 在前，失败后 Teacher Recovery-SFT 在后**；所有主线方法从同一个 Base-SFT checkpoint 初始化，纯 GRPO 采样消融再使用同一个固定 Recovery-SFT checkpoint。
+- 基础示范来自 Teacher 在 train 上从原始初态执行的正常成功任务；恢复示范来自 Base-SFT Student 自主执行产生的**新自然失败**及 Teacher 在真实失败状态上的恢复后缀。P0–P2 旧基座失败只作诊断。
 - 初版采用文本与结构化工具调用，不做网页视觉或多模态交互。
 - 先实现串行隔离恢复，再根据瓶颈增加并发。
 - 正常任务与恢复任务共同服务于最终完整任务能力。
@@ -112,7 +114,7 @@
 | 初始奖励 | 官方严格任务成功的 0/1 信号 | 成本/安全项需另行验证 |
 | 参数训练 | LoRA | 先测显存，不承诺特定单卡一定可运行 |
 | 训练框架 | 优先评估 TRL，必要时接自定义 rollout | 多轮轨迹、分组、mask 和 worker 契约是否满足 |
-| Teacher SFT | 必须完成；更强 Teacher 生成恢复示范，Student 接受 SFT | Teacher、样本规模与训练参数可调整；该阶段不可跳过 |
+| 两阶段 Teacher SFT | 正常 Teacher 成功轨迹 → Base-SFT；新 Student 失败 → Teacher 恢复轨迹 → Recovery-SFT | Teacher、样本规模和参数可调整；顺序不可变 |
 
 ## 3. 上游依据与必须核验的工程事实
 
@@ -193,21 +195,27 @@ Actor 不可见：隐藏测试、标准答案、目标数据库状态、详细�
 
 默认恢复提示只要求从已有状态继续，避免重复已完成操作，不说明哪个隐藏测试失败。如果后续实验加入“上一轮未通过验证”的告知，必须记录为额外失败通知，所有恢复基线使用同样信息；不能据此宣称 Actor 自主发现了隐藏错误。
 
-### 4.4 整体闭环
+### 4.4 完整训练闭环（v0.3）
 
-进入下图循环前，必须先完成 Teacher 示范构建、筛选和 Student SFT，得到初始策略；具体流程见第 8.5 节。下图表示随后的训练控制流程，不是向 Actor 暴露的工具图。
-
-```mermaid
-flowchart TD
-    A[当前策略] --> B[执行训练任务]
-    B --> C[保存失败与候选状态]
-    C --> D[选择恢复起点]
-    D --> E[隔离采样恢复组]
-    E --> F[官方验证与奖励]
-    F --> G[混合正常组与恢复组训练]
-    G --> H[开发集评测与版本保存]
-    H --> A
+```text
+Teacher 正常 train 任务成功轨迹 → 官方验证 → Clean Dataset
+       ↓
+Student Base-SFT（基础工具能力）→ 固定初始 checkpoint
+       ↓
+Base-SFT Student 自主执行新的 train 任务、产生新自然失败
+       ↓
+合法多检查点（pre-error / post-error / late-failure）
+       ↓
+Teacher 分别从真实状态接管恢复 → 官方验证与过滤
+       ↓
+Student Recovery SFT（只训练 Teacher 恢复后缀）
+       ↓
+Student 自主多次恢复 → GRPO
+       ↓
+当前 Student 再执行新任务 → 新失败 → Teacher 新示范 → 增量 SFT + GRPO
 ```
+
+Teacher 与 Student 只获得公开任务和真实可见工具。训练控制器负责快照、隐藏评估和分支奖励，不得泄露到 Actor。
 
 ## 5. 功能需求与模块职责
 
@@ -220,12 +228,14 @@ flowchart TD
 | FR-05 | Failure Buffer | 持久化起点与来源，去重、容量管理、版本追踪 | P1 |
 | FR-06 | Recovery Runner | 同起点 G 次恢复，隔离目录/状态，输出完整结果 | P2 |
 | FR-07 | Reward / Evaluator | 官方严格成功、成本统计、可选验证过的安全项 | P2 |
-| FR-08 | Training Bridge | Teacher 后缀 SFT 的 loss mask、多轮 token/logprob/mask 对齐、GRPO 更新、权重同步 | P3-B–P3-C |
-| FR-09 | Selectors | 恢复点选择、经验采样、统计更新 | P4 |
-| FR-10 | Self-Improve Loop | 多轮采集、训练、评测、断点续跑 | P4 |
+| FR-08 | Training Bridge | 正常完整 Teacher Assistant-only Base-SFT、Teacher 恢复后缀 Recovery-SFT、多轮 GRPO logprob/mask 与权重同步 | P3-B / P4-B–P4-C |
+| FR-09 | Selectors | 多检查点生成、分类、规则/自适应选择、按原始任务限权 | P4 / P5 |
+| FR-10 | Self-Improve Loop | 最新 Student 新失败→Teacher 新修复→增量 SFT→当前策略 GRPO→评测 | P5 |
 | FR-11 | Evaluation | 完整任务、固定恢复池、预算曲线、消融 | P3–P5 |
 | FR-12 | Reproducibility | 配置快照、随机种子、版本、原始数据与报告 | 全阶段 |
-| FR-13 | Teacher Recovery Dataset | Teacher 接手自然失败、真实执行恢复、四类质量过滤、示范与来源清单 | P3-A |
+| FR-13 | Teacher Recovery Dataset | Base-SFT Student 的自然失败、教师真实恢复与过滤、Assistant-only 后缀示范 | P4-A |
+| FR-14 | Clean Teacher Dataset | Teacher 从正常初态成功执行、官方验证、过滤并导出 Base-SFT 数据 | P3-A |
+| FR-15 | Multi-Checkpoint Manager | 中间状态/合法历史一一配对、检查点分类、独立恢复分支 | P3-C–P4-A |
 
 Adapter 的状态管理能力是训练控制面的接口。不能为了方便，把 Adapter 的所有公开方法直接注册成模型工具。尤其采用 TRL 环境自动工具暴露时，必须检查实际 tool schema。[S6]
 
@@ -347,57 +357,32 @@ GRPO 学习条件要求：完成强制 Teacher SFT 后，在 SFT 后 Student 的
 
 ## 8. 方法设计
 
-### 8.1 基线：ReTerm-style Recovery GRPO
+### 8.1 ReTerm-style 基线与共同基础初始化
 
-使用相同策略从正常任务起点和失败起点采样。失败起点默认取最终失败附近的合法可执行状态；错误完成时按 `pre_termination` 处理。
+以经过官方成功验证的 Teacher 正常任务轨迹训练的 **同一份 Base-SFT checkpoint** 为所有训练方法的基础能力起点。ReTerm-style baseline 在此之上使用终态或终止前检查点，Teacher Recovery-SFT 后进行 Student 自主恢复 GRPO。与多检查点方法相比，Teacher 成功/失败尝试、SFT token、有效任务数及 RL 预算都须报告并尽量控制。
 
-恢复池先实现有限容量和近期失败优先策略；另提供均匀采样用于分析。默认训练正常组与恢复组各占一半，组内独立计算优势。[S4]
+### 8.2 主要算法：Multi-Checkpoint Recovery
 
-缓存的是“任务 + 起点状态 + 历史”。每次更新前的恢复后缀由当前行为策略重新生成，不把任意旧恢复轨迹当作当前策略在线样本。
+一条失败轨迹选择最多 3 个候选合法检查点，保存数据库状态、对应历史、当时可见工具和运行时信息。
 
-### 8.2 改进 A：Decision-Point Recovery
+- Pre-error：错误动作尚未发生，训练**错误预防**，单独作为辅助/消融。
+- Post-error：错误操作已经发生且后果真实保留，训练**错误状态修复**，为核心。
+- Late-failure：错误传播后、终止前或终态的合法起点，训练**延迟恢复**，为核心。
 
-**假设 H1：** 在相同总采样预算下，选择轨迹中的候选恢复起点，比只从失败终态附近训练，更能提升固定预算下的完整任务成绩或样本效率。
+V1 先做可复现的规则选择，从工具可见错误、真实状态修改和最终停止附近筛选；没有证据时标为可疑候选，不能把最终失败自动归因给某一步。不同起点必须独立恢复不同真实状态与合法前缀，不许把 C2 的后缀接在 C3 的状态上。
 
-首版设计保持简单：
+V2 再估计 Teacher/Student 在同一点的恢复成功率用于自适应选择。需记录每次探测成本、样本量、策略版本与同任务权重；没有验证概率时不编造。多检查点数据按原始任务归一化或限权，避免样本数量优势伪装成方法优势。
 
-1. 每条失败轨迹最多保留三个有效候选起点，包含终态附近起点。
-2. 额外候选来自可观测工具错误或重复无进展的附近边界。
-3. 主实验优先使用 `post_action` 候选；`pre_action` 作为明确标记的扩展消融。
-4. 先实现候选中均匀选取，再考虑基于恢复统计选择。不要一次同时改候选生成和复杂打分。
-5. 不将“出现工具错误的位置”直接称为已识别的根因。
+### 8.3 检查点自适应价值（待验证，不是预设收益）
 
-早期错误点可能更容易恢复，也可能只是提供了更长的剩余预算。因此须记录原轨迹位置、已消耗成本和新增恢复预算；完整任务主评测预算保持一致。
-
-若为选择候选额外做恢复探测，所有探测的生成 token 与工具调用都计入预算。优先复用已经采样的结果更新统计，减少重复探索。
-
-### 8.3 改进 B：Adaptive Failure Learning
-
-**假设 H2：** 在保持新失败和旧经验覆盖的前提下，优先采样当前策略有成功也有失败的起点，可以增加有区分度的训练组，从而改善样本效率。
-
-先定义：`z` 为一个起点；`n_z` 为当前统计窗口中的有效恢复次数；`s_z` 为其中成功次数。使用简单平滑估计：
+令 p_T(z) 表示固定 Teacher 从合法检查点 z 真正恢复成功的概率，p_S(z) 表示当前 Student 在相同公开协议的恢复成功概率。启发式：
 
 $$
-\hat p_z = \frac{s_z+1}{n_z+2}.
+U_{SFT}(z)=p_T(z)(1-p_S(z)), \qquad
+U_{RL}(z)=4p_S(z)(1-p_S(z)).
 $$
 
-再定义启发式分数：
-
-$$
-U_z = 4\hat p_z(1-\hat p_z).
-$$
-
-它是二元结果差异的代理，不是已经证明的学习收益或信息增益。四次试验的估计很粗，因此必须保存样本数和策略版本。
-
-令 `F` 为当前可采样起点集合，`q_recent(z)` 为最近一批新起点上的均匀分布，`q_value(z)` 为按 `0.05 + U_z` 归一化的分布。第一版混合采样为：
-
-$$
-P(z)=0.2\frac{1}{|F|}+0.2q_{\mathrm{recent}}(z)+0.6q_{\mathrm{value}}(z).
-$$
-
-上述比例是默认超参数，可在 `dev` 上调整。没有新起点时，将近期项权重并入全池均匀项；新起点没有统计时使用平滑先验，不能永久饿死。旧策略统计必须标明版本，过期后刷新或回退先验，不能当作当前能力估计。
-
-只将经验选择用于训练池，不用测试失败或测试细项指导采样。
+SFT 优先选择 Teacher 有能力而 Student 不稳定的点；RL 优先选择二元奖励容易产生组内差异的点。后者**不是**已证明的 GRPO 梯度收益。先有真实重复采样，再做平滑估计并处理极小样本不确定性。V1 规则版 Multi-Checkpoint 先行。
 
 ### 8.4 初始奖励与可选扩展
 
@@ -427,88 +412,35 @@ $$
 
 安全反馈是选配研究项，不作为完成两项核心增量的前置条件。
 
-### 8.5 强制 Teacher SFT 冷启动
+### 8.5 强制双阶段 Teacher SFT
 
-Teacher SFT 是用户明确要求的第一阶段训练。无论基座是否已经能成功恢复，主线均须先完成本节，再进入 GRPO。P0–P2 先提供真实执行、快照和隔离基础设施，本身不替代 SFT。
+#### 8.5.1 P3-A：Teacher 正常成功轨迹（Clean Demonstrations）
 
-**角色：** Student 是本项目接受参数更新的 Qwen Agent；Teacher 是经预实验确认具备更强恢复能力的模型，只负责生成示范，其参数保持固定。选择 Teacher 时记录模型标识、版本、可用接口与预算，不根据名称直接宣称其在本环境更强。
+Teacher 从 AppWorld train 任务**原始干净状态**独立执行，使用公开工具完成任务；官方评估通过且调用格式、约束和循环检查合格后才能入集。记录完整尝试分母、成功/过滤原因、模型与 revision、推理协议、真实费用/耗时和数据来源。Teacher 是否实际更强应通过小规模任务核查，不能只凭名字。
 
-#### 8.5.1 必须执行的五步
+#### 8.5.2 P3-B：Student 基础 SFT（Base-SFT）
 
-1. **基座执行并产生自然失败。** Student 在 AppWorld `train` 上实际执行任务，保留失败轨迹；已有 P1 数据可复用，不必重复采集。
-2. **保存失败状态与合法历史。** 保留数据库快照、工具配置和同一时刻的历史前缀；Teacher 从该状态继续，继承已有操作后果。
-3. **Teacher 实际完成恢复。** Teacher 通过允许的任务工具检查、修正并继续任务，直到终止或预算耗尽；仅输出恢复建议不能算执行示范。
-4. **筛选恢复示范。** 删除未通过官方任务验证、格式错误、存在已证实约束违规或明显无效重复循环的轨迹，保留筛选原因和原始证据。
-5. **训练 Student。** 以任务、失败历史和简短恢复提示为上下文，只对 Teacher 恢复后缀中 Assistant 生成的 token 计算 SFT loss。[S4][S5]
+用 Teacher **正常成功完整轨迹**教 Student 工具调用、API 发现和基本任务规划。只对 Teacher 正常轨迹中新生成的 Assistant 文本、工具名、工具参数计算 SFT loss；User/System、工具返回、控制侧隐藏评估和 padding 都必须屏蔽。完成实际权重更新、mask/token 对齐测试、checkpoint 保存重载、固定 dev 正常任务评测，产生 base_teacher_dataset_id、base_sft_run_id、base_sft_checkpoint_hash。保留 Raw Base 对照。
 
-初期先验证少量示范，再以约 100–300 条合格 Teacher 恢复轨迹作为可调整的数据目标；具体规模根据质量、覆盖和预算记录决策。规模可调整，但不能以未生成 Teacher 示范、仅做数据准备或未执行 SFT 代替本阶段完成。
+#### 8.5.3 P3-C：基础 SFT Student 产生**新**自然失败
 
-#### 8.5.2 数据与 loss 范围
+必须加载已验收的 Base-SFT checkpoint，再从 train 正常状态执行。收集新失败、格式问题、真实业务错误、不同合法中间检查点；与 P0–P2 旧失败区分，不能拿基座旧失败冒充训练后 Student 的新弱点。
 
-| 样本部分 | 作为 Student 的上下文 | 直接计算 SFT loss |
-| --- | --- | --- |
-| 任务指令、恢复提示 | 是 | 否 |
-| 基座失败前缀中的 Assistant 操作与工具返回 | 是 | 否 |
-| Teacher 恢复阶段生成的 Assistant 文本、工具名与参数 | 是 | 是 |
-| Teacher 执行期间得到的工具返回 | 是 | 否 |
+#### 8.5.4 P4-A：多检查点 Teacher 恢复示范
 
-训练样本须记录失败来源、Student 源策略、Teacher 标识与版本、生成配置、恢复提示版本、官方验证与质量过滤结果、数据划分和 loss mask。保留原始采集轨迹；若精简 Teacher 的采集提示，另存 SFT 输入版本，确保提示中没有目标答案、隐藏测试或额外特权。
+对上一步真实失败的每个候选检查点，独立加载其真实环境状态、合法历史、公开工具 Schema，固定 Teacher 从该状态继续实际操作，保留 Student 已造成的错误后果。官方严格任务成功、格式合法、无违规/无效循环的恢复后缀可入 Recovery Dataset；Teacher 失败后缀只作失败记录，不是正标签。报告不同检查点的有效/成功数量和成本。
 
-必需的核心示范由更强 Teacher 生成，不能用 Student 自生成恢复轨迹替代这一要求。后续 Student 数据可服务于在线 GRPO 或另行标明的补充实验。SFT 示范不要求同一起点固定采样四条；四条组内比较是后续 GRPO 的采样协议。
+#### 8.5.5 P4-B：Student Recovery SFT
 
-ReTerm-10K 是终端恢复数据；本项目采用其数据构建思想，在 AppWorld 中重新构建 Teacher 恢复示范，不直接把终端格式当作 AppWorld 工具数据。[S4]
+以任务和 Student 失败前缀作为固定上下文，**仅 Teacher 恢复后缀中新生成的 Assistant token**计算 SFT loss；其间工具结果只作上下文，旧前缀一律屏蔽。增量训练时混入一定基础正常示范和旧恢复示范，保留来源、比例和样本权重。完成真实训练参数更新、mask 检查、保存/重载及正常/恢复 dev 评估，得到 recovery_teacher_dataset_id、recovery_sft_run_id、recovery_sft_checkpoint_hash。
 
-#### 8.5.3 SFT 完成验收
+### 8.6 P4-C：在线 Recovery GRPO
 
-- 合格示范来自 `train` 上的自然失败与 Teacher 真实恢复，四类筛选可核查，质量存疑的样本待复核后再入集。
-- 训练输入与 loss mask 经过抽样核对，只监督 Teacher 的 Assistant 恢复后缀。
-- Student 完成真实 SFT 参数更新，保存数据清单、配置、loss、可训练参数变化与资源消耗。
-- 保存并重新加载 SFT checkpoint，完成固定开发协议评价；不把一次更新或 loss 下降直接等同于能力提升。
-- 生成 `sft_run_id`、`teacher_dataset_id`、`sft_checkpoint_hash` 和来源清单，后续每个主线 RL 实验都引用同一份实际权重。
+只能在 Base-SFT **和** Recovery-SFT 均已实际完成的 Student checkpoint 上启动。Student 当前行为策略从同一真实起点独立生成 G 条恢复后缀；工具返回/固定历史不计策略 loss。保存采样 token IDs、行为 log probabilities、生成 mask、模板/模型版本，使用官方严格奖励并处理零方差和无效组。混合正常任务与恢复任务训练组；推理权重更新/同步、真实参数变化、checkpoint 重载必须验收。P0–P2 的旧轨迹没有合法当前策略行为 logprob，不能直接放进在线 GRPO。
 
-Raw Base 与 Teacher-SFT-only 是必做对照，所有主线 RL 方法共享同一个通过验收的 Teacher-SFT 初始化。缺少 Teacher 接口、合格示范或资源时，记录具体阻塞并完成不受阻的工作，不跳过本阶段直接跑主线 GRPO。
+### 8.7 P5：Teacher 辅助的增量自迭代
 
-Teacher SFT 是初始训练阶段。后续自迭代默认延续上一轮 RL 权重，不要求每轮重新调用 Teacher 或重新从 SFT checkpoint 启动。
-
-### 8.6 GRPO 训练契约
-
-主线 GRPO 的初始化必须引用已通过第 8.5.3 节验收的 Teacher-SFT checkpoint，并检查其来源清单；不能只凭文件存在或手工配置 `sft_completed=true` 放行。
-
-令一个恢复组有 G 条轨迹，其奖励为 `R_1,...,R_G`，组均值为 `R_bar`，组标准差为 `sigma_R`，数值稳定常数为正数 `epsilon`。基本组内优势为：
-
-$$
-A_i=\frac{R_i-\bar R}{\sigma_R+\epsilon}.
-$$
-
-实际优化器、裁剪、KL 和归一化使用锁定训练框架的实现，并写入配置。不要仅凭上式从头实现整个 GRPO。
-
-必须满足以下条件：
-
-1. 同组共享完全相同的恢复起点、提示、工具和预算。
-2. 正常组与恢复组分别计算组内优势。
-3. 采样期间冻结行为策略版本；更新后确认推理端权重同步。
-4. 保存实际采样 token、行为 log probabilities 和生成位置 mask。
-5. 恢复损失只覆盖本次恢复中新生成的 Assistant token；用户、系统、工具消息和固定失败前缀不作为生成目标。
-6. 工具调用前后 chat template 必须保持前缀一致，避免重新渲染改变历史 token。[S6]
-7. 四条同奖励时明确处理零方差；不得假装存在任务奖励优势差异。
-8. 框架允许的同批有限次更新可以使用，但必须保留行为策略信息与相应校正；默认不混入历史恢复缓存。若以后研究离策略复用，需要另行更新方案，不能将历史后缀标作当前策略在线样本。
-9. 截断、格式错误、环境异常必须有明确处理；不完整组不能悄悄补成另一任务的样本。
-10. 若采用环境自采样接口，`reset` 必须通过共享组键确定同一起点，不能让四个实例各自随机挑任务。[S6]
-
-P3 的真实验收包括有限 loss/梯度、可训练参数确实更新、LoRA 保存/重载有效、推理权重同步和可复现日志。一次更新完成不等于性能提升。
-
-### 8.7 多轮自迭代
-
-先定义 `pi_r` 为第 r 轮策略，`F_r` 为它在训练任务上产生的新失败起点。每轮执行：
-
-1. 用 `pi_r` 在预定训练任务集合上采样正常尝试。
-2. 保存自然失败，将 `F_r` 合并进有容量上限的 Buffer。
-3. 使用当前统计选择起点，并由当前行为策略生成新的恢复后缀。
-4. 混合正常组与恢复组完成限定预算内的更新，得到下一版本。
-5. 在固定开发协议下评价并保存模型、优化器、随机状态、Buffer 清单与采样统计。
-6. 依据开发集选择最佳 checkpoint，继续下一轮或按预定条件停止。
-
-目标运行 2–3 轮，先以两轮完整更新验证闭环，不把轮次视为越多越好。持续退化、没有有效奖励组或资源错误时，先诊断并保存状态，避免长时间无效运行。
+每轮：最新 Student 自主执行新训练任务 → 新自然失败 → 选择多个可用检查点 → Teacher 从真实失败状态提供**新的成功恢复示范** → Student 混合历史与新 Teacher 轨迹做增量 Recovery SFT → Student 当前策略自主恢复 GRPO → 固定开发集评估与存档。先验证两轮并保留失败记录，不应每轮重置为同一个初始 SFT 权重。比较“仅初始 Teacher”与“每轮 Teacher”，控制每轮 Teacher 探测/成功示范/SFT/RL 成本。
 
 ## 9. 分阶段实施与验收
 
@@ -558,44 +490,32 @@ P3 的真实验收包括有限 loss/梯度、可训练参数确实更新、LoRA 
 
 首轮到此交付，不自动启动 P3。
 
-### P3：Teacher SFT → 最小恢复 GRPO
+### P3：正常 Teacher 基础能力训练（下一开发阶段）
 
-**前置：** P0–P2 真实通过，训练资源/费用有明确可用范围。进入 P3-A/P3-B 不要求基座已产生混合奖励组；进入 P3-C 前，必须完成 Teacher SFT，并在 SFT 后 Student 的采样中确认有效组内奖励信号。
+- **P3-A Clean Teacher Data**：固定更强 Teacher 从原始 train 任务独立执行，筛选真实官方成功轨迹并输出 Base-SFT 数据与来源；先低负载小样本验证 Teacher 是否真的会做。
+- **P3-B Student Base-SFT**：用正常 Teacher 成功轨迹完成真实 Student Assistant-only SFT、mask 检验、参数更新、保存/重载、固定开发集评价。
+- **P3-C Student New Failures**：加载基础 SFT Student 独立执行 train 任务，收集新自然失败、多检查点与原始状态/历史；不能拿旧基座失败替代。
 
-| 子阶段 | 必须完成的工作 | 交付与验收 |
-| --- | --- | --- |
-| P3-A Teacher 恢复数据 | 固定开发协议；从 `train` 自然失败状态启动 Teacher；真实执行恢复并完成四类筛选 | 合格示范、数据清单、Teacher 来源与成本、筛选日志 |
-| P3-B Student SFT | 只监督 Teacher 的 Assistant 恢复后缀；真实更新 Student；保存并重载模型 | 第 8.5.3 节全部通过，Raw Base 与 Teacher-SFT-only 开发结果 |
-| P3-C GRPO | 从共同 Teacher-SFT checkpoint 初始化；验证多轮 token/logprob/mask 与组身份；运行 Standard GRPO 和 ReTerm-style GRPO 小试 | 真实 GRPO 参数更新、保存/重载、推理权重同步、短训练开发结果 |
+### P4：多检查点真实修复与恢复学习
 
-先完成 P3-A，再完成 P3-B，最后进入 P3-C。Teacher 数据生成成功、SFT 成功、GRPO 管线成功分别报告，不合并成一个笼统的“训练通过”。
+- **P4-A**：规则 V1 选 Pre/Post/Late 合法检查点，优先 Post 和 Late，Teacher 各自从真实状态接管并修复；成功后缀构成 Recovery Dataset。
+- **P4-B**：Student Recovery SFT，只监督 Teacher 修复后缀 Assistant token；保存/重载、正常任务与恢复 dev 评测。
+- **P4-C**：在线 Recovery GRPO，当前 Student 相同检查点分组、自主探索与官方奖励，验证行为概率/生成掩码/权重同步及最小参数更新。
 
-**通过条件：** Teacher SFT 的真实完成证据与 GRPO 的合法当前行为策略组均可核查；没有用离线文本奖励脚本冒充多轮环境 RL。能力收益另由评测判断。
+### P5：多轮增量 Teacher 辅助改进
 
-### P4：两项改进与自迭代
+至少两轮最新 Student 新失败 → Teacher 修复示范 → 混合旧样本增量 SFT → 当前 Student GRPO → 固定 dev 评价；按任务和成本做公平消融。
 
-按顺序实现，不同时改所有模块：
+### P6：最终官方测试和简历交付
 
-1. 恢复点选择，先固定经验采样策略比较。
-2. 自适应失败采样，先固定候选起点规则比较。
-3. 组合两项增量，运行至少两轮完整采集—更新—评测。
-
-**交付：** 可切换 selectors、经验分布与有效组统计、多轮结果、断点续跑证据。
-
-**通过条件：** 各模块可独立开关，同样预算下可比较；失败或无提升也如实保留。
-
-### P5：最终对比、报告与演示
-
-冻结提示、模型选择、预算和评测脚本，再按官方要求评测 `test_normal` 与 `test_challenge`。[S1]
-
-交付内容：方法对比、关键消融、预算曲线、正常/恢复案例、可复现配置、限制说明和项目 README。测试只读取总体指标，不将测试任务或细项失败回流到训练和调参。
+冻结方法后运行 AppWorld test_normal / test_challenge 官方评价；不把测试失败回灌训练，交付对比消融、样本效率、成本、复现与 Demo。
 
 ## 10. 首轮配置与资源规则
 
 以下是**拟实现的项目配置**，不是上游 TRL/AppWorld 配置文件；实际字段由 Codex 实现后核验。
 
 ```yaml
-project_version: "0.2"
+project_version: "0.3"
 mode: "p0_p2_smoke"
 seed: 42
 
@@ -642,8 +562,9 @@ reward:
 
 training:
   enabled: false
-  teacher_sft_required: true
-  require_verified_teacher_sft_before_grpo: true
+  base_teacher_sft_required: true
+  recovery_teacher_sft_required: true
+  require_both_verified_before_grpo: true
 
 first_run_limits:
   initial_train_tasks: 10
@@ -662,31 +583,30 @@ LoRA 降低可训练参数负担，但 rollout、长历史、KV cache 和优化�
 
 ## 11. 实验设计
 
-### 11.1 主比较
+### 11.1 主比较：分离基础学习、多检查点与增量监督
 
-| 编号 | 方法 | 正常任务 RL | 失败终态恢复 | 恢复点选择 | 自适应采样 |
-| --- | --- | --- | --- | --- | --- |
-| B0 | Raw Base | 否 | 否 | 否 | 否 |
-| B1 | Teacher-SFT-only（必做） | 否 | 仅 Teacher 恢复示范学习 | 否 | 否 |
-| B2 | Teacher-SFT + Standard GRPO | 是 | 否（RL 阶段） | 否 | 否 |
-| B3 | Teacher-SFT + ReTerm-style GRPO | 是 | 是 | 否 | 否 |
-| A1 | B3 + Decision-Point | 是 | 是 | 是 | 否 |
-| A2 | B3 + Adaptive Sampling | 是 | 是 | 否 | 是 |
-| A3 | Full RecoverAgent-RL | 是 | 是 | 是 | 是 |
+| 方法 | 基础正常 Teacher SFT | 恢复 Teacher SFT | GRPO | 检查点与迭代 |
+| --- | --- | --- | --- | --- |
+| Raw Base | 否 | 否 | 否 | 无 |
+| Base-SFT-only | 是 | 否 | 否 | 无 |
+| Base-SFT + Terminal Recovery-SFT | 是 | 是 | 否 | 单点 |
+| ReTerm-style | 是 | 是 | 是 | 单点 |
+| First-Error / Random | 是 | 是 | 是 | 单个替代起点 |
+| Rule Multi-Checkpoint | 是 | 是 | 是 | 多点（V1） |
+| Iterative Teacher Recovery | 是 | 每轮新增 | 是 | 迭代 |
+| Full RecoverAgent-RL | 是 | 多点 + 每轮新增 | 是 | 多点 + 迭代 |
+| Adaptive Checkpoint（增强） | 是 | 价值选择 | 是 | V2 U_SFT/U_RL |
 
-这张表形成两项增量的独立与组合比较。安全反馈如果启用，作为 A3 的额外开关单独评估，不能同时悄悄改变主比较奖励。
+所有主线方法共享同一份**基础 Base-SFT checkpoint**；不同恢复示范造成不同 Recovery-SFT 权重是被研究的自变量，不能称为同一恢复初始化。仅比较 GRPO 检查点采样器时使用共同冻结的 Recovery-SFT checkpoint。
 
-所有主线 RL 方法使用同一个已完成 Teacher SFT 的 Student checkpoint，以及相同的工具暴露方式、训练任务来源、上下文规则、评价协议和资源计费口径。不得让某个主线方法跳过 Teacher SFT，也不得给不同主线方法使用不同的 Teacher 数据或 SFT 起点。
+### 11.2 消融最低集合
 
-### 11.2 最小必要消融
-
-优先完成：
-
-1. 只从终态附近训练 vs 加入中间起点。
-2. 近期优先/均匀经验采样 vs 自适应采样。
-3. 固定失败池 vs 按当前策略刷新失败池，保持总采样预算一致。
-
-有余力再做 `pre_action` vs `post_action`、组大小和奖励扩展。不要在核心对照未完成前扩大实验矩阵。
+1. Raw Base vs Base-SFT：基础工具协议与正常任务成功率。
+2. Base-SFT vs Recovery-SFT：失败恢复后缀监督效果。
+3. Terminal-only vs First-Error vs Random vs Rule Multi-Checkpoint：固定教师调用/成功示范/监督 token/原任务权重。
+4. Recovery-SFT-only vs Recovery-SFT + GRPO：RL 独立贡献。
+5. 只做首次 Teacher 恢复 vs 每轮 Teacher 新增：持续外部监督收益与成本。
+6. Rule vs Adaptive、Pre-Error vs Post/Late 作为后续增强。
 
 ### 11.3 两套评测
 
@@ -727,7 +647,7 @@ LoRA 降低可训练参数负担，但 rollout、长历史、KV cache 和优化�
 - 正常组和恢复组的 rollout。
 - Teacher 与 SFT 数据生成，单独列示。
 
-共同 Teacher 数据生成与 SFT 训练的实际成本单独列示；主线 RL 比较使用同一个预训练起点，并对额外 RL 采样/训练预算采用一致口径。不得漏记共同冷启动成本，也不将同一次已完成的 SFT 重复计算为多次实际训练。
+正常 Teacher 成功轨迹与 Base-SFT 作为共同冷启动成本单独列示；各多检查点 Teacher 恢复尝试（成功和失败）、Recovery-SFT、增量 Teacher 与 GRPO 预算均完整计入；不能漏算 Teacher 失败成本，也不重复计算共同 Base-SFT。
 
 工具查询、前缀长度和训练计算也可能不同，因此固定生成 token 只是一种预算协议，不等于所有计算量完全一致。若阶段性只能固定 rollout 数，明确写出这一局限。
 
@@ -804,8 +724,8 @@ P5 争取至少三个训练随机种子；资源不足时如实报告实际种�
 | --- | --- |
 | 没有可用模型或凭据 | 完成不依赖模型的部分，准确说明真实闭环未验证 |
 | 跨进程快照不兼容 | 先解决导出/导入与版本依赖，不开始 RL |
-| 四分支长期全失败 | 查格式、可见工具、预算和基座能力；按既定流程完成 Teacher SFT，SFT 后仍全失败再诊断并调整 |
-| Teacher 不可用或合格示范不足 | 记录阻塞，完成不受阻的代码与数据准备；不跳过 Teacher SFT 直接进入主线 GRPO |
+| 四分支长期全失败 | 优先完成 Teacher 正常示范 Base-SFT，修复工具调用协议，再由 Base-SFT Student 新失败生成恢复任务；不可直接跳 GRPO |
+| Teacher 不可用或合格示范不足 | 分别报告正常 Teacher 与恢复 Teacher 数据缺口，继续无付费组件验证，不用 Student 冒充 Teacher 或跳过任一 SFT |
 | 小模型能力不足 | 在可用资源内调整模型；保留预算和初始化公平 |
 | TRL 与 AppWorld 隔离不匹配 | 增加 worker 桥接，或选择已验证的自定义 rollout 接口 |
 | 安全评分无法可靠判定 | 关闭奖励项，保留严格任务成功和可测事件 |
@@ -827,25 +747,13 @@ P5 争取至少三个训练随机种子；资源不足时如实报告实际种�
 - `docs/DECISIONS.md`：为何改变设计，影响哪些实验与接口。
 - 本文件变更记录：需求基线如何变化。
 
-## 17. 首次交给 Codex 的执行指令
+## 17. 给下一轮 Codex 的执行边界（v0.3）
 
-下面这段在用户开始实现时使用；当前创建文档本身不启动这些任务。
+P0–P2 已有代码和真实最低验收，不得因新方案重建或覆盖历史报告。下一步从 **P3-A：Teacher 正常任务成功示范**开始，同时以低负载核查旧基座工具格式错误原因。Teacher 必须从原始干净 train 初态执行、由官方验证成功，而不是先接管旧基座自然失败来开展第一次 SFT。
 
-```text
-请先阅读项目根目录的 AGENTS.md 和 PROJECT_PLAN.md，并检查现有代码与 docs/STATUS.md。
+有正式 Teacher 接口、合格数据与已批准训练资源后开展 P3-B Student 基础 SFT；P3-C 加载该 checkpoint 让 Student 自己执行并采集新自然失败。P4 的多检查点 Teacher 恢复、Recovery SFT 和 GRPO 不属于默认下一次无明确授权的执行内容。
 
-按计划完成 P0–P2 的最小纵向闭环：环境与 Agent 可运行、采集真实自然失败、保存匹配的环境状态和可见历史、从同一起点执行四次隔离恢复，并获得官方验证结果。
-
-先使用低负载、串行恢复和文档中的首轮预算。不要开始 SFT 或 GRPO，也不要扩展到其他环境。
-
-Teacher SFT 是已经确定的必经训练阶段：后续推进 P3 时，必须先完成 Teacher 恢复示范构建与 Student SFT，再进入 GRPO；不得因基座表现良好而跳过。
-
-对已授权范围内的实现、故障排查和必要验证持续推进，不要停留在方案描述。上游接口以锁定版本为准；发现与计划不符时，记录证据并同步修订文档。
-
-若缺少模型、依赖、凭据或资源，先完成不受阻的部分，再准确报告剩余阻塞；不能用 mock 结果冒充真实验收。
-
-结束时提供已完成内容、实际命令、结果路径、P0/P1/P2 验收状态、资源消耗和下一步，并更新 docs/STATUS.md。
-```
+所有生成轨迹与权重以实际版本、哈希、结果和成本验收，后续阶段按版本门槛推进。不能假装训练已经发生；不能未经授权调用付费 Teacher。
 
 ## 18. 官方资料
 
@@ -868,3 +776,4 @@ Teacher SFT 是已经确定的必经训练阶段：后续推进 P3 时，必须�
 | --- | --- | --- |
 | v0.1 | 2026-10-19 | 建立 AppWorld-only 项目范围、P0–P5 路线、两项待验证增量、首轮任务、隔离与训练契约、预算及实验规范；修正无参 save_state 的旧示例。 |
 | v0.2 | 2026-10-19 | 根据用户明确要求，将 Teacher SFT 设为主线 GRPO 的强制前置；加入五步示范流程、loss mask 与 SFT 验收、P3-A/B/C 子阶段和共同 Teacher-SFT 初始化，保留 P0–P2 先行验证。 |
+| v0.3 | 2026-10-20 | 用户明确要求：先 Teacher 正常成功轨迹教会 Student 基础工具能力，然后 Student 自主执行新任务、Teacher 从多检查点恢复、Student 恢复 SFT + GRPO，并由每轮新错误与 Teacher 新示范增量自迭代。重排 P3–P6 与实验对照。 |
