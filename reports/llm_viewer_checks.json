@@ -1,0 +1,13 @@
+{
+  "scope": "offline viewer implementation; no new model or AppWorld calls",
+  "commands": [
+    ".venv/bin/python -m pytest -q",
+    ".venv/bin/ruff check src scripts tests",
+    ".venv/bin/ruff format --check src scripts tests"
+  ],
+  "chunk_id": "fc1150",
+  "wall_time_seconds": 0.467657583,
+  "exit_code": 0,
+  "original_token_count": 42,
+  "output": "2026-10-20 13:49 CST\n...........................................................              [100%]\n59 passed in 0.22s\nAll checks passed!\n28 files already formatted\n"
+}

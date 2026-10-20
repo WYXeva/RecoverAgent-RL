@@ -1,0 +1,178 @@
+{
+  "status": "PASS",
+  "scope": "offline inspection of all six actual Teacher attempts; no new rollout",
+  "trajectory_count": 6,
+  "request_count": 28,
+  "checks": [
+    {
+      "trajectory_id": "teacher_5910f7b5ad48",
+      "request_count": 2,
+      "message_counts": [
+        2,
+        4
+      ],
+      "visible_tool_counts": [
+        10,
+        10
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls"
+      ],
+      "credential_values_masked": 0,
+      "original_files_unchanged": true,
+      "receipt_warnings": 0
+    },
+    {
+      "trajectory_id": "teacher_de487b811d3a",
+      "request_count": 8,
+      "message_counts": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16
+      ],
+      "visible_tool_counts": [
+        10,
+        10,
+        10,
+        11,
+        11,
+        12,
+        12,
+        13
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls"
+      ],
+      "credential_values_masked": 11,
+      "original_files_unchanged": true,
+      "receipt_warnings": 0
+    },
+    {
+      "trajectory_id": "teacher_0591f8d9f5dd",
+      "request_count": 2,
+      "message_counts": [
+        2,
+        4
+      ],
+      "visible_tool_counts": [
+        10,
+        10
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls"
+      ],
+      "credential_values_masked": 0,
+      "original_files_unchanged": true,
+      "receipt_warnings": 0
+    },
+    {
+      "trajectory_id": "teacher_461f3154870e",
+      "request_count": 2,
+      "message_counts": [
+        2,
+        4
+      ],
+      "visible_tool_counts": [
+        10,
+        10
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls"
+      ],
+      "credential_values_masked": 0,
+      "original_files_unchanged": true,
+      "receipt_warnings": 0
+    },
+    {
+      "trajectory_id": "teacher_ad808a15ce5a",
+      "request_count": 8,
+      "message_counts": [
+        2,
+        4,
+        8,
+        11,
+        13,
+        15,
+        17,
+        37
+      ],
+      "visible_tool_counts": [
+        10,
+        10,
+        12,
+        14,
+        14,
+        14,
+        14,
+        14
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls"
+      ],
+      "credential_values_masked": 11,
+      "original_files_unchanged": true,
+      "receipt_warnings": 0
+    },
+    {
+      "trajectory_id": "teacher_ffe689c06ef7",
+      "request_count": 6,
+      "message_counts": [
+        2,
+        5,
+        9,
+        11,
+        13,
+        15
+      ],
+      "visible_tool_counts": [
+        10,
+        10,
+        13,
+        13,
+        13,
+        14
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "length"
+      ],
+      "credential_values_masked": 11,
+      "original_files_unchanged": true,
+      "receipt_warnings": 0
+    }
+  ],
+  "p0_p3_existing_code_and_configs_unchanged": true,
+  "new_model_requests": 0,
+  "training_started": false,
+  "views_local_only": [
+    "outputs/llm_view_20261020/success_all.md",
+    "outputs/llm_view_20261020/success_turn1.md",
+    "outputs/llm_view_20261020/truncated_turn6.md"
+  ]
+}

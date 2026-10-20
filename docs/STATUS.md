@@ -1,12 +1,21 @@
 # 项目状态
 
-- 最后更新：2026-10-20 13:20（Asia/Shanghai）
+- 最后更新：2026-10-20 13:49（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.4；正式 Student `Qwen/Qwen3-4B`。
 - 本轮状态：**P3-A 本机小样本闭环 PASS**：真实 Teacher 正常任务执行、官方筛选、非空数据导出和 4B Assistant-only mask 均有证据。1 条示范只验证流程，不足以代表正式训练数据规模或效果。P3-B 及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，基线 `40836c4c02a3b3785083fe2d5c89eb6c0c2da120`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
 
-## 本轮 P3-A 开发与真实验证（2026-10-20）
+## LLM 请求视图与排错工具（2026-10-20）
+
+- 状态 `PASS`：新增 `recoveragent.inspect_teacher`，离线读取每轮真实 API request/response，展示完整 messages、当时工具 schema 及工具增减、原始响应、后续反馈、token 用量、控制侧诊断和原始回执哈希。
+- 严格区分请求前输入、响应后观察与控制侧奖励；不读取官方 evaluator 文件，不从最终历史/最终 schema 回填早期请求，截断响应不会被修补。展示时一致隐藏已识别的密码/访问令牌/API Key；原始记录只读，输出不覆盖已有文件。
+- 实际产物：`outputs/llm_view_20261020/success_turn1.md`、`success_all.md`、`truncated_turn6.md`，仅本地保留。用法和当前预算/动态工具发现规则见 `docs/LLM_VIEW.md`。
+- 验证：新增 7 项测试，全套 **59 passed**，Ruff/格式检查通过。离线核对现有 6 条真实 Teacher 轨迹的 28 次请求，历史/工具数量、响应终止原因一致、回执无哈希警告，原始文件未修改；证据 `reports/llm_viewer_validation.json`、`reports/llm_viewer_checks.json`。
+- 本轮模型请求、AppWorld 新执行、GPU 训练及费用均为 0；此前 P0–P3 的采样逻辑、预算、筛选、数据包及成功率保持不变。当前 2048 是单回复输出上限、16384 是每轨迹累计输出上限；C 轮失败为单响应截断，不能据此推断 Teacher 在更宽预算下必然失败。
+- 下一步可先用 `--turn N` 定位上下文、工具可见性或截断问题，再决定后续采集参数；本轮没有扩大采样或进入训练。
+
+## P3-A 开发与真实验证（2026-10-20）
 
 - 用户在异步费用授权问题回复“费用不限”后才启动 DeepSeek 请求。本轮保留 2 个唯一 train 任务、累计 80 次请求/32768 生成 token/1800 秒的小试上限，未购买算力或启动训练。默认配置仍关闭付费调用。
 - Teacher 为 `deepseek-flash`，供应商文档版本 DeepSeek-V4.1-Flash-1017；实际响应 fingerprint `e72d3c7f663d3e1383b00b3884cb4501` 全程一致。该 API alias 不是不可变权重 revision，也没有与 4B Student 做正式能力比较。
