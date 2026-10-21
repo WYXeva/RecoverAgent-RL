@@ -1,10 +1,21 @@
 # 项目状态
 
-- 最后更新：2026-10-20 15:08（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.6；正式 Student `Qwen/Qwen3-4B`。
+- 最后更新：2026-10-21（Asia/Shanghai）
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.7；正式 Student `Qwen/Qwen3-4B`。
 - 本轮状态：**P3-A 本机小样本闭环 PASS**：真实 Teacher 正常任务执行、官方筛选、非空数据导出和 4B Assistant-only mask 均有证据。当前示范数量少且来自同族任务，不代表正式训练规模或总体效果。P3-B 及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，基线 `40836c4c02a3b3785083fe2d5c89eb6c0c2da120`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## A/B 提示规范化（2026-10-21，v0.7）
+
+- **实现、软件及真实回归 PASS**：默认 `execution_v3` 为 A/B 共享全局执行规则和六阶段循环，仅工具获取段落不同。A 默认 `dependency_examples_v2` 明确初始状态的认证/参数/覆盖/验证依赖并加入两个公开 API 自制正例；B 明确按需发现、schema 下一请求开放和依赖补齐。旧原版/增强版/Actor 提示保留，历史21次真实回执重新审计通过。
+- 两个正例为笔记置顶和愿望单商品评价计数，官方公开 API 的输入/返回/分页契约核对通过；不是执行过的 Teacher 轨迹，不使用 hidden required_apis，不进入 Actor/SFT。规则、源文件及审查说明见 `docs/PROMPTS.md`。
+- 两个先前已用的同族 train 任务，B1→A1→A2→B2 独立进程、原始初态、相同预算；**A 2/2、B 2/2 官方成功，4/4 入集**，0基础设施错误/截断/重试。这是提示回归，不是总体优势或正式 Student 结果。
+- 实际33模型请求、204工具调用、254099输入（182656缓存命中）、11959输出 token、143.86 worker秒。估算USD0.036879636，逐请求实扣未知；不记为免费。每条20请求/8192输出/450秒/USD1.25、单回复4096，调用次数不限；A所有预测成本计入。
+- A任务2先19次读取不含播放次数的私有信息，再自行改查歌曲详情，总44调用；B同任务32调用。成功不代表没有冗余，也不能将A泛化为更省工具。保留模型自己的纠错证据，没有据结果改提示再重跑。
+- 软件 **80 passed**，Ruff/格式通过；33新回执、公开 Predictor 重建、Actor共用规则、示例隔离、完整分母与SHA-256审计通过；P0–P2原17文件哈希未变。证据：`reports/structured_prompts_{report.md,comparison.json,audit.json,checks.json,paths.json}`、`structured_prompt_examples_check.json`。
+- Clean Dataset：`runs/structured_prompts_20261021_a/clean_dataset/`，manifest SHA-256 `6ce2fff2a2163e2a408a16ec4bd134161a387a191027bee02376ec070904be1e`。真实4B tokenizer得到31个Assistant目标、9844监督token；仅格式与mask检查，无权重/参数更新。证据 `reports/structured_prompts_sft_format.json`。
+- 本地完整视图：`outputs/structured_prompts_20261021_a/{a,b}_{82e2fac_1,82e2fac_2}.md`。实际运行命令和日志位置见新报告。没有远程迁移或训练；下一步冻结提示后扩大train场景/重复采样，继续检查字段探测和分页冗余。
 
 ## 取消调用次数配额与 prompt 诊断（2026-10-20，v0.6）
 

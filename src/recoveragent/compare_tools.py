@@ -98,7 +98,8 @@ def summarize_comparison(directory):
                 )
             },
         }
-    return {
+    predictor_variant = config.get("predictor_prompt_variant", "official_zero_shot")
+    result = {
         "format": "paired-tool-mode-pilot-v1",
         "status": "PASS"
         if pairs
@@ -133,6 +134,15 @@ def summarize_comparison(directory):
             "Costs are usage-priced estimates, not invoices; cache/order affect latency and cost.",
         ],
     }
+    # Keep historical summaries byte-equivalent when using old configurations.
+    if predictor_variant != "official_zero_shot":
+        result["actor_prompt_variant"] = config.get("actor_prompt_variant", "legacy_v1")
+        result["predictor_prompt_variant"] = predictor_variant
+        result["limitations"][1] = (
+            "Project-modified Predictor prompt using the pinned upstream component; "
+            "not the original official prompt or a full upstream benchmark reproduction."
+        )
+    return result
 
 
 def main():

@@ -9,10 +9,16 @@ from pathlib import Path
 
 from . import APPWORLD_REVISION
 from .io import canonical, digest, read_json, write_json
+from .predictor_prompts import (
+    STRUCTURED_VARIANT,
+    SELECTION_RULES,
+    example_messages,
+    supplement_spec,
+)
 from .teacher import normalize_message, response_usage, usage_cost
 
 MODES = ("dynamic_discovery", "api_predictor")
-PREDICTOR_PROMPTS = ("official_zero_shot", "dependency_aware_v1")
+PREDICTOR_PROMPTS = ("official_zero_shot", "dependency_aware_v1", STRUCTURED_VARIANT)
 DEPENDENCY_CHECK = (
     "Dependency check before finalizing the API list: the execution agent starts "
     "without pre-obtained credentials or access tokens. Include the public APIs "
@@ -97,6 +103,12 @@ def predictor_messages(predictor, task, variant="official_zero_shot"):
     if variant == "dependency_aware_v1":
         messages = copy.deepcopy(messages)
         messages[-1]["content"] += "\n\n" + DEPENDENCY_CHECK
+    elif variant == STRUCTURED_VARIANT:
+        messages = copy.deepcopy(messages)
+        if messages[0]["role"] != "system" or messages[-1]["role"] != "user":
+            raise ValueError("Unexpected upstream Predictor message structure")
+        messages[0]["content"] += "\n\n" + SELECTION_RULES
+        messages[-1:-1] = example_messages()
     return messages
 
 
@@ -167,6 +179,8 @@ def initialize_tools(adapter, policy, config, output, usage, trajectory):
         "prompt_variant": variant,
         "supplement_sha256": digest(DEPENDENCY_CHECK)
         if variant == "dependency_aware_v1"
+        else digest(supplement_spec())
+        if variant == STRUCTURED_VARIANT
         else None,
         "allowed_api_names": [
             f"{app}.{api}".lower()
@@ -175,6 +189,10 @@ def initialize_tools(adapter, policy, config, output, usage, trajectory):
         ],
     }
     trajectory["predictor"] = record
+    if variant == STRUCTURED_VARIANT:
+        record["example_provenance"] = "human_authored_public_api_selection_only"
+        record["example_count"] = 2
+        record["examples_sha256"] = digest(example_messages())
     if (
         backend[0] != config["teacher"]["model"]
         or not backend[1]
@@ -244,6 +262,18 @@ def validate_predictor_receipts(trajectory, directory):
         or not request["messages"][-1]["content"].endswith("\n\n" + DEPENDENCY_CHECK)
     ):
         raise ValueError("Predictor supplement mismatch")
+    if variant == STRUCTURED_VARIANT and (
+        record.get("supplement_sha256") != digest(supplement_spec())
+        or record.get("examples_sha256") != digest(example_messages())
+        or record.get("example_count") != 2
+        or record.get("example_provenance")
+        != "human_authored_public_api_selection_only"
+        or request["messages"][0]["role"] != "system"
+        or not request["messages"][0]["content"].endswith("\n\n" + SELECTION_RULES)
+        or request["messages"][-5:-1] != example_messages()
+        or request["messages"][-1]["role"] != "user"
+    ):
+        raise ValueError("Predictor examples or selection contract mismatch")
     message = normalize_message(response)
     if message.get("tool_calls") or len(record["selected_names"]) > 20:
         raise ValueError("Invalid predictor output")

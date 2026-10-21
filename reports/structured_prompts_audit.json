@@ -1,0 +1,149 @@
+{
+  "status": "PASS",
+  "run": "runs/structured_prompts_20261021_a",
+  "audit_is_offline": true,
+  "new_model_requests": 0,
+  "training_started": false,
+  "receipt_count": 33,
+  "same_per_attempt_budgets": true,
+  "public_only_predictor_rebuilt": true,
+  "upstream_source_hash_checked": true,
+  "p0_p2_unchanged_files": 17,
+  "dataset_id": "b71ab5a2dd5fd74faa7b3a2f3de6fbddc6f6a6e56c3b2b5640bac2b3db462ebb",
+  "manifest_sha256": "6ce2fff2a2163e2a408a16ec4bd134161a387a191027bee02376ec070904be1e",
+  "dataset_counts": {
+    "attempted": 4,
+    "valid": 4,
+    "infrastructure_errors": 0,
+    "official_successes": 4,
+    "accepted": 4,
+    "unique_tasks": 2,
+    "success_per_attempt": 1.0,
+    "success_per_valid": 1.0
+  },
+  "receipts": [
+    {
+      "trajectory_id": "teacher_300695ff7110",
+      "trajectory_sha256": "6a9474056ecd1bc962c110b0c97e65a67a390e6118484d7af98bf6989b3e15d1",
+      "evaluation_sha256": "b5ab5c5a1d2032bd7a9d788c66c40a92dcef6b2d4ab7fda65ff553789155994a",
+      "config_sha256": "996df3fafc02e4bc982474d3134d5fde5e0f7c76368aa1e0fb39e9d94bdfc87d",
+      "terminal_checkpoint_id": "dbeed7c24205a1bad387ba9269071be32d304adfb4396943693c10982052fdf0",
+      "tool_mode": "api_predictor",
+      "actor_prompt_sha256": "41782cd7d7164024f287e078c0cf0d5dd1b513d8ec29375b31d6e2aee9131469",
+      "predictor_rebuilt_from_public_task": true,
+      "requested_max_tokens": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        3765
+      ],
+      "finish_reasons": [
+        "stop",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls"
+      ]
+    },
+    {
+      "trajectory_id": "teacher_34fbccfa2b1f",
+      "trajectory_sha256": "b229c4f7a077fa8fd59b968e8321908f5bcf6a819e63f75bb451c59634f7c7be",
+      "evaluation_sha256": "8afebef796598dcf840dc35a249281a7d573c3805b1116ff57a3db4a67df50d7",
+      "config_sha256": "e6fd92391ba7566dc2364f6970d86ac05fe97b661de16de0c0fa461fb5ac54cd",
+      "terminal_checkpoint_id": "327f70220731ec5080ea30cde0f8d29ccaf32a404f2d02b623a59155f34076f9",
+      "tool_mode": "dynamic_discovery",
+      "actor_prompt_sha256": "dc4f33f772ec27fcb287fbde104d309f1501d11247c5dee906572b6c8fc610f1",
+      "predictor_rebuilt_from_public_task": false,
+      "requested_max_tokens": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls"
+      ]
+    },
+    {
+      "trajectory_id": "teacher_7138c0f8457d",
+      "trajectory_sha256": "6e45065b4b3cab62053a54584ec362258abc24331aa6922179b9ffc26a134466",
+      "evaluation_sha256": "9d3c7c856f1bd10100bfb90537126a9cb97a38bf03893af08c487b8808a47f17",
+      "config_sha256": "817817a802143d624316ebe8bfcdabc2731144ad0a53fa601a26a03b3917e4eb",
+      "terminal_checkpoint_id": "23a60fe2b98abbb0952602bbf25db50ca13fe6ce306ca57c87c414b7d8ebca14",
+      "tool_mode": "dynamic_discovery",
+      "actor_prompt_sha256": "dc4f33f772ec27fcb287fbde104d309f1501d11247c5dee906572b6c8fc610f1",
+      "predictor_rebuilt_from_public_task": false,
+      "requested_max_tokens": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096
+      ],
+      "finish_reasons": [
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls"
+      ]
+    },
+    {
+      "trajectory_id": "teacher_7d8c827db13f",
+      "trajectory_sha256": "06c4c085d2c809fd28054dac206d377c6198e7c38ce77f9ee394195d4ee7c623",
+      "evaluation_sha256": "a16f73b2232ca00283df2280ea27a3f26f05480071db1edb9fc2e260e2078c21",
+      "config_sha256": "996df3fafc02e4bc982474d3134d5fde5e0f7c76368aa1e0fb39e9d94bdfc87d",
+      "terminal_checkpoint_id": "fd3b7fcbd142c5be7dc23af1163d3cad113a5cc84bea2c0f31d7ea04a0a0b78c",
+      "tool_mode": "api_predictor",
+      "actor_prompt_sha256": "41782cd7d7164024f287e078c0cf0d5dd1b513d8ec29375b31d6e2aee9131469",
+      "predictor_rebuilt_from_public_task": true,
+      "requested_max_tokens": [
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096,
+        4096
+      ],
+      "finish_reasons": [
+        "stop",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls",
+        "tool_calls"
+      ]
+    }
+  ],
+  "source_execution_manifest_sha256": "71d4dde6199d45e1b7c8a616f9ea0d33c1086f0c0d51a9d26e299fda7cba0b06"
+}

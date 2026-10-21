@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "variant": "dependency_examples_v2",
+  "appworld_revision": "42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+  "example_ids": [
+    "synthetic_note_pin_v1",
+    "synthetic_wishlist_reviews_v1"
+  ],
+  "provenance": "human_authored_public_api_selection_only",
+  "task_ids_used_as_examples": [],
+  "hidden_labels_loaded": false,
+  "teacher_demonstrations_generated": 0,
+  "environment_calls": 0,
+  "model_requests": 0,
+  "dependency_and_pagination_contracts_checked": true,
+  "supplement_sha256": "aa80c27bcd8d656da9a2c9da8006755d35970951fdeda397c9103db3e7d6d513",
+  "public_api_doc_sha256": {
+    "amazon": "fd0a30e27ae4fc14bd71159d595ed09a9e033a5d4206ac720e4265025b778a9c",
+    "simple_note": "33e1e1dd5b29bfcef8cfc96deb208111d258f75da5664c60168a2bda0bb322fd",
+    "supervisor": "a829691be9050223cc6ce0735fd201ab1563e24c9b36acfdcc5509036d2f97fb"
+  }
+}

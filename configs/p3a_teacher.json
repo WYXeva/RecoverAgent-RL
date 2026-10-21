@@ -1,8 +1,8 @@
 {
-  "project_version": "0.6",
+  "project_version": "0.7",
   "tool_mode": "dynamic_discovery",
-  "actor_prompt_variant": "budget_batched_v2",
-  "predictor_prompt_variant": "official_zero_shot",
+  "actor_prompt_variant": "execution_v3",
+  "predictor_prompt_variant": "dependency_examples_v2",
   "appworld_root": "data/appworld",
   "student": {
     "model": "Qwen/Qwen3-4B",

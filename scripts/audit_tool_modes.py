@@ -9,6 +9,7 @@ from recoveragent.demonstrations import sha256, verify_dataset
 from recoveragent.inspect_teacher import build_view
 from recoveragent.io import digest, read_json, write_json
 from recoveragent.p3a import interrupted_usage
+from recoveragent.p3a_prompts import actor_system
 from recoveragent.teacher import normalize_message
 from recoveragent.tool_modes import (
     official_predictor,
@@ -37,6 +38,7 @@ def audit(run):
         trajectory = read_json(path)
         worker = read_json(run / (path.parent.name + ".config.json"))
         assert trajectory["task_id"] in train
+        assert trajectory["messages"][0]["content"] == actor_system(worker)
         assert worker["teacher"] == config["teacher"]
         assert worker["environment_seed"] == config["environment_seed"]
         budgets.add(
@@ -122,6 +124,7 @@ def audit(run):
                 "config_sha256": sha256(run / (path.parent.name + ".config.json")),
                 "terminal_checkpoint_id": trajectory["terminal_checkpoint_id"],
                 "tool_mode": trajectory["tool_mode"],
+                "actor_prompt_sha256": digest(trajectory["messages"][0]["content"]),
                 "predictor_rebuilt_from_public_task": predictor is not None,
                 "requested_max_tokens": max_tokens,
                 "finish_reasons": finishes,

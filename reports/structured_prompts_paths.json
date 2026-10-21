@@ -1,0 +1,126 @@
+{
+  "status": "PASS",
+  "common_actor_rules_and_budgets_identical": true,
+  "predictor_examples_excluded_from_actor_history": true,
+  "rows": [
+    {
+      "task_id": "82e2fac_2",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_300695ff7110",
+      "tool_call_counts": {
+        "supervisor__show_account_passwords": 1,
+        "spotify__login": 1,
+        "spotify__show_song_library": 3,
+        "spotify__show_song_privates": 19,
+        "spotify__show_song": 19,
+        "supervisor__complete_task": 1
+      },
+      "batch_sizes": [
+        1,
+        1,
+        1,
+        2,
+        19,
+        1,
+        18,
+        1
+      ],
+      "selected_names": [
+        "supervisor__show_account_passwords",
+        "spotify__login",
+        "spotify__show_song_library",
+        "spotify__show_song",
+        "spotify__show_song_privates",
+        "supervisor__complete_task"
+      ],
+      "actor_prompt_sha256": "41782cd7d7164024f287e078c0cf0d5dd1b513d8ec29375b31d6e2aee9131469",
+      "view": "a_82e2fac_2.md"
+    },
+    {
+      "task_id": "82e2fac_2",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_34fbccfa2b1f",
+      "tool_call_counts": {
+        "api_docs__show_api_descriptions": 1,
+        "supervisor__show_account_passwords": 1,
+        "api_docs__show_api_doc": 4,
+        "spotify__login": 1,
+        "spotify__show_song_library": 5,
+        "spotify__show_song": 19,
+        "supervisor__complete_task": 1
+      },
+      "batch_sizes": [
+        2,
+        3,
+        1,
+        1,
+        4,
+        1,
+        10,
+        9,
+        1
+      ],
+      "selected_names": null,
+      "actor_prompt_sha256": "dc4f33f772ec27fcb287fbde104d309f1501d11247c5dee906572b6c8fc610f1",
+      "view": "b_82e2fac_2.md"
+    },
+    {
+      "task_id": "82e2fac_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_7138c0f8457d",
+      "tool_call_counts": {
+        "api_docs__show_api_descriptions": 1,
+        "supervisor__show_account_passwords": 1,
+        "api_docs__show_api_doc": 4,
+        "spotify__login": 1,
+        "spotify__show_playlist_library": 2,
+        "spotify__show_song": 57,
+        "supervisor__complete_task": 1
+      },
+      "batch_sizes": [
+        2,
+        4,
+        1,
+        1,
+        16,
+        23,
+        19,
+        1
+      ],
+      "selected_names": null,
+      "actor_prompt_sha256": "dc4f33f772ec27fcb287fbde104d309f1501d11247c5dee906572b6c8fc610f1",
+      "view": "b_82e2fac_1.md"
+    },
+    {
+      "task_id": "82e2fac_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_7d8c827db13f",
+      "tool_call_counts": {
+        "supervisor__show_account_passwords": 1,
+        "spotify__login": 1,
+        "spotify__show_playlist_library": 1,
+        "spotify__show_song": 57,
+        "supervisor__complete_task": 1
+      },
+      "batch_sizes": [
+        1,
+        1,
+        1,
+        30,
+        27,
+        1
+      ],
+      "selected_names": [
+        "supervisor__show_account_passwords",
+        "spotify__login",
+        "spotify__show_playlist_library",
+        "spotify__show_playlist",
+        "spotify__show_song",
+        "spotify__show_song_privates",
+        "supervisor__complete_task"
+      ],
+      "actor_prompt_sha256": "41782cd7d7164024f287e078c0cf0d5dd1b513d8ec29375b31d6e2aee9131469",
+      "view": "a_82e2fac_1.md"
+    }
+  ]
+}

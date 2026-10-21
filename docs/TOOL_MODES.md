@@ -1,5 +1,7 @@
 # 工具选择模式：官方 Predictor 与动态发现
 
+当前 v0.7 提示契约见 [PROMPTS.md](PROMPTS.md)：默认执行提示 `execution_v3`，A 默认预测提示 `dependency_examples_v2`（明确依赖、两个自制正例），不再把新默认称为官方零示例原提示。下文 v0.5/v0.6 实验协议和结果为历史记录，保留原值。新结果见 `reports/structured_prompts_report.md`。
+
 本功能属于 P3-A 正常 Teacher 采集和工具协议验证。正式 Student 仍为 Qwen/Qwen3-4B，当前执行模型是已授权的 DeepSeek Teacher；没有开始训练，也没有改动 P0–P2 Runner。
 
 **v0.6 当前默认**：整轨迹和单回复工具数量都为 `null`（无数量配额），单回复仍为 4096 token；累计生成 token、模型请求、时间和费用限制保留。下文 v0.5 的 40 次预算是历史实验设置，不能套用于新默认配置。

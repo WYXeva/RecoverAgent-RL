@@ -37,7 +37,10 @@ def predictor_fixture(monkeypatch, config, truncated=False):
         def build_messages(self, task, include_cache_control):
             assert include_cache_control is False
             # This test task has no ground_truth property at all.
-            return [{"role": "user", "content": "public synthetic task and catalogue"}]
+            return [
+                {"role": "system", "content": "public synthetic catalogue"},
+                {"role": "user", "content": "public synthetic task"},
+            ]
 
         def predicted_output_to_apis(self, task, text):
             assert text == "supervisor.complete_task"

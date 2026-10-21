@@ -34,10 +34,10 @@ from .teacher import (
 
 def validate_config(config):
     if (
-        config["project_version"] not in {"0.4", "0.5", "0.6"}
+        config["project_version"] not in {"0.4", "0.5", "0.6", "0.7"}
         or config["training_enabled"] is not False
     ):
-        raise ValueError("Only v0.4/v0.5/v0.6 P3-A collection is allowed")
+        raise ValueError("Only v0.4/v0.5/v0.6/v0.7 P3-A collection is allowed")
     if config.get("tool_mode", "dynamic_discovery") not in MODES:
         raise ValueError("Unknown tool mode")
     if config.get("actor_prompt_variant", "legacy_v1") not in ACTOR_PROMPTS:

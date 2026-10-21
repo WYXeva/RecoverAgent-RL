@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "software_checks": [
+    {
+      "command": [
+        ".venv/bin/ruff",
+        "check",
+        "src",
+        "scripts",
+        "tests"
+      ],
+      "exit_code": 0,
+      "stdout": "All checks passed!"
+    },
+    {
+      "command": [
+        ".venv/bin/ruff",
+        "format",
+        "--check",
+        "src",
+        "scripts",
+        "tests"
+      ],
+      "exit_code": 0,
+      "stdout": "40 files already formatted"
+    },
+    {
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0,
+      "stdout": "........................................................................ [ 90%]\n........                                                                 [100%]\n80 passed in 0.21s"
+    }
+  ],
+  "test_count": 80,
+  "legacy_real_receipts_reaudited": 21,
+  "historical_prompt_compatibility": "PASS",
+  "p0_p2_unchanged_files": 17,
+  "official_public_examples_check": "reports/structured_prompt_examples_check.json",
+  "new_real_receipts_audit": "reports/structured_prompts_audit.json",
+  "gpu": "NVIDIA GeForce RTX 5050, 8151 MiB (read-only nvidia-smi, no model weights loaded)",
+  "training_started": false
+}
