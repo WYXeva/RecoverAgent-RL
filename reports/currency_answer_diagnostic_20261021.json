@@ -1,0 +1,63 @@
+{
+  "protocol": "retrospective-currency-format-diagnostic-v1",
+  "model_requests": 0,
+  "world_actions": 0,
+  "hidden_answer_used_only_for_controller_comparison": true,
+  "hidden_answer_exposed_to_actor": false,
+  "training_eligible": false,
+  "rows": [
+    {
+      "task_id": "76f2c72_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_0cb8dcaae51e",
+      "observed_bill_count": 4,
+      "public_sum_matches_model_amount": true,
+      "raw_official_comparator": "ValueError",
+      "remove_currency_symbol_only_comparator": "PASS",
+      "source_reward_unchanged": 0,
+      "source_trajectory_sha256": "86ebf5d7db439f5484a9e94bdaecfd12d44635298154adab35b5d9fcdde6bfdf",
+      "scope": "controller-only official answer assertion; not a new rollout or full-task reevaluation"
+    },
+    {
+      "task_id": "76f2c72_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_39bc9054e709",
+      "observed_bill_count": 4,
+      "public_sum_matches_model_amount": true,
+      "raw_official_comparator": "ValueError",
+      "remove_currency_symbol_only_comparator": "PASS",
+      "source_reward_unchanged": 0,
+      "source_trajectory_sha256": "fe06c244f1cb8c36332b56a2bdaee32582f129ba6af2bb1038f6d9b5f4b20ac2",
+      "scope": "controller-only official answer assertion; not a new rollout or full-task reevaluation"
+    },
+    {
+      "task_id": "76f2c72_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_44be144d4230",
+      "observed_bill_count": 4,
+      "public_sum_matches_model_amount": true,
+      "raw_official_comparator": "ValueError",
+      "remove_currency_symbol_only_comparator": "PASS",
+      "source_reward_unchanged": 0,
+      "source_trajectory_sha256": "0b01692d25f06a0504e9b6f0a2e6e2d8cca7c3b6a56b568a9f902aae520b7cb0",
+      "scope": "controller-only official answer assertion; not a new rollout or full-task reevaluation"
+    },
+    {
+      "task_id": "76f2c72_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_b6877b64608b",
+      "observed_bill_count": 4,
+      "public_sum_matches_model_amount": true,
+      "raw_official_comparator": "ValueError",
+      "remove_currency_symbol_only_comparator": "PASS",
+      "source_reward_unchanged": 0,
+      "source_trajectory_sha256": "cf5c674c59f899343d4f383f46b3500c5bebdbae4ecbc9fb55336e45bf04bf23",
+      "scope": "controller-only official answer assertion; not a new rollout or full-task reevaluation"
+    }
+  ],
+  "raw_answers_omitted": true,
+  "ground_truth_values_omitted": true,
+  "production_harness_changed": false,
+  "historical_rewards_changed": false,
+  "complete_task_reexecution": false
+}

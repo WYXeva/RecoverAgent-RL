@@ -6,6 +6,13 @@
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮fetch核对基线 `dbe205162ddf5ace72726f6f4942cdf895000185`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
 
+## 金额答案格式复核（2026-10-21，分析，未启用新harness）
+
+- 用户质疑两条B金额回答语义上正确，询问能否由harness规避。只读核对全部4条A/B账单轨迹：从各自真实工具观察提取并按文件去重的4张账单合计，均与模型答案中的金额一致。
+- 控制侧调用固定AppWorld的`assert_plus(raw_answer, "==", ground_truth_answer, tolerance=0.51, normalize=float)`，4条均因货币符号字符串触发ValueError；只去掉该符号、保持数值不变后，4条均通过相同官方答案比较。隐藏参考值仅在控制侧比较，未暴露给Actor；不是重新执行完整任务，也不重写历史8/10、6/10或将诊断样本入集。0模型请求、0环境动作。
+- 证据`reports/currency_answer_diagnostic_20261021.json`仅发布数量/布尔/来源哈希，不含原始答案或隐藏参考值；本地详细结果`.cache/currency_answer_diagnostic_20261021.json`。将这类情况归为答案表示不兼容，不等同于数值推理错误。
+- 候选下一步：显式版本化的最终答案适配层，仅在公开声明的数值/金额契约下规范化无歧义的单个金额，记录原始生成与实际执行参数，A/B/Teacher/Student共用；歧义则回馈模型修改。不依据隐藏验证器决定答案类型，不在评价失败后试改直到通过。当前仅分析，生产harness、数据和奖励未改，详见D023。
+
 ## execution_v4 与新场景配对采集（2026-10-21，v0.9）
 
 - **实现/真实采集 PASS**：用户授权按诊断方案修改并重采A/B。旧execution_v3五文件锁和P0–P2原17文件不变；新增明确完成/正文/聚合/认证规则，以及A公开认证依赖检查/至多一次Predictor纠错。模型自行选择最终工具，控制器不补业务动作、不改answer；所有选择成本计入，Predictor不进入Actor/SFT。
