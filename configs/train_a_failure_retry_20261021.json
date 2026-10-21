@@ -1,0 +1,68 @@
+{
+  "format": "train-scenario-plan-v1",
+  "split": "train",
+  "settings": {
+    "strategy": "explicit",
+    "seed": 20261021,
+    "num_tasks": 6,
+    "task_ids": [
+      "29caf6f_1",
+      "22cc237_1",
+      "b0a8eae_3",
+      "29caf6f_3",
+      "b0a8eae_1",
+      "287e338_3"
+    ],
+    "diagnostic_selection": {
+      "rule": "prior_official_failures",
+      "source_report": "reports/scenario_expansion_summary_v2.json",
+      "source_sha256": "dadc8ec3a4c629218a20a443f72ecedfe24b71d2ed5ab984ccd9c64390bbdd67"
+    }
+  },
+  "pool_sha256": "77dd8bbd52736da153134f7c4c34c0bd02c8baaff65c3165938c2decb8e3b41d",
+  "pool_tasks": 90,
+  "pool_scenarios": 30,
+  "tasks": [
+    "29caf6f_1",
+    "22cc237_1",
+    "b0a8eae_3",
+    "29caf6f_3",
+    "b0a8eae_1",
+    "287e338_3"
+  ],
+  "rows": [
+    {
+      "task_id": "29caf6f_1",
+      "scenario_id": "29caf6f"
+    },
+    {
+      "task_id": "22cc237_1",
+      "scenario_id": "22cc237"
+    },
+    {
+      "task_id": "b0a8eae_3",
+      "scenario_id": "b0a8eae"
+    },
+    {
+      "task_id": "29caf6f_3",
+      "scenario_id": "29caf6f"
+    },
+    {
+      "task_id": "b0a8eae_1",
+      "scenario_id": "b0a8eae"
+    },
+    {
+      "task_id": "287e338_3",
+      "scenario_id": "287e338"
+    }
+  ],
+  "num_scenarios": 4,
+  "selection_inputs": [
+    "official train task IDs",
+    "public task_id_to_generator_id",
+    "prior official failure outcomes"
+  ],
+  "hidden_labels_or_results_used": true,
+  "selection_scope": "conditional failure diagnostic, not an unbiased comparison",
+  "plan_id": "298d528af2be1099f45afa06907c38f60da23c9db72bf16216ffae004a23c627"
+}

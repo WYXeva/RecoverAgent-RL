@@ -2,9 +2,21 @@
 
 - 最后更新：2026-10-21（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.8；正式 Student `Qwen/Qwen3-4B`。
-- 本轮状态：**P3-A 场景扩样与数据格式验收 PASS，正式训练准备 PARTIAL**：12个新任务/6家族，真实Teacher官方成功6/12，合格示范6条/4家族。Student批量接口和真实环境协议探针通过，但真实4B自主推理未验证。P3-B及以后 `NOT_STARTED`。
+- 本轮状态：**P3-A 失败诊断与A复试验收 PASS，正式训练准备 PARTIAL**：上一轮B的6个失败任务各用冻结A从原始初态再试一次，2/6官方成功、2条新示范；候选修改尚未启用。原B12任务的6/12结果保持原样。真实4B自主推理未验证，P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮拉取并核对基线 `cc53bea6bf13307c77abc68566a55ae51ef6e138`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮拉取并核对基线 `e4a6f1ae296524f775a09b00b7178f2a00d51ea6`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## B失败诊断与冻结A复试（2026-10-21）
+
+- 用户要求分析失败并用A再试一次，随后要求解释根因及修改方法。对B全部6个有效失败/4家族固定清单，A从原始初态各执行一次。采样manifest新增诊断标记与来源SHA，明确使用了历史结果选择，不称为无偏A/B比较或检查点恢复。常规采样原manifest不改。
+- **原B原因**：4条只错在动作完成时误填answer，业务状态断言全部通过；1条另有短信多余前缀触发官方子串检查；1条读全28首后聚合错误，实际最高作者5次却选择4次者。公开complete_task schema一直要求动作任务省略answer，execution_v3措辞存在可解释歧义，但模型内部成因只能推断。原失败仍奖励0，不修补历史示范。
+- **A真实结果**：2/6成功，为29caf6f_1与29caf6f_3（省略answer、正文仅列表）；b0a8eae_1/_3仍填answer摘要失败；287e338_3仍统计错；22cc237_1 Predictor选14API但漏simple_note.login，23次公开工具错误，最后4096输出截断、未创建付款请求。后者不是总token/工具次数额度耗尽。6评价有效、0基础设施错误，官方通过2条均通过筛选。
+- 全部冻结提示及A/B源文件哈希不变；A Predictor从公开任务/目录完整重构一致，Actor没有B历史/诊断/隐藏标签；同任务初态、Teacher/backend和每任务预算一致。已有两正例/依赖提醒仍未保证预测覆盖，所以不能把A2/6解释为工具模式整体更强。
+- 实际新增71模型请求（6 Predictor+65 Actor）、97工具调用、626630输入（559616缓存）、24314输出token，采集277.082秒；费率估算USD0.052638696，实际账单未知，无未知费用预留。每任务40请求/16384输出/600秒/USD1，总USD6，单回复4096、工具数量不限，无付费重试。没有训练或模型权重加载。
+- 两条新数据/2唯一任务/1家族，4B tokenizer得到15个Assistant目标、2349监督token，最长序列12458、最长目标332；格式/schema/mask全部通过。新包 `runs/a_failure_retry_20261021_a/clean_dataset/`，manifest SHA-256 `2e30bc2e55689e0a0d474dfd76ed23f73492deb1cc0f08c1c5f0428021a2519d`。当前三个execution_v3包共12条/10唯一任务/6家族，仍分包保留，没有合并为正式训练集。
+- 107软件测试和Ruff/格式通过；P0–P2原17项未变。公开报告 `reports/a_failure_retry_report.md`、逐任务 `a_failure_retry_comparison.json`，原始日志 `.cache/a_failure_retry_20261021_a.log`；本地完整视图 `outputs/a_failure_retry_20261021_a/<task_id>.md`。原始隐藏评价/任务/凭据不上GitHub。
+- 实际命令：`PYTHONPATH=src .venv/bin/python -m recoveragent.p3a collect --config .cache/a_failure_retry_20261021_a.json --output runs/a_failure_retry_20261021_a --credentials-file .env`；官方verify、控制侧诊断、tokenizer和测试命令见新报告。离线统计最初误用artists字典作计数键，已按ID展开/去重并加测试；没有影响Actor或计费。截断尾响应独立审计，不伪造完整Assistant消息。
+- **修改方案已整理、尚未启用**：`docs/PROMPT_FIX_PROPOSAL.md` 给出明确省略answer、精确正文、完整嵌套聚合及A公开schema依赖检查/缺工具停机的候选条款与验收方法。后续另建版本，固定新场景与预算检验；不修改官方验证器、不偷偷补工具或清空answer。本轮没有宣称修正生效。P3-B缺项仍为正式数据/分组与权重、远程预检/迁移、真实4B后端和训练授权。
 
 ## 冻结提示与场景扩样（2026-10-21，v0.8）
 

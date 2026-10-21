@@ -1,0 +1,85 @@
+{
+  "project_version": "0.8",
+  "tool_mode": "api_predictor",
+  "actor_prompt_variant": "execution_v3",
+  "predictor_prompt_variant": "dependency_examples_v2",
+  "appworld_root": "data/appworld",
+  "student": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false
+  },
+  "teacher": {
+    "provider": "deepseek",
+    "base_url": "https://api.deepseek.com",
+    "allowed_host": "api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-flash",
+    "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+    "revision_is_immutable": false,
+    "revision_source": "https://api-docs.deepseek.com/",
+    "thinking": false,
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": null,
+    "max_request_bytes": 131072,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "CNY",
+      "input_per_million": null,
+      "cached_input_per_million": null,
+      "output_per_million": null,
+      "source": null,
+      "checked_at": null
+    }
+  },
+  "authorization": {
+    "approved": false,
+    "reference": null,
+    "currency": "CNY",
+    "max_cost": null
+  },
+  "limits": {
+    "max_tasks": 6,
+    "max_requests": 240,
+    "total_generated_tokens": 98304,
+    "max_model_turns": 40,
+    "max_tool_calls": null,
+    "episode_generated_tokens": 16384,
+    "episode_wall_seconds": 600,
+    "total_wall_seconds": 3600,
+    "tool_timeout_seconds": 60,
+    "max_infrastructure_retries": 0,
+    "repeated_identical_call_limit": 3
+  },
+  "environment_seed": 42,
+  "training_enabled": false,
+  "collection_profile": "scenario_expansion_v1",
+  "protocol_lock": "configs/prompt_protocol_lock.json",
+  "sampling": {
+    "strategy": "explicit",
+    "seed": 20261021,
+    "num_tasks": 6,
+    "task_ids": [
+      "29caf6f_1",
+      "22cc237_1",
+      "b0a8eae_3",
+      "29caf6f_3",
+      "b0a8eae_1",
+      "287e338_3"
+    ],
+    "diagnostic_selection": {
+      "rule": "prior_official_failures",
+      "source_report": "reports/scenario_expansion_summary_v2.json",
+      "source_sha256": "dadc8ec3a4c629218a20a443f72ecedfe24b71d2ed5ab984ccd9c64390bbdd67"
+    }
+  },
+  "task_manifest": "configs/train_a_failure_retry_20261021.json",
+  "continue_after_infrastructure_error": true,
+  "task_manifest_hash": "833a7d47bbe46a1e6a0232bf6fdaf24a2f4aff35aa7dfa825b028f14340bf5d0",
+  "expected_backend": [
+    "deepseek-flash",
+    "e72d3c7f663d3e1383b00b3884cb4501"
+  ]
+}

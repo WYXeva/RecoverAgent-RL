@@ -1,6 +1,7 @@
-"""Reproducible train selection using IDs/scenario membership only, never outcomes."""
+"""Reproducible public train sampling; outcome-selected diagnostics are explicit."""
 
 import argparse
+import hashlib
 import random
 from collections import defaultdict
 from pathlib import Path
@@ -66,6 +67,21 @@ def make_plan(task_scenarios, settings):
         ],
         "hidden_labels_or_results_used": False,
     }
+    diagnostic = settings.get("diagnostic_selection")
+    if diagnostic is not None:
+        if (
+            strategy != "explicit"
+            or diagnostic.get("rule") != "prior_official_failures"
+            or not isinstance(diagnostic.get("source_report"), str)
+            or not isinstance(diagnostic.get("source_sha256"), str)
+            or len(diagnostic["source_sha256"]) != 64
+        ):
+            raise ValueError("Outcome-selected diagnostics need an explicit source")
+        plan["selection_inputs"].append("prior official failure outcomes")
+        plan["hidden_labels_or_results_used"] = True
+        plan["selection_scope"] = (
+            "conditional failure diagnostic, not an unbiased comparison"
+        )
     return {**plan, "plan_id": digest(plan)}
 
 
@@ -85,6 +101,23 @@ def load_plan(config):
     expected = make_plan(official_pool(config["appworld_root"]), config["sampling"])
     if plan != expected or len(plan["tasks"]) != config["limits"]["max_tasks"]:
         raise ValueError("Task plan cannot be reproduced from public train membership")
+    diagnostic = config["sampling"].get("diagnostic_selection")
+    if diagnostic:
+        source = Path(diagnostic["source_report"])
+        if (
+            hashlib.sha256(source.read_bytes()).hexdigest()
+            != diagnostic["source_sha256"]
+        ):
+            raise ValueError("Diagnostic selection source changed")
+        failures = [
+            row["task_id"]
+            for row in read_json(source)["rows"]
+            if row["status"] == "valid" and row["official_success"] is False
+        ]
+        if plan["tasks"] != failures:
+            raise ValueError(
+                "Diagnostic plan must include every valid prior failure once"
+            )
     return plan
 
 

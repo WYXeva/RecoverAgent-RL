@@ -1,0 +1,532 @@
+{
+  "status": "PASS",
+  "scope": "A once on prior B failures; conditional diagnostic, not an unbiased A/B comparison or checkpoint recovery",
+  "tasks": 6,
+  "scenarios": 4,
+  "a_official_successes": 2,
+  "b_failure_subset_costs": {
+    "provider_requests": 77,
+    "model_turns": 77,
+    "tool_calls": 128,
+    "prompt_tokens": 905059,
+    "generated_tokens": 14982,
+    "cached_prompt_tokens": 588544,
+    "usage_priced_cost": 0.116464164,
+    "wall_seconds": 238.5257834609365
+  },
+  "a_all_costs": {
+    "provider_requests": 71,
+    "model_turns": 65,
+    "tool_calls": 97,
+    "prompt_tokens": 626630,
+    "generated_tokens": 24314,
+    "cached_prompt_tokens": 559616,
+    "usage_priced_cost": 0.052638696,
+    "wall_seconds": 269.68482500722166
+  },
+  "rows": [
+    {
+      "task_id": "29caf6f_1",
+      "before_b": {
+        "task_id": "29caf6f_1",
+        "trajectory_id": "teacher_eec93c440865",
+        "official_success": false,
+        "passed_assertions": 7,
+        "failed_assertions": 1,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": true,
+        "failure_categories": [
+          "action_answer_not_omitted"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 10
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 10,
+          "model_turns": 10,
+          "tool_calls": 18,
+          "prompt_tokens": 76350,
+          "generated_tokens": 1634,
+          "cached_prompt_tokens": 60288,
+          "usage_priced_cost": 0.007141128,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 32.83012214291375
+        },
+        "evaluation_sha256": "6796780e082ef6a707443b0547ac3b1dfb5bd931ac24e464eaf9a48ce3afedc0",
+        "trajectory_sha256": "0b8b8808472b3773d8efc8a0ed1c11a5e38007524e91204c72071a6c7e7c8425"
+      },
+      "retry_a": {
+        "task_id": "29caf6f_1",
+        "trajectory_id": "teacher_c2ec3a0b1cfc",
+        "official_success": true,
+        "passed_assertions": 8,
+        "failed_assertions": 0,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": false,
+        "answer_expected_absent_control_only": false,
+        "failure_categories": [],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 8,
+          "stop": 1
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 9,
+          "model_turns": 8,
+          "tool_calls": 11,
+          "prompt_tokens": 69588,
+          "generated_tokens": 1512,
+          "cached_prompt_tokens": 59264,
+          "usage_priced_cost": 0.005267183999999999,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 32.85837699507829
+        },
+        "evaluation_sha256": "8f7187d56adc92ed2a032fecf8a259cd36959711e3af32b874bdec6ec619364e",
+        "trajectory_sha256": "c79aac446d4620aa2cd7d9895cbef8475f0a48e666c8997aab045dd7a0391d30"
+      },
+      "same_original_state": true,
+      "same_teacher_and_per_task_budget": true,
+      "public_predictor_input_reconstructed": true,
+      "actor_has_no_prior_failure_feedback": true,
+      "a_schema_fixed": true
+    },
+    {
+      "task_id": "22cc237_1",
+      "before_b": {
+        "task_id": "22cc237_1",
+        "trajectory_id": "teacher_7e683c972cd7",
+        "official_success": false,
+        "passed_assertions": 3,
+        "failed_assertions": 1,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": true,
+        "failure_categories": [
+          "action_answer_not_omitted"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 14
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 14,
+          "model_turns": 14,
+          "tool_calls": 27,
+          "prompt_tokens": 163639,
+          "generated_tokens": 3184,
+          "cached_prompt_tokens": 106368,
+          "usage_priced_cost": 0.021640307999999997,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 42.33459093410056
+        },
+        "evaluation_sha256": "c0963fef780826e0ba97ae273a37af04e0a11c4b46a238c97aaab20c1b69dc4d",
+        "trajectory_sha256": "cf577ac71d11dd8035256813c6039c2538455de34463265e5603fc54bd5a1120"
+      },
+      "retry_a": {
+        "task_id": "22cc237_1",
+        "trajectory_id": "teacher_66f5c004417f",
+        "official_success": false,
+        "passed_assertions": 1,
+        "failed_assertions": 3,
+        "non_answer_failed_assertions": 2,
+        "final_answer_key_present": false,
+        "answer_expected_absent_control_only": true,
+        "failure_categories": [
+          "answer_mismatch",
+          "non_answer_constraint_failure",
+          "response_token_truncation",
+          "selected_authenticated_apis_without_login"
+        ],
+        "missing_selected_login_apps": [
+          "simple_note"
+        ],
+        "finish_reasons": {
+          "tool_calls": 21,
+          "length": 1,
+          "stop": 1
+        },
+        "public_tool_errors": 23,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 23,
+          "model_turns": 22,
+          "tool_calls": 29,
+          "prompt_tokens": 213405,
+          "generated_tokens": 12498,
+          "cached_prompt_tokens": 204672,
+          "usage_priced_cost": 0.018845531999999998,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 91.55105727200862
+        },
+        "evaluation_sha256": "5920969838e43cb451a807d723b637149e37a88db8f5910e55aca552a14fcf88",
+        "trajectory_sha256": "dcda30083e3e83758be6e32769c7b8e6c4e061d420909f291774011f90761e17"
+      },
+      "same_original_state": true,
+      "same_teacher_and_per_task_budget": true,
+      "public_predictor_input_reconstructed": true,
+      "actor_has_no_prior_failure_feedback": true,
+      "a_schema_fixed": true
+    },
+    {
+      "task_id": "b0a8eae_3",
+      "before_b": {
+        "task_id": "b0a8eae_3",
+        "trajectory_id": "teacher_918cc5524b18",
+        "official_success": false,
+        "passed_assertions": 4,
+        "failed_assertions": 1,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": true,
+        "failure_categories": [
+          "action_answer_not_omitted"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 15
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 15,
+          "model_turns": 15,
+          "tool_calls": 27,
+          "prompt_tokens": 202023,
+          "generated_tokens": 3416,
+          "cached_prompt_tokens": 118400,
+          "usage_priced_cost": 0.029896499999999996,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 43.76592024601996
+        },
+        "evaluation_sha256": "39e652eced94cad59a5ec6dadb7c9b7708a6b299784e1d028d0d8ebd121714f5",
+        "trajectory_sha256": "edefd9a3765f51b81feca8e19f2e67693ab949cb9d519ad8c78f02ff57437230"
+      },
+      "retry_a": {
+        "task_id": "b0a8eae_3",
+        "trajectory_id": "teacher_bc3df4eb5bcf",
+        "official_success": false,
+        "passed_assertions": 4,
+        "failed_assertions": 1,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": true,
+        "failure_categories": [
+          "action_answer_not_omitted"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 11,
+          "stop": 1
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 12,
+          "model_turns": 11,
+          "tool_calls": 24,
+          "prompt_tokens": 138300,
+          "generated_tokens": 4229,
+          "cached_prompt_tokens": 118144,
+          "usage_priced_cost": 0.011830464,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 43.481332474038936
+        },
+        "evaluation_sha256": "1c58db30bf8d0f08559c76a4fa44a9f3a93d6008bcc4907dde02e6029e2e2e19",
+        "trajectory_sha256": "6d6a058e901b9bf0d863f7ae8bcba56c1c7ab50f07f19baa167f026609c9a8fd"
+      },
+      "same_original_state": true,
+      "same_teacher_and_per_task_budget": true,
+      "public_predictor_input_reconstructed": true,
+      "actor_has_no_prior_failure_feedback": true,
+      "a_schema_fixed": true
+    },
+    {
+      "task_id": "29caf6f_3",
+      "before_b": {
+        "task_id": "29caf6f_3",
+        "trajectory_id": "teacher_79f69bd5d1b6",
+        "official_success": false,
+        "passed_assertions": 6,
+        "failed_assertions": 2,
+        "non_answer_failed_assertions": 1,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": true,
+        "failure_categories": [
+          "action_answer_not_omitted",
+          "non_answer_constraint_failure"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 14
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 14,
+          "model_turns": 14,
+          "tool_calls": 20,
+          "prompt_tokens": 156168,
+          "generated_tokens": 2274,
+          "cached_prompt_tokens": 107904,
+          "usage_priced_cost": 0.017855423999999998,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 40.33534268697258
+        },
+        "evaluation_sha256": "30fcaa3c5940dec1e23343a6fb3a6fe36b6e88ab3ef91d3a6c0e7f14f8e4988d",
+        "trajectory_sha256": "cff101d9e9ffa6f8deaebf8e672e03dfab1053abcb3a27477d202cae4154d879"
+      },
+      "retry_a": {
+        "task_id": "29caf6f_3",
+        "trajectory_id": "teacher_0b7c302be131",
+        "official_success": true,
+        "passed_assertions": 8,
+        "failed_assertions": 0,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": false,
+        "answer_expected_absent_control_only": false,
+        "failure_categories": [],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 7,
+          "stop": 1
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 8,
+          "model_turns": 7,
+          "tool_calls": 10,
+          "prompt_tokens": 44981,
+          "generated_tokens": 1333,
+          "cached_prompt_tokens": 39552,
+          "usage_priced_cost": 0.003465612,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 30.17564053100068
+        },
+        "evaluation_sha256": "2cb062ef87103c3992c8e8fa91012832e52933c48e970f8ed036d5799ed71543",
+        "trajectory_sha256": "a81ed62a370daa7bdca8c83aaa0fcf4060cbe6c36e4b6fba2b35e99fc80120fc"
+      },
+      "same_original_state": true,
+      "same_teacher_and_per_task_budget": true,
+      "public_predictor_input_reconstructed": true,
+      "actor_has_no_prior_failure_feedback": true,
+      "a_schema_fixed": true
+    },
+    {
+      "task_id": "b0a8eae_1",
+      "before_b": {
+        "task_id": "b0a8eae_1",
+        "trajectory_id": "teacher_56606e4b19d1",
+        "official_success": false,
+        "passed_assertions": 4,
+        "failed_assertions": 1,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": true,
+        "failure_categories": [
+          "action_answer_not_omitted"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 16
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 16,
+          "model_turns": 16,
+          "tool_calls": 27,
+          "prompt_tokens": 256688,
+          "generated_tokens": 3558,
+          "cached_prompt_tokens": 158848,
+          "usage_priced_cost": 0.034574688,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 47.93369415192865
+        },
+        "evaluation_sha256": "3b0d6425a62cd21a2f507f78b0a897dd4a1a1a472df037cd7c5af0539946a9e0",
+        "trajectory_sha256": "60912e9cbeb72a75369c04bc781873fdb45afaa854ec53704df9df188faa7db7"
+      },
+      "retry_a": {
+        "task_id": "b0a8eae_1",
+        "trajectory_id": "teacher_1038f24bf356",
+        "official_success": false,
+        "passed_assertions": 4,
+        "failed_assertions": 1,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": true,
+        "failure_categories": [
+          "action_answer_not_omitted"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 11,
+          "stop": 1
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": null,
+        "usage": {
+          "provider_requests": 12,
+          "model_turns": 11,
+          "tool_calls": 17,
+          "prompt_tokens": 130481,
+          "generated_tokens": 4037,
+          "cached_prompt_tokens": 112384,
+          "usage_priced_cost": 0.010947803999999998,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 44.28492912906222
+        },
+        "evaluation_sha256": "5a39d221077cf47829b1d7a543624e8761b24d5d98ae685aad17651e7686f421",
+        "trajectory_sha256": "95c0a69524f0b6d9595145f557512a9941e7918c9b8c41a424729997d02a8255"
+      },
+      "same_original_state": true,
+      "same_teacher_and_per_task_budget": true,
+      "public_predictor_input_reconstructed": true,
+      "actor_has_no_prior_failure_feedback": true,
+      "a_schema_fixed": true
+    },
+    {
+      "task_id": "287e338_3",
+      "before_b": {
+        "task_id": "287e338_3",
+        "trajectory_id": "teacher_b1c01224bb6a",
+        "official_success": false,
+        "passed_assertions": 1,
+        "failed_assertions": 1,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": false,
+        "failure_categories": [
+          "answer_mismatch"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 8
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": {
+          "page_sizes": [
+            20,
+            8,
+            0
+          ],
+          "unique_songs": 28,
+          "songs_with_multiple_artists": 8,
+          "total_distinct_song_artist_pairs": 41,
+          "max_observed_artist_frequency": 5,
+          "submitted_answer_observed_frequency": 4,
+          "all_artist_entries_counted": true
+        },
+        "usage": {
+          "provider_requests": 8,
+          "model_turns": 8,
+          "tool_calls": 9,
+          "prompt_tokens": 50191,
+          "generated_tokens": 916,
+          "cached_prompt_tokens": 36736,
+          "usage_priced_cost": 0.005356116,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 31.32611329900101
+        },
+        "evaluation_sha256": "3892790c3ebdda245a26919809d256992828cc7b1c95d2a291771f319c49a31f",
+        "trajectory_sha256": "3dcda9a0e2e647f0679d7d7b7edae3c1af3071d3238a66b71f526506bf2dcac0"
+      },
+      "retry_a": {
+        "task_id": "287e338_3",
+        "trajectory_id": "teacher_2630a5dff012",
+        "official_success": false,
+        "passed_assertions": 1,
+        "failed_assertions": 1,
+        "non_answer_failed_assertions": 0,
+        "final_answer_key_present": true,
+        "answer_expected_absent_control_only": false,
+        "failure_categories": [
+          "answer_mismatch"
+        ],
+        "missing_selected_login_apps": [],
+        "finish_reasons": {
+          "tool_calls": 6,
+          "stop": 1
+        },
+        "public_tool_errors": 0,
+        "public_aggregation_recount": {
+          "page_sizes": [
+            20,
+            8,
+            0
+          ],
+          "unique_songs": 28,
+          "songs_with_multiple_artists": 8,
+          "total_distinct_song_artist_pairs": 41,
+          "max_observed_artist_frequency": 5,
+          "submitted_answer_observed_frequency": 4,
+          "all_artist_entries_counted": true
+        },
+        "usage": {
+          "provider_requests": 7,
+          "model_turns": 6,
+          "tool_calls": 6,
+          "prompt_tokens": 29875,
+          "generated_tokens": 705,
+          "cached_prompt_tokens": 25600,
+          "usage_priced_cost": 0.0022821,
+          "unknown_cost_reservation": 0.0,
+          "unknown_generation_reservation": 0,
+          "billed_cost": null,
+          "currency": "USD",
+          "wall_seconds": 27.333488606032915
+        },
+        "evaluation_sha256": "4652df42f14aaddf23ec380992c62d352a1c0a024c338268aa1e746aebac7f48",
+        "trajectory_sha256": "4c353728949e55ce76210a42f858bec6c1d94748f67bfd64235867b3d301b760"
+      },
+      "same_original_state": true,
+      "same_teacher_and_per_task_budget": true,
+      "public_predictor_input_reconstructed": true,
+      "actor_has_no_prior_failure_feedback": true,
+      "a_schema_fixed": true
+    }
+  ],
+  "selection_plan_hash": "833a7d47bbe46a1e6a0232bf6fdaf24a2f4aff35aa7dfa825b028f14340bf5d0",
+  "training_started": false
+}

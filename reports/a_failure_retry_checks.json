@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "frozen_protocol_hash": "9badc27e9560ac2c7a852205e96ebb8ffbf58212d0edbdc98e6fcf5f8b0679bc",
+  "legacy_files_unchanged": 17,
+  "execution_source_files_unchanged": 24,
+  "execution_source": {
+    "src/recoveragent/__init__.py": "1a0b9ed5db89edd541cc72bf069aa12389eda56852632c94c6e220db8e9c7023",
+    "src/recoveragent/adapter.py": "5720c819260d2f066acc1003b733f38e8218952efe33cbf40f7ce17b5b3d60eb",
+    "src/recoveragent/base_sft.py": "fd218273e48b7a5f88a4ea2b302f3f5f40b1b88a94b23bcae81ec2626b8c2379",
+    "src/recoveragent/buffer.py": "bc967e05d73e59eae632a8b2b248bc3eb91837f5ea37c9be84fc3bff872258d2",
+    "src/recoveragent/cli.py": "c377050fa7458822d8022878a94c09ad3c4f859d642003e1623fa3f4e9be83b0",
+    "src/recoveragent/collection_report.py": "305889989b08a40b6d0ff94d11295f5e2a89ae170c8f7c6deec803c98d1e6830",
+    "src/recoveragent/compare_tools.py": "2a01b12eff912a05201e6dc198fcd62527c6055f3d661d6168b95ae631291e38",
+    "src/recoveragent/demonstrations.py": "4dc8b4be485c5d5dd96055f1d72f2bb2d0cac2c28980184321b794ff85fdead6",
+    "src/recoveragent/inference.py": "24b4904655d88b3e5f560ab9b5d0f548d825c774867a92aecda1b68ce89c31d5",
+    "src/recoveragent/inspect_teacher.py": "93169adfb6f2dc655584b09a109d9ed71c30f9503a1b1521ab2b54a4956d35d4",
+    "src/recoveragent/io.py": "8d422428dee7f299e8bea03f050b699f5ed4f50bd0951d78d380c2fe8fa715cd",
+    "src/recoveragent/p3a.py": "8d409e4ef029230db6d967973b50c97af81536cbc3c4adc15f352c1756dec997",
+    "src/recoveragent/p3a_prompts.py": "9ca1fdb2854df85edcab389ee590408827a0e9d159b81b695bc54412a5d942f3",
+    "src/recoveragent/policy.py": "910ee3ef48fd26cb42ac7c525ba0428d4131411902d2b396fd22a671c530acbe",
+    "src/recoveragent/predictor_prompts.py": "732e37174fc37d15f242e32776a2c14799d3c3eab7bea189828b9504376c2ddc",
+    "src/recoveragent/protocol_lock.py": "88230f7d251136ea2baa973dbb6b6d797da0cda243d87c5118dadfd1774bac95",
+    "src/recoveragent/runner.py": "0ac5145c3828ad3d04402ee412045ee39d9bc9b3dc27c62df4420c329a9d55af",
+    "src/recoveragent/sampling.py": "55b5adb7cfaed708711a3b89812bcc279e8483eb65111eb70cbe6e7091d50103",
+    "src/recoveragent/sft_quality.py": "92b463fa777b2cd9d35ec5a5745b4fb643415288978dc472c11b688c4612139d",
+    "src/recoveragent/state.py": "2a1d0b43fdc8f1d075db12032f029526f5b8f8d3ac4d38a21b893ac707bf53e8",
+    "src/recoveragent/student.py": "f28bc70074a3c90c3e397b29772ec157b339cf300a9c080a45416249e3506ec1",
+    "src/recoveragent/teacher.py": "2743b15b4c445e4f340459ad8b0e115b2365f01580776d353b7c9e98575d3ff5",
+    "src/recoveragent/teacher_history.py": "1c3df359b739b7ddcde5afa609278f83b75306826f78c46b67dbb778d2075a07",
+    "src/recoveragent/tool_modes.py": "644e9f671fe35ca1e623373df1a9610daee97b434bce600d432e4b3eaf55cc32"
+  },
+  "conditional_result_based_selection": true,
+  "public_supervisor_api_source_sha256": "8f07409113cbd9a2dc5d50a1c2e17a12ddd6d8f29134cf3568fddc848c59f292",
+  "public_supervisor_api_source": "appworld/apps/supervisor/apis.py:49",
+  "no_actor_diagnostic_feedback": true,
+  "llm_views": [
+    {
+      "task_id": "b0a8eae_1",
+      "trajectory": "runs/a_failure_retry_20261021_a/teacher_1038f24bf356/trajectory.json",
+      "llm_view": "outputs/a_failure_retry_20261021_a/b0a8eae_1.md"
+    },
+    {
+      "task_id": "287e338_3",
+      "trajectory": "runs/a_failure_retry_20261021_a/teacher_2630a5dff012/trajectory.json",
+      "llm_view": "outputs/a_failure_retry_20261021_a/287e338_3.md"
+    },
+    {
+      "task_id": "22cc237_1",
+      "trajectory": "runs/a_failure_retry_20261021_a/teacher_66f5c004417f/trajectory.json",
+      "llm_view": "outputs/a_failure_retry_20261021_a/22cc237_1.md"
+    },
+    {
+      "task_id": "29caf6f_3",
+      "trajectory": "runs/a_failure_retry_20261021_a/teacher_0b7c302be131/trajectory.json",
+      "llm_view": "outputs/a_failure_retry_20261021_a/29caf6f_3.md"
+    },
+    {
+      "task_id": "b0a8eae_3",
+      "trajectory": "runs/a_failure_retry_20261021_a/teacher_bc3df4eb5bcf/trajectory.json",
+      "llm_view": "outputs/a_failure_retry_20261021_a/b0a8eae_3.md"
+    },
+    {
+      "task_id": "29caf6f_1",
+      "trajectory": "runs/a_failure_retry_20261021_a/teacher_c2ec3a0b1cfc/trajectory.json",
+      "llm_view": "outputs/a_failure_retry_20261021_a/29caf6f_1.md"
+    }
+  ],
+  "training_started": false
+}

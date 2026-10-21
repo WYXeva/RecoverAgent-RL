@@ -19,6 +19,8 @@ PYTHONPATH=src .venv/bin/python -m recoveragent.sampling \
 
 默认 B `dynamic_discovery`，覆盖多场景 Teacher 正常示范；A 仍冻结保留，但此次没有执行 Predictor 请求，也不是新的 A/B 比较。A 默认是基于官方组件的增强提示，不能叫官方原提示。每个任务独立进程、干净初态、同一 Teacher 和相等额度。新增 `continue_after_infrastructure_error` 可保留错误并执行下一个不同任务，自动付费重试仍为0；未知 token/费用继续占用总预算。不得将基础设施故障补成策略零奖励。
 
+后续用户要求的失败专项复试使用独立 `p3a_a_failure_retry.json` / `train_a_failure_retry_20261021.json`。`sampling.diagnostic_selection` 必须标记 `prior_official_failures`、来源报告和SHA-256；启动核对清单恰好包含来源中所有有效失败一次。该manifest的 `hidden_labels_or_results_used=true` 表示使用了控制侧历史评价结果选择任务，不是Actor得到隐藏标签；其scope显式写为条件诊断。常规随机/家族采样仍保持原manifest内容和哈希。不要把这类数据选择解释为无偏采样或总体A/B优劣证据。
+
 ## 复核和数据迁移
 
 `collection_report` 从每次真实请求/响应、工具结果、官方评价及数据包重新计算覆盖与成本，失败轨迹也检查完整回执。报告区分全部尝试分母与有效评价分母，不用成功样本数替代总尝试数。公开报告仅含元数据/数量/哈希；任务正文、数据库、原始轨迹和本地 LLM 视图均不提交 GitHub。

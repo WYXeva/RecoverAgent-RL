@@ -12,6 +12,8 @@ v0.8 延续路线：AppWorld → Teacher 正常成功轨迹 → Qwen3-4B Base-SF
 
 新增 [冻结协议与场景采样](docs/TEACHER_EXPANSION.md)、[Student批量函数调用接口](docs/STUDENT_PROTOCOL.md)。新旧execution_v3成功包合计10条/8唯一任务/5家族，尚未合并正式集；当前数据存在家族监督量不均衡，正式训练前须固定分组与采样设计。
 
+后续[失败分析与A复试](reports/a_failure_retry_report.md)：仅在上述B的6个失败上各试A一次，2条成功、4条仍失败；属于条件诊断，不是总体A/B比较。新增2条示范后execution_v3分包共12条/10任务/6家族，107测试通过。完成参数、精确正文、聚合和认证遗漏的[候选修改方案](docs/PROMPT_FIX_PROPOSAL.md)已记录，冻结提示未改，方案尚未启用或验证效果。
+
 工具模式新增 [官方 API Predictor 与动态发现的配对比较](docs/TOOL_MODES.md)，当前单回复输出上限 4096 token。[真实小试报告](reports/tool_modes_report.md)区分 Teacher 结果、完整成本和 Student 尚未验证项，不启动训练。
 
 v0.6 按用户要求取消整轨迹/单回复工具调用数量配额，保留其他资源预算；[新诊断报告](reports/unlimited_prompt_report.md)记录原 20 调用批次的真实重放及官方/依赖增强提示对照，旧结果保留。

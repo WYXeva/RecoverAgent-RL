@@ -1,0 +1,145 @@
+{
+  "scope": "real Teacher AppWorld train pilot; all protocol retries included",
+  "attempts": [
+    {
+      "run_id": "a_failure_retry_20261021_a",
+      "trajectory_id": "teacher_0b7c302be131",
+      "task_id": "29caf6f_3",
+      "status": "valid",
+      "official_reward": 1,
+      "termination_reason": "completion_claim",
+      "trajectory_sha256": "a81ed62a370daa7bdca8c83aaa0fcf4060cbe6c36e4b6fba2b35e99fc80120fc",
+      "evaluation_sha256": "2cb062ef87103c3992c8e8fa91012832e52933c48e970f8ed036d5799ed71543",
+      "terminal_checkpoint_id": "c85fcf6c08d5441219137b8bfcac8e5d24f3b99909536b3927cbf4d33a555bb7",
+      "requests": 8,
+      "tool_calls": 10,
+      "generated_tokens": 1333,
+      "finish_reasons": {
+        "stop": 1,
+        "tool_calls": 7
+      },
+      "max_response_batch_size": 2
+    },
+    {
+      "run_id": "a_failure_retry_20261021_a",
+      "trajectory_id": "teacher_1038f24bf356",
+      "task_id": "b0a8eae_1",
+      "status": "valid",
+      "official_reward": 0,
+      "termination_reason": "completion_claim",
+      "trajectory_sha256": "95c0a69524f0b6d9595145f557512a9941e7918c9b8c41a424729997d02a8255",
+      "evaluation_sha256": "5a39d221077cf47829b1d7a543624e8761b24d5d98ae685aad17651e7686f421",
+      "terminal_checkpoint_id": "59902399815c32513ad4845f07197a27187ae27e9efaacfc267b3f0db1d6f08a",
+      "requests": 12,
+      "tool_calls": 17,
+      "generated_tokens": 4037,
+      "finish_reasons": {
+        "stop": 1,
+        "tool_calls": 11
+      },
+      "max_response_batch_size": 4
+    },
+    {
+      "run_id": "a_failure_retry_20261021_a",
+      "trajectory_id": "teacher_2630a5dff012",
+      "task_id": "287e338_3",
+      "status": "valid",
+      "official_reward": 0,
+      "termination_reason": "completion_claim",
+      "trajectory_sha256": "4c353728949e55ce76210a42f858bec6c1d94748f67bfd64235867b3d301b760",
+      "evaluation_sha256": "4652df42f14aaddf23ec380992c62d352a1c0a024c338268aa1e746aebac7f48",
+      "terminal_checkpoint_id": "65461e1a0097927bb6ebb49572897cd5617ca7ecc7aac062432f722e8c4df199",
+      "requests": 7,
+      "tool_calls": 6,
+      "generated_tokens": 705,
+      "finish_reasons": {
+        "stop": 1,
+        "tool_calls": 6
+      },
+      "max_response_batch_size": 1
+    },
+    {
+      "run_id": "a_failure_retry_20261021_a",
+      "trajectory_id": "teacher_66f5c004417f",
+      "task_id": "22cc237_1",
+      "status": "valid",
+      "official_reward": 0,
+      "termination_reason": "invalid_completion",
+      "trajectory_sha256": "dcda30083e3e83758be6e32769c7b8e6c4e061d420909f291774011f90761e17",
+      "evaluation_sha256": "5920969838e43cb451a807d723b637149e37a88db8f5910e55aca552a14fcf88",
+      "terminal_checkpoint_id": "1d4ecd8d70df1b07e84bed6c3f3526240c4afcbc214b2c97733a8ad942e527ab",
+      "requests": 23,
+      "tool_calls": 29,
+      "generated_tokens": 12498,
+      "finish_reasons": {
+        "stop": 1,
+        "tool_calls": 21,
+        "length": 1
+      },
+      "max_response_batch_size": 5
+    },
+    {
+      "run_id": "a_failure_retry_20261021_a",
+      "trajectory_id": "teacher_bc3df4eb5bcf",
+      "task_id": "b0a8eae_3",
+      "status": "valid",
+      "official_reward": 0,
+      "termination_reason": "completion_claim",
+      "trajectory_sha256": "6d6a058e901b9bf0d863f7ae8bcba56c1c7ab50f07f19baa167f026609c9a8fd",
+      "evaluation_sha256": "1c58db30bf8d0f08559c76a4fa44a9f3a93d6008bcc4907dde02e6029e2e2e19",
+      "terminal_checkpoint_id": "7da3e8902144a7c8a9f6d2c4ed260e73c9be307777644592d971706da89906a1",
+      "requests": 12,
+      "tool_calls": 24,
+      "generated_tokens": 4229,
+      "finish_reasons": {
+        "stop": 1,
+        "tool_calls": 11
+      },
+      "max_response_batch_size": 8
+    },
+    {
+      "run_id": "a_failure_retry_20261021_a",
+      "trajectory_id": "teacher_c2ec3a0b1cfc",
+      "task_id": "29caf6f_1",
+      "status": "valid",
+      "official_reward": 1,
+      "termination_reason": "completion_claim",
+      "trajectory_sha256": "c79aac446d4620aa2cd7d9895cbef8475f0a48e666c8997aab045dd7a0391d30",
+      "evaluation_sha256": "8f7187d56adc92ed2a032fecf8a259cd36959711e3af32b874bdec6ec619364e",
+      "terminal_checkpoint_id": "f27eba43114dc8613fe71046b4a0643e7b6b5e3096ac9a52d8c510c108d1030e",
+      "requests": 9,
+      "tool_calls": 11,
+      "generated_tokens": 1512,
+      "finish_reasons": {
+        "stop": 1,
+        "tool_calls": 8
+      },
+      "max_response_batch_size": 2
+    }
+  ],
+  "unique_attempted_tasks": 6,
+  "official_successes": 2,
+  "attempt_count": 6,
+  "success_per_attempt": 0.3333333333333333,
+  "observed_backends": [
+    [
+      "deepseek-flash",
+      "e72d3c7f663d3e1383b00b3884cb4501"
+    ]
+  ],
+  "totals": {
+    "sampling_wall_seconds": 277.0819145219866,
+    "prompt_tokens": 626630,
+    "generated_tokens": 24314,
+    "cached_prompt_tokens": 559616,
+    "provider_requests": 71,
+    "usage_priced_cost": 0.05263869599999999,
+    "tool_calls": 97
+  },
+  "cost_currency": "USD",
+  "cost_basis": "published peak token rates; upper estimate, not invoice",
+  "receipt_usage_and_history_checks": "PASS",
+  "terminal_saved_before_evaluation": true,
+  "training_started": false,
+  "weights_loaded": false
+}

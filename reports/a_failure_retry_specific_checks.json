@@ -1,0 +1,24 @@
+{
+  "scope": "controller-only evidence; not Actor feedback or corrected rewards",
+  "payment_task": {
+    "task_id": "22cc237_1",
+    "predictor_finish_reason": "stop",
+    "predictor_output_tokens": 91,
+    "selected_api_count": 14,
+    "source_trajectory_sha256": "dcda30083e3e83758be6e32769c7b8e6c4e061d420909f291774011f90761e17",
+    "missing_public_login": "simple_note__login",
+    "public_execution_errors": 23,
+    "final_response_finish_reason": "length",
+    "final_response_output_tokens": 4096,
+    "total_attempt_output_tokens": 12498
+  },
+  "playlist_task": {
+    "task_id": "b0a8eae_1",
+    "business_songs": 22,
+    "duration_recomputed_from_public_feedback_seconds": 5171,
+    "b_model_claimed_duration_seconds": 5371,
+    "a_model_claimed_duration_seconds": 5171,
+    "selection_passed_official_state_assertions_in_both": true
+  },
+  "not_training": true
+}

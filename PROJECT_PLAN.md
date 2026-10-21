@@ -35,6 +35,8 @@ v0.8（2026-10-21）当前任务：从 cc53bea 冻结上述提示和两种工具
 
 同时新增独立 Qwen3-4B Student Function Calling / Batch Tool Calling 接口：独立调用可合批，动态依赖等待真实结果，整批 schema/参数合法后才执行；保留旧 Student Runner 与 P0–P2 历史。用固定 4B tokenizer 检查每回合真实 schema、Assistant-only mask、最长序列/目标、监督量及重复上下文成本；超过上下文/输出预算时整条暂缓，不静默截断。完整数据格式通过不等于真实 4B 模型已运行或训练完成。仍在本机采集；正式 SFT、GRPO 和远程 96GB GPU 训练不启动。操作契约见 `docs/TEACHER_EXPANSION.md`、`docs/STUDENT_PROTOCOL.md`。
 
+同日追加诊断：用户要求分析本轮B失败，并用A各复试一次。允许明确标记的“历史失败条件子集”，来源报告与清单绑定哈希；不是新的无偏任务采样、总体A/B比较或失败状态恢复。A从原始初态执行，不获得B轨迹、错误提示或隐藏评价。当前冻结协议不变；根因与候选修改另见 `docs/PROMPT_FIX_PROPOSAL.md`，未启用的建议不算已修复或已证明有效。
+
 首次收到“开始实现项目”的指令时，默认完成 **P0–P2 的最小闭环**：
 
 1. 检查环境与已有代码，锁定 AppWorld 版本。

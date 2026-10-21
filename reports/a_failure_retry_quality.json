@@ -1,0 +1,100 @@
+{
+  "status": "PASS",
+  "max_length": 32768,
+  "student_max_new_tokens": 4096,
+  "raw_clean_demonstrations": 2,
+  "unique_tasks": 2,
+  "scenario_coverage": {
+    "29caf6f": 2
+  },
+  "ready_complete_demonstrations": 2,
+  "ready_scenarios": 1,
+  "max_sequence_tokens": 12458,
+  "max_target_tokens": 332,
+  "all_clean_token_counts": {
+    "examples": 15,
+    "input_tokens": 104679,
+    "context_tokens": 102330,
+    "supervised_tokens": 2349,
+    "roundtrip_calls": 21,
+    "batch_targets": 6,
+    "overlength_turns": 0,
+    "over_output_limit_turns": 0,
+    "repeated_identical_prefix_tokens": 82161,
+    "schema_changes": 0
+  },
+  "ready_token_counts": {
+    "examples": 15,
+    "input_tokens": 104679,
+    "context_tokens": 102330,
+    "supervised_tokens": 2349,
+    "roundtrip_calls": 21,
+    "batch_targets": 6,
+    "overlength_turns": 0,
+    "over_output_limit_turns": 0,
+    "repeated_identical_prefix_tokens": 82161,
+    "schema_changes": 0
+  },
+  "cumulative_context_fraction": 0.9775599690482332,
+  "per_turn_expansion_over_final_sequences": 5.18187218454532,
+  "repetition_definition": "sum of exactly identical token-prefix lengths between adjacent turn examples; schema rerendering may shorten prefixes",
+  "expansion_definition": "sum of all turn input lengths / sum of each trajectory final-turn input length; not a count of unique semantic tokens",
+  "actual_schema_changes_checked": 0,
+  "prefix_and_assistant_only_and_padding_masks_checked": true,
+  "student_parser_roundtrip_checked": true,
+  "overlength_policy": "defer entire trajectory exceeding context or 4096-token target limit; no silent truncation or target-only clipping",
+  "rows": [
+    {
+      "trajectory_id": "teacher_0b7c302be131",
+      "task_id": "29caf6f_3",
+      "scenario_id": "29caf6f",
+      "tool_mode": "api_predictor",
+      "max_sequence_tokens": 7743,
+      "max_target_tokens": 332,
+      "last_turn_sequence_tokens": 7743,
+      "ready_for_context_limit": true,
+      "stats": {
+        "examples": 7,
+        "input_tokens": 38186,
+        "context_tokens": 37077,
+        "supervised_tokens": 1109,
+        "roundtrip_calls": 10,
+        "batch_targets": 3,
+        "overlength_turns": 0,
+        "over_output_limit_turns": 0,
+        "repeated_identical_prefix_tokens": 29334,
+        "schema_changes": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_c2ec3a0b1cfc",
+      "task_id": "29caf6f_1",
+      "scenario_id": "29caf6f",
+      "tool_mode": "api_predictor",
+      "max_sequence_tokens": 12458,
+      "max_target_tokens": 314,
+      "last_turn_sequence_tokens": 12458,
+      "ready_for_context_limit": true,
+      "stats": {
+        "examples": 8,
+        "input_tokens": 66493,
+        "context_tokens": 65253,
+        "supervised_tokens": 1240,
+        "roundtrip_calls": 11,
+        "batch_targets": 3,
+        "overlength_turns": 0,
+        "over_output_limit_turns": 0,
+        "repeated_identical_prefix_tokens": 52827,
+        "schema_changes": 0
+      }
+    }
+  ],
+  "ready_examples_sha256": "3e5070f9912bfcec9f820c5ac7d51d81b2f2bd2274acc711fdecb89fe96f9700",
+  "source_dataset_id": "0fb2468d3363e17b001393aacba6a2a3c9e7ebbc9791d86ea4d6f253930aaabb",
+  "source_manifest_sha256": "2e30bc2e55689e0a0d474dfd76ed23f73492deb1cc0f08c1c5f0428021a2519d",
+  "model": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "training_started": false,
+  "weights_loaded": false
+}

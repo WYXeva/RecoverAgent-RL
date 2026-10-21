@@ -1,6 +1,7 @@
 """Train membership, reproducibility and frozen prompt boundaries (software only)."""
 
 import copy
+import hashlib
 import sys
 from collections import Counter
 from types import SimpleNamespace
@@ -72,6 +73,62 @@ def test_fixed_manifest_reproduces_and_rejects_substitution(tmp_path, monkeypatc
     config["sampling"] = {**settings, "task_ids": list(reversed(settings["task_ids"]))}
     with pytest.raises(ValueError, match="reproduced"):
         load_plan(config)
+
+
+def test_conditional_failure_selection_is_labeled_and_source_bound(
+    tmp_path, monkeypatch
+):
+    source = tmp_path / "previous.json"
+    write_json(
+        source,
+        {
+            "rows": [
+                {"task_id": "family1_0", "status": "valid", "official_success": False},
+                {"task_id": "family2_0", "status": "valid", "official_success": True},
+                {
+                    "task_id": "family3_0",
+                    "status": "infrastructure_error",
+                    "official_success": False,
+                },
+            ]
+        },
+    )
+    settings = {
+        **SETTINGS,
+        "strategy": "explicit",
+        "num_tasks": 1,
+        "task_ids": ["family1_0"],
+        "diagnostic_selection": {
+            "rule": "prior_official_failures",
+            "source_report": str(source),
+            "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        },
+    }
+    plan = make_plan(POOL, settings)
+    assert plan["hidden_labels_or_results_used"] is True
+    assert "conditional failure" in plan["selection_scope"]
+    path = tmp_path / "plan.json"
+    write_json(path, plan)
+    config = {
+        "task_manifest": str(path),
+        "task_manifest_hash": digest(plan),
+        "appworld_root": "unused",
+        "sampling": settings,
+        "limits": {"max_tasks": 1},
+    }
+    monkeypatch.setattr(sampling, "official_pool", lambda _: POOL)
+    assert load_plan(config) == plan
+    source.write_text("{}")
+    with pytest.raises(ValueError, match="source changed"):
+        load_plan(config)
+
+
+def test_diagnostics_cannot_be_labeled_random_sampling():
+    with pytest.raises(ValueError, match="explicit source"):
+        make_plan(
+            POOL,
+            {**SETTINGS, "diagnostic_selection": {"rule": "prior_official_failures"}},
+        )
 
 
 def test_expansion_requires_frozen_contract_and_legacy_caps(tmp_path):
