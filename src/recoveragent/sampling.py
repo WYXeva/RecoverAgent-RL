@@ -98,7 +98,16 @@ def load_plan(config):
     plan = read_json(config["task_manifest"])
     if digest(plan) != config["task_manifest_hash"]:
         raise ValueError("Task manifest differs from the precommitted list")
-    expected = make_plan(official_pool(config["appworld_root"]), config["sampling"])
+    if config["sampling"].get("strategy") == "coverage_balanced":
+        from .coverage_sampling import coverage_plan
+
+        expected = coverage_plan(
+            official_pool(config["appworld_root"]),
+            config["sampling"],
+            read_json(config["sampling"]["coverage_ledger"]),
+        )
+    else:
+        expected = make_plan(official_pool(config["appworld_root"]), config["sampling"])
     if plan != expected or len(plan["tasks"]) != config["limits"]["max_tasks"]:
         raise ValueError("Task plan cannot be reproduced from public train membership")
     diagnostic = config["sampling"].get("diagnostic_selection")

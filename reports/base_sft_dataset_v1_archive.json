@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "archive_sha256": "68231f625b876db259c5085d08e70c77604ffbaaf6b0809b807852e2bfc3b9ed",
+  "manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "bytes": 37773083,
+  "network_transfer_performed": false,
+  "training_started": false
+}

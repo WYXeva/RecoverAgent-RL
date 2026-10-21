@@ -1,0 +1,76 @@
+{
+  "project_version": "0.10",
+  "tool_mode": "dynamic_discovery",
+  "actor_prompt_variant": "execution_v5",
+  "predictor_prompt_variant": "dependency_examples_v2",
+  "appworld_root": "data/appworld",
+  "student": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false
+  },
+  "teacher": {
+    "provider": "deepseek",
+    "base_url": "https://api.deepseek.com",
+    "allowed_host": "api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-flash",
+    "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+    "revision_is_immutable": false,
+    "revision_source": "https://api-docs.deepseek.com/",
+    "thinking": false,
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": null,
+    "max_request_bytes": 131072,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "USD",
+      "input_per_million": 0.3,
+      "cached_input_per_million": 0.006,
+      "output_per_million": 1.2,
+      "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "checked_at": "2026-10-21",
+      "basis": "published peak rates; estimate, not invoice"
+    }
+  },
+  "authorization": {
+    "approved": false,
+    "reference": null,
+    "currency": "USD",
+    "max_cost": null
+  },
+  "limits": {
+    "max_tasks": 20,
+    "max_requests": 800,
+    "total_generated_tokens": 327680,
+    "max_model_turns": 40,
+    "max_tool_calls": null,
+    "episode_generated_tokens": 16384,
+    "episode_wall_seconds": 600,
+    "total_wall_seconds": 12000,
+    "tool_timeout_seconds": 60,
+    "max_infrastructure_retries": 0,
+    "repeated_identical_call_limit": 3
+  },
+  "environment_seed": 42,
+  "training_enabled": false,
+  "collection_profile": "scenario_expansion_v1",
+  "protocol_lock": "configs/execution_v5_protocol_lock.json",
+  "sampling": {
+    "strategy": "coverage_balanced",
+    "seed": 2026102114,
+    "num_tasks": 20,
+    "coverage_ledger": "reports/base_sft_v1_20261021_b04_coverage.json",
+    "coverage_ledger_hash": "404c713cb92e0937bc21a80a2458fc09878496d453ec943549bf52f4e53bbdd2",
+    "max_per_task": 2,
+    "max_new_attempts_per_task": 2
+  },
+  "task_manifest": "configs/base_sft_v1_20261021_b04_tasks.json",
+  "continue_after_infrastructure_error": true,
+  "task_manifest_hash": "dde79f5f2b1ad2091c5b6c34fc3cc95683e8bbd6177eb6dd2381b80e36c5fa79",
+  "selection_protocol": "api_predictor_validated_v1",
+  "compare_tool_modes": false,
+  "answer_guard_protocol": "numeric_answer_self_correction_v1"
+}

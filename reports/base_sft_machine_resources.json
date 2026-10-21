@@ -1,0 +1,19 @@
+{
+  "timestamp_utc": "2026-10-21T13:40:35.142737+00:00",
+  "python": "3.14.4",
+  "cpu_threads": 16,
+  "memory_bytes": {
+    "MemTotal": 16655474688,
+    "MemAvailable": 12419825664
+  },
+  "disk_free_bytes": 975734595584,
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 5050",
+    "memory_bytes": 8546484224,
+    "bf16_supported": true
+  },
+  "torch": "2.10.0+cu128",
+  "formal_student_weights_loaded": false,
+  "gpu_training_started": false,
+  "remote_server_connected": false
+}

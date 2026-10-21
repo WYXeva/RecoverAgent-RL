@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "manifest_sha256": "729bdc4c257e0047a53e20fe492adfd538bb480bff4b6368da4ad3224d815dd3",
+  "dataset_id": "10ee8213d036e564d949fc441f10f8529ae3f5dcffbf75164e2672ef3d29682a",
+  "counts": {
+    "source_qualified": 46,
+    "selected": 41,
+    "unique_tasks": 28,
+    "families": 15,
+    "deferred": 1,
+    "reserved_by_task_cap": 4,
+    "exact_duplicates": 0,
+    "high_similarity_pairs": 16
+  },
+  "source_packages_reverified": 12,
+  "training_started": false,
+  "official_train_rechecked": true,
+  "public_tasks_reconstructed": 28,
+  "task_schema_sets_checked": 136,
+  "ground_truth_loaded": false,
+  "dynamic_visibility_replayed": true,
+  "runtime_source_files_checked": 49,
+  "runtime_source_match": true
+}

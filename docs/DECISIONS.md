@@ -225,3 +225,43 @@ A仅两条短信成功，均省略answer且正文只保留列表；两个播放�
 保留execution_v3五文件、execution_v4提示和选择器源码。共享p3a驱动因新增协议更新，历史v4锁不改；用f5ce059逐文件复核旧8文件源锁，精确复现旧实验需checkout该commit。新v5源锁绑定独立提示/检查器、共享驱动、Student及数据/mask路径。P0–P2原17项不变。新版本协议与结果见docs/ANSWER_GUARD.md和reports/answer_guard_report.md；P3-B及之后不启动。
 
 本轮最终20次有效，A7/10、B9/10，16合格示范覆盖10唯一任务/5家族；真实harness拦截与纠正均0，分母0不能报告纠正成功率。194模型请求/474实际工具调用，USD0.216517860估算、实扣未知；4个失败均是关系证据/专辑删除集合问题。16条全部通过固定4B tokenizer及32k/4096目标门槛，143Assistant目标/44126监督token，最长序列30474。完整回执、公开输入、费用、独立本机迁移与20份LLM视图通过，旧4包26条示范只读复验。真实4B运行/训练与数值纠正效果仍未验收，不用新增总成功数填补这两个证据缺口。
+
+## D025 · 2026-10-21 · 正式集以来源重验为起点，不累计包副本
+
+用户授权正式P3-A约120条/60任务/20家族目标，仍不训练。对所有runs/data Clean Dataset逐包verify、重算来源与实际token；原包保持不可变。15包78条条目实际只有46个trajectory_id、28任务、15家族，75个独立尝试；别名和合并包不重复计样本或成本。manifest/回执/官方train成员/Teacher身份/成功证据须一致，冲突立即拒绝；无法验证的来源不能默默入集。
+
+精确去重规范化调用ID后比较完整消息与每回合Schema；同任务业务调用名称+参数序列做SequenceMatcher相似度，凭据仅在相似度指纹中忽略，不改训练原文。阈值0.9是工程启发式，不是语义等价证明。每任务最多2条，优先不同相似簇、较新Prompt、B和较低输入成本，其余放reserve；完整超长轨迹deferred。原46条中45条32k合格，cap后41条。历史同任务多次成功不是新增任务。
+
+## D026 · 2026-10-21 · 冻结v5与有界覆盖采集，承认结果条件化
+
+继承DeepSeek“费用不限”授权，但预声明最多8批×20、每任务最多2次新尝试；cap=2成功轨迹/task。每批800请求/327680生成token/12000秒/USD20，每轨迹40请求/16384生成token/600秒/USD1；单回复4096，工具调用无数量配额。以未成功家族、未成功任务、尚未新尝试任务为先，固定seed与带SHA的coverage ledger生成清单，顺序执行新原始环境。
+
+选择器仅使用官方train ID/scenario映射及历史成功/长度状态，Actor只获得原始公开任务与工具，不获得来源失败、评价或答案。由于使用历史成功结果选任务，清单显式hidden_labels_or_results_used=true、hidden_answers_used=false；成功率分母包括全部尝试，另列有效尝试/基础设施错误，不能称为无偏B总体成绩或A/B新比较。失败不覆盖，至多下一批按预定规则重试。
+
+固定execution_v5源锁和新增collection锁绑定Prompt、协议、模型参数、采样算法和预算。文档v0.11描述本轮数据要求；冻结采集配置仍用project_version=0.10，以保持已验证入口和14文件源锁，不为文档升版改动Actor。采集中发现未开放工具调用、回复截断及131072字节请求边界，不临时修改Actor协议或上限。旧审计器仅重放JSON解析而不能识别“已解析但未开放”的工具拒绝，扩展审计为原预执行校验，不修改采集代码或奖励。
+
+## D027 · 2026-10-21 · 场景隔离、训练权重及控制证据边界
+
+在采集前对官方90个train任务/30家族固定split_seed=2026102120，6家族内部validation、24家族train；同task所有变体继承scenario划分，官方dev不进入数据包。历史Prompt曾使用部分场景，内部validation只承诺家族与训练区分离，不宣称是从未接触的开发测试。
+
+每回合重新渲染当时真实Schema并监督当前Assistant目标，历史Assistant和所有其他角色mask；被公开harness拒绝回合保留但不监督。完整序列32768、单目标4096，超限整条暂缓，拒绝截断；用固定Qwen3 tokenizer检查前缀、调用名/参数/结果ID、Student解析回读、padding。模型输入不含来源、隐藏评价或初始数据库状态；原始完整来源包和失败证据仅在control目录。来源模型别名可能变更，记录实际backend指纹，不冒称不可变Teacher revision。
+
+loss质量按家族→任务→相似簇→轨迹→Assistant回合平衡，分区内example_weight均值归一1。目标是样本监督token CE均值乘权重、再平均microbatch；长轨迹/大批次不会仅凭token多支配训练，但重复前缀的计算开销仍需报告，不能声称权重消除了计算成本。保留所有raw token统计与实际目标数。
+
+## D028 · 2026-10-21 · 私有数据交接与未来SFT入口不等于已训练
+
+正式包附逐文件SHA与可信manifest，原来源包不可变副本、schema/消息、分组/选择/权重/源码锁均可复验；归档使用确定性元数据。导入先核对外部可信SHA并拒绝路径越界/链接，再复核来源和mask，远程还须逐字节重新分词。本轮只在本机预演迁移，不声称已连接96GB服务器。
+
+准备固定Qwen3-4B BF16+LoRA单GPU配方、短样本2步与最长完整样本1步烟测配置；非execute模式不训练。所需PEFT/Accelerate组合仅按官方约束准备，必须远程安装/实测。固定transformers的Qwen3 logits_to_keep仅计算目标前一位置logits；微型随机Qwen3 CPU测试检查加权loss与梯度等价，0 optimizer step，不是正式Student更新。
+
+未来真实执行要求参数前后SHA变化、有限loss、显存、adapter保存/新基座重载后tensor SHA及logits比较；即便通过仍需真实4B批量后端和固定dev的Raw Base/Base-SFT-only评测。当前入口不提供自动恢复optimizer/RNG续训，明确留作后续验收。P3-B、Recovery-SFT与GRPO本轮均不启动。
+
+## D029 · 2026-10-21 · 余额阻塞、中断封存与缺响应成本
+
+第5批后段出现连续TeacherTransportError。只读余额查询HTTP200且is_available=true，但CNY余额无正值；一次独立16-output-token上限诊断返回HTTP402。[官方错误码](https://api-docs.deepseek.com/quick_start/error_codes/)将402定义为Insufficient Balance。既有“费用不限”授权不等于账户已有可用资金，也不能自行购买其他服务；没有请求重新授权原服务，已提示充值。本轮停止提交模型请求，继续完成不受阻的数据交付。
+
+先暂停本次campaign和batch控制进程，等已启动worker各自写完trajectory，再终止控制进程，未打断工具批次。第6批固定清单20任务中实际启动并结束18个，剩余2个标为unattempted，不能计成失败或悄悄删去清单。离线seal脚本核验实际任务正好是原计划前缀，仅新增停止记录、summary和Clean Dataset；不改原始轨迹、模型请求、评价或历史采样。采集源码与原锁不变，正式包记录external interruption；约120目标未达而质量门槛不降低。
+
+旧驱动只保存异常类型，没有保留这些传输错误的HTTP状态，因此不能将此前每个缺响应请求倒填为402。正式审计核对所有已收到的响应前缀、request/response差集、reservation和工具反馈；缺少完整响应的请求保留生成/费用上界，billed_cost仍未知。旧manifest的unknown_usage_attempts依赖未设置的usage_known标志而出现0，不能据此声称无未知费用；原包不改，正式汇总按原始回执统计。独立诊断请求单列并纳入总账，0 AppWorld调用、0训练示范。
+
+第6批中断控制器没有monotonic结束记录，墙钟用config文件mtime到外部停止时刻估算并标明basis，其余完整批次仍沿用原控制器计时。后续补采应使用新run/dataset版本并保留本包；提前核对正余额，另行版本化HTTP状态记录和连续基础设施错误停止机制。现有95条可迁移数据不因本次资金阻塞失效，远程真实训练与4B后端仍未验收。

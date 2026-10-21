@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "attempts": 20,
+  "dataset_id": "2630a538f80886aa431ff1a46b96d3eff4112ac5f093a5d4c7b17c6dd321e28a",
+  "counts": {
+    "attempted": 20,
+    "valid": 20,
+    "infrastructure_errors": 0,
+    "official_successes": 13,
+    "accepted": 13,
+    "unique_tasks": 13,
+    "success_per_attempt": 0.65,
+    "success_per_valid": 0.65
+  },
+  "costs": {
+    "provider_requests": 232,
+    "prompt_tokens": 2418102,
+    "generated_tokens": 69216,
+    "cached_prompt_tokens": 1784192,
+    "tool_calls": 650,
+    "usage_priced_cost": 0.283937352,
+    "unknown_cost_reservation": 0.0,
+    "unknown_generation_reservation": 0,
+    "tool_requests": 650,
+    "harness_rejections": 0,
+    "billed_cost": null,
+    "currency": "USD",
+    "unknown_usage_attempts": 0
+  },
+  "wall_seconds": 833.5445470350096,
+  "training_started": false,
+  "teacher_capability": "pilot_success_observed",
+  "batch": 1,
+  "run_id": "base_sft_v1_20261021_b01",
+  "quality_report": "reports/base_sft_v1_20261021_b01_quality.json"
+}

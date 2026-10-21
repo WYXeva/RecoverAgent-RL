@@ -1,0 +1,223 @@
+{
+  "selected_ids": [
+    "teacher_00013f09020d",
+    "teacher_00af46f1111e",
+    "teacher_05c67cd00250",
+    "teacher_0b7c302be131",
+    "teacher_0d338ebba4ad",
+    "teacher_1ac4e2c703f9",
+    "teacher_28d2f7ccd807",
+    "teacher_2aab24fd9b00",
+    "teacher_300695ff7110",
+    "teacher_34fbccfa2b1f",
+    "teacher_3d234360daa9",
+    "teacher_3d77d88f8150",
+    "teacher_3eae945adeb1",
+    "teacher_4980a6ecd8d5",
+    "teacher_517bfe12115d",
+    "teacher_53764096a96b",
+    "teacher_5ef41114d260",
+    "teacher_69b672322899",
+    "teacher_69b95e6245e4",
+    "teacher_6df965d9a3d8",
+    "teacher_7138c0f8457d",
+    "teacher_7c4c299fe40f",
+    "teacher_7d8c827db13f",
+    "teacher_7f0a7fa92737",
+    "teacher_7f4dee18ca09",
+    "teacher_810dedfab417",
+    "teacher_82932c48d9ad",
+    "teacher_907765339b51",
+    "teacher_934d164d6b3a",
+    "teacher_9b5d680eaec5",
+    "teacher_9cc36e7819aa",
+    "teacher_a9149c658476",
+    "teacher_acc71362d9cf",
+    "teacher_b3b97d2a1e58",
+    "teacher_bd285ca28bfb",
+    "teacher_c2ec3a0b1cfc",
+    "teacher_d2af9ccd7419",
+    "teacher_da93d8ca209c",
+    "teacher_ed68529040cd",
+    "teacher_f5a8c0a6e9d1",
+    "teacher_f77d84698726"
+  ],
+  "deferred": [
+    {
+      "trajectory_id": "teacher_9c5fc7496c99",
+      "reason": "context_or_target_limit",
+      "max_sequence_tokens": 34507,
+      "max_target_tokens": 921
+    }
+  ],
+  "duplicates": [],
+  "reserve": [
+    {
+      "trajectory_id": "teacher_14608f1133b8",
+      "reason": "per_task_cap",
+      "task_id": "82e2fac_1"
+    },
+    {
+      "trajectory_id": "teacher_f48e51cdaecc",
+      "reason": "per_task_cap",
+      "task_id": "82e2fac_1"
+    },
+    {
+      "trajectory_id": "teacher_5601c6f4d156",
+      "reason": "per_task_cap",
+      "task_id": "82e2fac_2"
+    },
+    {
+      "trajectory_id": "teacher_ad808a15ce5a",
+      "reason": "per_task_cap",
+      "task_id": "82e2fac_2"
+    }
+  ],
+  "similar_pairs": [
+    {
+      "task_id": "771d8fc_2",
+      "left": "teacher_28d2f7ccd807",
+      "right": "teacher_ed68529040cd",
+      "similarity": 1.0
+    },
+    {
+      "task_id": "771d8fc_3",
+      "left": "teacher_517bfe12115d",
+      "right": "teacher_9b5d680eaec5",
+      "similarity": 1.0
+    },
+    {
+      "task_id": "82e2fac_1",
+      "left": "teacher_14608f1133b8",
+      "right": "teacher_7138c0f8457d",
+      "similarity": 0.991869918699187
+    },
+    {
+      "task_id": "82e2fac_1",
+      "left": "teacher_14608f1133b8",
+      "right": "teacher_7d8c827db13f",
+      "similarity": 1.0
+    },
+    {
+      "task_id": "82e2fac_1",
+      "left": "teacher_14608f1133b8",
+      "right": "teacher_f48e51cdaecc",
+      "similarity": 1.0
+    },
+    {
+      "task_id": "82e2fac_1",
+      "left": "teacher_7138c0f8457d",
+      "right": "teacher_7d8c827db13f",
+      "similarity": 0.991869918699187
+    },
+    {
+      "task_id": "82e2fac_1",
+      "left": "teacher_7138c0f8457d",
+      "right": "teacher_f48e51cdaecc",
+      "similarity": 0.991869918699187
+    },
+    {
+      "task_id": "82e2fac_1",
+      "left": "teacher_7d8c827db13f",
+      "right": "teacher_f48e51cdaecc",
+      "similarity": 1.0
+    },
+    {
+      "task_id": "82e2fac_2",
+      "left": "teacher_34fbccfa2b1f",
+      "right": "teacher_5601c6f4d156",
+      "similarity": 0.9019607843137255
+    },
+    {
+      "task_id": "82e2fac_2",
+      "left": "teacher_34fbccfa2b1f",
+      "right": "teacher_ad808a15ce5a",
+      "similarity": 0.9411764705882353
+    },
+    {
+      "task_id": "82e2fac_2",
+      "left": "teacher_5601c6f4d156",
+      "right": "teacher_ad808a15ce5a",
+      "similarity": 0.9583333333333334
+    },
+    {
+      "task_id": "ccb4494_1",
+      "left": "teacher_6df965d9a3d8",
+      "right": "teacher_f77d84698726",
+      "similarity": 1.0
+    },
+    {
+      "task_id": "ccb4494_3",
+      "left": "teacher_05c67cd00250",
+      "right": "teacher_da93d8ca209c",
+      "similarity": 1.0
+    },
+    {
+      "task_id": "e3d6c94_2",
+      "left": "teacher_810dedfab417",
+      "right": "teacher_acc71362d9cf",
+      "similarity": 0.9655172413793104
+    },
+    {
+      "task_id": "e3d6c94_3",
+      "left": "teacher_00013f09020d",
+      "right": "teacher_53764096a96b",
+      "similarity": 0.9538461538461539
+    },
+    {
+      "task_id": "e85d92a_3",
+      "left": "teacher_3d77d88f8150",
+      "right": "teacher_69b95e6245e4",
+      "similarity": 1.0
+    }
+  ],
+  "clusters": {
+    "teacher_d2af9ccd7419": "teacher_d2af9ccd7419",
+    "teacher_0d338ebba4ad": "teacher_0d338ebba4ad",
+    "teacher_934d164d6b3a": "teacher_934d164d6b3a",
+    "teacher_7c4c299fe40f": "teacher_7c4c299fe40f",
+    "teacher_c2ec3a0b1cfc": "teacher_c2ec3a0b1cfc",
+    "teacher_0b7c302be131": "teacher_0b7c302be131",
+    "teacher_b3b97d2a1e58": "teacher_b3b97d2a1e58",
+    "teacher_69b672322899": "teacher_69b672322899",
+    "teacher_3d234360daa9": "teacher_3d234360daa9",
+    "teacher_907765339b51": "teacher_907765339b51",
+    "teacher_00af46f1111e": "teacher_00af46f1111e",
+    "teacher_bd285ca28bfb": "teacher_bd285ca28bfb",
+    "teacher_82932c48d9ad": "teacher_82932c48d9ad",
+    "teacher_3eae945adeb1": "teacher_3eae945adeb1",
+    "teacher_f5a8c0a6e9d1": "teacher_f5a8c0a6e9d1",
+    "teacher_ed68529040cd": "teacher_28d2f7ccd807",
+    "teacher_28d2f7ccd807": "teacher_28d2f7ccd807",
+    "teacher_517bfe12115d": "teacher_517bfe12115d",
+    "teacher_9b5d680eaec5": "teacher_517bfe12115d",
+    "teacher_7138c0f8457d": "teacher_14608f1133b8",
+    "teacher_7d8c827db13f": "teacher_14608f1133b8",
+    "teacher_14608f1133b8": "teacher_14608f1133b8",
+    "teacher_f48e51cdaecc": "teacher_14608f1133b8",
+    "teacher_34fbccfa2b1f": "teacher_34fbccfa2b1f",
+    "teacher_300695ff7110": "teacher_300695ff7110",
+    "teacher_5601c6f4d156": "teacher_34fbccfa2b1f",
+    "teacher_ad808a15ce5a": "teacher_34fbccfa2b1f",
+    "teacher_2aab24fd9b00": "teacher_2aab24fd9b00",
+    "teacher_7f0a7fa92737": "teacher_7f0a7fa92737",
+    "teacher_6df965d9a3d8": "teacher_6df965d9a3d8",
+    "teacher_f77d84698726": "teacher_6df965d9a3d8",
+    "teacher_da93d8ca209c": "teacher_05c67cd00250",
+    "teacher_05c67cd00250": "teacher_05c67cd00250",
+    "teacher_acc71362d9cf": "teacher_810dedfab417",
+    "teacher_810dedfab417": "teacher_810dedfab417",
+    "teacher_00013f09020d": "teacher_00013f09020d",
+    "teacher_53764096a96b": "teacher_00013f09020d",
+    "teacher_1ac4e2c703f9": "teacher_1ac4e2c703f9",
+    "teacher_4980a6ecd8d5": "teacher_4980a6ecd8d5",
+    "teacher_a9149c658476": "teacher_a9149c658476",
+    "teacher_7f4dee18ca09": "teacher_7f4dee18ca09",
+    "teacher_9cc36e7819aa": "teacher_9cc36e7819aa",
+    "teacher_5ef41114d260": "teacher_5ef41114d260",
+    "teacher_3d77d88f8150": "teacher_3d77d88f8150",
+    "teacher_69b95e6245e4": "teacher_3d77d88f8150"
+  },
+  "max_per_task": 2,
+  "similarity_threshold": 0.9
+}

@@ -1,0 +1,190 @@
+{
+  "format": "train-coverage-plan-v1",
+  "split": "train",
+  "settings": {
+    "strategy": "coverage_balanced",
+    "seed": 2026102115,
+    "num_tasks": 20,
+    "coverage_ledger": "reports/base_sft_v1_20261021_b05_coverage.json",
+    "coverage_ledger_hash": "2775101fe56cd012bcd7ff75608b7908deb50ea7c4445b74c0e2be52d5b61f2a",
+    "max_per_task": 2,
+    "max_new_attempts_per_task": 2
+  },
+  "pool_sha256": "77dd8bbd52736da153134f7c4c34c0bd02c8baaff65c3165938c2decb8e3b41d",
+  "pool_tasks": 90,
+  "pool_scenarios": 30,
+  "tasks": [
+    "c901732_3",
+    "60d0b5b_2",
+    "3c13f5a_3",
+    "27e1026_1",
+    "ce359b5_2",
+    "07b42fd_1",
+    "afc0fce_1",
+    "34d9492_3",
+    "229360a_1",
+    "287e338_1",
+    "6ea6792_3",
+    "2a163ab_2",
+    "29caf6f_1",
+    "6104387_1",
+    "d0b1f43_3",
+    "aa8502b_1",
+    "b7a9ee9_2",
+    "cf6abd2_2",
+    "302c169_3",
+    "692c77d_2"
+  ],
+  "rows": [
+    {
+      "task_id": "c901732_3",
+      "scenario_id": "c901732",
+      "reason": "missing_family",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "60d0b5b_2",
+      "scenario_id": "60d0b5b",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "3c13f5a_3",
+      "scenario_id": "3c13f5a",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "27e1026_1",
+      "scenario_id": "27e1026",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "ce359b5_2",
+      "scenario_id": "ce359b5",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "07b42fd_1",
+      "scenario_id": "07b42fd",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "afc0fce_1",
+      "scenario_id": "afc0fce",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "34d9492_3",
+      "scenario_id": "34d9492",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "229360a_1",
+      "scenario_id": "229360a",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "287e338_1",
+      "scenario_id": "287e338",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "6ea6792_3",
+      "scenario_id": "6ea6792",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "2a163ab_2",
+      "scenario_id": "2a163ab",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "29caf6f_1",
+      "scenario_id": "29caf6f",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "6104387_1",
+      "scenario_id": "6104387",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "d0b1f43_3",
+      "scenario_id": "d0b1f43",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "aa8502b_1",
+      "scenario_id": "aa8502b",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "b7a9ee9_2",
+      "scenario_id": "b7a9ee9",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "cf6abd2_2",
+      "scenario_id": "cf6abd2",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "302c169_3",
+      "scenario_id": "302c169",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "692c77d_2",
+      "scenario_id": "692c77d",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 1
+    }
+  ],
+  "num_scenarios": 20,
+  "selection_inputs": [
+    "official train IDs and public scenario mapping",
+    "verified prior success/length records",
+    "bounded new-attempt counts"
+  ],
+  "hidden_labels_or_results_used": true,
+  "hidden_answers_used": false,
+  "selection_scope": "outcome-conditioned coverage collection, not unbiased benchmark success rate",
+  "plan_id": "d457128a50708d5da024c2b6a061c7dd2ceb403f45e89d14181210487cbe5d1f"
+}

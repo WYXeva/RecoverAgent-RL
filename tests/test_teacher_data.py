@@ -128,6 +128,28 @@ def test_no_authorization_never_calls_provider(config):
     assert "PAID_TEACHER_NOT_AUTHORIZED" in preflight(config, {})["reasons"]
 
 
+def test_formal_source_inventory_deduplicates_packages_and_rejects_tamper(
+    tmp_path, monkeypatch, config
+):
+    import shutil
+    from recoveragent.dataset_sources import scan
+
+    run, result = collect_fixture(tmp_path, monkeypatch, config)
+    one, two = tmp_path / "one", tmp_path / "two"
+    export_dataset(run, one, {"unit_task"}, config["limits"])
+    shutil.copytree(one, two)
+    pool = {"unit_task": result["scenario_id"]}
+    report = scan([one, two], pool, tmp_path / "audit")
+    assert report["status"] == "PASS"
+    assert report["package_entries"] == 2
+    assert report["unique_qualified_trajectories"] == report["unique_attempts"] == 1
+    assert report["costs_by_currency"]["CNY"]["provider_requests"] == 1
+    with (two / "demonstrations.jsonl").open("a") as stream:
+        stream.write("{}\n")
+    bad = scan([one, two], pool, tmp_path / "tampered_audit")
+    assert bad["status"] == "PARTIAL" and len(bad["source_errors"]) == 1
+
+
 @pytest.mark.parametrize("bad_price", [None, -1, float("nan"), float("inf")])
 def test_unverified_price_blocks(config, bad_price):
     config["teacher"]["pricing"]["input_per_million"] = bad_price

@@ -17,6 +17,7 @@ from recoveragent.p3a_prompts import actor_system
 from recoveragent.p3a import interrupted_usage
 from recoveragent.sampling import load_plan
 from recoveragent.teacher import normalize_message, response_usage, usage_cost
+from jsonschema import ValidationError
 from recoveragent.tool_modes import official_predictor, predictor_messages
 
 
@@ -44,7 +45,7 @@ def recommendation_counts(messages):
     return seen, artists, pages, names, multi
 
 
-def check_receipts_including_rejected_tail(t, directory):
+def check_receipts_including_rejected_tail(t, directory, validate_batch=None):
     """A rejected response has no Assistant message; verify it separately.
 
     Existing complete-trajectory verification remains unchanged. The temporary
@@ -85,9 +86,12 @@ def check_receipts_including_rejected_tail(t, directory):
     assert response["model"] == request["model"] == t["teacher"]["model"]
     assert response_usage(response) == turn["usage"]
     try:
-        normalize_message(response, t["teacher"]["max_tool_calls_per_turn"])
-    except ValueError:
-        pass
+        message = normalize_message(response, t["teacher"]["max_tool_calls_per_turn"])
+        if validate_batch is not None:
+            validate_batch(message, request)
+    except (ValueError, KeyError, TypeError, ValidationError) as exc:
+        if turn["format_error"] != type(exc).__name__ + ": " + str(exc):
+            raise ValueError("Recorded rejection reason differs from replay") from exc
     else:
         raise ValueError("Recorded rejection does not match the actual response")
     prefix = copy.deepcopy(t)

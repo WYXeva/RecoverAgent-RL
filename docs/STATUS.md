@@ -1,12 +1,24 @@
 # 项目状态
 
 - 最后更新：2026-10-21（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.10；正式 Student `Qwen/Qwen3-4B`。
-- 本轮状态：**P3-A v5实现、真实A/B采集与32k数据准备 PASS；真实金额自纠正效果 NOT_OBSERVED**。固定10新任务/5新家族，20次尝试A7/10、B9/10，16条合格示范/10唯一任务/5家族，全部通过当前长度与mask检查。真实4B自主推理未验证，P3-B及以后 `NOT_STARTED`。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.11；正式 Student `Qwen/Qwen3-4B`。
+- 本轮状态：**P3-A正式数据95条/75任务/29家族；数量目标PARTIAL，Teacher补采因余额不足BLOCKED；数据交付与完整性检查PASS**。新增实际118次、58成功，2项计划任务未执行。P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮fetch核对基线 `f5ce0596abbddf7cb6d3e8f19f9fd371933363de`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮fetch/pull核对基线 `5f420909f228945b1643375b9a917b61906a29f4`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
 
-## v5金额检查与一次模型自纠正（2026-10-21，本轮）
+## 正式Base-SFT v1构建（2026-10-21，已交付）
+
+- **数据PASS / 数量PARTIAL**：正式私有集`data/base_sft_v1/`，95条/75任务/29家族；目标约120条未达。历史15包78条目重验为46独立合格轨迹（45长度合格、cap后41）。本轮118次/77任务/30家族、58官方成功，28基础设施错误；条件成功率58/118=49.15%，有效评价58/90=64.44%，不能称为无偏B总体成绩。全来源104条，5条整轨迹deferred、4条cap reserve、0精确重复；原包和P0–P2均不改。
+- **采集停止**：前5批完整，最后一批20项计划只执行18项，剩余2项unattempted。余额查询无正值，独立诊断HTTP402（官方余额不足）；旧25个无响应请求仅记TeacherTransportError，不能倒填HTTP状态。所有worker落盘后结束两个控制进程，离线seal只增加中断说明/summary/数据包，未改Teacher轨迹。后续需充值后用新run/dataset版本补采；既有调用授权不需重复确认。证据`base_sft_provider_diagnostic.json`、`base_sft_collection_interruption.json`、D029。
+- **分组/权重**：split_seed2026102120，预先固定24训练/6验证家族，实际入选训练82条/64任务/24家族，内部验证13条/11任务/5家族；每task最多2条，家族/任务/相似簇/轨迹/回合平衡loss。1个验证家族未成功，不隐去。内部验证并非完全未接触的Prompt开发场景，官方dev未入训练。
+- **Qwen格式PASS**：固定Qwen3-4B/non-thinking tokenizer，1072个Assistant样本、273003监督token（训练925/229776，验证147/43227）；总输入11548307、屏蔽上下文11275304（97.636%），最长序列32610/前缀32272/目标3259。436批量目标、3087工具调用回读、257次动态Schema变化。整轨迹超32k的5条保留，未截断；本次真实harness纠正0次，不声称其效果提升。
+- **成本**：新增采集1260请求、3362真实工具调用；已知14509858输入/354004输出token，25请求缺响应，费用已知usage部分USD1.468554942估算+USD7.9872保守预留，非实扣。另1次16-token诊断HTTP402，未知预留USD0.314592、0工具调用。纳入来源的历史+新增+诊断共2009请求，已知usage USD2.354900190，未知预留USD8.301792；billed_cost未知。Teacher控制器约4378.654秒，中断批次计时basis单列，未加载正式4B权重/未GPU训练。
+- **验证PASS**：155软件测试；Ruff及74文件format检查；全回执/成本/公开任务与Schema重建、动态可见性重放、Assistant-only/padding mask、Student无损回读；正式包逐字节重新分词、本机归档导入、4类篡改拒绝。77任务初态哈希核对，41重复任务一致。P0–P2 17项、v3五项、v5十四项、collection十八项及原15包manifest无改动。证据`base_sft_*_final.txt`、`base_sft_dataset_v1_{verify,retokenize,import,negative}.json`、`base_sft_initial_state_check.json`、`base_sft_source_checks.json`。
+- **私有交接**：归档`data/base_sft_v1.tar.gz`，37773083字节；manifest SHA `5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c`，归档SHA `68231f625b876db259c5085d08e70c77604ffbaaf6b0809b807852e2bfc3b9ed`。可信摘要`reports/base_sft_dataset_v1_release.json`；源码/配置锁50文件。控制评价/来源与训练输入分开，包和原始任务/评价/凭据/权重均不上传GitHub。未远传。
+- **远程准备，训练NOT_STARTED**：BF16+LoRA、2步短样本/1步最长样本烟测配置及真实更新/梯度/保存重载检查入口已准备。CPU微型随机Qwen3梯度等价检查0 optimizer step，不是Student训练。缺远程96GB连接/环境/PEFT+Accelerate、固定4B权重与真实批量后端、总窗口检查、真实烟测及Raw Base/Base-SFT-only固定dev评价。说明`docs/REMOTE_BASE_SFT.md`。
+- **命令/证据**：完整报告`reports/base_sft_dataset_v1_report.md`及可重算机器指标`base_sft_dataset_v1_metrics.json`；实际封装/验证命令`base_sft_execution_commands.json`。采集：`PYTHONPATH=src .venv/bin/python scripts/collect_base_sft.py --campaign configs/base_sft_v1_campaign.json --config .cache/v5_ab_20261021_a.json --credentials-file .env`；中断封存：`PYTHONPATH=src:. .venv/bin/python scripts/seal_interrupted_collection.py --campaign configs/base_sft_v1_campaign.json --run runs/base_sft_v1_20261021_b06`。日志`/tmp/recoveragent-base-sft-{campaign,finalize}.log`及`.cache/base_sft_*`。早期预演缓存环境错误已修正，保留失败目录；方案D025–D029。
+
+## v5金额检查与一次模型自纠正（2026-10-21，历史阶段）
 
 - **实现 PASS**：`answer_guard.py` / `execution_v5.py`仅按公开任务保守识别单值格式。明确数字/金额字符串在完成前拦截，返回显式harness反馈；最多下一次模型同值纠正，原请求/token/时间/费用预算不增加。Teacher/Student共享，不改写答案、不读隐藏标签。拒绝Assistant保留为上下文、loss=-100，纠正后的真实输出才监督。契约`docs/ANSWER_GUARD.md`、D024。
 - **真实采集 PASS**：`runs/v5_ab_20261021_a`，seed2026102105，固定10新train任务/5新家族，A/B各一次。20/20有效、0基础设施错误，**A7/10（4成功家族）、B9/10（5家族）**，16条通过官方验证和筛选，10唯一成功任务/5家族。4条过滤均为official_not_successful：A两条缺关系证据、A/B各一条专辑删除范围错误。保留全部负例，无择优追试。中途口头8+8误拆已纠正，以全量回执7+9为准。

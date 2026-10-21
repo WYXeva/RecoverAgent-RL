@@ -1,0 +1,17 @@
+{
+  "diagnostic_only": true,
+  "teacher_dataset_example": false,
+  "model_requests": 1,
+  "appworld_tool_calls": 0,
+  "max_tokens": 16,
+  "request_sha256": "b2482a8b66e04e73f884e3404eed9d6ab1de556b0007dad98384e97ebb9de62a",
+  "timestamp_utc": "2026-10-21T14:00:46.898692+00:00",
+  "http_status": 402,
+  "error_type": "HTTPError",
+  "usage_priced_cost": 0.0,
+  "unknown_cost_reservation": 0.314592,
+  "unknown_generation_reservation": 16,
+  "currency": "USD",
+  "billed_cost": null,
+  "training_started": false
+}

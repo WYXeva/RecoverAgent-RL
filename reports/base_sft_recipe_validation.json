@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "configs": {
+    "base_sft_qwen3_4b_lora": {
+      "status": "CONFIG_VALID",
+      "profile": "base_sft",
+      "training_started": false
+    },
+    "base_sft_qwen3_4b_smoke": {
+      "status": "CONFIG_VALID",
+      "profile": "smoke",
+      "training_started": false
+    },
+    "base_sft_qwen3_4b_length_smoke": {
+      "status": "CONFIG_VALID",
+      "profile": "smoke",
+      "training_started": false
+    }
+  },
+  "training_started": false
+}

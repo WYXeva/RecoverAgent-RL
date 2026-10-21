@@ -1,0 +1,25 @@
+{
+  "baseline_commit": "5f420909f228945b1643375b9a917b61906a29f4",
+  "files": {
+    "src/recoveragent/p3a_prompts.py": "9ca1fdb2854df85edcab389ee590408827a0e9d159b81b695bc54412a5d942f3",
+    "src/recoveragent/predictor_prompts.py": "732e37174fc37d15f242e32776a2c14799d3c3eab7bea189828b9504376c2ddc",
+    "src/recoveragent/tool_modes.py": "644e9f671fe35ca1e623373df1a9610daee97b434bce600d432e4b3eaf55cc32",
+    "src/recoveragent/teacher.py": "2743b15b4c445e4f340459ad8b0e115b2365f01580776d353b7c9e98575d3ff5",
+    "src/recoveragent/teacher_history.py": "1c3df359b739b7ddcde5afa609278f83b75306826f78c46b67dbb778d2075a07",
+    "src/recoveragent/execution_v4.py": "38c6cd1cbe1e0774a9996180667499704c0825fc37068e6633243e7d45030fbd",
+    "src/recoveragent/validated_selection.py": "880ff18659ef10c261da8e4f6c86e86de701561dd56f18dfc4823e004651429a",
+    "src/recoveragent/p3a.py": "da06dbc1501adcd8f57ad9131fc1114dfeeac3909a2c7b21a3d77d5437d5cc91",
+    "src/recoveragent/answer_guard.py": "197d7f4dd2de2cf92e1724828c0565f4b3a52b32e046693963b49f352f4c8f8a",
+    "src/recoveragent/execution_v5.py": "203eb593033062182ef1acaa3a3108598158c659f391f480db783d9de616a25b",
+    "src/recoveragent/student.py": "e0378f641b759d566259c7af52eba3346b177202f6d7e5d9ce44ff8c9311e11e",
+    "src/recoveragent/demonstrations.py": "2d5a3648215e83602d9f3e5e7030e177314bd23e3590d70dc3f3eb397b2778fc",
+    "src/recoveragent/base_sft.py": "66393c8f4defba16cc7b0e70563c43f95877e9f5b44557e9d7ff7ed94e71b95e",
+    "src/recoveragent/protocol_lock.py": "6044e124ae804a2454cabc9545fef0b3d26fe3cff4a82359e074f6ced0d57a21",
+    "src/recoveragent/sampling.py": "12f7db5d1775677673d1af228681329644f3e1f72f546cd26335a49282ff1121",
+    "src/recoveragent/coverage_sampling.py": "bfb2fb0d1c9ddf9acfa89314899ace50041feac7cae66f34f6e1da723719d7a8",
+    "src/recoveragent/dataset_design.py": "4f1765b9380b085145ed54a93a05ddcd8c0dbac987fa272b8181a5294f3f5343",
+    "scripts/collect_base_sft.py": "45584f0189fe1d9aad0d7e7e57793c092370eb71f07b4c6831ca7876129ef605"
+  },
+  "campaign_hash": "8e0e31f0d452e705e03841cd3f0a31e75bcde61f60312edc13e0e9e41829d682",
+  "frozen_teacher_config_hash": "5e687f76849b2124c8b4656c97e5852d325248919b25d73929d48fb96482b3a8"
+}

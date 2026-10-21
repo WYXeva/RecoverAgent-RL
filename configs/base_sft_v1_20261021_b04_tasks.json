@@ -1,0 +1,190 @@
+{
+  "format": "train-coverage-plan-v1",
+  "split": "train",
+  "settings": {
+    "strategy": "coverage_balanced",
+    "seed": 2026102114,
+    "num_tasks": 20,
+    "coverage_ledger": "reports/base_sft_v1_20261021_b04_coverage.json",
+    "coverage_ledger_hash": "404c713cb92e0937bc21a80a2458fc09878496d453ec943549bf52f4e53bbdd2",
+    "max_per_task": 2,
+    "max_new_attempts_per_task": 2
+  },
+  "pool_sha256": "77dd8bbd52736da153134f7c4c34c0bd02c8baaff65c3165938c2decb8e3b41d",
+  "pool_tasks": 90,
+  "pool_scenarios": 30,
+  "tasks": [
+    "c901732_2",
+    "3c13f5a_2",
+    "e85d92a_2",
+    "ccb4494_2",
+    "07b42fd_3",
+    "ce359b5_3",
+    "27e1026_2",
+    "60d0b5b_1",
+    "b7a9ee9_1",
+    "b0a8eae_1",
+    "229360a_2",
+    "6ea6792_2",
+    "d0b1f43_2",
+    "34d9492_1",
+    "afc0fce_2",
+    "692c77d_1",
+    "287e338_3",
+    "82e2fac_3",
+    "29caf6f_3",
+    "22cc237_3"
+  ],
+  "rows": [
+    {
+      "task_id": "c901732_2",
+      "scenario_id": "c901732",
+      "reason": "missing_family",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "3c13f5a_2",
+      "scenario_id": "3c13f5a",
+      "reason": "missing_family",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "e85d92a_2",
+      "scenario_id": "e85d92a",
+      "reason": "missing_task",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "ccb4494_2",
+      "scenario_id": "ccb4494",
+      "reason": "missing_task",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "07b42fd_3",
+      "scenario_id": "07b42fd",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "ce359b5_3",
+      "scenario_id": "ce359b5",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "27e1026_2",
+      "scenario_id": "27e1026",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "60d0b5b_1",
+      "scenario_id": "60d0b5b",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "b7a9ee9_1",
+      "scenario_id": "b7a9ee9",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "b0a8eae_1",
+      "scenario_id": "b0a8eae",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "229360a_2",
+      "scenario_id": "229360a",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "6ea6792_2",
+      "scenario_id": "6ea6792",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "d0b1f43_2",
+      "scenario_id": "d0b1f43",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "34d9492_1",
+      "scenario_id": "34d9492",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "afc0fce_2",
+      "scenario_id": "afc0fce",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "692c77d_1",
+      "scenario_id": "692c77d",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "287e338_3",
+      "scenario_id": "287e338",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "82e2fac_3",
+      "scenario_id": "82e2fac",
+      "reason": "missing_task_retry",
+      "prior_selected_successes": 0,
+      "new_attempts_so_far": 1
+    },
+    {
+      "task_id": "29caf6f_3",
+      "scenario_id": "29caf6f",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    },
+    {
+      "task_id": "22cc237_3",
+      "scenario_id": "22cc237",
+      "reason": "second_trajectory_diversity",
+      "prior_selected_successes": 1,
+      "new_attempts_so_far": 0
+    }
+  ],
+  "num_scenarios": 20,
+  "selection_inputs": [
+    "official train IDs and public scenario mapping",
+    "verified prior success/length records",
+    "bounded new-attempt counts"
+  ],
+  "hidden_labels_or_results_used": true,
+  "hidden_answers_used": false,
+  "selection_scope": "outcome-conditioned coverage collection, not unbiased benchmark success rate",
+  "plan_id": "e94dbfcf1f3d42cd59ca6e7f28d4f2016a631b80ab86c795e4d9a0da928471ab"
+}

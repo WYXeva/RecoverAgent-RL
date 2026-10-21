@@ -1,0 +1,627 @@
+{
+  "pool_hash": "77dd8bbd52736da153134f7c4c34c0bd02c8baaff65c3165938c2decb8e3b41d",
+  "selected_success_counts": {
+    "e3d6c94_3": 2,
+    "6104387_1": 1,
+    "29caf6f_2": 1,
+    "ccb4494_3": 2,
+    "692c77d_1": 1,
+    "aa8502b_1": 1,
+    "29caf6f_3": 2,
+    "229360a_3": 1,
+    "ce359b5_1": 1,
+    "b7a9ee9_3": 1,
+    "302c169_1": 1,
+    "aa8502b_3": 1,
+    "e7a10f8_1": 2,
+    "60d0b5b_3": 1,
+    "771d8fc_2": 2,
+    "afc0fce_1": 1,
+    "771d8fc_1": 1,
+    "82e2fac_2": 2,
+    "7d7fbf6_3": 1,
+    "b0a8eae_2": 1,
+    "34d9492_2": 1,
+    "e85d92a_3": 2,
+    "6ea6792_1": 1,
+    "22cc237_3": 2,
+    "771d8fc_3": 2,
+    "302c169_2": 1,
+    "d0b1f43_3": 1,
+    "22cc237_2": 1,
+    "cf6abd2_2": 1,
+    "e85d92a_1": 2,
+    "2a163ab_2": 1,
+    "e7a10f8_2": 1,
+    "3c13f5a_2": 1,
+    "ccb4494_1": 2,
+    "82e2fac_1": 2,
+    "7d7fbf6_2": 1,
+    "6104387_2": 1,
+    "287e338_1": 1,
+    "afc0fce_3": 1,
+    "e7a10f8_3": 2,
+    "7d7fbf6_1": 1,
+    "e3d6c94_2": 2,
+    "6104387_3": 2,
+    "aa8502b_2": 1,
+    "e85d92a_2": 1,
+    "ce359b5_3": 1,
+    "ccb4494_2": 1,
+    "76f2c72_1": 1,
+    "34d9492_3": 1,
+    "76f2c72_3": 1,
+    "22cc237_1": 1,
+    "07b42fd_3": 1,
+    "b0a8eae_3": 1,
+    "b7a9ee9_2": 1,
+    "cf6abd2_1": 1,
+    "2a163ab_1": 1,
+    "07b42fd_2": 1,
+    "b7a9ee9_1": 1,
+    "29caf6f_1": 1,
+    "d0b1f43_1": 1,
+    "287e338_2": 1,
+    "e3d6c94_1": 1,
+    "229360a_1": 1,
+    "692c77d_3": 1,
+    "2a163ab_3": 1,
+    "27e1026_3": 1,
+    "cf6abd2_3": 1,
+    "302c169_3": 1,
+    "76f2c72_2": 1,
+    "692c77d_2": 1,
+    "6ea6792_3": 1,
+    "b0a8eae_1": 1
+  },
+  "new_attempt_counts": {
+    "29caf6f_2": 1,
+    "60d0b5b_3": 1,
+    "34d9492_1": 2,
+    "b0a8eae_2": 1,
+    "c901732_1": 1,
+    "6ea6792_2": 2,
+    "b7a9ee9_1": 2,
+    "d0b1f43_3": 1,
+    "22cc237_2": 1,
+    "07b42fd_3": 2,
+    "7d7fbf6_2": 1,
+    "aa8502b_2": 1,
+    "76f2c72_1": 1,
+    "ce359b5_2": 1,
+    "287e338_2": 1,
+    "27e1026_3": 1,
+    "cf6abd2_3": 1,
+    "302c169_3": 1,
+    "692c77d_2": 1,
+    "3c13f5a_2": 2,
+    "afc0fce_2": 2,
+    "aa8502b_1": 1,
+    "b7a9ee9_3": 1,
+    "302c169_1": 1,
+    "cf6abd2_2": 1,
+    "60d0b5b_2": 1,
+    "287e338_3": 2,
+    "d0b1f43_2": 2,
+    "7d7fbf6_1": 1,
+    "07b42fd_1": 1,
+    "22cc237_1": 1,
+    "3c13f5a_1": 1,
+    "c901732_2": 2,
+    "b0a8eae_3": 1,
+    "ce359b5_3": 2,
+    "27e1026_2": 2,
+    "692c77d_3": 1,
+    "2a163ab_3": 1,
+    "76f2c72_2": 1,
+    "229360a_2": 2,
+    "82e2fac_3": 2,
+    "ce359b5_1": 1,
+    "692c77d_1": 2,
+    "aa8502b_3": 1,
+    "771d8fc_1": 1,
+    "7d7fbf6_3": 1,
+    "302c169_2": 1,
+    "3c13f5a_3": 1,
+    "e7a10f8_2": 1,
+    "6104387_2": 1,
+    "c901732_3": 1,
+    "27e1026_1": 1,
+    "76f2c72_3": 1,
+    "b7a9ee9_2": 1,
+    "cf6abd2_1": 1,
+    "07b42fd_2": 1,
+    "d0b1f43_1": 1,
+    "e3d6c94_1": 1,
+    "60d0b5b_1": 2,
+    "b0a8eae_1": 2,
+    "22cc237_3": 1,
+    "e85d92a_2": 1,
+    "ccb4494_2": 1,
+    "29caf6f_3": 1
+  },
+  "source_inventory_sha256": "3c6f04c8ba3ef46e32644a12e497f6194a6f3c1cc4c3b9fcdb4d7b29fc9e99aa",
+  "source_quality_hash": "2c5c2f5493d610c21e0c119a412e342c04922116b6cd97edc4d76467eab7676b",
+  "history": [
+    {
+      "trajectory_id": "teacher_031d2092ff51",
+      "task_id": "29caf6f_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_1d1bf9151540",
+      "task_id": "60d0b5b_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_38272aadd5cd",
+      "task_id": "34d9492_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_3b6628d3e48b",
+      "task_id": "b0a8eae_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_414bfe592f9e",
+      "task_id": "c901732_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_42a1408c9e6c",
+      "task_id": "6ea6792_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_4539d3bc0c4d",
+      "task_id": "b7a9ee9_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_58107142c1e6",
+      "task_id": "d0b1f43_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_5d1c92e627b7",
+      "task_id": "22cc237_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_6f230f4a267b",
+      "task_id": "07b42fd_3",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_72b592f169ad",
+      "task_id": "7d7fbf6_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_848f39556faf",
+      "task_id": "aa8502b_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_8bd716312dd2",
+      "task_id": "76f2c72_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_a6df39a6c579",
+      "task_id": "ce359b5_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_c921deaecba8",
+      "task_id": "287e338_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_df8c6a55d795",
+      "task_id": "27e1026_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_dfea9d52abdb",
+      "task_id": "cf6abd2_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_e3fcb5f3d34c",
+      "task_id": "302c169_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_efcbb0f41fa0",
+      "task_id": "692c77d_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_f09d79e599cc",
+      "task_id": "3c13f5a_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_03f7df4e0a8e",
+      "task_id": "afc0fce_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_0aa3cbcec1ee",
+      "task_id": "aa8502b_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_180b662bd33e",
+      "task_id": "b7a9ee9_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_191586139631",
+      "task_id": "302c169_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_5e5891e384bc",
+      "task_id": "cf6abd2_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_601adc476857",
+      "task_id": "60d0b5b_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_6155fdadf1e7",
+      "task_id": "287e338_3",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_6eda841428cc",
+      "task_id": "d0b1f43_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_7fdc4c5b57cf",
+      "task_id": "7d7fbf6_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_92308477cdac",
+      "task_id": "07b42fd_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_92fe3eb1a93d",
+      "task_id": "22cc237_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_97a5782b5756",
+      "task_id": "3c13f5a_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_997b7a07036e",
+      "task_id": "c901732_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_9fa36b471f3d",
+      "task_id": "b0a8eae_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_b56c0b01926a",
+      "task_id": "ce359b5_3",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_c58b538db2ae",
+      "task_id": "27e1026_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_d92476518edf",
+      "task_id": "692c77d_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_d957c6ca31a3",
+      "task_id": "2a163ab_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_e74e4e14b99d",
+      "task_id": "76f2c72_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_fca2048006e1",
+      "task_id": "229360a_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_09d770550398",
+      "task_id": "82e2fac_3",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_1190c3015de0",
+      "task_id": "ce359b5_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_1661bf7f919a",
+      "task_id": "692c77d_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_19ba04323d99",
+      "task_id": "aa8502b_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_2ec2cc364c60",
+      "task_id": "771d8fc_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_3ad530bc1f58",
+      "task_id": "7d7fbf6_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_5793ce51e8c1",
+      "task_id": "302c169_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_5c5f5fe4097c",
+      "task_id": "3c13f5a_3",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_6c0a8c117cb1",
+      "task_id": "e7a10f8_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_77fe0c9dad55",
+      "task_id": "6104387_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_7c2a1f1130fb",
+      "task_id": "c901732_3",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_836e1ce2f561",
+      "task_id": "27e1026_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_92ed1ee1851c",
+      "task_id": "76f2c72_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_a28ab3e1d866",
+      "task_id": "b7a9ee9_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_aadb04813bc9",
+      "task_id": "cf6abd2_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_b853de6d47bb",
+      "task_id": "07b42fd_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_c627aa5cfc03",
+      "task_id": "d0b1f43_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_ce3163c0a607",
+      "task_id": "e3d6c94_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_fcab8428135f",
+      "task_id": "60d0b5b_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_ff3b8e1f2612",
+      "task_id": "b0a8eae_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_06f0f0c9033f",
+      "task_id": "692c77d_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_1f07a0bab880",
+      "task_id": "6ea6792_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_4d04906c1d1d",
+      "task_id": "22cc237_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_6d1dcaa1006b",
+      "task_id": "3c13f5a_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_8292146875b6",
+      "task_id": "d0b1f43_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_859671c43647",
+      "task_id": "e85d92a_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_88500d360f4b",
+      "task_id": "ce359b5_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_8bcf6441e221",
+      "task_id": "ccb4494_2",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_93192b95e486",
+      "task_id": "07b42fd_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_965119e810b9",
+      "task_id": "34d9492_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_9e7048005df8",
+      "task_id": "229360a_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_9f69c768765d",
+      "task_id": "c901732_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_b6f9d8d36fbb",
+      "task_id": "60d0b5b_1",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_b86f11a2a861",
+      "task_id": "b7a9ee9_1",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_bc225edaf0d8",
+      "task_id": "afc0fce_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_ce03ce204954",
+      "task_id": "82e2fac_3",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_d44344de6e10",
+      "task_id": "29caf6f_3",
+      "official_success": true,
+      "accepted": true
+    },
+    {
+      "trajectory_id": "teacher_db1986cc1b0e",
+      "task_id": "287e338_3",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_eef36e116db0",
+      "task_id": "27e1026_2",
+      "official_success": false,
+      "accepted": false
+    },
+    {
+      "trajectory_id": "teacher_fa7c2cece8be",
+      "task_id": "b0a8eae_1",
+      "official_success": true,
+      "accepted": true
+    }
+  ]
+}

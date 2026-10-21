@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "source_manifest_sha256": "729bdc4c257e0047a53e20fe492adfd538bb480bff4b6368da4ad3224d815dd3",
+  "byte_identical": true,
+  "counts": {
+    "train": 357,
+    "validation": 62
+  },
+  "weights_loaded": false,
+  "training_started": false
+}

@@ -1,0 +1,27 @@
+{
+  "p0_p2": {
+    "files_checked": 17,
+    "unchanged": true,
+    "manifest_sha256": "3a37ddad181d938cedbceb46b7b377b5ec8561d7c52c955996fe48bdf6b82b76"
+  },
+  "execution_v3": {
+    "files_checked": 5,
+    "unchanged": true,
+    "manifest_sha256": "cf5c363a5a7630a8d21bff6b3a9f83a0d0e841f413b221a70b1b5a4b46cd6f13"
+  },
+  "execution_v5": {
+    "files_checked": 14,
+    "unchanged": true,
+    "manifest_sha256": "374be26aa415b9556b8393b8d018956ed00209a0901c6671350e1a2045d0e425"
+  },
+  "collection": {
+    "files_checked": 18,
+    "unchanged": true,
+    "manifest_sha256": "0a02ef4a11fdbc71ccde4fdc15a7724096c88dea5a56eab7f3c8c012c515ae8d"
+  },
+  "historical_source_manifests": {
+    "count": 15,
+    "unchanged": true
+  },
+  "campaign_and_teacher_configuration_unchanged": true
+}

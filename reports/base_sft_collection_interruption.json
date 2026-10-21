@@ -1,0 +1,36 @@
+{
+  "reason": "provider_http_402_insufficient_balance",
+  "run_id": "base_sft_v1_20261021_b06",
+  "task_manifest_hash": "b1574bfe518f5918bdbd78a884bc0eb324d9061463a80f3986cb66a7ee3b832c",
+  "attempted_tasks": [
+    "c901732_1",
+    "3c13f5a_1",
+    "6ea6792_1",
+    "34d9492_2",
+    "afc0fce_3",
+    "2a163ab_1",
+    "229360a_3",
+    "60d0b5b_3",
+    "ce359b5_1",
+    "d0b1f43_1",
+    "27e1026_3",
+    "b7a9ee9_3",
+    "b0a8eae_2",
+    "692c77d_3",
+    "287e338_2",
+    "302c169_2",
+    "76f2c72_3",
+    "aa8502b_2"
+  ],
+  "unattempted_tasks": [
+    "7d7fbf6_3",
+    "07b42fd_2"
+  ],
+  "provider_diagnostic_sha256": "09f9caeb183b41c1a7d8435a0be5397dc8155c80266e06707efcdb681ebbf213",
+  "controller_stopped_at_epoch": 1792591333.4313152,
+  "active_worker_interrupted": false,
+  "actor_protocol_changed": false,
+  "prior_transport_errors_have_no_recorded_http_status": true,
+  "original_trajectories_modified": false,
+  "training_started": false
+}

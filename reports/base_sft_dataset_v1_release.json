@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "archive_sha256": "68231f625b876db259c5085d08e70c77604ffbaaf6b0809b807852e2bfc3b9ed",
+  "manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "bytes": 37773083,
+  "network_transfer_performed": false,
+  "training_started": false,
+  "dataset_path": "data/base_sft_v1",
+  "archive_path": "data/base_sft_v1.tar.gz",
+  "dataset_id": "652e035993b97b66711324e1e15304160fe29af847493b57c7802e61bceaf4bb",
+  "protocol_lock_sha256": "1db2645ba74f2ee9337079b449b9d1922202e9ddca107e75171e96bca050a59e",
+  "source_baseline_commit": "5f420909f228945b1643375b9a917b61906a29f4",
+  "private_data_not_uploaded": true,
+  "remote_server_connected": false
+}

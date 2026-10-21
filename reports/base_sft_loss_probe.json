@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "synthetic_architecture_only": true,
+  "real_transformers_qwen3_forward": true,
+  "full_ce_equivalent": true,
+  "gradient_equivalent": true,
+  "weighted_sequence_mean_verified": true,
+  "supervised_positions": 3,
+  "masked_positions": 3,
+  "logit_positions_computed": 3,
+  "pretrained_weights_loaded": false,
+  "optimizer_steps": 0,
+  "student_training_started": false
+}

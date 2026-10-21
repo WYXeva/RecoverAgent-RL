@@ -1,0 +1,211 @@
+{
+  "commands": [
+    {
+      "argv": [
+        ".venv-inference/bin/python",
+        "-m",
+        "recoveragent.formal_dataset",
+        "build",
+        "--input",
+        ".cache/base_sft_v1_20261021_result.json",
+        "--output",
+        "data/base_sft_v1",
+        "--report",
+        "reports/base_sft_dataset_v1_build.json"
+      ],
+      "log": ".cache/base_sft_dataset_v1_build.log",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "recoveragent.formal_dataset",
+        "verify",
+        "--input",
+        "data/base_sft_v1",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--official-appworld-root",
+        "data/appworld",
+        "--check-runtime",
+        "--report",
+        "reports/base_sft_dataset_v1_verify.json"
+      ],
+      "log": ".cache/base_sft_dataset_v1_verify.log",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv-inference/bin/python",
+        "-m",
+        "recoveragent.formal_dataset",
+        "retokenize",
+        "--input",
+        "data/base_sft_v1",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--output",
+        ".cache/base_sft_dataset_v1_retokenized",
+        "--report",
+        "reports/base_sft_dataset_v1_retokenize.json"
+      ],
+      "log": ".cache/base_sft_dataset_v1_retokenize.log",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/probe_base_sft_bundle.py",
+        "data/base_sft_v1",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--output",
+        "reports/base_sft_dataset_v1_negative.json"
+      ],
+      "log": ".cache/base_sft_dataset_v1_negative.log",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "recoveragent.dataset_transfer",
+        "archive",
+        "--input",
+        "data/base_sft_v1",
+        "--output",
+        "data/base_sft_v1.tar.gz",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--report",
+        "reports/base_sft_dataset_v1_archive.json"
+      ],
+      "log": ".cache/base_sft_dataset_v1_archive.log",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "recoveragent.dataset_transfer",
+        "import",
+        "--input",
+        "data/base_sft_v1.tar.gz",
+        "--output",
+        "data/base_sft_v1_imported",
+        "--expected-archive-sha256",
+        "68231f625b876db259c5085d08e70c77604ffbaaf6b0809b807852e2bfc3b9ed",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--report",
+        "reports/base_sft_dataset_v1_import.json"
+      ],
+      "log": ".cache/base_sft_dataset_v1_import.log",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/report_base_sft.py",
+        "--dataset",
+        "data/base_sft_v1",
+        "--campaign-result",
+        ".cache/base_sft_v1_20261021_result.json",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--output",
+        "reports/base_sft_dataset_v1_metrics.json"
+      ],
+      "log": ".cache/base_sft_dataset_v1_metrics.log",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "log": "reports/base_sft_pytest_final.txt",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/ruff",
+        "check",
+        "src",
+        "tests",
+        "scripts"
+      ],
+      "log": "reports/base_sft_ruff_check_final.txt",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/ruff",
+        "format",
+        "--check",
+        "src",
+        "tests",
+        "scripts"
+      ],
+      "log": "reports/base_sft_ruff_format_final.txt",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    },
+    {
+      "argv": [
+        ".venv/bin/python",
+        "scripts/write_base_sft_report.py"
+      ],
+      "log": ".cache/base_sft_dataset_v1_report.log",
+      "environment_overrides": {
+        "PYTHONPATH": "src:.",
+        "HF_HOME": "/home/eva/project/RecoverAgent-RL/.cache/huggingface",
+        "HF_HUB_OFFLINE": "1"
+      }
+    }
+  ],
+  "all_return_codes": 0,
+  "training_started": false
+}

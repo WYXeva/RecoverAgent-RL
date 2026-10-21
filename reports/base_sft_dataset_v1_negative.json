@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "source_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "original_unchanged": true,
+  "synthetic_tamper_copies_only": true,
+  "cases": {
+    "file_tamper": {
+      "rejected": true,
+      "reason": "Bundle file integrity mismatch"
+    },
+    "trusted_hash_mismatch": {
+      "rejected": true,
+      "reason": "Trusted bundle manifest SHA-256 mismatch"
+    },
+    "label_leak": {
+      "rejected": true,
+      "reason": "Token/mask/weight contract violation"
+    },
+    "control_leak": {
+      "rejected": true,
+      "reason": "Training records differ from source/split"
+    }
+  },
+  "training_started": false
+}
