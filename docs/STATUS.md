@@ -1,10 +1,23 @@
 # 项目状态
 
 - 最后更新：2026-10-21（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.8；正式 Student `Qwen/Qwen3-4B`。
-- 本轮状态：**P3-A 失败诊断与A复试验收 PASS，正式训练准备 PARTIAL**：上一轮B的6个失败任务各用冻结A从原始初态再试一次，2/6官方成功、2条新示范；候选修改尚未启用。原B12任务的6/12结果保持原样。真实4B自主推理未验证，P3-B及以后 `NOT_STARTED`。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.9；正式 Student `Qwen/Qwen3-4B`。
+- 本轮状态：**P3-A v4实现、真实A/B采集、交接验收 PASS；32k数据准备 PARTIAL**。固定10新任务/5新家族、20次尝试，A6/10、B8/10，14条官方成功示范/8唯一任务/4成功家族；其中13条符合当前32k长度，1条整条暂缓。真实4B自主推理未验证，P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮拉取并核对基线 `e4a6f1ae296524f775a09b00b7178f2a00d51ea6`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮fetch核对基线 `dbe205162ddf5ace72726f6f4942cdf895000185`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## execution_v4 与新场景配对采集（2026-10-21，v0.9）
+
+- **实现/真实采集 PASS**：用户授权按诊断方案修改并重采A/B。旧execution_v3五文件锁和P0–P2原17文件不变；新增明确完成/正文/聚合/认证规则，以及A公开认证依赖检查/至多一次Predictor纠错。模型自行选择最终工具，控制器不补业务动作、不改answer；所有选择成本计入，Predictor不进入Actor/SFT。
+- **固定新场景**：seed=2026102104，10不同任务/5此前未采样家族，每族2变体，排除先前7家族。清单`configs/train_v4_ab_20261021.json`，协议锁`configs/execution_v4_protocol_lock.json`，配置`configs/p3a_v4_ab.json`。A/B各一次、交替顺序、独立初态/进程、同模型/预算，全部10对检查通过，无换任务或付费追试。
+- **真实结果**：20尝试、20有效评价、0基础设施错误；A6/10、B8/10，共14条官方成功且筛选合格示范，8唯一成功任务/4成功家族。A成功3家族，B4家族。不是Student成绩或统计优势；新旧任务不同，不能据此证明提示修正因果收益。
+- **负例保留**：两个账单变体A/B共4条金额答案带货币符号，无法通过官方float规范化；两个付款任务A漏联系人/关系查询（认证校验不覆盖业务证据），一个如实失败停止，另一个猜测接受全部26请求且回复4096截断、整批未执行。后者不是工具配额拒绝。A在另一个任务真实触发一次漏密码来源纠错，自行补齐后成功，完整回执可重建。
+- **完整成本**：221模型请求（210Actor+11Predictor）、680工具调用，2,505,885输入（1,877,248缓存）、66,825输出token；835.845秒控制器墙钟；USD0.280044588费率估算，实扣未知，无未知预留。A88请求/283调用/USD0.069158364，B133请求/397调用/USD0.210886224。每次40请求/16384输出/600秒/USD1，总USD20，单回复4096、工具次数不限；实际使用远低于运行预算，沿用用户“费用不限”授权。
+- **数据格式 PASS，长度准备 PARTIAL**：固定4B tokenizer的14条/168Assistant目标、45,403监督token，最长完整序列34,507、最大目标3,259。6104387_1的B轨迹4回合超过32768，整条暂缓而非截断；其余13条（A6/B7）/148目标/39,658监督token，最长序列31,102、生成前上下文30,976。35次schema变化、623工具参数回读及Assistant-only/padding mask通过。全部输入中97.949%为上下文；正式分组/权重未定。
+- **完整性与交接 PASS**：新包`runs/v4_ab_20261021_a/clean_dataset/`，manifest SHA `336bb99c268fe777e4f61c0e2d25ed23c94271f6a43eafa5ea5c30311b08319a`。官方train/版本/回执校验及独立本地复制复验通过，远程未传输。分词`data/v4_ab_sft_20261021_a/`，20份完整脱敏视图`outputs/v4_ab_20261021_a/<task>_<mode>.md`。旧3个v3包只读重验通过，新旧仍分包保留，原始数据/视图不公开。
+- **验证与错误**：最终117软件测试、Ruff/55文件格式通过；公开输入重建、失败截断回执、全部成本、验证前终态和两版协议锁均通过。首次测试命令缺少PYTHONPATH中的`.`导致scripts导入失败，修正命令后通过；首次新版LLM视图导出局部events覆盖Actor索引导致AttributeError，修复变量并补组合路径断言后20份视图通过。均不影响模型/工具数据。沙箱NVML不可见，正常环境实测RTX5050/8151MiB；未加载权重、不训练。
+- **实际命令/证据**：`PYTHONPATH=src .venv/bin/python -m recoveragent.p3a compare --config .cache/v4_ab_20261021_a.json --output runs/v4_ab_20261021_a --credentials-file .env`。日志`.cache/v4_ab_20261021_{collect,audit,receipts,verify,quality}.log`，原控制器日志`/tmp/recoveragent-v4-ab-collect.log`；详细审计、tokenizer、verify和测试命令见`reports/v4_ab_report.md`，机器证据为`reports/v4_ab_*.json`与`*_final.txt`。
+- **下一步/P3-B缺项**：正式数据规模、场景分组/验证集、家族权重和长轨迹处理；真实4B批量后端与权重/长上下文验收；远程96GB硬件/匹配环境、安全迁移与可信SHA复验。需后续明确训练授权再做Base-SFT真实更新、保存重载和评测。本轮不启动SFT/GRPO/远程训练；数值格式和A业务依赖失败作为后续独立版本问题保留。
 
 ## B失败诊断与冻结A复试（2026-10-21）
 

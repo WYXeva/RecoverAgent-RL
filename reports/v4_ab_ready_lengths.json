@@ -1,0 +1,8 @@
+{
+  "examples": 148,
+  "max_sequence_tokens": 31102,
+  "max_prompt_tokens": 30976,
+  "max_supervised_tokens": 3259,
+  "supervised_tokens": 39658,
+  "scope": "13 complete ready demonstrations only; deferred trajectory retained in raw clean dataset"
+}

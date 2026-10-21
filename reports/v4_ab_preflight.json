@@ -1,0 +1,182 @@
+{
+  "status": "PASS",
+  "scope": "real pinned public Task/API docs, no world execution or model requests",
+  "appworld_revision": "42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+  "lock_hash": "713078ed202efe041cfdcce1c2a63c437fd96a6f8d8f56fa3bd82e425902a5ac",
+  "selection_before_results": true,
+  "task_plan_hash": "0f0383f2634331b26334c96d4e0f512b9e00c3c6523d291600ad3b466acd77c0",
+  "rows": [
+    {
+      "task_id": "ccb4494_1",
+      "scenario_id": "ccb4494",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "6ea6792_3",
+      "scenario_id": "6ea6792",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "e3d6c94_2",
+      "scenario_id": "e3d6c94",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "6104387_1",
+      "scenario_id": "6104387",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "76f2c72_1",
+      "scenario_id": "76f2c72",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "ccb4494_3",
+      "scenario_id": "ccb4494",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "6ea6792_1",
+      "scenario_id": "6ea6792",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "e3d6c94_3",
+      "scenario_id": "e3d6c94",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "6104387_3",
+      "scenario_id": "6104387",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    },
+    {
+      "task_id": "76f2c72_3",
+      "scenario_id": "76f2c72",
+      "public_apis": 473,
+      "dependency_catalogue_sha256": "d49a167b90866bb2336db81d4ad51f8f9fb42cfe548d3183cedd08a83d59bc04",
+      "token_consuming_apps": [
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo"
+      ]
+    }
+  ],
+  "generic_completion_examples_schema_valid": true,
+  "all_public_catalogues_auth_dependency_check_pass": true
+}

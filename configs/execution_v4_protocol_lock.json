@@ -1,0 +1,18 @@
+{
+  "baseline_commit": "dbe205162ddf5ace72726f6f4942cdf895000185",
+  "actor_prompt_variant": "execution_v4",
+  "predictor_prompt_variant": "dependency_examples_v2",
+  "files": {
+    "src/recoveragent/p3a_prompts.py": "9ca1fdb2854df85edcab389ee590408827a0e9d159b81b695bc54412a5d942f3",
+    "src/recoveragent/predictor_prompts.py": "732e37174fc37d15f242e32776a2c14799d3c3eab7bea189828b9504376c2ddc",
+    "src/recoveragent/tool_modes.py": "644e9f671fe35ca1e623373df1a9610daee97b434bce600d432e4b3eaf55cc32",
+    "src/recoveragent/teacher.py": "2743b15b4c445e4f340459ad8b0e115b2365f01580776d353b7c9e98575d3ff5",
+    "src/recoveragent/teacher_history.py": "1c3df359b739b7ddcde5afa609278f83b75306826f78c46b67dbb778d2075a07",
+    "src/recoveragent/execution_v4.py": "38c6cd1cbe1e0774a9996180667499704c0825fc37068e6633243e7d45030fbd",
+    "src/recoveragent/validated_selection.py": "880ff18659ef10c261da8e4f6c86e86de701561dd56f18dfc4823e004651429a",
+    "src/recoveragent/p3a.py": "342d7bf697f15d855333d7c14cb27e06ad809496bf91e27a3707b49f7dc0d505"
+  },
+  "selection_protocol": "api_predictor_validated_v1",
+  "parent_lock": "configs/prompt_protocol_lock.json",
+  "parent_lock_hash": "9badc27e9560ac2c7a852205e96ebb8ffbf58212d0edbdc98e6fcf5f8b0679bc"
+}

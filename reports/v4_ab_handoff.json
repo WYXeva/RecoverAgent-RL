@@ -1,0 +1,159 @@
+{
+  "status": "PASS",
+  "scope": "local copy rehearsal; no remote transfer",
+  "manifest_sha256": "336bb99c268fe777e4f61c0e2d25ed23c94271f6a43eafa5ea5c30311b08319a",
+  "counts": {
+    "attempted": 20,
+    "valid": 20,
+    "infrastructure_errors": 0,
+    "official_successes": 14,
+    "accepted": 14,
+    "unique_tasks": 8,
+    "success_per_attempt": 0.7,
+    "success_per_valid": 0.7
+  },
+  "local_private_package": "runs/v4_ab_20261021_a/clean_dataset",
+  "local_private_copy": "data/v4_ab_transfer_rehearsal_20261021_a",
+  "all_20_llm_views": [
+    {
+      "task_id": "e3d6c94_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_00013f09020d",
+      "local_view": "outputs/v4_ab_20261021_a/e3d6c94_3_dynamic_discovery.md",
+      "view_sha256": "57ecb1539ec2d5e24e67c7b86076a350a028637ae9cb2731e161b6c5821cbbc5"
+    },
+    {
+      "task_id": "6104387_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_00af46f1111e",
+      "local_view": "outputs/v4_ab_20261021_a/6104387_1_api_predictor.md",
+      "view_sha256": "bba688bde8d57d8aa5dac7d7d7d6aec60e88c59503cba856be1f363a8824b420"
+    },
+    {
+      "task_id": "ccb4494_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_05c67cd00250",
+      "local_view": "outputs/v4_ab_20261021_a/ccb4494_3_api_predictor.md",
+      "view_sha256": "dcc4c6eded63600eacbead199cf877b402cfbab1a424064f016a780772ade53f"
+    },
+    {
+      "task_id": "76f2c72_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_0cb8dcaae51e",
+      "local_view": "outputs/v4_ab_20261021_a/76f2c72_3_dynamic_discovery.md",
+      "view_sha256": "11d25b17a876143d42fce7ac066866a8d5d30caf7bb67089c1ac64f5e611ec80"
+    },
+    {
+      "task_id": "76f2c72_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_39bc9054e709",
+      "local_view": "outputs/v4_ab_20261021_a/76f2c72_3_api_predictor.md",
+      "view_sha256": "a6e59d95fd8c4d9832d01dad0d6211a5420df436b7aa23c48b05476699c090fe"
+    },
+    {
+      "task_id": "6ea6792_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_3eae945adeb1",
+      "local_view": "outputs/v4_ab_20261021_a/6ea6792_1_dynamic_discovery.md",
+      "view_sha256": "724d828de0527287054478d7a44f47da318bd351a5540fabc438ea467f12acec"
+    },
+    {
+      "task_id": "76f2c72_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_44be144d4230",
+      "local_view": "outputs/v4_ab_20261021_a/76f2c72_1_api_predictor.md",
+      "view_sha256": "fdfce52b911991cb06983860e3e1936d5aa49fb10c612e6acd69ef5389915e18"
+    },
+    {
+      "task_id": "e3d6c94_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_53764096a96b",
+      "local_view": "outputs/v4_ab_20261021_a/e3d6c94_3_api_predictor.md",
+      "view_sha256": "dcb349ded229564d1ee41e3cbf1a28e77d10473d1ef4bf7f17d9f9950cab98b8"
+    },
+    {
+      "task_id": "ccb4494_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_6df965d9a3d8",
+      "local_view": "outputs/v4_ab_20261021_a/ccb4494_1_dynamic_discovery.md",
+      "view_sha256": "ea62eb3cbfd7b9637e9a1c69018e2c840cab33085bec9187ecf799d834435c18"
+    },
+    {
+      "task_id": "e3d6c94_2",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_810dedfab417",
+      "local_view": "outputs/v4_ab_20261021_a/e3d6c94_2_api_predictor.md",
+      "view_sha256": "06880cc54c91aad55e94ec4f16564f919ab402ecbf9c549ff0a96911ff2946e5"
+    },
+    {
+      "task_id": "6104387_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_82932c48d9ad",
+      "local_view": "outputs/v4_ab_20261021_a/6104387_3_api_predictor.md",
+      "view_sha256": "700f5761483a11cc8118490292e193e1ab891f608450745df8a785e1644baf87"
+    },
+    {
+      "task_id": "6ea6792_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_8d9a94366539",
+      "local_view": "outputs/v4_ab_20261021_a/6ea6792_3_api_predictor.md",
+      "view_sha256": "72b8c4e68170cc1b1347232d2e9f9d92d230243a7bff5d30bcc5e2a965940f77"
+    },
+    {
+      "task_id": "6104387_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_9c5fc7496c99",
+      "local_view": "outputs/v4_ab_20261021_a/6104387_1_dynamic_discovery.md",
+      "view_sha256": "dccaf419ad84ba635bde361822d80aa3dec44498c67e48fe9cda65420095edef"
+    },
+    {
+      "task_id": "e3d6c94_2",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_acc71362d9cf",
+      "local_view": "outputs/v4_ab_20261021_a/e3d6c94_2_dynamic_discovery.md",
+      "view_sha256": "e16c801ef9c75955df17d317d3381dabc317dc70fbea254689d691ab55d0f7b7"
+    },
+    {
+      "task_id": "76f2c72_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_b6877b64608b",
+      "local_view": "outputs/v4_ab_20261021_a/76f2c72_1_dynamic_discovery.md",
+      "view_sha256": "07ffda56777764b755b78e8a5ce7fdaa650189d3bbeb383e8ae7e182ef9d81ac"
+    },
+    {
+      "task_id": "6104387_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_bd285ca28bfb",
+      "local_view": "outputs/v4_ab_20261021_a/6104387_3_dynamic_discovery.md",
+      "view_sha256": "e5a14e059457013c4cca91fdad6c462370409e2b099d57394d7e5e7a057bf4ee"
+    },
+    {
+      "task_id": "ccb4494_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_da93d8ca209c",
+      "local_view": "outputs/v4_ab_20261021_a/ccb4494_3_dynamic_discovery.md",
+      "view_sha256": "87c2aef588ae4fdfb77a4d6c9cf7aa4ae2af9e92ace11decd56dc865909bc4f9"
+    },
+    {
+      "task_id": "6ea6792_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_ecd3559e52e5",
+      "local_view": "outputs/v4_ab_20261021_a/6ea6792_1_api_predictor.md",
+      "view_sha256": "4ba0df8152b39ac7c64dc2a1036a9df74b57abb8e7080dde2cf3f76a05d618c1"
+    },
+    {
+      "task_id": "6ea6792_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_f5a8c0a6e9d1",
+      "local_view": "outputs/v4_ab_20261021_a/6ea6792_3_dynamic_discovery.md",
+      "view_sha256": "a632501a46d6a0dd454f74d92a6aad1fea3308a2160e0e2bff62c56ad0543cad"
+    },
+    {
+      "task_id": "ccb4494_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_f77d84698726",
+      "local_view": "outputs/v4_ab_20261021_a/ccb4494_1_api_predictor.md",
+      "view_sha256": "47bce62fed030522a8ae416715f870787d5818474ef06b7ae602c47fbc8b69e1"
+    }
+  ]
+}

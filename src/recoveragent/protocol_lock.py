@@ -15,6 +15,8 @@ def verify_lock(config, root=None):
     if (
         config.get("actor_prompt_variant") != lock["actor_prompt_variant"]
         or config.get("predictor_prompt_variant") != lock["predictor_prompt_variant"]
+        or config.get("selection_protocol", "frozen_v3")
+        != lock.get("selection_protocol", "frozen_v3")
         or config["teacher"]["max_new_tokens"] != 4096
         or config["limits"]["max_tool_calls"] is not None
         or config["teacher"]["max_tool_calls_per_turn"] is not None

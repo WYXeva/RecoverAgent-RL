@@ -35,7 +35,9 @@ def summarize_comparison(directory):
                 "initial_state_hash": t.get("initial_state_hash"),
                 "observed_backend": t.get("observed_backend"),
                 "worker_pid": t.get("worker_pid"),
-                "predictor_requests": int(predictor is not None and bool(predictor)),
+                "predictor_requests": predictor.get("provider_requests", 1)
+                if predictor
+                else 0,
                 "predictor_generated_tokens": predictor.get("usage", {}).get(
                     "generated_tokens", 0
                 ),
@@ -135,6 +137,12 @@ def summarize_comparison(directory):
         ],
     }
     # Keep historical summaries byte-equivalent when using old configurations.
+    if config.get("selection_protocol"):
+        result["selection_protocol"] = config["selection_protocol"]
+        result["limitations"][0] = (
+            f"{len(selection['tasks'])} preselected tasks; one sample per arm/task; "
+            "no statistical superiority claim."
+        )
     if predictor_variant != "official_zero_shot":
         result["actor_prompt_variant"] = config.get("actor_prompt_variant", "legacy_v1")
         result["predictor_prompt_variant"] = predictor_variant

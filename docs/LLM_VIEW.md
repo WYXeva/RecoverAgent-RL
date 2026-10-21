@@ -112,3 +112,7 @@ v0.6 的 Actor v2 提示明确允许独立请求组成完整批次，无工具�
 ## 验证证据
 
 `tests/test_inspect_teacher.py` 覆盖历史/工具时刻边界、原始截断响应、凭据脱敏、缺失响应、记录不一致提示及只读输出。对现有六条真实 Teacher 尝试的全部 28 次请求做了离线核对，原始文件哈希不变，证据为 `reports/llm_viewer_validation.json`。该核对没有产生新的 AppWorld/模型实验结果。
+
+## v0.9 A公开依赖纠错视图
+
+新A的`predictor`视图保留首次选择、`corrections`中的至多一次公开依赖纠错输入/响应，以及`final_selected_names`。纠错不是Actor回合，费用已计入provider_requests；无响应的请求也展示并标记response_missing。20份真实新视图位于本地`outputs/v4_ab_20261021_a/<task_id>_<tool_mode>.md`，路径和哈希见`reports/v4_ab_handoff.json`；原始正文不提交GitHub。

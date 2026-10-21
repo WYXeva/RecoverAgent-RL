@@ -14,12 +14,12 @@ from jsonschema import ValidationError
 from .adapter import AppWorldAdapter, call_code
 from .io import digest, read_json, write_json
 from .runner import now
-from .p3a_prompts import ACTOR_PROMPTS, actor_system
+from .execution_v4 import ACTOR_PROMPTS, actor_system
+from .validated_selection import initialize_tools
 from .teacher_history import capture_terminal, validate_history
 from .tool_modes import (
     MODES,
     PREDICTOR_PROMPTS,
-    initialize_tools,
     execute_with_mode,
 )
 from .teacher import (
@@ -34,7 +34,7 @@ from .teacher import (
 
 def validate_config(config):
     if (
-        config["project_version"] not in {"0.4", "0.5", "0.6", "0.7", "0.8"}
+        config["project_version"] not in {"0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}
         or config["training_enabled"] is not False
     ):
         raise ValueError("Only versioned P3-A collection is allowed")
@@ -49,6 +49,17 @@ def validate_config(config):
         raise ValueError("Unknown Predictor prompt variant")
     if config["student"]["model"] != "Qwen/Qwen3-4B":
         raise ValueError("Formal Student must be Qwen3-4B")
+    from .validated_selection import PROTOCOL, LEGACY_PROTOCOL
+
+    selection = config.get("selection_protocol", LEGACY_PROTOCOL)
+    if selection not in {PROTOCOL, LEGACY_PROTOCOL}:
+        raise ValueError("Unknown selection protocol")
+    if selection == PROTOCOL and (
+        config["project_version"] != "0.9"
+        or config.get("actor_prompt_variant") != "execution_v4"
+        or config.get("predictor_prompt_variant") != "dependency_examples_v2"
+    ):
+        raise ValueError("Validated selection requires the v0.9 prompt protocol")
     limits = config["limits"]
     caps = {
         "max_tasks": 2,
@@ -67,8 +78,8 @@ def validate_config(config):
     if profile == "scenario_expansion_v1":
         from .protocol_lock import verify_lock
 
-        if config["project_version"] != "0.8":
-            raise ValueError("Expanded collection requires v0.8")
+        if config["project_version"] not in {"0.8", "0.9"}:
+            raise ValueError("Expanded collection requires v0.8 or v0.9")
         verify_lock(config)
         caps.update(
             max_tasks=20,
@@ -197,6 +208,8 @@ def run_teacher_episode(config, task_id, output, credentials):
         "constraint_check": "official_terminal_checks_only; other safety NOT_MEASURED",
     }
     adapter = None
+    if "selection_protocol" in config:
+        trajectory["selection_protocol"] = config["selection_protocol"]
     messages = trajectory["messages"]
     try:
         policy = TeacherPolicy(config, credentials)

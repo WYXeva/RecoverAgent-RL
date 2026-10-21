@@ -2,17 +2,19 @@
 
 Self-Improving Tool Agents through Failure Recovery
 
-在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.8 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
+在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.9 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
 
-**P3-A 场景扩样 PASS，正式训练准备 PARTIAL**：冻结提示后，预先固定12个新train任务/6家族，Teacher官方成功6/12，得到6条合格示范/4成功家族；104项软件测试通过，4B tokenizer得到82个Assistant目标、34559监督token。新Student批量接口及真实工具协议探针通过，尚未验证真实4B自主推理。**未启动 SFT/GRPO，远程尚未连接，没有总体效果提升结论。** 见 [最新报告](reports/scenario_expansion_report.md)、[上一轮提示回归](reports/structured_prompts_report.md)、[STATUS](docs/STATUS.md) 和 [DECISIONS](docs/DECISIONS.md)。历史不同协议结果分别保留。
+**P3-A v4采集与交接 PASS，训练准备 PARTIAL**：固定10个新train任务/5家族，真实Teacher A成功6/10、B成功8/10，获得14条官方成功示范（8唯一任务/4成功家族）。13条满足当前32k限制，148个Assistant目标、39,658监督token；1条过长示范整条暂缓。117软件测试及真实回执/动态schema/mask检查通过。**未启动SFT/GRPO，未运行真实4B Student或远程训练。** 见[本轮报告](reports/v4_ab_report.md)、[v4协议](docs/EXECUTION_V4.md)、[STATUS](docs/STATUS.md)和[DECISIONS](docs/DECISIONS.md)。旧提示和全部历史保留，不宣称总体效果提升。
+
+历史v0.8扩样：B在12任务/6家族中成功6/12，详见[历史扩样报告](reports/scenario_expansion_report.md)；更早A/B提示回归见[历史报告](reports/structured_prompts_report.md)。
 
 2026-10-19 真实验收：**P0 / P1 / P2 基础设施 PASS**，取得 1 条 train 自然失败和 4 条独立恢复，官方恢复奖励为 `[0, 0, 0, 0]`；26 项软件测试通过。实际命令、成本、隔离证据与限制见 [阶段报告](reports/p0_p2_report.md)。
 
-v0.8 延续路线：AppWorld → Teacher 正常成功轨迹 → Qwen3-4B Base-SFT → Student 新自然失败 → Teacher 多检查点真实恢复 → Recovery-SFT → Student 自主恢复 GRPO → 多轮 Teacher 辅助增量学习。两次 SFT 均不可跳过；Multi-Checkpoint Recovery 和自适应检查点评分仍待验证，ReTerm-style 恢复训练为参考基线。
+当前路线：AppWorld → Teacher 正常成功轨迹 → Qwen3-4B Base-SFT → Student 新自然失败 → Teacher 多检查点真实恢复 → Recovery-SFT → Student 自主恢复 GRPO → 多轮 Teacher 辅助增量学习。两次 SFT 均不可跳过；Multi-Checkpoint Recovery 和自适应检查点评分仍待验证，ReTerm-style 恢复训练为参考基线。
 
 新增 [冻结协议与场景采样](docs/TEACHER_EXPANSION.md)、[Student批量函数调用接口](docs/STUDENT_PROTOCOL.md)。新旧execution_v3成功包合计10条/8唯一任务/5家族，尚未合并正式集；当前数据存在家族监督量不均衡，正式训练前须固定分组与采样设计。
 
-后续[失败分析与A复试](reports/a_failure_retry_report.md)：仅在上述B的6个失败上各试A一次，2条成功、4条仍失败；属于条件诊断，不是总体A/B比较。新增2条示范后execution_v3分包共12条/10任务/6家族，107测试通过。完成参数、精确正文、聚合和认证遗漏的[候选修改方案](docs/PROMPT_FIX_PROPOSAL.md)已记录，冻结提示未改，方案尚未启用或验证效果。
+后续[失败分析与A复试](reports/a_failure_retry_report.md)：仅在上述B的6个失败上各试A一次，2条成功、4条仍失败；属于条件诊断，不是总体A/B比较。新增2条示范后execution_v3分包共12条/10任务/6家族，107测试通过。完成参数、精确正文、聚合和认证遗漏的[候选修改方案](docs/PROMPT_FIX_PROPOSAL.md)已记录；随后用户授权独立v4实现及新场景采集，原冻结提示未改，新结果不回写历史。
 
 工具模式新增 [官方 API Predictor 与动态发现的配对比较](docs/TOOL_MODES.md)，当前单回复输出上限 4096 token。[真实小试报告](reports/tool_modes_report.md)区分 Teacher 结果、完整成本和 Student 尚未验证项，不启动训练。
 

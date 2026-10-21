@@ -1,0 +1,24 @@
+{
+  "p0_p2_unchanged": {
+    "src/recoveragent/__init__.py": true,
+    "src/recoveragent/adapter.py": true,
+    "src/recoveragent/buffer.py": true,
+    "src/recoveragent/cli.py": true,
+    "src/recoveragent/inference.py": true,
+    "src/recoveragent/io.py": true,
+    "src/recoveragent/policy.py": true,
+    "src/recoveragent/runner.py": true,
+    "src/recoveragent/state.py": true,
+    "scripts/complete_appworld_install.py": true,
+    "scripts/download_student.py": true,
+    "scripts/preflight.py": true,
+    "scripts/state_probe.py": true,
+    "scripts/summarize_run.py": true,
+    "tests/test_contracts.py": true,
+    "tests/test_runner.py": true,
+    "configs/p0_p2.json": true
+  },
+  "old_v3_lock": "9badc27e9560ac2c7a852205e96ebb8ffbf58212d0edbdc98e6fcf5f8b0679bc",
+  "new_v4_lock": "713078ed202efe041cfdcce1c2a63c437fd96a6f8d8f56fa3bd82e425902a5ac",
+  "old_results_retained": true
+}

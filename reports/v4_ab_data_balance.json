@@ -1,0 +1,74 @@
+{
+  "families": {
+    "e3d6c94": {
+      "trajectories": 4,
+      "supervised_tokens": 8906,
+      "ready_trajectories": 4,
+      "ready_supervised_tokens": 8906
+    },
+    "6104387": {
+      "trajectories": 4,
+      "supervised_tokens": 21723,
+      "ready_trajectories": 3,
+      "ready_supervised_tokens": 15978
+    },
+    "ccb4494": {
+      "trajectories": 4,
+      "supervised_tokens": 6083,
+      "ready_trajectories": 4,
+      "ready_supervised_tokens": 6083
+    },
+    "6ea6792": {
+      "trajectories": 2,
+      "supervised_tokens": 8691,
+      "ready_trajectories": 2,
+      "ready_supervised_tokens": 8691
+    }
+  },
+  "mode_details": {
+    "dynamic_discovery": {
+      "actor_model_turns": 133,
+      "predictor_requests": 0,
+      "predictor_generated_tokens": 0,
+      "predictor_prompt_tokens": 0,
+      "predictor_usage_priced_cost": 0,
+      "discovery_tool_calls": 75,
+      "business_tool_calls": 322,
+      "ready_demonstrations": 7
+    },
+    "api_predictor": {
+      "actor_model_turns": 77,
+      "predictor_requests": 11,
+      "predictor_generated_tokens": 601,
+      "predictor_prompt_tokens": 89940,
+      "predictor_usage_priced_cost": 0.0023016,
+      "discovery_tool_calls": 0,
+      "business_tool_calls": 283,
+      "ready_demonstrations": 6
+    }
+  },
+  "deferred_trajectories": [
+    {
+      "trajectory_id": "teacher_9c5fc7496c99",
+      "task_id": "6104387_1",
+      "scenario_id": "6104387",
+      "tool_mode": "dynamic_discovery",
+      "max_sequence_tokens": 34507,
+      "max_target_tokens": 921,
+      "last_turn_sequence_tokens": 34507,
+      "ready_for_context_limit": false,
+      "stats": {
+        "examples": 20,
+        "input_tokens": 450680,
+        "context_tokens": 444935,
+        "supervised_tokens": 5745,
+        "roundtrip_calls": 100,
+        "batch_targets": 8,
+        "overlength_turns": 4,
+        "over_output_limit_turns": 0,
+        "repeated_identical_prefix_tokens": 307008,
+        "schema_changes": 6
+      }
+    }
+  ]
+}

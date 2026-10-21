@@ -113,7 +113,8 @@ def build_view(path, turn=None, all_turns=False):
         prediction_response = (
             read_json(response_path) if response_path.exists() else None
         )
-        record = trajectory.get("predictor", {})
+        aggregate = trajectory.get("predictor", {})
+        record = (aggregate.get("attempts") or [aggregate])[0]
         warnings = []
         for label, value, path in (
             ("request_hash", prediction_request, predictor_path),
@@ -130,7 +131,7 @@ def build_view(path, turn=None, all_turns=False):
             "requested_max_tokens": prediction_request.get("max_tokens"),
             "selected_names": record.get("selected_names"),
             "usage": record.get("usage"),
-            "format_error": record.get("format_error"),
+            "format_error": aggregate.get("format_error"),
             "receipt_warnings": warnings,
         }
         if all_turns:
@@ -138,6 +139,45 @@ def build_view(path, turn=None, all_turns=False):
                 llm_input=prediction_request, response_receipt=prediction_response
             )
         raw_values.extend([prediction_request, prediction_response])
+        if aggregate.get("protocol") == "api_predictor_validated_v1":
+            predictor_view["protocol"] = aggregate["protocol"]
+            predictor_view["aggregate_usage"] = aggregate["usage"]
+            predictor_view["final_selected_names"] = aggregate["selected_names"]
+            predictor_view["dependency_errors"] = record.get("dependency_errors")
+            predictor_view["corrections"] = []
+            correction_path = directory / "requests/000-correction.request.json"
+            correction_events = aggregate["attempts"][1:]
+            if correction_path.exists() and not correction_events:
+                correction_events = [{"request_id": "000-correction"}]
+            for event in correction_events:
+                receipt = {
+                    "request_id": event["request_id"],
+                    "selected_names": event.get("selected_names"),
+                    "dependency_errors": event.get("dependency_errors"),
+                    "usage": event.get("usage"),
+                    "receipt_warnings": [],
+                }
+                for kind, label in (
+                    ("request", "llm_input"),
+                    ("response", "response_receipt"),
+                ):
+                    path = directory / "requests" / f"{event['request_id']}.{kind}.json"
+                    if not path.exists():
+                        receipt["receipt_warnings"].append(kind + "_missing")
+                        continue
+                    value = read_json(path)
+                    source_hashes[str(path.relative_to(directory))] = hashlib.sha256(
+                        path.read_bytes()
+                    ).hexdigest()
+                    if (
+                        event.get(kind + "_hash")
+                        and digest(value) != event[kind + "_hash"]
+                    ):
+                        receipt["receipt_warnings"].append(kind + "_hash_mismatch")
+                    if all_turns:
+                        receipt[label] = value
+                    raw_values.append(value)
+                predictor_view["corrections"].append(receipt)
     known_generated = 0
     for request_path in requests:
         request_id = request_path.name.split(".")[0]
