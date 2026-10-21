@@ -34,10 +34,10 @@ from .teacher import (
 
 def validate_config(config):
     if (
-        config["project_version"] not in {"0.4", "0.5", "0.6", "0.7"}
+        config["project_version"] not in {"0.4", "0.5", "0.6", "0.7", "0.8"}
         or config["training_enabled"] is not False
     ):
-        raise ValueError("Only v0.4/v0.5/v0.6/v0.7 P3-A collection is allowed")
+        raise ValueError("Only versioned P3-A collection is allowed")
     if config.get("tool_mode", "dynamic_discovery") not in MODES:
         raise ValueError("Unknown tool mode")
     if config.get("actor_prompt_variant", "legacy_v1") not in ACTOR_PROMPTS:
@@ -61,6 +61,21 @@ def validate_config(config):
         "tool_timeout_seconds": 60,
         "repeated_identical_call_limit": 3,
     }
+    profile = config.get("collection_profile", "pilot")
+    if profile not in {"pilot", "scenario_expansion_v1"}:
+        raise ValueError("Unknown collection profile")
+    if profile == "scenario_expansion_v1":
+        from .protocol_lock import verify_lock
+
+        if config["project_version"] != "0.8":
+            raise ValueError("Expanded collection requires v0.8")
+        verify_lock(config)
+        caps.update(
+            max_tasks=20,
+            max_requests=800,
+            total_generated_tokens=327680,
+            total_wall_seconds=18000,
+        )
     for key, cap in caps.items():
         if type(limits[key]) is not int or not 1 <= limits[key] <= cap:
             raise ValueError(f"Pilot limit out of range: {key}")
@@ -454,7 +469,19 @@ def collect(config, output, credentials_file=None):
     from appworld import load_task_ids, update_root
 
     update_root(str(Path(config["appworld_root"]).resolve()))
-    tasks = load_task_ids("train")[: config["limits"]["max_tasks"]]
+    expanded = config.get("collection_profile") == "scenario_expansion_v1"
+    plan = None
+    if expanded:
+        from .sampling import load_plan
+        from .protocol_lock import verify_lock
+
+        plan = load_plan(config)
+        write_json(output / "task_manifest.json", plan)
+        write_json(output / "protocol_lock.json", read_json(config["protocol_lock"]))
+        write_json(output / "protocol_check.json", {"lock_hash": verify_lock(config)})
+        tasks = plan["tasks"]
+    else:
+        tasks = load_task_ids("train")[: config["limits"]["max_tasks"]]
     comparison = config.get("compare_tool_modes", False)
     schedule = [
         (task, mode)
@@ -469,7 +496,7 @@ def collect(config, output, credentials_file=None):
         output / "task_selection.json",
         {
             "split": "train",
-            "order": "official",
+            "order": "frozen_scenario_manifest" if expanded else "official",
             "tasks": tasks,
             "schedule": schedule,
             "mode_order": "counterbalanced" if comparison else "single",
@@ -487,13 +514,21 @@ def collect(config, output, credentials_file=None):
         worker_config["tool_mode"] = tool_mode
         worker_config.update(
             remaining_generated_tokens=limits["total_generated_tokens"]
-            - sum(x["usage"]["generated_tokens"] for x in attempts),
+            - sum(
+                x["usage"]["generated_tokens"]
+                + x["usage"].get("unknown_generation_reservation", 0)
+                for x in attempts
+            ),
             remaining_requests=limits["max_requests"]
             - sum(x["usage"]["provider_requests"] for x in attempts),
             remaining_cost=config["authorization"]["max_cost"]
-            - sum(x["usage"]["usage_priced_cost"] for x in attempts),
+            - sum(
+                x["usage"]["usage_priced_cost"]
+                + x["usage"].get("unknown_cost_reservation", 0)
+                for x in attempts
+            ),
         )
-        if comparison:
+        if comparison or expanded:
             # Reserve equal end-to-end allowances for every arm, including selector.
             worker_config["remaining_generated_tokens"] = min(
                 worker_config["remaining_generated_tokens"],
@@ -561,7 +596,8 @@ def collect(config, output, credentials_file=None):
                 raise RuntimeError("Worker failed")
             trajectory = read_json(output / name / "trajectory.json")
         except (subprocess.TimeoutExpired, RuntimeError, FileNotFoundError) as exc:
-            # Stop the whole pilot: billing for an interrupted request is uncertain.
+            # Preserve unknown billing reservations; expanded jobs may continue
+            # with another isolated task, never retry the failed task implicitly.
             write_json(
                 output / f"{name}.controller_error.json",
                 {"error_type": type(exc).__name__, "worker_completed": False},
@@ -583,9 +619,13 @@ def collect(config, output, credentials_file=None):
             else:
                 write_json(output / name / "trajectory.json", trajectory)
             attempts.append(trajectory)
+            if expanded and config.get("continue_after_infrastructure_error", False):
+                continue
             break
         attempts.append(trajectory)
-        if trajectory["status"] == "infrastructure_error":
+        if trajectory["status"] == "infrastructure_error" and not (
+            expanded and config.get("continue_after_infrastructure_error", False)
+        ):
             break
     from .demonstrations import export_dataset
 

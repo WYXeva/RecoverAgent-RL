@@ -1,0 +1,12 @@
+{
+  "baseline_commit": "cc53bea6bf13307c77abc68566a55ae51ef6e138",
+  "actor_prompt_variant": "execution_v3",
+  "predictor_prompt_variant": "dependency_examples_v2",
+  "files": {
+    "src/recoveragent/p3a_prompts.py": "9ca1fdb2854df85edcab389ee590408827a0e9d159b81b695bc54412a5d942f3",
+    "src/recoveragent/predictor_prompts.py": "732e37174fc37d15f242e32776a2c14799d3c3eab7bea189828b9504376c2ddc",
+    "src/recoveragent/tool_modes.py": "644e9f671fe35ca1e623373df1a9610daee97b434bce600d432e4b3eaf55cc32",
+    "src/recoveragent/teacher.py": "2743b15b4c445e4f340459ad8b0e115b2365f01580776d353b7c9e98575d3ff5",
+    "src/recoveragent/teacher_history.py": "1c3df359b739b7ddcde5afa609278f83b75306826f78c46b67dbb778d2075a07"
+  }
+}

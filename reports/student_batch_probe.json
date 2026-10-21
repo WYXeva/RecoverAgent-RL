@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "scope": "real AppWorld and tokenizer; scripted completions, not autonomous Student performance or Teacher data",
+  "task_id": "29caf6f_1",
+  "rows": [
+    {
+      "tool_mode": "dynamic_discovery",
+      "real_tool_calls": 4,
+      "synthetic_generation_turns": 2,
+      "real_feedback_hash": "599e5ad5a2f888fe8d1cfcae2c359eebc06f877ae0e271f312741d690f321078",
+      "next_request_hash": "02432baa00fdb588c437ba2ddde42a79feff02104b8e5efe2f55225eb8a23c99",
+      "complete_history": true,
+      "actual_prior_result_used": true,
+      "schema_transition_checked": true
+    },
+    {
+      "tool_mode": "api_predictor",
+      "real_tool_calls": 4,
+      "synthetic_generation_turns": 2,
+      "real_feedback_hash": "599e5ad5a2f888fe8d1cfcae2c359eebc06f877ae0e271f312741d690f321078",
+      "next_request_hash": "bff9576acd2e4900c0cbe47c0d81985e8e0a729272605d3184dd7df2d239de46",
+      "complete_history": true,
+      "actual_prior_result_used": true,
+      "schema_transition_checked": true
+    }
+  ],
+  "real_tool_calls": 8,
+  "model_requests": 0,
+  "model_weights_loaded": false,
+  "training_started": false,
+  "teacher_demonstrations_generated": 0,
+  "official_task_evaluation": "NOT_RUN"
+}

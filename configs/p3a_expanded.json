@@ -1,0 +1,72 @@
+{
+  "project_version": "0.8",
+  "tool_mode": "dynamic_discovery",
+  "actor_prompt_variant": "execution_v3",
+  "predictor_prompt_variant": "dependency_examples_v2",
+  "appworld_root": "data/appworld",
+  "student": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false
+  },
+  "teacher": {
+    "provider": "deepseek",
+    "base_url": "https://api.deepseek.com",
+    "allowed_host": "api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-flash",
+    "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+    "revision_is_immutable": false,
+    "revision_source": "https://api-docs.deepseek.com/",
+    "thinking": false,
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": null,
+    "max_request_bytes": 131072,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "CNY",
+      "input_per_million": null,
+      "cached_input_per_million": null,
+      "output_per_million": null,
+      "source": null,
+      "checked_at": null
+    }
+  },
+  "authorization": {
+    "approved": false,
+    "reference": null,
+    "currency": "CNY",
+    "max_cost": null
+  },
+  "limits": {
+    "max_tasks": 12,
+    "max_requests": 480,
+    "total_generated_tokens": 196608,
+    "max_model_turns": 40,
+    "max_tool_calls": null,
+    "episode_generated_tokens": 16384,
+    "episode_wall_seconds": 600,
+    "total_wall_seconds": 7200,
+    "tool_timeout_seconds": 60,
+    "max_infrastructure_retries": 0,
+    "repeated_identical_call_limit": 3
+  },
+  "environment_seed": 42,
+  "training_enabled": false,
+  "collection_profile": "scenario_expansion_v1",
+  "protocol_lock": "configs/prompt_protocol_lock.json",
+  "sampling": {
+    "strategy": "scenario_balanced",
+    "seed": 20261021,
+    "num_tasks": 12,
+    "num_scenarios": 6,
+    "exclude_scenarios": [
+      "82e2fac"
+    ]
+  },
+  "task_manifest": "configs/train_expansion_20261021.json",
+  "continue_after_infrastructure_error": true,
+  "task_manifest_hash": "95f838daaaaf8b52686dae71b5a39c2fbb8524cb4acb4beb4ca3b4b0bc25c16e"
+}

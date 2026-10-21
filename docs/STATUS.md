@@ -1,10 +1,24 @@
 # 项目状态
 
 - 最后更新：2026-10-21（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.7；正式 Student `Qwen/Qwen3-4B`。
-- 本轮状态：**P3-A 本机小样本闭环 PASS**：真实 Teacher 正常任务执行、官方筛选、非空数据导出和 4B Assistant-only mask 均有证据。当前示范数量少且来自同族任务，不代表正式训练规模或总体效果。P3-B 及以后 `NOT_STARTED`。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.8；正式 Student `Qwen/Qwen3-4B`。
+- 本轮状态：**P3-A 场景扩样与数据格式验收 PASS，正式训练准备 PARTIAL**：12个新任务/6家族，真实Teacher官方成功6/12，合格示范6条/4家族。Student批量接口和真实环境协议探针通过，但真实4B自主推理未验证。P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，基线 `40836c4c02a3b3785083fe2d5c89eb6c0c2da120`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮拉取并核对基线 `cc53bea6bf13307c77abc68566a55ae51ef6e138`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## 冻结提示与场景扩样（2026-10-21，v0.8）
+
+- **实现/真实采集 PASS**：冻结 execution_v3、dependency_examples_v2 与 A/B 五个文件哈希，不再用旧两个Spotify任务调参。新采样器使用官方train ID→scenario映射，支持家族均衡与显式清单；seed=20261021，12个不同任务/6家族，每族2个，排除旧82e2fac家族。清单预先固定，不按隐藏难度/结果筛选，不替换或重跑失败。本轮统一B dynamic_discovery，A未运行，不是新A/B比较。
+- **真实结果**：12尝试、12有效官方评价、0基础设施错误；6次成功、6唯一成功任务、4成功家族，6条全部入集；另6条过滤原因为official_not_successful。全部终止为completion_claim，模型自称完成不等于官方通过。全部159回执及失败成本重算通过，完整分母保留。
+- Teacher仍为deepseek-flash，fingerprint全程 `e72d3c7f663d3e1383b00b3884cb4501`。实际159请求、382工具调用、1,809,110输入（1,287,936缓存）、54,678输出token；573.408秒采集墙钟，按公开费率估算USD0.229693416，实际账单未知。每任务40请求/16384输出/600秒/USD1，12任务总预算USD12，单回复4096、工具次数不限，无付费重试。沿用“费用不限”授权，无新服务/算力购买。
+- **数据格式 PASS**：6条/6任务/4家族，82个Assistant目标、34,559监督token，最长完整序列29,039、最长生成前输入28,922、最长目标3,161；全部满足32768/4096检查。23次schema变化、254个工具参数回读及Assistant-only/padding mask通过，无静默截断。逐回合输入927,022，其中96.27%为上下文；文件系统家族占73.16%监督token，需正式采样/权重设计。
+- 旧execution_v3成功包只读重验4条/2任务/1家族，31目标/9844监督token。新旧合计10条、8唯一任务、5家族，但未合并正式集；旧任务已用于提示诊断，不能做独立效果验证。更早不同协议数据仍单列保留，不混算本轮成功率。
+- **Student协议实现/验证 PASS，模型运行未验收**：新增独立StudentSession，真实输入/输出token IDs与模型/模板/checkpoint契约，批量整体验证后串行执行，依赖结果与新工具只进入下一生成回合；A固定/B动态。中途错误保留结果并终止。JSON/schema不保证任意动作语义独立，无行为log probabilities。旧P0–P2的17项哈希不变。
+- 104项软件测试、Ruff/格式通过；新旧10条真实Qwen tokenizer目标回读通过；另用真实AppWorld+真实tokenizer、脚本式生成完成A/B各4次公开工具读取。共8次、0模型请求，不能当Teacher示范或真实Student成绩。证据 `reports/student_batch_probe.json`；全部测试和成本见 `reports/scenario_expansion_report.md`。
+- **错误记录**：新Student解析器首次未接受模板im_end后的换行，依据实际tokenizer修复并回归；升级质量审计后公共报告名重复触发append-only保护，结果原样另存v2，旧文件保留，CLI新增提前路径检查。两次沙箱Student探针卡在官方TestClient/AnyIO初始化；保存栈后在已批准的正常执行环境通过，未改上游依赖。
+- Clean Dataset：`runs/scenario_expansion_20261021_a/clean_dataset/`，manifest SHA-256 `ca7e0d3e74567818f21d0a903b49e8a6291829e985fc5818df5cbe82f9d84707`。分词结果 `data/scenario_expansion_sft_20261021_b/`；本地12份完整LLM视图 `outputs/scenario_expansion_20261021_a/<task_id>.md`。原始数据/凭据/权重不公开，远程迁移未执行。
+- 实际命令：`PYTHONPATH=src .venv/bin/python -m recoveragent.p3a collect --config .cache/scenario_expansion_20261021_a.json --output runs/scenario_expansion_20261021_a --credentials-file .env`；日志 `.cache/scenario_expansion_20261021_a.log`。官方verify、tokenizer、批量探针和测试命令详见新阶段报告；协议见 `docs/TEACHER_EXPANSION.md` / `docs/STUDENT_PROTOCOL.md`。
+- **下一步/P3-B缺项**：确定正式数据规模、补更多成功场景并按scenario分组验证，处理监督量不均衡；核验远程96GB资源、同版AppWorld及安全传输哈希；接入真实4B批量推理后端并做长上下文/权重身份验收。后续明确授权训练后才做Base-SFT参数更新、保存重载与评测。本轮无SFT/GRPO、无4B权重加载/远程训练，未宣称效果提升。
 
 ## A/B 提示规范化（2026-10-21，v0.7）
 

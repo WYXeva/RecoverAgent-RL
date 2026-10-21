@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "scope": "data diagnostics, no weighting or training applied",
+  "max_prompt_tokens": 28922,
+  "max_full_training_sequence_tokens": 29039,
+  "supervised_tokens_by_scenario": {
+    "34d9492": 25283,
+    "2a163ab": 5837,
+    "287e338": 657,
+    "22cc237": 2782
+  },
+  "largest_scenario_supervised_fraction": 0.7315894557134176,
+  "exact_adjacent_prefix_repeat_fraction": 0.6978809564390057,
+  "ready_examples_sha256": "217e8fc7f9a73bee37bcb96849bdb01780c01e613725d01cd496b687e9e18a3b"
+}

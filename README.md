@@ -2,13 +2,15 @@
 
 Self-Improving Tool Agents through Failure Recovery
 
-在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.7 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
+在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.8 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
 
-**P3-A 本机小样本闭环 PASS**：最新规范提示回归中，A/B 在两个已知 train 任务各成功2/2，4条新Teacher轨迹通过官方验证和数据筛选；80项软件测试通过，4B tokenizer/mask准备得到31个Assistant目标。不同轮次配置和历史失败分别保留，不能混成固定协议成功率。**未启动 SFT/GRPO，远程尚未连接，没有总体效果提升结论。** 见 [最新报告](reports/structured_prompts_report.md)、[初始P3-A报告](reports/p3a_report.md)、[STATUS](docs/STATUS.md) 和 [DECISIONS](docs/DECISIONS.md)。
+**P3-A 场景扩样 PASS，正式训练准备 PARTIAL**：冻结提示后，预先固定12个新train任务/6家族，Teacher官方成功6/12，得到6条合格示范/4成功家族；104项软件测试通过，4B tokenizer得到82个Assistant目标、34559监督token。新Student批量接口及真实工具协议探针通过，尚未验证真实4B自主推理。**未启动 SFT/GRPO，远程尚未连接，没有总体效果提升结论。** 见 [最新报告](reports/scenario_expansion_report.md)、[上一轮提示回归](reports/structured_prompts_report.md)、[STATUS](docs/STATUS.md) 和 [DECISIONS](docs/DECISIONS.md)。历史不同协议结果分别保留。
 
 2026-10-19 真实验收：**P0 / P1 / P2 基础设施 PASS**，取得 1 条 train 自然失败和 4 条独立恢复，官方恢复奖励为 `[0, 0, 0, 0]`；26 项软件测试通过。实际命令、成本、隔离证据与限制见 [阶段报告](reports/p0_p2_report.md)。
 
-v0.7 延续路线：AppWorld → Teacher 正常成功轨迹 → Qwen3-4B Base-SFT → Student 新自然失败 → Teacher 多检查点真实恢复 → Recovery-SFT → Student 自主恢复 GRPO → 多轮 Teacher 辅助增量学习。两次 SFT 均不可跳过；Multi-Checkpoint Recovery 和自适应检查点评分仍待验证，ReTerm-style 恢复训练为参考基线。
+v0.8 延续路线：AppWorld → Teacher 正常成功轨迹 → Qwen3-4B Base-SFT → Student 新自然失败 → Teacher 多检查点真实恢复 → Recovery-SFT → Student 自主恢复 GRPO → 多轮 Teacher 辅助增量学习。两次 SFT 均不可跳过；Multi-Checkpoint Recovery 和自适应检查点评分仍待验证，ReTerm-style 恢复训练为参考基线。
+
+新增 [冻结协议与场景采样](docs/TEACHER_EXPANSION.md)、[Student批量函数调用接口](docs/STUDENT_PROTOCOL.md)。新旧execution_v3成功包合计10条/8唯一任务/5家族，尚未合并正式集；当前数据存在家族监督量不均衡，正式训练前须固定分组与采样设计。
 
 工具模式新增 [官方 API Predictor 与动态发现的配对比较](docs/TOOL_MODES.md)，当前单回复输出上限 4096 token。[真实小试报告](reports/tool_modes_report.md)区分 Teacher 结果、完整成本和 Student 尚未验证项，不启动训练。
 
