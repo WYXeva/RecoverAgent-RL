@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "p0_p2_unchanged_files": 17,
+  "v3_unchanged_files": 5,
+  "v4_historical_source_verified_commit": "f5ce0596abbddf7cb6d3e8f19f9fd371933363de",
+  "v4_historical_files": 8,
+  "v4_prompt_and_selector_unchanged": true,
+  "v4_shared_driver_evolved": true,
+  "v5_lock_hash": "e9825c7c0fa680105c3d07809f0c2ce748c7b6c08776d99ad46fedd6669e2263"
+}

@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "scope": "offline public-history replay; synthetic correction, no new Teacher demonstration",
+  "rows": [
+    {
+      "trajectory_id": "teacher_0cb8dcaae51e",
+      "task_id": "76f2c72_3",
+      "tool_mode": "dynamic_discovery",
+      "source_sha256": "86ebf5d7db439f5484a9e94bdaecfd12d44635298154adab35b5d9fcdde6bfdf",
+      "raw_call_hash": "6debcbed758d31617dbb23bfdd82d89dba39abda3d2508a953a6463aa1fb10dd",
+      "raw_call_unchanged": true,
+      "initial_rejected": true,
+      "synthetic_same_value_correction_accepted": true
+    },
+    {
+      "trajectory_id": "teacher_39bc9054e709",
+      "task_id": "76f2c72_3",
+      "tool_mode": "api_predictor",
+      "source_sha256": "fe06c244f1cb8c36332b56a2bdaee32582f129ba6af2bb1038f6d9b5f4b20ac2",
+      "raw_call_hash": "ec5f10d457ecb50e4e92187fd922eb08bf837868add7743f1bbc5412ff5ee7c8",
+      "raw_call_unchanged": true,
+      "initial_rejected": true,
+      "synthetic_same_value_correction_accepted": true
+    },
+    {
+      "trajectory_id": "teacher_44be144d4230",
+      "task_id": "76f2c72_1",
+      "tool_mode": "api_predictor",
+      "source_sha256": "0b01692d25f06a0504e9b6f0a2e6e2d8cca7c3b6a56b568a9f902aae520b7cb0",
+      "raw_call_hash": "8d0748822d34bb86f261e7ed1ca6122dd26037bfdcd14a6387e78c5438229e00",
+      "raw_call_unchanged": true,
+      "initial_rejected": true,
+      "synthetic_same_value_correction_accepted": true
+    },
+    {
+      "trajectory_id": "teacher_b6877b64608b",
+      "task_id": "76f2c72_1",
+      "tool_mode": "dynamic_discovery",
+      "source_sha256": "cf5c674c59f899343d4f383f46b3500c5bebdbae4ecbc9fb55336e45bf04bf23",
+      "raw_call_hash": "8377ca78ea36c28b4742537a96884d76aba6877ad9ae28e2cfc45c900f832f38",
+      "raw_call_unchanged": true,
+      "initial_rejected": true,
+      "synthetic_same_value_correction_accepted": true
+    }
+  ],
+  "model_requests": 0,
+  "real_tool_calls": 0,
+  "official_evaluation": "NOT_RUN",
+  "hidden_answers_loaded": false,
+  "old_rewards_unchanged": true
+}

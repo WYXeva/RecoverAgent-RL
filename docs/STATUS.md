@@ -1,10 +1,23 @@
 # 项目状态
 
 - 最后更新：2026-10-21（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.9；正式 Student `Qwen/Qwen3-4B`。
-- 本轮状态：**P3-A v4实现、真实A/B采集、交接验收 PASS；32k数据准备 PARTIAL**。固定10新任务/5新家族、20次尝试，A6/10、B8/10，14条官方成功示范/8唯一任务/4成功家族；其中13条符合当前32k长度，1条整条暂缓。真实4B自主推理未验证，P3-B及以后 `NOT_STARTED`。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.10；正式 Student `Qwen/Qwen3-4B`。
+- 本轮状态：**P3-A v5实现、真实A/B采集与32k数据准备 PASS；真实金额自纠正效果 NOT_OBSERVED**。固定10新任务/5新家族，20次尝试A7/10、B9/10，16条合格示范/10唯一任务/5家族，全部通过当前长度与mask检查。真实4B自主推理未验证，P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮fetch核对基线 `dbe205162ddf5ace72726f6f4942cdf895000185`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮fetch核对基线 `f5ce0596abbddf7cb6d3e8f19f9fd371933363de`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## v5金额检查与一次模型自纠正（2026-10-21，本轮）
+
+- **实现 PASS**：`answer_guard.py` / `execution_v5.py`仅按公开任务保守识别单值格式。明确数字/金额字符串在完成前拦截，返回显式harness反馈；最多下一次模型同值纠正，原请求/token/时间/费用预算不增加。Teacher/Student共享，不改写答案、不读隐藏标签。拒绝Assistant保留为上下文、loss=-100，纠正后的真实输出才监督。契约`docs/ANSWER_GUARD.md`、D024。
+- **真实采集 PASS**：`runs/v5_ab_20261021_a`，seed2026102105，固定10新train任务/5新家族，A/B各一次。20/20有效、0基础设施错误，**A7/10（4成功家族）、B9/10（5家族）**，16条通过官方验证和筛选，10唯一成功任务/5家族。4条过滤均为official_not_successful：A两条缺关系证据、A/B各一条专辑删除范围错误。保留全部负例，无择优追试。中途口头8+8误拆已纠正，以全量回执7+9为准。
+- **效果边界**：清单20次均不在当前保守单值识别范围，0拦截/0纠正；格式通过率与纠正成功率分母为0（N/A）。本轮不能证明真实金额纠正有效，未为触发检查换任务，也不能将新旧不同任务成绩作因果比较。A的2次Predictor认证纠错单独计量，不是答案纠正。
+- **成本**：194模型请求=182Actor+12Predictor，474真实工具调用；2,012,471输入（1,596,160缓存）/68,373输出token；控制器783.174秒，USD0.216517860费率估算，实扣未知，无未知用量。A87请求/194调用/USD0.066498264，B107请求/280调用/USD0.150019596。沿用已授权DeepSeek；每次40请求/16384输出/600秒/USD1，总USD20；单回复4096、工具数不限。另有独立脚本探针1真实调用，0模型请求，不计Teacher成功率。无GPU权重/训练。
+- **软件与探针 PASS**：142测试、Ruff和60文件格式通过。四条旧金额失败离线检查、真实AppWorld拒绝无状态副作用探针、真实固定Qwen tokenizer合成mask回归通过；这些合成纠正不是Teacher示范/模型成绩。合成mask只有26个纠正token监督。证据`reports/answer_guard_{offline,world,qwen_mask}_20261021.json`、`*_final.txt`。
+- **数据准备 PASS**：16条全部适配32k，143Assistant目标、44,126监督token，最长完整序列30,474/生成前prefix30,361/目标2,703。25次schema变化、381工具参数回读和Assistant-only/padding mask通过。逐回合输入1,509,571，其中97.077%为上下文，重复开销仍高；未应用家族权重/packing。真实采集无拒绝回合，mask特殊路径由独立合成探针验证。
+- **完整性 PASS**：新包`runs/v5_ab_20261021_a/clean_dataset/`，manifest SHA `9efed4033f06bc2705b8e742ac96f6ee9696d06e634d2eb0bf6b997e52684964`。原始回执/公开输入/费用/官方train及版本验证通过；独立本机复制复验通过，未远传。分词`data/answer_guard_sft_20261021_a/`，20份完整脱敏视图`outputs/v5_ab_20261021_a/<task>_<mode>.md`。旧4个包26条合格示范只读重验，旧金额失败奖励不改，原始数据不上传GitHub。
+- **历史/源码**：P0–P2 17项、v3五文件、v4提示与选择器保持原字节；v4旧8文件在f5ce059重验。共享p3a驱动更新，旧v4锁不改、精确复现需固定checkout。新v5独立锁绑定执行/检查/Student/数据mask路径。`reports/answer_guard_source_checks.json`。
+- **命令/日志/错误**：采集命令`PYTHONPATH=src .venv/bin/python -m recoveragent.p3a compare --config .cache/v5_ab_20261021_a.json --output runs/v5_ab_20261021_a --credentials-file .env`；完整探针、回执审计、verify、tokenizer命令见`reports/answer_guard_report.md`。本机日志`.cache/answer_guard_{collect,audit,verify,quality}.log`。开发中预算终止名断言与临时fixture路径错误已修正，汇总脚本结构误读已纠正，未改原始模型/环境结果。
+- **下一步/P3-B缺项**：另固定公开数值契约验证清单，测真实Teacher首发格式及自然自纠正；按scenario设计训练/验证划分、规模与家族权重；接入真实4B后端，远程96GB环境与权重/长上下文验收、安全迁移及SHA复验。获得训练启动授权后才验收Base-SFT真实更新/保存重载；本轮不启动SFT/GRPO。
 
 ## 金额答案格式复核（2026-10-21，分析，未启用新harness）
 

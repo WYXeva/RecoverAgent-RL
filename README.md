@@ -2,9 +2,11 @@
 
 Self-Improving Tool Agents through Failure Recovery
 
-在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.9 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
+在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.10 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
 
-**P3-A v4采集与交接 PASS，训练准备 PARTIAL**：固定10个新train任务/5家族，真实Teacher A成功6/10、B成功8/10，获得14条官方成功示范（8唯一任务/4成功家族）。13条满足当前32k限制，148个Assistant目标、39,658监督token；1条过长示范整条暂缓。117软件测试及真实回执/动态schema/mask检查通过。**未启动SFT/GRPO，未运行真实4B Student或远程训练。** 见[本轮报告](reports/v4_ab_report.md)、[v4协议](docs/EXECUTION_V4.md)、[STATUS](docs/STATUS.md)和[DECISIONS](docs/DECISIONS.md)。旧提示和全部历史保留，不宣称总体效果提升。
+**P3-A v5实现、采集与数据格式 PASS**：新增公开单值格式检查，最多一次模型同值纠正，Teacher/Student共用，拒绝回复仅作masked上下文。固定10个新任务/5家族，真实Teacher A成功7/10、B成功9/10，16条合格示范全部适配当前32k，143目标/44,126监督token。142测试、真实AppWorld探针与Qwen mask检查通过。该清单未触发金额纠正，**不能据此宣称纠正效果提升；未训练或运行真实4B权重。** 见[本轮报告](reports/answer_guard_report.md)、[协议](docs/ANSWER_GUARD.md)、[STATUS](docs/STATUS.md)。
+
+历史**P3-A v4采集与交接 PASS，训练准备 PARTIAL**：固定10个新train任务/5家族，真实Teacher A成功6/10、B成功8/10，获得14条官方成功示范（8唯一任务/4成功家族）。13条满足当前32k限制，148个Assistant目标、39,658监督token；1条过长示范整条暂缓。117软件测试及真实回执/动态schema/mask检查通过。**未启动SFT/GRPO，未运行真实4B Student或远程训练。** 见[历史v4报告](reports/v4_ab_report.md)、[v4协议](docs/EXECUTION_V4.md)、[STATUS](docs/STATUS.md)和[DECISIONS](docs/DECISIONS.md)。旧提示和全部历史保留，不宣称总体效果提升。
 
 历史v0.8扩样：B在12任务/6家族中成功6/12，详见[历史扩样报告](reports/scenario_expansion_report.md)；更早A/B提示回归见[历史报告](reports/structured_prompts_report.md)。
 

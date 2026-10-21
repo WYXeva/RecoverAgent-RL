@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "scope": "real AppWorld state; scripted calls, not autonomous Teacher performance",
+  "task_id": "76f2c72_1",
+  "blocked_call_state_unchanged": true,
+  "blocked_call_did_not_complete": true,
+  "corrected_call_executed_unchanged": true,
+  "real_tool_calls": 1,
+  "synthetic_model_replies": 2,
+  "model_requests": 0,
+  "official_evaluation": "NOT_RUN",
+  "teacher_demonstrations_generated": 0,
+  "hidden_answers_loaded": false,
+  "before_hash": "2a222be320ff412090075d7e988b1cd131a3b8a6174306d3aa16823a81ee55e3",
+  "after_hash": "974185f7324e179651746060986e2d78d59ab199265d6d613aa576b93c2540aa"
+}

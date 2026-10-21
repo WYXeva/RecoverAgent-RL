@@ -34,6 +34,8 @@ def assistant_examples(record, tokenizer, max_length=32768):
     validate_demo(record)
     examples = []
     for turn in record["turns"]:
+        if turn.get("supervise") is False:
+            continue  # Keep the rejected Assistant in later context, never as a target.
         index = turn["assistant_index"]
         history = record["messages"][:index]
         message = record["messages"][index]

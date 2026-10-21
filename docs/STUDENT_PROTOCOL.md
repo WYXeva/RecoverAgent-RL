@@ -27,6 +27,8 @@ session.run(generate)  # backend callable；不是本轮启动训练/模型的�
 
 ## 证据与验证边界
 
+v0.10可选 `answer_guard=True`，与 execution_v5 的系统契约和公开任务JSON一起传入，复用Teacher的单值格式检查器。被拒绝的完成不发送给AppWorld，收到明确harness消息；下一次模型回复是唯一同值纠正机会，预算不增加。无此开关的旧协议行为不变。拒绝回合在Base-SFT中只作masked上下文。详细启用条件、透传范围和统计见 `docs/ANSWER_GUARD.md`。
+
 本地 session 保存 requests、responses、逐工具 dispatches、完整回合 messages/schema/hash 和已知/未知 token 预留。工具返回作为下一次输入；不添加 evaluator/隐藏标签。当前没有行为 log probabilities，也不与 P0–P2 checkpoint 格式混用，`rl_eligible=false`，不能直接用于在线 GRPO。
 
 `tests/test_student_batch.py` 使用软件替身，验证批量合法性、同批新工具拒绝、下一次使用真实模拟结果、A 固定工具、输入/身份/截断拒绝及中途异常。真实 Qwen tokenizer 在新6条和旧4条成功数据上检查所有 Assistant 目标；`scripts/probe_student_batch.py` 另用真实 AppWorld 工具和真实 tokenizer、**脚本生成的调用**验证调度/消息/工具切换。探针无模型请求，不计入 Teacher 示范或 Student 成功率，也不执行任务验证器。详细结果以阶段报告为准。

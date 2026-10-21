@@ -16,6 +16,7 @@ from .base_sft import MODEL, REVISION, TEMPLATE_SHA256
 from .io import canonical, digest, write_json
 from .teacher_history import validate_history
 from .tool_modes import MODES, execute_with_mode
+from .answer_guard import AnswerGuard, RULES as ANSWER_RULES
 
 
 def _object(pairs):
@@ -112,6 +113,7 @@ class StudentSession:
         seed=42,
         temperature=0.8,
         top_p=0.95,
+        answer_guard=False,
     ):
         if (
             hashlib.sha256(tokenizer.chat_template.encode()).hexdigest()
@@ -139,6 +141,17 @@ class StudentSession:
         ):
             raise ValueError("Non-public or altered initial Student schema")
         self.adapter, self.tokenizer = adapter, tokenizer
+        self.answer_guard = None
+        if answer_guard:
+            if (
+                len(messages) < 2
+                or messages[0]["role"] != "system"
+                or ANSWER_RULES not in messages[0]["content"]
+            ):
+                raise ValueError("Student answer guard must be declared in the prompt")
+            self.answer_guard = AnswerGuard(
+                json.loads(messages[1]["content"])["instruction"]
+            )
         self.messages, self.tools = copy.deepcopy(messages), copy.deepcopy(tools)
         self.tool_mode = tool_mode
         self.identity = {
@@ -166,6 +179,8 @@ class StudentSession:
             "unknown_generation_reservation": 0,
         }
         self.events, self.stopped, self.termination = [], False, None
+        if self.answer_guard:
+            self.usage.update(tool_requests=0, harness_rejections=0)
 
     def build_request(self):
         if self.stopped:
@@ -270,15 +285,35 @@ class StudentSession:
                 ):
                     raise ValueError("Completion must be last")
             self.messages.append(message)
-            for call in calls:
+            guard = self.answer_guard
+            verdicts = guard.inspect(calls) if guard else [None] * len(calls)
+            if guard:
+                event.update(
+                    harness_verdicts=verdicts,
+                    supervise=not any(verdicts),
+                    appworld_dispatched_count=0,
+                )
+            for call, verdict in zip(calls, verdicts):
                 if time.monotonic() - self.started >= self.wall_seconds:
                     raise TimeoutError("Batch interrupted by wall-clock budget")
                 dispatch_started = True
-                self.usage["tool_calls"] += 1
                 f = call["function"]
-                result, self.tools = execute_with_mode(
-                    self.adapter, f["name"], f["arguments"], self.tools, self.tool_mode
-                )
+                if guard:
+                    self.usage["tool_requests"] += 1
+                if verdict is None:
+                    self.usage["tool_calls"] += 1
+                    result, self.tools = execute_with_mode(
+                        self.adapter,
+                        f["name"],
+                        f["arguments"],
+                        self.tools,
+                        self.tool_mode,
+                    )
+                    if guard:
+                        event["appworld_dispatched_count"] += 1
+                else:
+                    result = canonical(verdict)
+                    self.usage["harness_rejections"] += 1
                 observation = {
                     "role": "tool",
                     "tool_call_id": call["id"],
@@ -290,13 +325,17 @@ class StudentSession:
                 if self.output:
                     write_json(
                         self.output
-                        / "dispatches"
+                        / ("dispatches" if verdict is None else "harness_feedback")
                         / f"{name}_{event['dispatched_count']:03d}.json",
                         observation,
                     )
             validate_history(self.messages)
             event["status"] = "complete_boundary"
-            if not calls or self.adapter.world.task_completed():
+            if guard:
+                event["answer_guard"] = guard.summary()
+            if guard and guard.stopped:
+                self.stopped, self.termination = True, "answer_correction_exhausted"
+            elif not calls or self.adapter.world.task_completed():
                 self.stopped = True
                 self.termination = (
                     "completion_claim" if calls else "assistant_stop_without_tool"

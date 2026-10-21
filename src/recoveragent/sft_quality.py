@@ -61,10 +61,13 @@ def audit_samples(samples, tokenizer, output, max_length):
             # Diagnostic ceiling only; no sequence is clipped. Normal deployment
             # length is applied below and whole overlength trajectories are deferred.
             examples = assistant_examples(sample, tokenizer, max_length=2_000_000)
-            if not examples or len(examples) != len(sample["turns"]):
+            target_turns = [
+                t for t in sample["turns"] if t.get("supervise") is not False
+            ]
+            if not examples or len(examples) != len(target_turns):
                 raise ValueError("Missing Assistant targets")
             stats, previous, previous_schema = Counter(), None, None
-            for row, turn in zip(examples, sample["turns"]):
+            for row, turn in zip(examples, target_turns):
                 start, ids = row["target_start"], row["input_ids"]
                 if (
                     row["labels"][:start] != [-100] * start
@@ -130,6 +133,9 @@ def audit_samples(samples, tokenizer, output, max_length):
                 ):
                     raise ValueError("Padding leaked into loss")
             fits = not (stats["overlength_turns"] or stats["over_output_limit_turns"])
+            stats["format_rejected_context_only_turns"] = len(sample["turns"]) - len(
+                target_turns
+            )
             if fits:
                 for row in examples:
                     stream.write(json.dumps(row, ensure_ascii=False) + "\n")

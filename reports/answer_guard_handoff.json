@@ -1,0 +1,159 @@
+{
+  "status": "PASS",
+  "scope": "local copy rehearsal, no remote transfer",
+  "manifest_sha256": "9efed4033f06bc2705b8e742ac96f6ee9696d06e634d2eb0bf6b997e52684964",
+  "counts": {
+    "attempted": 20,
+    "valid": 20,
+    "infrastructure_errors": 0,
+    "official_successes": 16,
+    "accepted": 16,
+    "unique_tasks": 10,
+    "success_per_attempt": 0.8,
+    "success_per_valid": 0.8
+  },
+  "local_private_package": "runs/v5_ab_20261021_a/clean_dataset",
+  "local_private_copy": "data/answer_guard_transfer_rehearsal_20261021_a",
+  "all_20_llm_views": [
+    {
+      "task_id": "229360a_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_0d338ebba4ad",
+      "local_view": "outputs/v5_ab_20261021_a/229360a_3_api_predictor.md",
+      "view_sha256": "e33c0c267ac45bfbebe4a19c1ac8c85358968f3a48ceef70bba19b3d3821c6ce"
+    },
+    {
+      "task_id": "afc0fce_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_0ed287d3a330",
+      "local_view": "outputs/v5_ab_20261021_a/afc0fce_3_api_predictor.md",
+      "view_sha256": "2e6df76a9d554af3f2ac0fc077e87a2a6c8085ba1df91aaa0bb366ef32f6f139"
+    },
+    {
+      "task_id": "e7a10f8_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_1ac4e2c703f9",
+      "local_view": "outputs/v5_ab_20261021_a/e7a10f8_1_dynamic_discovery.md",
+      "view_sha256": "3030344a83421adfa2b833db452defa63ec73aab19a126daf95b54857f4307c3"
+    },
+    {
+      "task_id": "771d8fc_2",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_28d2f7ccd807",
+      "local_view": "outputs/v5_ab_20261021_a/771d8fc_2_api_predictor.md",
+      "view_sha256": "b07d16626a775f1043236d753001238bd04202df40206cb73400f3bf622dfafd"
+    },
+    {
+      "task_id": "afc0fce_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_2aab24fd9b00",
+      "local_view": "outputs/v5_ab_20261021_a/afc0fce_1_dynamic_discovery.md",
+      "view_sha256": "ece5522d8b6d10495d0876b68ec6512488b05e281c687f5d5db4e5a8d99cb350"
+    },
+    {
+      "task_id": "e85d92a_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_3d77d88f8150",
+      "local_view": "outputs/v5_ab_20261021_a/e85d92a_3_dynamic_discovery.md",
+      "view_sha256": "50983a895db73c3cfc08abc07e4a0a79703e023f4473abc1291f1b88d19b87ae"
+    },
+    {
+      "task_id": "e7a10f8_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_4980a6ecd8d5",
+      "local_view": "outputs/v5_ab_20261021_a/e7a10f8_1_api_predictor.md",
+      "view_sha256": "cc514ffea7e097217d0c544dc66e8c54e2a1e0e2197f93fadaaa0be070f71685"
+    },
+    {
+      "task_id": "771d8fc_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_517bfe12115d",
+      "local_view": "outputs/v5_ab_20261021_a/771d8fc_3_dynamic_discovery.md",
+      "view_sha256": "2b158d61e6013afe85de4f578d7bc24ea2c02d6e83e3f64c8b71a08f131f979a"
+    },
+    {
+      "task_id": "229360a_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_5537cd49582b",
+      "local_view": "outputs/v5_ab_20261021_a/229360a_3_dynamic_discovery.md",
+      "view_sha256": "f2ed6feeede18b7f588aad2c5c75bc3ab781c95c2e8c2a88a334e292aa79c547"
+    },
+    {
+      "task_id": "e85d92a_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_5ef41114d260",
+      "local_view": "outputs/v5_ab_20261021_a/e85d92a_1_api_predictor.md",
+      "view_sha256": "e91962dbf34802f3da817b0a3884dfe1f000fcfec236b94776ae09c8d1136f72"
+    },
+    {
+      "task_id": "e85d92a_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_69b95e6245e4",
+      "local_view": "outputs/v5_ab_20261021_a/e85d92a_3_api_predictor.md",
+      "view_sha256": "cc05232f993b777ac3170299f5c85a13d35001c971f828954f801bd86f0e0579"
+    },
+    {
+      "task_id": "afc0fce_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_7f0a7fa92737",
+      "local_view": "outputs/v5_ab_20261021_a/afc0fce_3_dynamic_discovery.md",
+      "view_sha256": "6b75ae062af43781331a555c2ec6f163db5625439746d317f76df0eef146d72f"
+    },
+    {
+      "task_id": "e7a10f8_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_7f4dee18ca09",
+      "local_view": "outputs/v5_ab_20261021_a/e7a10f8_3_api_predictor.md",
+      "view_sha256": "5a126a190849afd958c4c3230f9d43e9b75dfa1de0f906a1c2c4c0a14dd129fa"
+    },
+    {
+      "task_id": "771d8fc_3",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_9b5d680eaec5",
+      "local_view": "outputs/v5_ab_20261021_a/771d8fc_3_api_predictor.md",
+      "view_sha256": "fd2d3b59c884bb1686b88913a277e29961390eb6b1acd5e54b3d63ac211047d9"
+    },
+    {
+      "task_id": "e85d92a_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_9cc36e7819aa",
+      "local_view": "outputs/v5_ab_20261021_a/e85d92a_1_dynamic_discovery.md",
+      "view_sha256": "d03364ba89d52a40867eb82adac4e09d037c6c9356606af0321eed0215fbc603"
+    },
+    {
+      "task_id": "e7a10f8_3",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_a9149c658476",
+      "local_view": "outputs/v5_ab_20261021_a/e7a10f8_3_dynamic_discovery.md",
+      "view_sha256": "6687b260f7f39f7524032c186045211677d01dc7745f47d942bf288b57edd77b"
+    },
+    {
+      "task_id": "229360a_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_bc602eb5e516",
+      "local_view": "outputs/v5_ab_20261021_a/229360a_1_api_predictor.md",
+      "view_sha256": "18135c526bd864328c1cdde46e39a13703a13553999c4d53315a46a01cb2e76e"
+    },
+    {
+      "task_id": "229360a_1",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_d2af9ccd7419",
+      "local_view": "outputs/v5_ab_20261021_a/229360a_1_dynamic_discovery.md",
+      "view_sha256": "ef415f11f2bed5d324aff9794c70f06a6388dc5569b746e0d95748677cc581c4"
+    },
+    {
+      "task_id": "771d8fc_2",
+      "tool_mode": "dynamic_discovery",
+      "trajectory_id": "teacher_ed68529040cd",
+      "local_view": "outputs/v5_ab_20261021_a/771d8fc_2_dynamic_discovery.md",
+      "view_sha256": "878f334198f7e987828e22e7341577f2c1935f47bc29750872940ae9d5c59b4f"
+    },
+    {
+      "task_id": "afc0fce_1",
+      "tool_mode": "api_predictor",
+      "trajectory_id": "teacher_fb74d8b1b6b1",
+      "local_view": "outputs/v5_ab_20261021_a/afc0fce_1_api_predictor.md",
+      "view_sha256": "cb39cf20f89f64bfcf0310e87baa632fd7fc11216a543f93ad5b2f5d417ad50a"
+    }
+  ]
+}

@@ -14,7 +14,8 @@ from jsonschema import ValidationError
 from .adapter import AppWorldAdapter, call_code
 from .io import digest, read_json, write_json
 from .runner import now
-from .execution_v4 import ACTOR_PROMPTS, actor_system
+from .execution_v5 import ACTOR_PROMPTS, actor_system
+from .answer_guard import AnswerGuard, PROTOCOL as ANSWER_PROTOCOL
 from .validated_selection import initialize_tools
 from .teacher_history import capture_terminal, validate_history
 from .tool_modes import (
@@ -34,7 +35,8 @@ from .teacher import (
 
 def validate_config(config):
     if (
-        config["project_version"] not in {"0.4", "0.5", "0.6", "0.7", "0.8", "0.9"}
+        config["project_version"]
+        not in {"0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}
         or config["training_enabled"] is not False
     ):
         raise ValueError("Only versioned P3-A collection is allowed")
@@ -55,11 +57,17 @@ def validate_config(config):
     if selection not in {PROTOCOL, LEGACY_PROTOCOL}:
         raise ValueError("Unknown selection protocol")
     if selection == PROTOCOL and (
-        config["project_version"] != "0.9"
-        or config.get("actor_prompt_variant") != "execution_v4"
+        (config["project_version"], config.get("actor_prompt_variant"))
+        not in {("0.9", "execution_v4"), ("0.10", "execution_v5")}
         or config.get("predictor_prompt_variant") != "dependency_examples_v2"
     ):
         raise ValueError("Validated selection requires the v0.9 prompt protocol")
+    if config.get("answer_guard_protocol") not in {None, ANSWER_PROTOCOL}:
+        raise ValueError("Unknown answer guard protocol")
+    if (config.get("actor_prompt_variant") == "execution_v5") != (
+        config.get("answer_guard_protocol") == ANSWER_PROTOCOL
+    ) or (config.get("answer_guard_protocol") and config["project_version"] != "0.10"):
+        raise ValueError("v5 requires the declared v0.10 answer guard")
     limits = config["limits"]
     caps = {
         "max_tasks": 2,
@@ -78,8 +86,8 @@ def validate_config(config):
     if profile == "scenario_expansion_v1":
         from .protocol_lock import verify_lock
 
-        if config["project_version"] not in {"0.8", "0.9"}:
-            raise ValueError("Expanded collection requires v0.8 or v0.9")
+        if config["project_version"] not in {"0.8", "0.9", "0.10"}:
+            raise ValueError("Expanded collection requires v0.8 or later")
         verify_lock(config)
         caps.update(
             max_tasks=20,
@@ -141,6 +149,14 @@ def interrupted_usage(directory, teacher):
         "billed_cost": None,
         "currency": teacher["pricing"]["currency"],
     }
+    feedback = list((directory / "harness_feedback").glob("*.json"))
+    worker_path = directory.parent / (directory.name + ".config.json")
+    guarded = worker_path.exists() and read_json(worker_path).get(
+        "answer_guard_protocol"
+    )
+    if feedback or guarded:
+        totals["harness_rejections"] = len(feedback)
+        totals["tool_requests"] = totals["tool_calls"] + len(feedback)
     for path in sorted((directory / "requests").glob("*.reservation.json")):
         totals["provider_requests"] += 1
         reservation = read_json(path)
@@ -207,7 +223,7 @@ def run_teacher_episode(config, task_id, output, credentials):
         "usage": usage,
         "constraint_check": "official_terminal_checks_only; other safety NOT_MEASURED",
     }
-    adapter = None
+    adapter, guard = None, None
     if "selection_protocol" in config:
         trajectory["selection_protocol"] = config["selection_protocol"]
     messages = trajectory["messages"]
@@ -240,6 +256,10 @@ def run_teacher_episode(config, task_id, output, credentials):
                 },
             ]
         )
+        if config.get("answer_guard_protocol"):
+            guard = AnswerGuard(adapter.public_task()["instruction"])
+            trajectory["answer_guard"] = guard.summary()
+            usage.update(tool_requests=0, harness_rejections=0)
         tools, prediction_valid = initialize_tools(
             adapter, policy, config, output, usage, trajectory
         )
@@ -373,17 +393,40 @@ def run_teacher_episode(config, task_id, output, credentials):
                 termination = "invalid_completion"
                 break
             messages.append(message)
+            verdicts = guard.inspect(calls) if guard else [None] * len(calls)
+            if guard:
+                event.update(
+                    harness_verdicts=verdicts,
+                    supervise=not any(verdicts),
+                    appworld_dispatched_count=0,
+                )
             if not calls:
-                termination = "assistant_stop_without_tool"
+                termination = (
+                    "answer_correction_exhausted"
+                    if guard and guard.stopped
+                    else "assistant_stop_without_tool"
+                )
+                if guard:
+                    event.update(tool_results=[], dispatched_count=0)
                 break
             event["tool_results"] = []
-            for call in calls:
+            for call, verdict in zip(calls, verdicts):
                 name = call["function"]["name"]
                 arguments = call["function"]["arguments"]
-                usage["tool_calls"] += 1
-                result, tools = execute_with_mode(
-                    adapter, name, arguments, tools, trajectory["tool_mode"]
-                )
+                if guard:
+                    usage["tool_requests"] += 1
+                if verdict is None:
+                    usage["tool_calls"] += 1
+                    result, tools = execute_with_mode(
+                        adapter, name, arguments, tools, trajectory["tool_mode"]
+                    )
+                    if guard:
+                        event["appworld_dispatched_count"] += 1
+                else:
+                    from .io import canonical
+
+                    result = canonical(verdict)
+                    usage["harness_rejections"] += 1
                 observation = {
                     "role": "tool",
                     "tool_call_id": call["id"],
@@ -395,7 +438,7 @@ def run_teacher_episode(config, task_id, output, credentials):
                 # Preserve completed calls even if a later batch call is interrupted.
                 write_json(
                     output
-                    / "dispatches"
+                    / ("dispatches" if verdict is None else "harness_feedback")
                     / f"{request_id}_{len(event['tool_results']):03d}.json",
                     observation,
                 )
@@ -405,10 +448,15 @@ def run_teacher_episode(config, task_id, output, credentials):
                 output / "turns" / f"{request_id}.json",
                 {"event": event, "messages": messages},
             )
+            if guard and guard.stopped:
+                termination = "answer_correction_exhausted"
+                break
             if adapter.world.task_completed():
                 termination = "completion_claim"
                 break
         validate_history(messages)
+        if guard:
+            trajectory["answer_guard"] = guard.summary()
         trajectory["terminal_checkpoint_id"] = capture_terminal(
             adapter,
             output / "terminal",
@@ -445,6 +493,8 @@ def run_teacher_episode(config, task_id, output, credentials):
             error_type=type(exc).__name__, termination_reason="infrastructure_error"
         )
     finally:
+        if guard is not None:
+            trajectory["answer_guard"] = guard.summary()
         if adapter is not None:
             try:
                 adapter.close()

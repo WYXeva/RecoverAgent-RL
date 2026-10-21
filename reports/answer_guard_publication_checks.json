@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "candidate_files_checked": 38,
+  "configured_credential_values_absent": true,
+  "raw_data_weights_and_private_config_excluded": true,
+  "files_under_1MB": true,
+  "source_lock_hash": "e9825c7c0fa680105c3d07809f0c2ce748c7b6c08776d99ad46fedd6669e2263",
+  "clone_tests": "142 passed",
+  "clone_ruff": "PASS; 60 files formatted",
+  "diff_whitespace": "PASS"
+}

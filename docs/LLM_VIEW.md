@@ -4,6 +4,8 @@
 
 这里能看到实际发送的 API 请求、原始模型响应及真实工具反馈。供应商内部如何序列化 prompt、使用哪些 token IDs，以及未记录的内部思考不可见。本轮 Teacher 是 non-thinking。
 
+v0.10新增的格式拦截也会显示：`source=recoveragent_harness`、`appworld_executed=false`属于Actor确实看到的harness反馈，不能当作官方工具返回或隐藏验证信息。控制侧另列`harness_verdicts`、`appworld_dispatched_count`、`supervise`。同一批次包含真实工具和harness反馈时，查看器按原顺序保留全部结果；拒绝的原始Assistant不改写。契约见`docs/ANSWER_GUARD.md`。
+
 ## 使用
 
 在项目根目录运行，Python 标准库即可，无需启动 GPU 或 AppWorld：

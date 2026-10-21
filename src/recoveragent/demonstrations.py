@@ -22,6 +22,7 @@ from .io import (
 from .teacher import normalize_message, response_usage, usage_cost
 from .teacher_history import validate_history
 from .validated_selection import validate_predictor_receipts
+from .answer_guard import validate_guard_record
 
 FORMAT = "clean-teacher-normal-v1"
 FILTER = "official-success-format-loop-v1"
@@ -74,6 +75,7 @@ def validate_demo(record):
             result = messages[index + 1 + offset]
             if result.get("name") != function["name"]:
                 raise ValueError("Tool result name mismatch")
+    validate_guard_record(record)
     return record
 
 
@@ -83,6 +85,7 @@ def validate_receipts(trajectory, directory):
     totals = {"prompt_tokens": 0, "generated_tokens": 0, "cached_prompt_tokens": 0}
     cost, calls = 0.0, 0
     predictor = validate_predictor_receipts(trajectory, directory)
+    validate_guard_record(trajectory)
     if predictor:
         totals.update(predictor["usage"])
         cost += predictor["usage_priced_cost"]
@@ -127,7 +130,7 @@ def validate_receipts(trajectory, directory):
                 or messages[index + 1 : index + 1 + count] != turn["tool_results"]
             ):
                 raise ValueError("Batch observation/count mismatch")
-            calls += count
+            calls += turn.get("appworld_dispatched_count", count)
         elif turn.get("dispatched"):
             calls += 1
             if messages[index + 1]["content"] != turn["tool_result"]:
@@ -143,6 +146,16 @@ def validate_receipts(trajectory, directory):
         or abs(cost - trajectory["usage"]["usage_priced_cost"]) > 1e-9
     ):
         raise ValueError("Call/cost accounting mismatch")
+    if "answer_guard" in trajectory:
+        rejections = sum(
+            sum(v is not None for v in t["harness_verdicts"])
+            for t in trajectory["turns"]
+        )
+        if (
+            trajectory["usage"].get("harness_rejections") != rejections
+            or trajectory["usage"].get("tool_requests") != calls + rejections
+        ):
+            raise ValueError("Harness/real tool accounting mismatch")
 
 
 def filter_attempt(trajectory, evaluation, train_ids, limits, directory):
@@ -242,6 +255,7 @@ def as_demo(trajectory):
         "actor_prompt_variant",
         "predictor_prompt_variant",
         "selection_protocol",
+        "answer_guard",
     ):
         if key in trajectory:
             record[key] = trajectory[key]
@@ -249,6 +263,10 @@ def as_demo(trajectory):
         {k: copy.deepcopy(t[k]) for k in ("assistant_index", "history_hash", "tools")}
         for t in trajectory["turns"]
     ]
+    if "answer_guard" in trajectory:
+        for saved, source in zip(record["turns"], trajectory["turns"]):
+            for key in ("harness_verdicts", "supervise", "appworld_dispatched_count"):
+                saved[key] = copy.deepcopy(source[key])
     return record
 
 
@@ -324,6 +342,8 @@ def export_dataset(run, output, train_ids, limits, additional_runs=()):
         "unknown_cost_reservation",
         "unknown_generation_reservation",
     )
+    if config.get("answer_guard_protocol"):
+        known_fields += ("tool_requests", "harness_rejections")
     costs = {k: sum(a["usage"].get(k, 0) for a in attempts) for k in known_fields}
     costs.update(
         billed_cost=None if attempts else 0,
@@ -492,7 +512,11 @@ def verify_dataset(directory, train_ids, expected_manifest_sha256=None):
         "usage_priced_cost",
         "unknown_cost_reservation",
         "unknown_generation_reservation",
+        "tool_requests",
+        "harness_rejections",
     ):
+        if key not in manifest["costs"]:
+            continue
         if sum(a["usage"].get(key, 0) for a in attempts) != manifest["costs"][key]:
             raise ValueError("Dataset cost totals cannot be reproduced")
     if (

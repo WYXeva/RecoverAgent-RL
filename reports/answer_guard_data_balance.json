@@ -1,0 +1,31 @@
+{
+  "families": {
+    "229360a": {
+      "demonstrations": 2,
+      "examples": 22,
+      "supervised_tokens": 10287
+    },
+    "e7a10f8": {
+      "demonstrations": 4,
+      "examples": 31,
+      "supervised_tokens": 6284
+    },
+    "771d8fc": {
+      "demonstrations": 4,
+      "examples": 34,
+      "supervised_tokens": 15339
+    },
+    "afc0fce": {
+      "demonstrations": 2,
+      "examples": 34,
+      "supervised_tokens": 11208
+    },
+    "e85d92a": {
+      "demonstrations": 4,
+      "examples": 22,
+      "supervised_tokens": 1008
+    }
+  },
+  "weights_applied": false,
+  "split_by_scenario_prepared": false
+}

@@ -66,6 +66,8 @@ def _names(tools):
 
 
 def _feedback(directory, request_id, event, trajectory):
+    if "harness_verdicts" in event and "tool_results" in event:
+        return event["tool_results"], "recorded_event_with_explicit_harness_feedback"
     dispatches = sorted((directory / "dispatches").glob(f"{request_id}_*.json"))
     if dispatches:
         return [read_json(path) for path in dispatches], "dispatches"
@@ -223,6 +225,12 @@ def build_view(path, turn=None, all_turns=False):
             for key in ("format_error", "validation_error")
             if key in event
         }
+        if "harness_verdicts" in event:
+            diagnostics.update(
+                harness_verdicts=event["harness_verdicts"],
+                appworld_dispatched_count=event["appworld_dispatched_count"],
+                supervise=event["supervise"],
+            )
         summary = {
             "turn": int(request_id),
             "message_count": len(request["messages"]),

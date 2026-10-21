@@ -1,0 +1,88 @@
+{
+  "format": "train-scenario-plan-v1",
+  "split": "train",
+  "settings": {
+    "strategy": "scenario_balanced",
+    "seed": 2026102105,
+    "num_tasks": 10,
+    "num_scenarios": 5,
+    "exclude_scenarios": [
+      "82e2fac",
+      "29caf6f",
+      "22cc237",
+      "b0a8eae",
+      "287e338",
+      "34d9492",
+      "2a163ab",
+      "ccb4494",
+      "6ea6792",
+      "e3d6c94",
+      "6104387",
+      "76f2c72"
+    ]
+  },
+  "pool_sha256": "77dd8bbd52736da153134f7c4c34c0bd02c8baaff65c3165938c2decb8e3b41d",
+  "pool_tasks": 90,
+  "pool_scenarios": 30,
+  "tasks": [
+    "771d8fc_2",
+    "e7a10f8_3",
+    "afc0fce_3",
+    "e85d92a_3",
+    "229360a_3",
+    "771d8fc_3",
+    "e7a10f8_1",
+    "afc0fce_1",
+    "e85d92a_1",
+    "229360a_1"
+  ],
+  "rows": [
+    {
+      "task_id": "771d8fc_2",
+      "scenario_id": "771d8fc"
+    },
+    {
+      "task_id": "e7a10f8_3",
+      "scenario_id": "e7a10f8"
+    },
+    {
+      "task_id": "afc0fce_3",
+      "scenario_id": "afc0fce"
+    },
+    {
+      "task_id": "e85d92a_3",
+      "scenario_id": "e85d92a"
+    },
+    {
+      "task_id": "229360a_3",
+      "scenario_id": "229360a"
+    },
+    {
+      "task_id": "771d8fc_3",
+      "scenario_id": "771d8fc"
+    },
+    {
+      "task_id": "e7a10f8_1",
+      "scenario_id": "e7a10f8"
+    },
+    {
+      "task_id": "afc0fce_1",
+      "scenario_id": "afc0fce"
+    },
+    {
+      "task_id": "e85d92a_1",
+      "scenario_id": "e85d92a"
+    },
+    {
+      "task_id": "229360a_1",
+      "scenario_id": "229360a"
+    }
+  ],
+  "num_scenarios": 5,
+  "selection_inputs": [
+    "official train task IDs",
+    "public task_id_to_generator_id"
+  ],
+  "hidden_labels_or_results_used": false,
+  "plan_id": "1111739cf68fb780c66b884afafef8c33611d70eca2abf4ff54ad07afe78b5bf"
+}

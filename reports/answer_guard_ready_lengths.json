@@ -1,0 +1,7 @@
+{
+  "examples": 143,
+  "max_sequence": 30474,
+  "max_prefix": 30361,
+  "max_target": 2703,
+  "supervised_tokens": 44126
+}

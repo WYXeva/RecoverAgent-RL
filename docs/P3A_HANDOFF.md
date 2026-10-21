@@ -1,6 +1,6 @@
 # P3-A 执行与远程数据交接
 
-本文件记录 v0.4 的原始数据交接，既有包及哈希保持原样；v0.8 历史扩样见 `docs/TEACHER_EXPANSION.md`；当前 v0.9 配对采集与新包哈希见 `docs/EXECUTION_V4.md` / `reports/v4_ab_report.md`，双工具模式见 `docs/TOOL_MODES.md`。正式 Student 为 Qwen/Qwen3-4B；本文件没有训练入口。初次实际结果见 `reports/p3a_report.md`：当时得到 1 条官方成功 Teacher 示范和 8 条 4B Assistant 监督格式样本；后续数据与状态见 `docs/STATUS.md`，没有启动训练。下文旧试点的数量预算属于历史，不用于新扩样。
+本文件记录 v0.4 的原始数据交接，既有包及哈希保持原样；v0.8 历史扩样见 `docs/TEACHER_EXPANSION.md`；v0.9 配对采集见 `reports/v4_ab_report.md`，当前v0.10格式检查与新包哈希见 `docs/ANSWER_GUARD.md` / `reports/answer_guard_report.md`，双工具模式见 `docs/TOOL_MODES.md`。正式 Student 为 Qwen/Qwen3-4B；本文件没有训练入口。初次实际结果见 `reports/p3a_report.md`：当时得到 1 条官方成功 Teacher 示范和 8 条 4B Assistant 监督格式样本；后续数据与状态见 `docs/STATUS.md`，没有启动训练。下文旧试点的数量预算属于历史，不用于新扩样。
 
 ## Teacher 配置与正常任务采集
 

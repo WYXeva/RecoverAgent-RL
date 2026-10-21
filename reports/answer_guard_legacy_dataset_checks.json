@@ -1,0 +1,66 @@
+{
+  "status": "PASS",
+  "datasets": [
+    {
+      "run_id": "structured_prompts_20261021_a",
+      "manifest_sha256": "6ce2fff2a2163e2a408a16ec4bd134161a387a191027bee02376ec070904be1e",
+      "counts": {
+        "attempted": 4,
+        "valid": 4,
+        "infrastructure_errors": 0,
+        "official_successes": 4,
+        "accepted": 4,
+        "unique_tasks": 2,
+        "success_per_attempt": 1.0,
+        "success_per_valid": 1.0
+      },
+      "read_only_verify": "PASS"
+    },
+    {
+      "run_id": "scenario_expansion_20261021_a",
+      "manifest_sha256": "ca7e0d3e74567818f21d0a903b49e8a6291829e985fc5818df5cbe82f9d84707",
+      "counts": {
+        "attempted": 12,
+        "valid": 12,
+        "infrastructure_errors": 0,
+        "official_successes": 6,
+        "accepted": 6,
+        "unique_tasks": 6,
+        "success_per_attempt": 0.5,
+        "success_per_valid": 0.5
+      },
+      "read_only_verify": "PASS"
+    },
+    {
+      "run_id": "a_failure_retry_20261021_a",
+      "manifest_sha256": "2e30bc2e55689e0a0d474dfd76ed23f73492deb1cc0f08c1c5f0428021a2519d",
+      "counts": {
+        "attempted": 6,
+        "valid": 6,
+        "infrastructure_errors": 0,
+        "official_successes": 2,
+        "accepted": 2,
+        "unique_tasks": 2,
+        "success_per_attempt": 0.3333333333333333,
+        "success_per_valid": 0.3333333333333333
+      },
+      "read_only_verify": "PASS"
+    },
+    {
+      "run_id": "v4_ab_20261021_a",
+      "manifest_sha256": "336bb99c268fe777e4f61c0e2d25ed23c94271f6a43eafa5ea5c30311b08319a",
+      "counts": {
+        "attempted": 20,
+        "valid": 20,
+        "infrastructure_errors": 0,
+        "official_successes": 14,
+        "accepted": 14,
+        "unique_tasks": 8,
+        "success_per_attempt": 0.7,
+        "success_per_valid": 0.7
+      },
+      "read_only_verify": "PASS"
+    }
+  ],
+  "read_only": true
+}

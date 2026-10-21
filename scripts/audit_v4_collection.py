@@ -17,7 +17,7 @@ from recoveragent.validated_selection import dependency_catalogue
 from scripts.analyze_failure_retry import check_receipts_including_rejected_tail
 
 
-def audit(run):
+def audit(run, system_factory=actor_system):
     from appworld.task import Task
 
     run = Path(run)
@@ -66,7 +66,7 @@ def audit(run):
             payload = read_json(request)
             if "tools" in payload:
                 if (
-                    payload["messages"][0]["content"] != actor_system(worker)
+                    payload["messages"][0]["content"] != system_factory(worker)
                     or json.loads(payload["messages"][1]["content"]) != expected_task
                 ):
                     raise ValueError(

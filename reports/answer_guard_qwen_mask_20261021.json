@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "scope": "real pinned Qwen tokenizer; synthetic Teacher/world/evaluation fixture, not training data",
+  "model": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "fixture_hash": "901a25eff770b8237063c1f2f493addc59f2a7886ff986c455e12015a8a3e0c1",
+  "input_tokens": 2011,
+  "supervised_tokens": 26,
+  "context_only_rejected_turns": 1,
+  "supervised_corrected_turns": 1,
+  "model_requests": 0,
+  "training_started": false,
+  "weights_loaded": false
+}
