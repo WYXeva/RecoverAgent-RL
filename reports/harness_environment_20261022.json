@@ -1,0 +1,16 @@
+{
+  "python": "3.14.4",
+  "sqlalchemy": "2.0.52",
+  "sqlmodel": "0.0.48",
+  "uri_roundtrip": true,
+  "greenlet": "3.2.4",
+  "appworld": "0.2.0.dev0",
+  "appworld_source_shared_read_only": true,
+  "pip_check": "No broken requirements found.",
+  "original_environment_unchanged": true,
+  "gpu": "NVIDIA GeForce RTX 5050",
+  "gpu_memory_mib": 8151,
+  "memory_total_gib": 15,
+  "student_weights_loaded": false,
+  "training_steps": 0
+}

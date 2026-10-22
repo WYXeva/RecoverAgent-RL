@@ -66,6 +66,13 @@ def _names(tools):
 
 
 def _feedback(directory, request_id, event, trajectory):
+    if "protocol_rejection" in event:
+        return [event["feedback"]], "explicit_harness_rejection_no_tools_executed"
+    if "harness_notice" in event:
+        return [
+            *event["tool_results"],
+            event["harness_notice"],
+        ], "real_results_and_explicit_harness_notice"
     if "harness_verdicts" in event and "tool_results" in event:
         return event["tool_results"], "recorded_event_with_explicit_harness_feedback"
     dispatches = sorted((directory / "dispatches").glob(f"{request_id}_*.json"))
@@ -222,7 +229,12 @@ def build_view(path, turn=None, all_turns=False):
             known_generated += generated
         diagnostics = {
             key: event[key]
-            for key in ("format_error", "validation_error")
+            for key in (
+                "format_error",
+                "validation_error",
+                "protocol_rejection",
+                "harness_notice",
+            )
             if key in event
         }
         if "harness_verdicts" in event:
@@ -242,7 +254,10 @@ def build_view(path, turn=None, all_turns=False):
             "known_cumulative_generated_tokens": known_generated,
             "finish_reason": choice.get("finish_reason", "NO_RESPONSE_RECEIPT"),
             "requested_calls": len(calls),
-            "recorded_tool_results": len(feedback),
+            "recorded_tool_results": sum(m.get("role") == "tool" for m in feedback),
+            "harness_feedback_messages": int("protocol_rejection" in event)
+            + int("harness_notice" in event)
+            + sum(v is not None for v in event.get("harness_verdicts", [])),
             "receipt_warnings": warnings,
             "controller_diagnostics": diagnostics,
         }
@@ -340,8 +355,8 @@ def render_markdown(view):
         "## 控制侧信息（LLM 没有收到）\n",
         _json_block(view["controller_only"]),
         "## 回合概览（全轨迹诊断信息）\n",
-        "| 回合 | 输入消息 | 可见工具 | 请求输出上限 | 实际输出 | 请求调用/结果 | finish_reason |\n"
-        "| --- | --- | --- | --- | --- | --- | --- |\n",
+        "| 回合 | 输入消息 | 可见工具 | 请求输出上限 | 实际输出 | 请求调用/结果 | harness反馈 | finish_reason |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- |\n",
     ]
     for row in view["overview"]:
         cells = [
@@ -351,6 +366,7 @@ def render_markdown(view):
             row["requested_max_tokens"],
             row["generated_tokens"],
             f"{row['requested_calls']}/{row['recorded_tool_results']}",
+            row["harness_feedback_messages"],
             row["finish_reason"],
         ]
         lines.append(
@@ -399,7 +415,7 @@ def render_markdown(view):
                 _json_block(row["llm_input"]["tools"]),
                 "### 模型原始响应（保留截断和非法参数，不做修复）\n",
                 _json_block(row["response_receipt"]),
-                "### 响应之后的真实工具反馈（不是本轮输入）\n",
+                "### 响应之后的反馈（工具返回与显式 harness 消息；不是本轮输入）\n",
                 _json_block(
                     {
                         "source": row["feedback_source"],

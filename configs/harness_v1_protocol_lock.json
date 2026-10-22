@@ -1,0 +1,58 @@
+{
+  "baseline_commit": "473693c3b768940679a2367d149fd54293e27496",
+  "actor_prompt_variant": "execution_v5",
+  "predictor_prompt_variant": "dependency_examples_v2",
+  "selection_protocol": "api_predictor_validated_v1",
+  "answer_guard_protocol": "numeric_answer_self_correction_v1",
+  "harness_protocol": "public_protocol_correction_v1",
+  "environment_profile": "appworld_sqlalchemy20_v1",
+  "parent_lock": "configs/execution_v5_protocol_lock.json",
+  "parent_lock_sha256": "374be26aa415b9556b8393b8d018956ed00209a0901c6671350e1a2045d0e425",
+  "files": {
+    "requirements/appworld-harness.lock.txt": "aab961a4e70cbd9c6db8bf7d2900c7e833314dad69d334cbcaaab983dc8125bc",
+    "scripts/collect_base_sft.py": "70e75f77f51037a18a46a96a9b284a58ba6d8908507eb8b3b2d873370917f7d9",
+    "src/recoveragent/adapter.py": "5720c819260d2f066acc1003b733f38e8218952efe33cbf40f7ce17b5b3d60eb",
+    "src/recoveragent/answer_guard.py": "a675ff8d51e90502619ae694b3b9a59c0ce46acb4fde9dafe3b0c64266fb04f3",
+    "src/recoveragent/base_sft.py": "66393c8f4defba16cc7b0e70563c43f95877e9f5b44557e9d7ff7ed94e71b95e",
+    "src/recoveragent/demonstrations.py": "f37db53c161c181372715deaa60f47a3a0ccdc6c9c4b8c7fe59e8e0f8d5f66ee",
+    "src/recoveragent/evaluation.py": "3f77a0392778d0689667560321d13b745825498de594e676127f654cd532259a",
+    "src/recoveragent/execution_v4.py": "38c6cd1cbe1e0774a9996180667499704c0825fc37068e6633243e7d45030fbd",
+    "src/recoveragent/execution_v5.py": "203eb593033062182ef1acaa3a3108598158c659f391f480db783d9de616a25b",
+    "src/recoveragent/harness.py": "634f7b0f0827034bbffd98b7a9bc0c7227657df56531254566625e0b8b4f8f4d",
+    "src/recoveragent/inspect_teacher.py": "ff36462be34cc0f16e4d00b49394049efc685e4b3e80ac0bf4709cf9f1e3ce14",
+    "src/recoveragent/p3a.py": "8e66bb8efab609ce711eba05e5fd51adf54e82566e5a9cf8c6fcddb08af0cea1",
+    "src/recoveragent/p3a_prompts.py": "9ca1fdb2854df85edcab389ee590408827a0e9d159b81b695bc54412a5d942f3",
+    "src/recoveragent/predictor_prompts.py": "732e37174fc37d15f242e32776a2c14799d3c3eab7bea189828b9504376c2ddc",
+    "src/recoveragent/protocol_lock.py": "f3892ae1836b642f16c9c964bb73914295f51d7053f551ebe9058c4dcc6dd39c",
+    "src/recoveragent/student.py": "095ea8df1893717bda4cd1f35bc4cbe6790257810cb88bdbb199407a79610cee",
+    "src/recoveragent/teacher.py": "2743b15b4c445e4f340459ad8b0e115b2365f01580776d353b7c9e98575d3ff5",
+    "src/recoveragent/teacher_history.py": "1c3df359b739b7ddcde5afa609278f83b75306826f78c46b67dbb778d2075a07",
+    "src/recoveragent/tool_modes.py": "644e9f671fe35ca1e623373df1a9610daee97b434bce600d432e4b3eaf55cc32",
+    "src/recoveragent/validated_selection.py": "880ff18659ef10c261da8e4f6c86e86de701561dd56f18dfc4823e004651429a"
+  },
+  "frozen_parameters": {
+    "teacher": {
+      "provider": "deepseek",
+      "model": "deepseek-flash",
+      "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+      "base_url": "https://api.deepseek.com",
+      "thinking": false,
+      "temperature": 0.2,
+      "timeout_seconds": 120,
+      "max_new_tokens": 4096,
+      "max_tool_calls_per_turn": null,
+      "max_request_bytes": 524288,
+      "billing_context_tokens": 1048576
+    },
+    "limits": {
+      "max_model_turns": 40,
+      "max_tool_calls": null,
+      "episode_requests": 40,
+      "episode_cost": 1,
+      "episode_generated_tokens": 16384,
+      "episode_wall_seconds": 600,
+      "tool_timeout_seconds": 60,
+      "max_infrastructure_retries": 0
+    }
+  }
+}

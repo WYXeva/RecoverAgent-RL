@@ -1,0 +1,10 @@
+{
+  "status": "READY_FOR_PILOT",
+  "reasons": [],
+  "credential_present": true,
+  "model": "deepseek-flash",
+  "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+  "revision_is_immutable": false,
+  "capability": "UNVERIFIED_UNTIL_OFFICIAL_TASK_SUCCESS",
+  "provider_requests": 0
+}

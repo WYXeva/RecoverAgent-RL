@@ -1,10 +1,22 @@
 # 项目状态
 
 - 最后更新：2026-10-22（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.11；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**失败诊断PASS；AppWorld/SQLAlchemy数据库URI兼容与跨进程官方复评BLOCKED待修复**。v1的95条/75任务/29家族及原始成功回执、SHA不变；不能将原包完整性PASS解释为终态复评可靠。数量目标PARTIAL；补采上次因余额不足停止，本轮未复查余额。P3-B及以后 `NOT_STARTED`。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.12；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**Harness v1实现/软件/本机真实环境及原95条复验PASS；真实Teacher自纠正效果BLOCKED（余额不可用）**。原数据仍95条/75任务/29家族，数量目标PARTIAL；原包及历史成绩不变。P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮诊断核对最新基线 `919e8c83fbe9c17a5f05384ed98781420abb8c02`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮工程化核对最新基线 `473693c3b768940679a2367d149fd54293e27496`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Harness v1工程化（2026-10-22，完成）
+
+- **实现PASS**：新增`public_protocol_correction_v1`，Teacher/Student共用执行前整批检查和最多2次通用纠正；不可见工具、参数/ID错误、截断、已观察同应用token抄错均零执行反馈。原始非法生成仅存回执，规范harness消息进入后续上下文；拒绝回合不监督，不代改参数或做业务动作。A固定工具集、B下一回合发现；最多2条无进展提示，原数值纠正仍仅紧接一次。Student输入加输出<=32768，单回复4096，工具数量不限。契约`docs/HARNESS_V1.md`、D031。
+- **服务保护PASS（软件验证）**：安全保存HTTP状态和未知费用预留，401/402/403立即停止，连续2次传输/worker故障停止；停止信号传到campaign并保留未执行清单，无隐式付费重试。新配置/参数锁`configs/p3a_harness_v1.json`、`harness_v1_protocol_lock.json`；公开模板不自动授权付费，私有已授权配置已准备但未采集。
+- **环境与原数据复验PASS（真实AppWorld）**：新独立SQLAlchemy2.0.52/SQLModel0.0.48/greenlet3.2.4，原环境2.1.5不改。原95条/75任务/29家族在新进程逐条重放，3087真实工具调用全部反馈一致；95条初态一致、保存/恢复一致、model hashes非空、独立官方评价全成功。原包6616文件、manifest及归档SHA不变。两次另行24调用播放诊断均成功；不把脚本重放算新增Teacher或反写旧失败。新评价只读观察原TestTracker异常，非断言/顶层异常单列，不改官方验证器。详见D032。
+- **A/B边界探针PASS（真实工具、脚本动作）**：2个隔离world，无效混合批次均0执行/状态不变；各1次合法发现后B新增Schema、A固定。它不是Predictor模型试验/Teacher成绩。**软件179 passed、Ruff及83文件格式PASS**；真实固定4B tokenizer合成拒绝/纠正样本24监督token，前缀/padding mask与Student解析回读通过，0权重更新。封存18来源包重验通过。
+- **历史公开请求离线检查**：118尝试/1235响应，检测7不可见工具、6截断、51含错误token回复，涉及17条历史失败；58条原成功0误拒。不是修复后成功率，不能宣称模型会利用反馈成功自纠正。
+- **真实Teacher效果BLOCKED**：只读余额HTTP200、is_available=false、无正余额；配置/凭据/既有授权检查通过不代表资金可用。本轮0模型生成请求/0生成token/0新增Teacher示范/0模型费用/0训练；现有授权仍有效。需资金恢复后用新run验证真实纠正。真实工具合计3137次，95条复验3186.094秒（53.10分钟），单worker串行，未加载Student权重或远程GPU。
+- **证据/命令**：完整报告`reports/harness_v1_report.md`；机器证据`harness_revalidation_20261022.json`、`harness_state_and_evaluation_20261022.json`、`harness_world_probe_20261022.json`、`harness_historical_detection_20261022.json`、`harness_qwen_mask_20261022.json`、`harness_software_checks_20261022.txt`、`harness_source_integrity_20261022.json`。复验主命令`PYTHONPATH=src timeout 5400 .venv-harness/bin/python scripts/revalidate_teacher_environment.py --output .cache/harness_revalidation_20261022_a`，随后`audit_harness_release.py`绑定源SHA；其余实际命令见报告。
+- **错误与限制**：初次依赖下载受网络限制、pip check缺greenlet，分别通过授权网络及补齐依赖修复；曾改旧teacher.py导致v3锁拒绝，已恢复原文件，采用新增捕获层保存安全状态。原17个P0–P2、v3五文件、v4/v5提示和旧锁不变；更新共享驱动需新锁，精确旧v5用基线commit。新环境本机通过不等于远程通过；当前checkout与原v1封存训练源码锁不同，见`docs/REMOTE_BASE_SFT.md`，不允许改旧锁绕过。
+- 下一步：恢复账户资金后，在已固定清单与原预算内做少量真实Teacher自纠正验证；另行决定补采/新版本封装。远程96GB、真实4B批量后端、SFT更新/保存重载及dev评测仍未验收，本轮到此不训练。
 
 ## B失败排查（2026-10-22，诊断通过，未启用修复）
 

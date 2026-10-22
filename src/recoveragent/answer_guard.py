@@ -167,6 +167,10 @@ def validate_guard_record(record):
     if RULES not in messages[0]["content"]:
         raise ValueError("Undeclared answer guard")
     for turn in record["turns"]:
+        if "protocol_rejection" in turn and "harness" in record:
+            if guard.pending:
+                guard.inspect([])
+            continue
         index = turn["assistant_index"]
         calls = messages[index].get("tool_calls", [])
         verdicts = guard.inspect(calls)

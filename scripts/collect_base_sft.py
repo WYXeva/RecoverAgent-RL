@@ -217,6 +217,8 @@ def main():
             f"reports/{prefix}_summary.json"
         ).exists() else None
         print(json.dumps(summary), flush=True)
+        if summary.get("service_stop_reason"):
+            break  # A provider-wide stop must also prevent the next batch.
     samples = [
         json.loads(line)
         for line in (current / "samples.jsonl").read_text().splitlines()

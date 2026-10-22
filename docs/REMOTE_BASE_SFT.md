@@ -1,6 +1,8 @@
 # Base-SFT v1 私有迁移与远程验收
 
-> 2026-10-22新增前置阻塞：当前AppWorld与SQLAlchemy2.1.5的内存数据库URI解析不兼容，已真实复现官方评价缺songs表，90份终态model_hashes为空。v1的SHA/再分词通过不等于终态复评可复现。不要把旧appworld依赖锁直接视为远程验收通过；须在新隔离环境先验证URI往返、修改状态保存重载、model-hash持久化和独立进程官方复评，再确认数据与环境可用于训练。原包和旧锁保持不变；详见`../reports/base_sft_failure_diagnosis_20261022.md`。
+> 2026-10-22更新：旧AppWorld/SQLAlchemy2.1.5的URI与model-hash问题已在新隔离SQLAlchemy2.0.52环境完成本机修复验证；原95条示范的完整独立重放结果见`../reports/harness_v1_report.md`与`../reports/harness_revalidation_20261022.json`。旧环境、原包、旧奖励和旧锁保持不变，复验不是新增Teacher示范。远程仍须安装并实测`requirements/appworld-harness.lock.txt`，完成真实状态保存恢复与新进程官方评价；不能把本机通过或原包SHA通过当成远程训练PASS。
+
+> 源码版本注意：harness v1更新了共享运行和审计模块，原v1包的50文件源码锁不会随之改写。训练旧包时应使用与其锁匹配的源码checkout（本轮基线`473693c3b768940679a2367d149fd54293e27496`的这50文件匹配），或另行构建并验证新版本数据包；不要修改旧manifest/源码锁放行。新版AppWorld验证worker可以使用独立当前checkout和兼容环境，实际依赖须另存运行清单。真实4B训练及后端仍未验收。
 
 本轮只准备数据与配置，**没有连接远程服务器，没有加载 Qwen3-4B 权重，没有进行 Student 参数更新**。下面带“远程”的命令尚未执行。正式设备是计划中的 NVIDIA RTX PRO 6000 96GB；本机 RTX 5050 8GB 的预检结果不能代替它。
 
@@ -17,6 +19,8 @@
 - `manifest.json` / `manifest.sha256`：逐文件哈希、版本、数量及质量指标。
 
 AppWorld 派生轨迹与控制证据仍属于受限数据，只通过已授权服务器的 SSH/SCP/rsync 通道传输；不上传公开仓库、对象存储公开桶或模型 Hub。公开仓库只包含代码、配置、任务 ID 清单和不含原文的报告。AppWorld 原始数据及模型权重不在此归档中。
+
+新增复验证据独立于原包：私有`.cache/harness_revalidation_20261022_a/`包含固定plan、每条receipt、独立官方评价和新terminal_dbs；公开`reports/harness_revalidation_20261022.json`绑定原轨迹SHA、原包manifest SHA，以及新receipt/evaluation/terminal_manifest SHA。远传这些控制证据时先核对可信公开摘要，再逐文件核对terminal_manifest；隐藏官方评价和终态不能进入训练消息。尚未执行这次远传。
 
 ## 2. 环境与版本
 

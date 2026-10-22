@@ -1,0 +1,38 @@
+{
+  "roundtrip": {
+    "trajectory_id": "teacher_997b7a07036e",
+    "task_id": "c901732_2",
+    "source_sha256": "2fd917d7c2043ff75834f826cbeabe1b868543121cfa00e62ac8e1ebc1124fd0",
+    "scope": "historical_action_replay",
+    "namespace": "harness_roundtrip_20261022_a",
+    "environment": {
+      "sqlalchemy": "2.0.52",
+      "sqlmodel": "0.0.48",
+      "uri_roundtrip": true
+    },
+    "model_requests": 0,
+    "teacher_demonstrations_generated": 0,
+    "real_tool_calls": 24,
+    "observations_match": true,
+    "status": "valid",
+    "initial_state_matches": true,
+    "model_hash_entries": 2,
+    "snapshot_roundtrip_matches": true,
+    "official_success": true,
+    "evaluation_exception_types": []
+  },
+  "separate_fresh_evaluation": {
+    "status": "valid",
+    "success": true,
+    "exception_types": [],
+    "environment": {
+      "sqlalchemy": "2.0.52",
+      "sqlmodel": "0.0.48",
+      "uri_roundtrip": true
+    },
+    "task_id": "c901732_2",
+    "experiment": "harness_compat_20261022_a"
+  },
+  "fresh_evaluation_receipt_sha256": "367553602447d5d109b361345d77c401610e04280fa4a6f43a4580beb58894e8",
+  "scope": "scripted historical replay and official state validation; no new model result"
+}

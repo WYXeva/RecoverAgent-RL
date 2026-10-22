@@ -1,9 +1,9 @@
 # RecoverAgent-RL：项目计划与需求文档
 
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
-> 版本：v0.11
+> 版本：v0.12
 > 创建日期：2026-10-19  
-> 状态：v0.11 正式Teacher数据集构建、历史重验与远程Base-SFT准备；实际结果见`docs/STATUS.md`，本轮不训练。
+> 状态：v0.12 Harness工程化、AppWorld兼容修复与既有Teacher数据复验；实际结果见`docs/STATUS.md`，本轮不训练。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 
@@ -817,6 +817,18 @@ P0–P2 已有代码和真实最低验收，不得因新方案重建或覆盖历
 - [S9 — AppWorld evaluator.py：官方 TGC/SGC 聚合实现](https://github.com/StonyBrookNLP/appworld/blob/42b5bcf3cd334fee33f0c37c02070a9f5807add5/src/appworld/evaluator.py)
 - [S10 — OpenAI：使用 AGENTS.md 配置项目工作约定](https://developers.openai.com/codex/guides/agents-md)
 
+## 18.1 v0.12 Harness工程化补充
+
+用户在失败分析后授权工程化。新增独立`public_protocol_correction_v1`，不更改训练顺序、Student模型或P0–P2历史。完整约定见`docs/HARNESS_V1.md`。
+
+1. Teacher/Student共用执行前整批检查；可见性、Schema参数、调用ID、已观察同应用登录token以及完整回复边界不满足时，整批零执行、显式反馈、模型重新生成。最多2次通用纠正机会，不自动补工具、改参数或业务答案，不执行截断前缀。
+2. 相邻相同结果、相同查询条件下连续空页或401可触发最多2条提示性反馈；不能据此自动判任务完成。A工具集仍固定，B新Schema只能下一回合使用。原数值格式纠正只允许紧接着的一次同值回复。
+3. 每轨迹40请求/16384输出token/600秒/USD1、每回复4096，工具调用次数不限。拒绝/纠正消耗原预算。Student输入加最大输出不超过32768，无静默截断。新JSON字节保护512KiB独立于训练token门槛；完整超长示范仍deferred。
+4. 非法原始生成留在控制回执，合法消息中的harness反馈清楚标识来源；拒绝回合不监督，其他前缀及padding屏蔽。新示范仍必须真实Teacher、官方train、干净初态、官方成功、回执与工具可见性复验。
+5. 服务401/402/403立即停止后续任务，连续两次传输/worker故障停止批次和campaign；未知费用保留预留。无余额时不发模型生成请求，完成不受阻验证。
+6. 在新隔离依赖环境验证内存URI、model-hash持久化、真实状态恢复与新进程官方评价；不改官方验证器，非断言异常单列。旧95条通过重放原动作建立独立复验证据，不能算新增Teacher数据或反写历史分数。
+7. 软件、真实AppWorld、真实tokenizer与真实Teacher自纠正效果分开验收；数据编码通过不等于训练通过。冻结旧提示/锁/原包，新代码有独立源码及参数锁。正式SFT/GRPO继续不启动。
+
 ## 19. 变更记录
 
 | 版本 | 日期 | 变更 |
@@ -832,3 +844,4 @@ P0–P2 已有代码和真实最低验收，不得因新方案重建或覆盖历
 | v0.9 | 2026-10-21 | 用户授权独立 execution_v4、A 公开认证依赖校验/一次纠错及新场景配对采集，完整保留旧协议与结果，不启动训练。 |
 | v0.10 | 2026-10-21 | 公开单值格式检查与一次模型同值纠正，明确harness反馈和拒绝回合loss屏蔽；真实/脚本/历史成绩分开，不训练。 |
 | v0.11 | 2026-10-21 | 正式Teacher数据构建：历史重验、冻结B优先扩样、分组/去重/权重/长度门槛、私有迁移与远程LoRA准备；本轮不训练。 |
+| v0.12 | 2026-10-22 | 用户授权有限通用协议纠错、共享Teacher/Student执行检查、服务熔断、隔离兼容环境和官方复评；拒绝回合屏蔽，新旧证据分开，不训练。 |

@@ -25,15 +25,35 @@ from .tool_modes import (
 )
 from .teacher import (
     TeacherPolicy,
+    TeacherTransportError,
     normalize_message,
     preflight,
     read_credentials,
     response_usage,
     usage_cost,
 )
+from .harness import (
+    PROTOCOL as HARNESS_PROTOCOL,
+    RULES as HARNESS_RULES,
+    ProtocolHarness,
+    ProtocolViolation,
+    ServiceCircuitBreaker,
+    check_batch,
+    provider_error_record,
+)
 
 
 def validate_config(config):
+    if config.get("harness_protocol") not in {None, HARNESS_PROTOCOL}:
+        raise ValueError("Unknown harness protocol")
+    if config.get("harness_protocol") and (
+        config.get("actor_prompt_variant") != "execution_v5"
+        or config.get("environment_profile") != "appworld_sqlalchemy20_v1"
+        or config["teacher"]["max_new_tokens"] != 4096
+        or config["limits"]["max_tool_calls"] is not None
+        or config["teacher"].get("max_tool_calls_per_turn") is not None
+    ):
+        raise ValueError("harness_v1 requires declared v5/environment/unlimited tools")
     if (
         config["project_version"]
         not in {"0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}
@@ -224,10 +244,22 @@ def run_teacher_episode(config, task_id, output, credentials):
         "constraint_check": "official_terminal_checks_only; other safety NOT_MEASURED",
     }
     adapter, guard = None, None
+    harness = (
+        ProtocolHarness(trajectory["tool_mode"])
+        if config.get("harness_protocol")
+        else None
+    )
+    if harness:
+        trajectory["harness"] = harness.summary()
+        usage.update(protocol_rejections=0, harness_notices=0)
     if "selection_protocol" in config:
         trajectory["selection_protocol"] = config["selection_protocol"]
     messages = trajectory["messages"]
     try:
+        if harness:
+            from .evaluation import environment_check
+
+            trajectory["environment_check"] = environment_check()
         policy = TeacherPolicy(config, credentials)
         adapter = AppWorldAdapter(
             config["appworld_root"],
@@ -248,7 +280,8 @@ def run_teacher_episode(config, task_id, output, credentials):
             [
                 {
                     "role": "system",
-                    "content": actor_system(config),
+                    "content": actor_system(config)
+                    + ("\n" + HARNESS_RULES if harness else ""),
                 },
                 {
                     "role": "user",
@@ -360,6 +393,8 @@ def run_teacher_episode(config, task_id, output, credentials):
                 message = normalize_message(
                     response, teacher.get("max_tool_calls_per_turn", 1)
                 )
+                if harness:
+                    check_batch(message, messages, tools)
                 # Check IDs against the existing history before any dispatch.
                 calls = message.get("tool_calls", [])
                 if calls:
@@ -389,6 +424,47 @@ def run_teacher_episode(config, task_id, output, credentials):
                         ):
                             raise ValueError("Completion must be the last batch call")
             except (ValueError, KeyError, TypeError, ValidationError) as exc:
+                if harness:
+                    code = (
+                        exc.code
+                        if isinstance(exc, ProtocolViolation)
+                        else "truncated_output"
+                        if any(
+                            c.get("finish_reason") == "length"
+                            for c in response.get("choices", [])
+                        )
+                        else "malformed_output"
+                    )
+                    pending = bool(guard and guard.pending)
+                    rejected_function = (
+                        exc.tool_name if isinstance(exc, ProtocolViolation) else None
+                    )
+                    feedback = harness.reject(
+                        code, answer_pending=pending, tool_name=rejected_function
+                    )
+                    if pending:
+                        guard.inspect(
+                            []
+                        )  # The numeric correction cannot acquire extra retries.
+                    event.update(
+                        protocol_rejection=code,
+                        rejected_function=rejected_function,
+                        supervise=False,
+                        feedback=feedback,
+                        appworld_dispatched_count=0,
+                        dispatched_count=0,
+                        tool_results=[],
+                    )
+                    usage["protocol_rejections"] += 1
+                    messages.append(feedback)
+                    write_json(
+                        output / "turns" / f"{request_id}.json",
+                        {"event": event, "messages": messages},
+                    )
+                    if harness.stopped:
+                        termination = "protocol_correction_exhausted"
+                        break
+                    continue
                 event["format_error"] = type(exc).__name__ + ": " + str(exc)
                 termination = "invalid_completion"
                 break
@@ -411,6 +487,8 @@ def run_teacher_episode(config, task_id, output, credentials):
                 break
             event["tool_results"] = []
             for call, verdict in zip(calls, verdicts):
+                if harness and now() - started >= limits["episode_wall_seconds"]:
+                    raise TimeoutError("Batch interrupted by wall-clock budget")
                 name = call["function"]["name"]
                 arguments = call["function"]["arguments"]
                 if guard:
@@ -444,6 +522,18 @@ def run_teacher_episode(config, task_id, output, credentials):
                 )
             event["dispatched_count"] = len(calls)
             validate_history(messages)
+            if (
+                harness
+                and not any(verdicts)
+                and not any(
+                    c["function"]["name"] == "supervisor__complete_task" for c in calls
+                )
+            ):
+                notice = harness.notice(messages)
+                if notice:
+                    event["harness_notice"] = notice
+                    messages.append(notice)
+                    usage["harness_notices"] += 1
             write_json(
                 output / "turns" / f"{request_id}.json",
                 {"event": event, "messages": messages},
@@ -471,7 +561,21 @@ def run_teacher_episode(config, task_id, output, credentials):
         adapter.save_terminal()
         adapter.close()
         adapter = None
-        success, official = official_evaluate(task_id, output.name)
+        if harness:
+            from .evaluation import evaluate_isolated
+
+            evaluated = evaluate_isolated(
+                task_id, output.name, config["appworld_root"], output
+            )
+            if evaluated["status"] != "valid":
+                trajectory.update(
+                    evaluation_error=evaluated["exception_types"],
+                    termination_reason="evaluation_error",
+                )
+                raise RuntimeError("Official evaluation encountered runtime errors")
+            success, official = evaluated["success"], evaluated["official"]
+        else:
+            success, official = official_evaluate(task_id, output.name)
         write_json(
             output / "evaluation.json",
             {
@@ -490,9 +594,18 @@ def run_teacher_episode(config, task_id, output, credentials):
     except Exception as exc:
         # Do not include provider bodies/credential-bearing exception strings.
         trajectory.update(
-            error_type=type(exc).__name__, termination_reason="infrastructure_error"
+            error_type=type(exc).__name__,
+            termination_reason=(
+                "evaluation_error"
+                if "evaluation_error" in trajectory
+                else "infrastructure_error"
+            ),
         )
+        if harness and isinstance(exc, TeacherTransportError):
+            trajectory["provider_error"] = provider_error_record(exc)
     finally:
+        if harness:
+            trajectory["harness"] = harness.summary()
         if guard is not None:
             trajectory["answer_guard"] = guard.summary()
         if adapter is not None:
@@ -529,6 +642,10 @@ def collect(config, output, credentials_file=None):
         }
         write_json(output / "summary.json", summary)
         return summary
+    if config.get("harness_protocol"):
+        from .evaluation import environment_check
+
+        write_json(output / "environment_check.json", environment_check())
     from appworld import load_task_ids, update_root
 
     update_root(str(Path(config["appworld_root"]).resolve()))
@@ -567,6 +684,7 @@ def collect(config, output, credentials_file=None):
         },
     )
     attempts = []
+    breaker = ServiceCircuitBreaker() if config.get("harness_protocol") else None
     started = now()
     limits = config["limits"]
     for task_id, tool_mode in schedule:
@@ -615,6 +733,13 @@ def collect(config, output, credentials_file=None):
             )
         if attempts and attempts[0].get("observed_backend"):
             worker_config["expected_backend"] = attempts[0]["observed_backend"]
+        if config.get("harness_protocol"):
+            worker_config["remaining_requests"] = min(
+                worker_config["remaining_requests"], limits.get("episode_requests", 40)
+            )
+            worker_config["remaining_cost"] = min(
+                worker_config["remaining_cost"], limits.get("episode_cost", 1)
+            )
         if (
             min(
                 worker_config[k]
@@ -682,10 +807,14 @@ def collect(config, output, credentials_file=None):
             else:
                 write_json(output / name / "trajectory.json", trajectory)
             attempts.append(trajectory)
+            if breaker and breaker.observe(trajectory):
+                break
             if expanded and config.get("continue_after_infrastructure_error", False):
                 continue
             break
         attempts.append(trajectory)
+        if breaker and breaker.observe(trajectory):
+            break
         if trajectory["status"] == "infrastructure_error" and not (
             expanded and config.get("continue_after_infrastructure_error", False)
         ):
@@ -707,6 +836,9 @@ def collect(config, output, credentials_file=None):
         if manifest["counts"]["accepted"]
         else "NOT_ESTABLISHED",
     }
+    if breaker:
+        summary["service_stop_reason"] = breaker.reason
+        summary["unattempted_schedule"] = schedule[len(attempts) :]
     write_json(output / "summary.json", summary)
     if comparison:
         from .compare_tools import summarize_comparison

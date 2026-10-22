@@ -23,6 +23,11 @@ from .teacher import normalize_message, response_usage, usage_cost
 from .teacher_history import validate_history
 from .validated_selection import validate_predictor_receipts
 from .answer_guard import validate_guard_record
+from .harness import (
+    validate_record as validate_harness_record,
+    check_batch,
+    ProtocolViolation,
+)
 
 FORMAT = "clean-teacher-normal-v1"
 FILTER = "official-success-format-loop-v1"
@@ -58,7 +63,9 @@ def validate_demo(record):
         if not isinstance(message.get("content"), str):
             raise ValueError("Expected text content")
     indices = [i for i, m in enumerate(messages) if m["role"] == "assistant"]
-    if indices != [t["assistant_index"] for t in record["turns"]]:
+    if indices != [
+        t["assistant_index"] for t in record["turns"] if "protocol_rejection" not in t
+    ]:
         raise ValueError("Assistant turn coverage/order mismatch")
     for turn in record["turns"]:
         index = turn["assistant_index"]
@@ -68,6 +75,8 @@ def validate_demo(record):
             name = tool["function"]["name"]
             if name.startswith("admin__") or "__" not in name:
                 raise ValueError("Non-public function in schema")
+        if "protocol_rejection" in turn:
+            continue
         calls = messages[index].get("tool_calls", [])
         for offset, call in enumerate(calls):
             function = call["function"]
@@ -76,6 +85,7 @@ def validate_demo(record):
             if result.get("name") != function["name"]:
                 raise ValueError("Tool result name mismatch")
     validate_guard_record(record)
+    validate_harness_record(record)
     return record
 
 
@@ -86,6 +96,7 @@ def validate_receipts(trajectory, directory):
     cost, calls = 0.0, 0
     predictor = validate_predictor_receipts(trajectory, directory)
     validate_guard_record(trajectory)
+    validate_harness_record(trajectory)
     if predictor:
         totals.update(predictor["usage"])
         cost += predictor["usage_priced_cost"]
@@ -110,7 +121,37 @@ def validate_receipts(trajectory, directory):
             raise ValueError("Teacher model identity mismatch")
         if request.get("thinking") != {"type": "disabled"}:
             raise ValueError("Unexpected thinking protocol")
-        if (
+        if "protocol_rejection" in turn:
+            try:
+                rejected = normalize_message(
+                    response, trajectory["teacher"].get("max_tool_calls_per_turn", 1)
+                )
+                check_batch(rejected, messages[:index], turn["tools"])
+            except (ValueError, KeyError, TypeError) as exc:
+                code = (
+                    exc.code
+                    if isinstance(exc, ProtocolViolation)
+                    else (
+                        "truncated_output"
+                        if any(
+                            c.get("finish_reason") == "length"
+                            for c in response.get("choices", [])
+                        )
+                        else "malformed_output"
+                    )
+                )
+                rejected_function = (
+                    exc.tool_name if isinstance(exc, ProtocolViolation) else None
+                )
+                if code != turn["protocol_rejection"] or rejected_function != turn.get(
+                    "rejected_function"
+                ):
+                    raise ValueError(
+                        "Protocol rejection differs from raw response"
+                    ) from None
+            else:
+                raise ValueError("Valid response was falsely marked as rejected")
+        elif (
             normalize_message(
                 response, trajectory["teacher"].get("max_tool_calls_per_turn", 1)
             )
@@ -150,12 +191,20 @@ def validate_receipts(trajectory, directory):
         rejections = sum(
             sum(v is not None for v in t["harness_verdicts"])
             for t in trajectory["turns"]
+            if "protocol_rejection" not in t
         )
         if (
             trajectory["usage"].get("harness_rejections") != rejections
             or trajectory["usage"].get("tool_requests") != calls + rejections
         ):
             raise ValueError("Harness/real tool accounting mismatch")
+    if "harness" in trajectory and (
+        trajectory["usage"].get("protocol_rejections")
+        != trajectory["harness"]["rejections"]
+        or trajectory["usage"].get("harness_notices")
+        != trajectory["harness"]["notices"]
+    ):
+        raise ValueError("Protocol feedback accounting mismatch")
 
 
 def filter_attempt(trajectory, evaluation, train_ids, limits, directory):
@@ -256,6 +305,7 @@ def as_demo(trajectory):
         "predictor_prompt_variant",
         "selection_protocol",
         "answer_guard",
+        "harness",
     ):
         if key in trajectory:
             record[key] = trajectory[key]
@@ -266,7 +316,18 @@ def as_demo(trajectory):
     if "answer_guard" in trajectory:
         for saved, source in zip(record["turns"], trajectory["turns"]):
             for key in ("harness_verdicts", "supervise", "appworld_dispatched_count"):
-                saved[key] = copy.deepcopy(source[key])
+                if key in source:
+                    saved[key] = copy.deepcopy(source[key])
+    if "harness" in trajectory:
+        for saved, source in zip(record["turns"], trajectory["turns"]):
+            for key in (
+                "protocol_rejection",
+                "rejected_function",
+                "feedback",
+                "harness_notice",
+            ):
+                if key in source:
+                    saved[key] = copy.deepcopy(source[key])
     return record
 
 
@@ -344,6 +405,8 @@ def export_dataset(run, output, train_ids, limits, additional_runs=()):
     )
     if config.get("answer_guard_protocol"):
         known_fields += ("tool_requests", "harness_rejections")
+    if config.get("harness_protocol"):
+        known_fields += ("protocol_rejections", "harness_notices")
     costs = {k: sum(a["usage"].get(k, 0) for a in attempts) for k in known_fields}
     costs.update(
         billed_cost=None if attempts else 0,
@@ -514,6 +577,8 @@ def verify_dataset(directory, train_ids, expected_manifest_sha256=None):
         "unknown_generation_reservation",
         "tool_requests",
         "harness_rejections",
+        "protocol_rejections",
+        "harness_notices",
     ):
         if key not in manifest["costs"]:
             continue

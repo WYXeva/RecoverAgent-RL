@@ -1,0 +1,28 @@
+{
+  "p0_p2_unchanged_files": 17,
+  "v3_unchanged_files": 5,
+  "old_lock_and_dependency_files_unchanged": [
+    "configs/prompt_protocol_lock.json",
+    "configs/execution_v4_protocol_lock.json",
+    "configs/execution_v5_protocol_lock.json",
+    "configs/base_sft_collection_lock.json",
+    "requirements/appworld.lock.txt"
+  ],
+  "v4_v5_prompt_texts_unchanged": true,
+  "changed_relative_to_v1_sealed_source": [
+    "src/recoveragent/answer_guard.py",
+    "src/recoveragent/demonstrations.py",
+    "src/recoveragent/inspect_teacher.py",
+    "src/recoveragent/p3a.py",
+    "src/recoveragent/protocol_lock.py",
+    "src/recoveragent/student.py",
+    "scripts/collect_base_sft.py"
+  ],
+  "harness_protocol_lock_sha256": "64da452cb1a07a3afb11a03beb012e1fa228617a759d9b8a87b48d7575446f71",
+  "harness_protocol_lock_digest": "500cc99abf51312960b077b5b5ea1c5c86d6d104741f75f65a396a98b0a2d800",
+  "original_appworld_version": "0.2.0.dev0",
+  "original_sqlalchemy": "2.1.5",
+  "isolated_sqlalchemy": "2.0.52",
+  "upstream_validator_patched": false,
+  "training_steps": 0
+}

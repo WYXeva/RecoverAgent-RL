@@ -17,6 +17,12 @@ from .io import canonical, digest, write_json
 from .teacher_history import validate_history
 from .tool_modes import MODES, execute_with_mode
 from .answer_guard import AnswerGuard, RULES as ANSWER_RULES
+from .harness import (
+    ProtocolHarness,
+    ProtocolViolation,
+    check_batch,
+    RULES as HARNESS_RULES,
+)
 
 
 def _object(pairs):
@@ -114,6 +120,7 @@ class StudentSession:
         temperature=0.8,
         top_p=0.95,
         answer_guard=False,
+        protocol_harness=False,
     ):
         if (
             hashlib.sha256(tokenizer.chat_template.encode()).hexdigest()
@@ -132,6 +139,8 @@ class StudentSession:
                 raise ValueError("Invalid Student resource bound")
         if max_new_tokens > 4096 or wall_seconds <= 0:
             raise ValueError("Invalid output/time budget")
+        if protocol_harness and max_input_tokens > 32768:
+            raise ValueError("harness_v1 Student window cannot exceed 32768")
         validate_history(messages)
         public = {d["function"]["name"]: d for d in adapter.catalogue}
         if any(
@@ -141,6 +150,12 @@ class StudentSession:
         ):
             raise ValueError("Non-public or altered initial Student schema")
         self.adapter, self.tokenizer = adapter, tokenizer
+        self.harness = ProtocolHarness(tool_mode) if protocol_harness else None
+        if self.harness and (
+            messages[0]["role"] != "system"
+            or HARNESS_RULES not in messages[0]["content"]
+        ):
+            raise ValueError("Student protocol harness must be declared in the prompt")
         self.answer_guard = None
         if answer_guard:
             if (
@@ -181,6 +196,8 @@ class StudentSession:
         self.events, self.stopped, self.termination = [], False, None
         if self.answer_guard:
             self.usage.update(tool_requests=0, harness_rejections=0)
+        if self.harness:
+            self.usage.update(protocol_rejections=0, harness_notices=0)
 
     def build_request(self):
         if self.stopped:
@@ -201,7 +218,7 @@ class StudentSession:
             enable_thinking=False,
         )
         ids = self.tokenizer(text, add_special_tokens=False)["input_ids"]
-        if len(ids) > self.max_input_tokens:
+        if len(ids) >= self.max_input_tokens:
             self.stopped, self.termination = True, "context_budget_exhausted"
             raise ValueError("Student context too long; no silent truncation")
         return {
@@ -213,6 +230,7 @@ class StudentSession:
             "max_new_tokens": min(
                 self.max_new_tokens,
                 self.max_generated_tokens - self.usage["generated_tokens"],
+                self.max_input_tokens - len(ids),
             ),
             "seed": self.seed + self.usage["model_requests"],
             "temperature": self.temperature,
@@ -259,13 +277,61 @@ class StudentSession:
                 or response["input_token_ids"] != request["input_token_ids"]
                 or not ids
                 or len(ids) > request["max_new_tokens"]
-                or ids[-1] != self.tokenizer.eos_token_id
             ):
                 raise ValueError(
                     "Student identity, input, or generation boundary mismatch"
                 )
             text = self.tokenizer.decode(ids, skip_special_tokens=False)
-            message = parse_batch(text, "student_" + name, response["finish_reason"])
+            if not self.harness and ids[-1] != self.tokenizer.eos_token_id:
+                raise ValueError("Missing Student EOS boundary")
+            try:
+                if (
+                    ids[-1] != self.tokenizer.eos_token_id
+                    and response["finish_reason"] != "length"
+                ):
+                    raise ValueError("Missing Student EOS boundary")
+                message = parse_batch(
+                    text, "student_" + name, response["finish_reason"]
+                )
+                if self.harness:
+                    check_batch(message, self.messages, request["tools"])
+            except (ValueError, KeyError, TypeError) as exc:
+                if not self.harness:
+                    raise
+                code = (
+                    exc.code
+                    if isinstance(exc, ProtocolViolation)
+                    else (
+                        "truncated_output"
+                        if response["finish_reason"] == "length"
+                        else "malformed_output"
+                    )
+                )
+                pending = bool(self.answer_guard and self.answer_guard.pending)
+                rejected_function = (
+                    exc.tool_name if isinstance(exc, ProtocolViolation) else None
+                )
+                feedback = self.harness.reject(
+                    code, answer_pending=pending, tool_name=rejected_function
+                )
+                if pending:
+                    self.answer_guard.inspect([])
+                self.messages.append(feedback)
+                self.usage["protocol_rejections"] += 1
+                event.update(
+                    protocol_rejection=code,
+                    rejected_function=rejected_function,
+                    feedback=feedback,
+                    supervise=False,
+                    appworld_dispatched_count=0,
+                    status="protocol_rejected",
+                )
+                if self.harness.stopped:
+                    self.stopped, self.termination = (
+                        True,
+                        "protocol_correction_exhausted",
+                    )
+                return event
             calls = message.get("tool_calls", [])
             validate_history(
                 self.messages
@@ -330,6 +396,19 @@ class StudentSession:
                         observation,
                     )
             validate_history(self.messages)
+            if (
+                self.harness
+                and calls
+                and not any(verdicts)
+                and not any(
+                    c["function"]["name"] == "supervisor__complete_task" for c in calls
+                )
+            ):
+                notice = self.harness.notice(self.messages)
+                if notice:
+                    event["harness_notice"] = notice
+                    self.messages.append(notice)
+                    self.usage["harness_notices"] += 1
             event["status"] = "complete_boundary"
             if guard:
                 event["answer_guard"] = guard.summary()
@@ -352,6 +431,8 @@ class StudentSession:
             event.update(status=self.termination, error_type=type(exc).__name__)
             raise
         finally:
+            if self.harness:
+                event["harness"] = self.harness.summary()
             if self.output:
                 write_json(
                     self.output / "turns" / (name + ".json"),

@@ -1,0 +1,12 @@
+{
+  "url_probe": {
+    "sqlalchemy": "2.0.52",
+    "sqlmodel": "0.0.48",
+    "rendered_url": "sqlite:///file:diagnostic/spotify.db?cache=shared&mode=memory&uri=true",
+    "database_component": "file:diagnostic/spotify.db",
+    "expected_home": ":memory:diagnostic",
+    "actual_home": ":memory:diagnostic",
+    "matches": true
+  },
+  "training_started": false
+}
