@@ -1,0 +1,54 @@
+{
+  "scope": "two scripted replays of one historical trajectory, not Teacher demonstrations",
+  "rows": [
+    {
+      "private_evidence_sha256": "0d0268983205573bd1a082115b3850ff8766da79ce8853afdba2984260a4a114",
+      "source_sha256": "5bb9eebdc4d53e3993d08b737734ffad5bcab1abbcb9a1ba5528bee114514709",
+      "real_tool_calls": 21,
+      "all_observations_match": true,
+      "exception_type": "OperationalError",
+      "missing_songs_table": true,
+      "db_bindings_at_exception": [],
+      "model_requests": 0
+    },
+    {
+      "private_evidence_sha256": "5d7b45c45ec12bce8aedf01390c8411026023d505dde845543125dbd90b2b5b4",
+      "source_sha256": "5bb9eebdc4d53e3993d08b737734ffad5bcab1abbcb9a1ba5528bee114514709",
+      "real_tool_calls": 21,
+      "all_observations_match": true,
+      "exception_type": "OperationalError",
+      "missing_songs_table": true,
+      "db_bindings_at_exception": [
+        {
+          "function": "current_song",
+          "instance_db_home": ":memory:file%3Atask_output-c901732_1",
+          "class_db_home": ":memory:file%3Afile%3Atask_output-c901732_1"
+        },
+        {
+          "function": "map_all_getter",
+          "instance_db_home": ":memory:file%3Atask_output-c901732_1",
+          "class_db_home": ":memory:file%3Afile%3Atask_output-c901732_1"
+        },
+        {
+          "function": "map_all",
+          "instance_db_home": ":memory:file%3Atask_output-c901732_1",
+          "class_db_home": ":memory:file%3Afile%3Atask_output-c901732_1"
+        },
+        {
+          "function": "map_all",
+          "class_name": "MusicPlayer",
+          "class_db_home": ":memory:file%3Afile%3Atask_output-c901732_1"
+        }
+      ],
+      "model_requests": 0
+    }
+  ],
+  "total_real_tool_calls": 42,
+  "sandbox_initialization_attempt": {
+    "completed_tool_calls": 0,
+    "interrupted": true,
+    "reason": "kernel initialization did not complete in restricted environment"
+  },
+  "original_rewards_modified": false,
+  "official_validator_modified": false
+}

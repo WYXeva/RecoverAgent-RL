@@ -1,0 +1,2131 @@
+{
+  "scope": "all 118 B attempts; retrospective diagnosis, not new performance evaluation",
+  "reference_metrics_sha256": "3a73fb3bedf3d67897b19ce2d2183e39921ffeb8f7df764bac9871dc4e735dac",
+  "counts": {
+    "official_success": 58,
+    "output_truncated": 6,
+    "completion_official_failure": 16,
+    "unavailable_tool": 7,
+    "TeacherBlocked": 3,
+    "episode_budget_exhausted": 3,
+    "TeacherTransportError": 25
+  },
+  "failures": [
+    {
+      "trajectory_id": "teacher_38272aadd5cd",
+      "task_id": "34d9492_1",
+      "batch": "base_sft_v1_20261021_b01",
+      "source": "runs/base_sft_v1_20261021_b01/teacher_38272aadd5cd/trajectory.json",
+      "source_sha256": "b80649437d7a489701a377dccb99cb5f9eceaf80de96b38b0ed7460f2410e38f",
+      "evaluation_sha256": "119ceec3f259abf5eb6dbd4e9a277863c919528c80c8157770d068354c0eac98",
+      "category": "output_truncated",
+      "termination": "invalid_completion",
+      "requests": 13,
+      "tools": 82,
+      "generated_tokens": 16384,
+      "detail": {
+        "finish_reason": "length",
+        "max_tokens": 2327,
+        "response_tokens": 2327,
+        "requested_batch_calls": 12,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [],
+        "unavailable_tools_exist_in_public_catalogue": []
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_414bfe592f9e",
+      "task_id": "c901732_1",
+      "batch": "base_sft_v1_20261021_b01",
+      "source": "runs/base_sft_v1_20261021_b01/teacher_414bfe592f9e/trajectory.json",
+      "source_sha256": "5bb9eebdc4d53e3993d08b737734ffad5bcab1abbcb9a1ba5528bee114514709",
+      "evaluation_sha256": "08b8db6e4fa295e63906008dc4f95c898139145decde66bcebd9058eeeedbffc",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 10,
+      "tools": 21,
+      "generated_tokens": 1343,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_42a1408c9e6c",
+      "task_id": "6ea6792_2",
+      "batch": "base_sft_v1_20261021_b01",
+      "source": "runs/base_sft_v1_20261021_b01/teacher_42a1408c9e6c/trajectory.json",
+      "source_sha256": "7358483bd117c0e7cd9de56f904e40f4a7d8ee81cd915ca78aa8ad7293288847",
+      "evaluation_sha256": "f6a19bcc56f6e4e01f93b12f7759c9ec39fab0b1525a30c18826057f7f29de9d",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 18,
+      "tools": 30,
+      "generated_tokens": 3946,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "venmo__search_friends",
+            "page_index": 1
+          },
+          {
+            "tool": "phone__search_contacts",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_4539d3bc0c4d",
+      "task_id": "b7a9ee9_1",
+      "batch": "base_sft_v1_20261021_b01",
+      "source": "runs/base_sft_v1_20261021_b01/teacher_4539d3bc0c4d/trajectory.json",
+      "source_sha256": "15cbe94c18680a62140ba20879442c681846dc366387c4373943ff2ee0419a3a",
+      "evaluation_sha256": "1a0d1050ccafaa96750c4f1bc47e6466f34bdf97cf2ca0969d522357e5e3c90d",
+      "category": "unavailable_tool",
+      "termination": "invalid_completion",
+      "requests": 9,
+      "tools": 64,
+      "generated_tokens": 3181,
+      "detail": {
+        "finish_reason": "tool_calls",
+        "max_tokens": 4096,
+        "response_tokens": 361,
+        "requested_batch_calls": 2,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [
+          "spotify__show_following_artists"
+        ],
+        "unavailable_tools_exist_in_public_catalogue": [
+          true
+        ]
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_playlist_library",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_6f230f4a267b",
+      "task_id": "07b42fd_3",
+      "batch": "base_sft_v1_20261021_b01",
+      "source": "runs/base_sft_v1_20261021_b01/teacher_6f230f4a267b/trajectory.json",
+      "source_sha256": "a437c1053d35e672d6ef33e24e47cb54f1402f9a9413af5998355eaf4b2f4d66",
+      "evaluation_sha256": "ce9ab64ba38c4ec5220a7edd0eb692de37649d26044db96bd5b3c48138b26895",
+      "category": "unavailable_tool",
+      "termination": "invalid_completion",
+      "requests": 6,
+      "tools": 10,
+      "generated_tokens": 706,
+      "detail": {
+        "finish_reason": "tool_calls",
+        "max_tokens": 4096,
+        "response_tokens": 133,
+        "requested_batch_calls": 2,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [
+          "spotify__show_artist_following"
+        ],
+        "unavailable_tools_exist_in_public_catalogue": [
+          true
+        ]
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__search_artists",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_a6df39a6c579",
+      "task_id": "ce359b5_2",
+      "batch": "base_sft_v1_20261021_b01",
+      "source": "runs/base_sft_v1_20261021_b01/teacher_a6df39a6c579/trajectory.json",
+      "source_sha256": "5c9b705f47145470cfe56635d3204f3f2b3fea11dc1a99175918d53788327742",
+      "evaluation_sha256": "b81864a5fe4d1f52c35abf28a380ad88d9742fc6735c35434ab932bde9849d2b",
+      "category": "output_truncated",
+      "termination": "invalid_completion",
+      "requests": 9,
+      "tools": 90,
+      "generated_tokens": 10000,
+      "detail": {
+        "finish_reason": "length",
+        "max_tokens": 4096,
+        "response_tokens": 4096,
+        "requested_batch_calls": 24,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [],
+        "unavailable_tools_exist_in_public_catalogue": []
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_f09d79e599cc",
+      "task_id": "3c13f5a_2",
+      "batch": "base_sft_v1_20261021_b01",
+      "source": "runs/base_sft_v1_20261021_b01/teacher_f09d79e599cc/trajectory.json",
+      "source_sha256": "27a30bfc34c5863dfa759746e309a26e281c75fe7bdee1cb8bcb914535343a0e",
+      "evaluation_sha256": "cd7c3b3408718058b3b68e83ac8a1895ea3e4a91e1a1d8a90142e3680b597085",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 23,
+      "tools": 35,
+      "generated_tokens": 3987,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "phone__search_contacts",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 1
+      }
+    },
+    {
+      "trajectory_id": "teacher_03f7df4e0a8e",
+      "task_id": "afc0fce_2",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_03f7df4e0a8e/trajectory.json",
+      "source_sha256": "0a2a18d4f816220b0cbe26db6d875323242341d5ec14d31410e044776d7a08c2",
+      "evaluation_sha256": "1d898d0b3269dad29200673200a73068ce8ac391ba8eefd5ed21d1f52dbd9e0a",
+      "category": "output_truncated",
+      "termination": "invalid_completion",
+      "requests": 11,
+      "tools": 20,
+      "generated_tokens": 6726,
+      "detail": {
+        "finish_reason": "length",
+        "max_tokens": 4096,
+        "response_tokens": 4096,
+        "requested_batch_calls": 25,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [],
+        "unavailable_tools_exist_in_public_catalogue": []
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 2
+          },
+          {
+            "tool": "venmo__search_friends",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_601adc476857",
+      "task_id": "60d0b5b_2",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_601adc476857/trajectory.json",
+      "source_sha256": "b3911e0ddb0c4997422daca7b5a70bb683784156a348c79f6b3baeead591eff9",
+      "evaluation_sha256": "b8ae1c8424b8a63e9e48fd317c653344fbf6d6c07bc8db35e46d2f7dd83f2fac",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 12,
+      "tools": 16,
+      "generated_tokens": 2078,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "venmo__show_sent_payment_requests",
+            "page_index": 5
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_6155fdadf1e7",
+      "task_id": "287e338_3",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_6155fdadf1e7/trajectory.json",
+      "source_sha256": "d9400bd613bcdbf11e68d1d30ad12b8506ce7947f62ef1fcd2dd7f3ba9942713",
+      "evaluation_sha256": "5a5f380502a280f9773418e180a759c1de5855f91e9b5330ccac85e16d088b94",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 8,
+      "tools": 9,
+      "generated_tokens": 850,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_recommendations",
+            "page_index": 2
+          }
+        ],
+        "added_friend_calls": 0,
+        "recommendation_tally": {
+          "unique_songs": 28,
+          "artist_song_pairs": 41,
+          "max_count": 5,
+          "answer_matches_observed_max": false
+        }
+      }
+    },
+    {
+      "trajectory_id": "teacher_6eda841428cc",
+      "task_id": "d0b1f43_2",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_6eda841428cc/trajectory.json",
+      "source_sha256": "3c8d251643e42f42b6ba6498565094d5dc49247aab77866a465d03e2ac3a44d4",
+      "evaluation_sha256": null,
+      "category": "TeacherBlocked",
+      "termination": "infrastructure_error",
+      "requests": 21,
+      "tools": 23,
+      "generated_tokens": 3998,
+      "detail": {
+        "requests_without_response": 0,
+        "request_size": {
+          "reason": "REQUEST_SIZE_LIMIT",
+          "next_request_bytes": 138279,
+          "limit": 131072,
+          "complete_prefix_receipts_checked": true,
+          "blocked_request_sent": false
+        }
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 1,
+        "tool_401_responses": 1,
+        "empty_pages": [
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 2
+          },
+          {
+            "tool": "venmo__search_friends",
+            "page_index": 1
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 2
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 2
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 2
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_92308477cdac",
+      "task_id": "07b42fd_1",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_92308477cdac/trajectory.json",
+      "source_sha256": "c929cdffc3b89dc958ffe3fda00239afafd5fdc431d26efbe0ffe0417c2a9314",
+      "evaluation_sha256": "2fb37f33bff6581891c055368b6965758133783eb596f52c2eaf6b9b6e65a696",
+      "category": "unavailable_tool",
+      "termination": "invalid_completion",
+      "requests": 9,
+      "tools": 11,
+      "generated_tokens": 1012,
+      "detail": {
+        "finish_reason": "tool_calls",
+        "max_tokens": 4096,
+        "response_tokens": 157,
+        "requested_batch_calls": 2,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [
+          "spotify__show_artist_following"
+        ],
+        "unavailable_tools_exist_in_public_catalogue": [
+          true
+        ]
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__search_artists",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__search_artists",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_97a5782b5756",
+      "task_id": "3c13f5a_1",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_97a5782b5756/trajectory.json",
+      "source_sha256": "5d2f4ef8ac6e45a6b8f640c24c0145002a5e693426ba436d4fcb1d1560bd6f1a",
+      "evaluation_sha256": "e2f3ef1b133bee2e54734fc102750adddee217f1297cc393347b2d9982e61b6b",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 23,
+      "tools": 36,
+      "generated_tokens": 4061,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 2
+      }
+    },
+    {
+      "trajectory_id": "teacher_997b7a07036e",
+      "task_id": "c901732_2",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_997b7a07036e/trajectory.json",
+      "source_sha256": "2fd917d7c2043ff75834f826cbeabe1b868543121cfa00e62ac8e1ebc1124fd0",
+      "evaluation_sha256": "23696be901dceb8a2e46b1cbd94e287ce62ccfe9fafa7f18747532cf9f7f5970",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 12,
+      "tools": 24,
+      "generated_tokens": 1627,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_b56c0b01926a",
+      "task_id": "ce359b5_3",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_b56c0b01926a/trajectory.json",
+      "source_sha256": "afe991856b671ae368cc58b3e2b18d51ce9ed3fd35f082878a5c4558f222e78d",
+      "evaluation_sha256": "0941483f6122e73e2f055ad1f584c42b591dd9d8b0fb559f681556350a752346",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 14,
+      "tools": 107,
+      "generated_tokens": 10337,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_song_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_playlist_library",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_c58b538db2ae",
+      "task_id": "27e1026_2",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_c58b538db2ae/trajectory.json",
+      "source_sha256": "0713b8329e22b532f41a7bb25ca1418763c793486f5ba70fbdeb90a2e89e830e",
+      "evaluation_sha256": null,
+      "category": "TeacherBlocked",
+      "termination": "infrastructure_error",
+      "requests": 10,
+      "tools": 106,
+      "generated_tokens": 4521,
+      "detail": {
+        "requests_without_response": 0,
+        "request_size": {
+          "reason": "REQUEST_SIZE_LIMIT",
+          "next_request_bytes": 136823,
+          "limit": 131072,
+          "complete_prefix_receipts_checked": true,
+          "blocked_request_sent": false
+        }
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_song_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_album_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_playlist_library",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_fca2048006e1",
+      "task_id": "229360a_2",
+      "batch": "base_sft_v1_20261021_b02",
+      "source": "runs/base_sft_v1_20261021_b02/teacher_fca2048006e1/trajectory.json",
+      "source_sha256": "a3317dbd8f4e217061d2f34f18c6439d27c788025d3b895166840b958f5d87bc",
+      "evaluation_sha256": "5ed1ceb89dec2cc98a86b9f17367614fd8db67e683aa8c367df8e2abfd5cb194",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 10,
+      "tools": 40,
+      "generated_tokens": 5117,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_song_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_liked_songs",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_liked_albums",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_album_library",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_09d770550398",
+      "task_id": "82e2fac_3",
+      "batch": "base_sft_v1_20261021_b03",
+      "source": "runs/base_sft_v1_20261021_b03/teacher_09d770550398/trajectory.json",
+      "source_sha256": "d2f711e53c6f4e8ce9f77bd0bbc7d1558166772c5d022ae8fe515f0a8005ba30",
+      "evaluation_sha256": "360e5acdacc94a648e33b1f561229bf9e649eb27e90ce1f91ade5731f4609847",
+      "category": "episode_budget_exhausted",
+      "termination": "budget_exhausted",
+      "requests": 40,
+      "tools": 44,
+      "generated_tokens": 5458,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 24,
+        "tool_401_responses": 24,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_1661bf7f919a",
+      "task_id": "692c77d_1",
+      "batch": "base_sft_v1_20261021_b03",
+      "source": "runs/base_sft_v1_20261021_b03/teacher_1661bf7f919a/trajectory.json",
+      "source_sha256": "1fedd2e78f9bbf5e34c838938e4e23c9c80d0ff3b47664f03fc80f16722b1648",
+      "evaluation_sha256": "98cca55400e21574bb0a940e2a361fb616452d2abde53dd8132805b3ca759846",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 11,
+      "tools": 51,
+      "generated_tokens": 5102,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_liked_songs",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_playlist_library",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_5c5f5fe4097c",
+      "task_id": "3c13f5a_3",
+      "batch": "base_sft_v1_20261021_b03",
+      "source": "runs/base_sft_v1_20261021_b03/teacher_5c5f5fe4097c/trajectory.json",
+      "source_sha256": "61119d308cbdbe5434c6f7db30026b113cf0b13df6fbfd39cad7190160add9f3",
+      "evaluation_sha256": "ab27ecf85421a1f683c6f1d6a16a733f776951aed3974819b7796fdae80b3458",
+      "category": "unavailable_tool",
+      "termination": "invalid_completion",
+      "requests": 8,
+      "tools": 11,
+      "generated_tokens": 983,
+      "detail": {
+        "finish_reason": "tool_calls",
+        "max_tokens": 4096,
+        "response_tokens": 84,
+        "requested_batch_calls": 2,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [
+          "venmo__show_account"
+        ],
+        "unavailable_tools_exist_in_public_catalogue": [
+          true
+        ]
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_7c2a1f1130fb",
+      "task_id": "c901732_3",
+      "batch": "base_sft_v1_20261021_b03",
+      "source": "runs/base_sft_v1_20261021_b03/teacher_7c2a1f1130fb/trajectory.json",
+      "source_sha256": "372aea04f3e05d090303eea2a297435e9426bbc4ba52299625e8c66a2c0814b5",
+      "evaluation_sha256": "ee514e0530c9c41ffe810444298a24601b16f5a2589b91509142cf181c591d17",
+      "category": "unavailable_tool",
+      "termination": "invalid_completion",
+      "requests": 7,
+      "tools": 14,
+      "generated_tokens": 692,
+      "detail": {
+        "finish_reason": "tool_calls",
+        "max_tokens": 4096,
+        "response_tokens": 62,
+        "requested_batch_calls": 1,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [
+          "spotify__play_music"
+        ],
+        "unavailable_tools_exist_in_public_catalogue": [
+          true
+        ]
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_fcab8428135f",
+      "task_id": "60d0b5b_1",
+      "batch": "base_sft_v1_20261021_b03",
+      "source": "runs/base_sft_v1_20261021_b03/teacher_fcab8428135f/trajectory.json",
+      "source_sha256": "faadbaaaa3bf5e497c4dd3c15675c479e5a2d3f4cbadf36d26301211ad400cae",
+      "evaluation_sha256": "36a184c03c922d2f3c2e62f07a26b4d158a8b3fd1a39d2fac41434b567a0183d",
+      "category": "unavailable_tool",
+      "termination": "invalid_completion",
+      "requests": 19,
+      "tools": 20,
+      "generated_tokens": 3042,
+      "detail": {
+        "finish_reason": "tool_calls",
+        "max_tokens": 4096,
+        "response_tokens": 170,
+        "requested_batch_calls": 1,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [
+          "venmo__show_venmo_balance"
+        ],
+        "unavailable_tools_exist_in_public_catalogue": [
+          true
+        ]
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 6,
+        "tool_401_responses": 6,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_1f07a0bab880",
+      "task_id": "6ea6792_2",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_1f07a0bab880/trajectory.json",
+      "source_sha256": "b141978e1cd64b735fab40ecb5a601b6c78f2645c37d4bf5dba37f515f4cab5a",
+      "evaluation_sha256": "5999f3e2739c635e8c4789d123f2d46943de70d8d7040957cb36cc63ac9cd7e9",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 13,
+      "tools": 29,
+      "generated_tokens": 3755,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "venmo__search_friends",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_8292146875b6",
+      "task_id": "d0b1f43_2",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_8292146875b6/trajectory.json",
+      "source_sha256": "91ecde5d36013d095126140a0de4e0d4a663ea8c0ad63d6756ec7c17dc06a284",
+      "evaluation_sha256": "9b0bd159574ea80d7f79d1c0b25685656de75f4dcb1dfbf4826337aaa6e0e38f",
+      "category": "episode_budget_exhausted",
+      "termination": "budget_exhausted",
+      "requests": 40,
+      "tools": 43,
+      "generated_tokens": 7411,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 1,
+        "tool_401_responses": 1,
+        "empty_pages": [
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 2
+          },
+          {
+            "tool": "phone__search_contacts",
+            "page_index": 1
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 2
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 3
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 4
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 5
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 6
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 7
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 8
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 9
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 10
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 11
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 12
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 13
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 14
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 15
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 16
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 17
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 18
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 19
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 20
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 21
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 22
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 23
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 24
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 25
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 26
+          },
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 27
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_965119e810b9",
+      "task_id": "34d9492_1",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_965119e810b9/trajectory.json",
+      "source_sha256": "aa984eb0666dc06e92a02f8240ba63821c33d6aba9cd47af8a096b3164141325",
+      "evaluation_sha256": "54f57f553928cae5280e0e1dc2c6c3ea98a246081394998040628bd8df3ec8bc",
+      "category": "output_truncated",
+      "termination": "invalid_completion",
+      "requests": 13,
+      "tools": 82,
+      "generated_tokens": 16384,
+      "detail": {
+        "finish_reason": "length",
+        "max_tokens": 2024,
+        "response_tokens": 2024,
+        "requested_batch_calls": 10,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [],
+        "unavailable_tools_exist_in_public_catalogue": []
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_9e7048005df8",
+      "task_id": "229360a_2",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_9e7048005df8/trajectory.json",
+      "source_sha256": "1d515a8678286de9f998626d9c8e9b10767668a8736546cfba9a543cab9fff7e",
+      "evaluation_sha256": "77ac0d2edfd84fa3f5e504333cd82da89c22a1e65df5c54ace453d32120b34cc",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 12,
+      "tools": 52,
+      "generated_tokens": 6199,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_song_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_album_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_liked_songs",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_liked_albums",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_9f69c768765d",
+      "task_id": "c901732_2",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_9f69c768765d/trajectory.json",
+      "source_sha256": "121c65085779d26ddb099c0c3b1be6e3e5621bda3f4fa715a64ec99b55ff2c5b",
+      "evaluation_sha256": "b1f8300b8a4b942079285a24de9268bc97dfdfc5af5298b532a22d203a094bba",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 14,
+      "tools": 23,
+      "generated_tokens": 1453,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_b6f9d8d36fbb",
+      "task_id": "60d0b5b_1",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_b6f9d8d36fbb/trajectory.json",
+      "source_sha256": "b050b6b4f717926b96193c4cf4b0582b48f6388e6f7b05006a286abb4a1b370f",
+      "evaluation_sha256": "1d725aec8cdbacbc1cbce30c346dd7b85c96fa2c77ed3fa190cfb574d2bfcf40",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 11,
+      "tools": 16,
+      "generated_tokens": 1721,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_bc225edaf0d8",
+      "task_id": "afc0fce_2",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_bc225edaf0d8/trajectory.json",
+      "source_sha256": "42d01bb8584294dbf2213408eb82759dbcc0dca4ff7a08d2814df69347fde92a",
+      "evaluation_sha256": "5cf2bb32a96099ea3ec1b85c9d53a0c8cb7334d8ffa4ee42f5dac5048a9892c0",
+      "category": "output_truncated",
+      "termination": "invalid_completion",
+      "requests": 10,
+      "tools": 16,
+      "generated_tokens": 6525,
+      "detail": {
+        "finish_reason": "length",
+        "max_tokens": 4096,
+        "response_tokens": 4096,
+        "requested_batch_calls": 25,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [],
+        "unavailable_tools_exist_in_public_catalogue": []
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "venmo__show_transactions",
+            "page_index": 2
+          },
+          {
+            "tool": "venmo__search_friends",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_ce03ce204954",
+      "task_id": "82e2fac_3",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_ce03ce204954/trajectory.json",
+      "source_sha256": "021ae5d8f45dec6081ef93ebb541b5e32119543a21812b77db645fc6820674d7",
+      "evaluation_sha256": "334044202cb992cdf06199c5bd3d6eb23aca192a75c207dd1e678ca2ba66b161",
+      "category": "episode_budget_exhausted",
+      "termination": "budget_exhausted",
+      "requests": 40,
+      "tools": 44,
+      "generated_tokens": 5057,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 19,
+        "tool_401_responses": 19,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_db1986cc1b0e",
+      "task_id": "287e338_3",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_db1986cc1b0e/trajectory.json",
+      "source_sha256": "bbc771cc2e19be8231eb923021c1a264ad1dcdcec51140340708b6b82c8acb3b",
+      "evaluation_sha256": "6bd775a8bad198723e1fa971dcd780b1bdb7d9813f676b1a578b2cd37c0df4f0",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 8,
+      "tools": 9,
+      "generated_tokens": 850,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_recommendations",
+            "page_index": 2
+          }
+        ],
+        "added_friend_calls": 0,
+        "recommendation_tally": {
+          "unique_songs": 28,
+          "artist_song_pairs": 41,
+          "max_count": 5,
+          "answer_matches_observed_max": false
+        }
+      }
+    },
+    {
+      "trajectory_id": "teacher_eef36e116db0",
+      "task_id": "27e1026_2",
+      "batch": "base_sft_v1_20261021_b04",
+      "source": "runs/base_sft_v1_20261021_b04/teacher_eef36e116db0/trajectory.json",
+      "source_sha256": "701dc06b08e25dc1cd01706ce2b154563a8b8e0f72a5d63a7492afb10ff682ab",
+      "evaluation_sha256": null,
+      "category": "TeacherBlocked",
+      "termination": "infrastructure_error",
+      "requests": 12,
+      "tools": 112,
+      "generated_tokens": 5370,
+      "detail": {
+        "requests_without_response": 0,
+        "request_size": {
+          "reason": "REQUEST_SIZE_LIMIT",
+          "next_request_bytes": 150614,
+          "limit": 131072,
+          "complete_prefix_receipts_checked": true,
+          "blocked_request_sent": false
+        }
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_song_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_album_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_playlist_library",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_07844c97bb13",
+      "task_id": "aa8502b_1",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_07844c97bb13/trajectory.json",
+      "source_sha256": "a61f7cee884036cc2273fbed555800ffd248d9eca7cba8412222913ca9579f19",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_0b0677bdd4b0",
+      "task_id": "cf6abd2_2",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_0b0677bdd4b0/trajectory.json",
+      "source_sha256": "235a834fc9788a05b8f3d40d268ec3535b0d4c25a3fae147fa5510abe8487043",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_117b5fdb1ad2",
+      "task_id": "c901732_3",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_117b5fdb1ad2/trajectory.json",
+      "source_sha256": "c0e9b06a7ec96f473090de299123366997bee445eb9facd8097d50dae02c5634",
+      "evaluation_sha256": "a96e1bb9f53fcf3b7e69e3dd1b5688cddb632aed86b5b07cf9c6bfcb84a7cf89",
+      "category": "unavailable_tool",
+      "termination": "invalid_completion",
+      "requests": 7,
+      "tools": 15,
+      "generated_tokens": 692,
+      "detail": {
+        "finish_reason": "tool_calls",
+        "max_tokens": 4096,
+        "response_tokens": 61,
+        "requested_batch_calls": 1,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [
+          "spotify__play_music"
+        ],
+        "unavailable_tools_exist_in_public_catalogue": [
+          true
+        ]
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_11adb87b1be0",
+      "task_id": "d0b1f43_3",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_11adb87b1be0/trajectory.json",
+      "source_sha256": "408d850d21c5ca8b537fefc8eeeb91fb9c2a71e6e472f568bb9b0d5824e74fed",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_44ab74ff8d97",
+      "task_id": "6104387_1",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_44ab74ff8d97/trajectory.json",
+      "source_sha256": "fe8fd6639170456784f87cb6e22d919fbccae138deaa8d3516b71c95182c4988",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 8,
+      "tools": 23,
+      "generated_tokens": 1798,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_song_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_album_library",
+            "page_index": 1
+          },
+          {
+            "tool": "spotify__show_playlist_library",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_6e6743844f73",
+      "task_id": "b7a9ee9_2",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_6e6743844f73/trajectory.json",
+      "source_sha256": "10f08e03831f2e9688b4707e136300fb8a32f642d5d7b05163d46ea01d2eb8fd",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_7252b76369fb",
+      "task_id": "302c169_3",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_7252b76369fb/trajectory.json",
+      "source_sha256": "426f75c0b7d56f53992312159086b24856fbb345c363a83b345cec2108df104e",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_af2dc3901587",
+      "task_id": "ce359b5_2",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_af2dc3901587/trajectory.json",
+      "source_sha256": "3a71fc4fa648862c445cd379425f17c1b16b3cab671da534d54bc26b2103389e",
+      "evaluation_sha256": "6c0810ac49a7c24e3bed1c2d9212d6ba176552ca35921913e27d6f44ca7fcd74",
+      "category": "output_truncated",
+      "termination": "invalid_completion",
+      "requests": 12,
+      "tools": 90,
+      "generated_tokens": 8597,
+      "detail": {
+        "finish_reason": "length",
+        "max_tokens": 4096,
+        "response_tokens": 4096,
+        "requested_batch_calls": 24,
+        "rejected_batch_dispatched": 0,
+        "unavailable_tools": [],
+        "unavailable_tools_exist_in_public_catalogue": []
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [
+          {
+            "tool": "spotify__show_song_library",
+            "page_index": 1
+          }
+        ],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_d9429c0843cc",
+      "task_id": "60d0b5b_2",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_d9429c0843cc/trajectory.json",
+      "source_sha256": "9bbaab46201cce1a897bf9ae39b97d9666c65dc869cb0195dfc9fca5fbdeed4e",
+      "evaluation_sha256": "a64dab1b9def8a53185fddddbedb37468037706080337250bcb696ed7822a4c3",
+      "category": "completion_official_failure",
+      "termination": "completion_claim",
+      "requests": 8,
+      "tools": 11,
+      "generated_tokens": 1051,
+      "detail": {},
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_e71e99de0a79",
+      "task_id": "692c77d_2",
+      "batch": "base_sft_v1_20261021_b05",
+      "source": "runs/base_sft_v1_20261021_b05/teacher_e71e99de0a79/trajectory.json",
+      "source_sha256": "940251747ab33b4d4b097c3d6499a39da0400ae82b20fbe09d66f0ec28dbf7db",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_025a500dfc60",
+      "task_id": "d0b1f43_1",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_025a500dfc60/trajectory.json",
+      "source_sha256": "82185f940c5aaddb93dfeb1b4ccc51afd8e7adb581333bcfb86d844f8d0d319e",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_04c0edcd1ab6",
+      "task_id": "3c13f5a_1",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_04c0edcd1ab6/trajectory.json",
+      "source_sha256": "a7b3836e55a824dbad4191191393e564c1b270f117c03abbb820022052ece2ea",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_096180820c64",
+      "task_id": "6ea6792_1",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_096180820c64/trajectory.json",
+      "source_sha256": "3e3f6117ae225a771e713a12a0529dd3fd1419a8fc65c596e3f86fa2b1a5c819",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_131b8586fa42",
+      "task_id": "692c77d_3",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_131b8586fa42/trajectory.json",
+      "source_sha256": "5d3bcd075de42b76a539f649af9932af9af65927e797d179d2f44270abb8760c",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_1ef1c164ccb6",
+      "task_id": "60d0b5b_3",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_1ef1c164ccb6/trajectory.json",
+      "source_sha256": "3280d8432bdcfbf68c7318480aeee41bb41a9365de4f80f1ae0fbdffa1313fc4",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_28a10f4b6f46",
+      "task_id": "ce359b5_1",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_28a10f4b6f46/trajectory.json",
+      "source_sha256": "54fa7fbb6d8015c9568bcf1250551674f146efcdb9a354da93e70a41e522c843",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_2da1cea8b1b3",
+      "task_id": "afc0fce_3",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_2da1cea8b1b3/trajectory.json",
+      "source_sha256": "859bbb92cc7f3a31e26528b881e6bb889436348b7ba52669c9cfa8a01f5d4538",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 7,
+      "tools": 11,
+      "generated_tokens": 886,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_63b5dcedcebd",
+      "task_id": "287e338_2",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_63b5dcedcebd/trajectory.json",
+      "source_sha256": "127cada9b2702deab1b764bb705d04aba772e422e7755fa21e4725ac6434118b",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_70d7cd077139",
+      "task_id": "2a163ab_1",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_70d7cd077139/trajectory.json",
+      "source_sha256": "69bcc41a60861502af8da0e8ee1d7ab5ce51a6be37e4464f53950033e72a5f76",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_78343609a15e",
+      "task_id": "27e1026_3",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_78343609a15e/trajectory.json",
+      "source_sha256": "5cda037e889a0d967e77bfaf7c3dcca47ce16bc199814cf1d4830aa2d452dbf5",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_784507c92533",
+      "task_id": "229360a_3",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_784507c92533/trajectory.json",
+      "source_sha256": "985f2785d5d958aa871226440b775d8c51e5c29604046ddecd0bb1294ab63e3b",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_a8b719287b20",
+      "task_id": "c901732_1",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_a8b719287b20/trajectory.json",
+      "source_sha256": "c8d7633d3f55d5f36085e2e50686b913d24c915897617fca95a4d094030a0cd7",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 3,
+      "tools": 3,
+      "generated_tokens": 127,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_b73ad84eb5f3",
+      "task_id": "76f2c72_3",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_b73ad84eb5f3/trajectory.json",
+      "source_sha256": "bb2939339dc6fd5967af332b43bcd091d78ec7804bd6eeb47a869b36fa687640",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_ba760598498a",
+      "task_id": "302c169_2",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_ba760598498a/trajectory.json",
+      "source_sha256": "852308d1064da53d2b729fab275f6efc661f562ff6e67f3b7becd87f0caa51d5",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_c45bf39af933",
+      "task_id": "b7a9ee9_3",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_c45bf39af933/trajectory.json",
+      "source_sha256": "3c555ec8d17cae865498b572b20b2c7f5679c5dd95fed9cc7fa704cecd71227e",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_cfd7ee05d0e4",
+      "task_id": "b0a8eae_2",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_cfd7ee05d0e4/trajectory.json",
+      "source_sha256": "585bb2dce1d3dc2510b829b3b16e9bda5850d13376959e1f55b5c51425df021c",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_eb25d028aa5e",
+      "task_id": "34d9492_2",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_eb25d028aa5e/trajectory.json",
+      "source_sha256": "6df13378a681886c29f3b92f3e002e96296b41f40a6b1cc46c3e4b1be8e43e09",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    },
+    {
+      "trajectory_id": "teacher_f0cc2af7d175",
+      "task_id": "aa8502b_2",
+      "batch": "base_sft_v1_20261021_b06",
+      "source": "runs/base_sft_v1_20261021_b06/teacher_f0cc2af7d175/trajectory.json",
+      "source_sha256": "a9570f6ca1f1d0a81b5fd7d5319037d1ca36d9bb0b70153e1edac0c1dfe384bc",
+      "evaluation_sha256": null,
+      "category": "TeacherTransportError",
+      "termination": "infrastructure_error",
+      "requests": 1,
+      "tools": 0,
+      "generated_tokens": 0,
+      "detail": {
+        "requests_without_response": 1,
+        "request_size": null
+      },
+      "public_history_checks": {
+        "calls_with_token_not_previously_returned_by_same_app_login": 0,
+        "tool_401_responses": 0,
+        "empty_pages": [],
+        "added_friend_calls": 0
+      }
+    }
+  ],
+  "original_receipts_and_evaluations_match_prior_hashes": true,
+  "terminal_hash_files": {
+    "teacher_031d2092ff51": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_1d1bf9151540": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_38272aadd5cd": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_3b6628d3e48b": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_414bfe592f9e": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_42a1408c9e6c": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_4539d3bc0c4d": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_58107142c1e6": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_5d1c92e627b7": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_6f230f4a267b": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_72b592f169ad": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_848f39556faf": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_8bd716312dd2": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_a6df39a6c579": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_c921deaecba8": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_df8c6a55d795": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_dfea9d52abdb": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_e3fcb5f3d34c": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_efcbb0f41fa0": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_f09d79e599cc": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_03f7df4e0a8e": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_0aa3cbcec1ee": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_180b662bd33e": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_191586139631": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_5e5891e384bc": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_601adc476857": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_6155fdadf1e7": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_7fdc4c5b57cf": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_92308477cdac": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_92fe3eb1a93d": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_97a5782b5756": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_997b7a07036e": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_9fa36b471f3d": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_b56c0b01926a": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_d92476518edf": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_d957c6ca31a3": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_e74e4e14b99d": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_fca2048006e1": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_09d770550398": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_1190c3015de0": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_1661bf7f919a": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_19ba04323d99": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_2ec2cc364c60": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_3ad530bc1f58": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_5793ce51e8c1": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_5c5f5fe4097c": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_6c0a8c117cb1": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_77fe0c9dad55": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_7c2a1f1130fb": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_836e1ce2f561": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_92ed1ee1851c": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_a28ab3e1d866": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_aadb04813bc9": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_b853de6d47bb": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_c627aa5cfc03": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_ce3163c0a607": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_fcab8428135f": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_ff3b8e1f2612": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_06f0f0c9033f": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_1f07a0bab880": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_4d04906c1d1d": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_6d1dcaa1006b": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_8292146875b6": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_859671c43647": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_88500d360f4b": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_8bcf6441e221": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_93192b95e486": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_965119e810b9": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_9e7048005df8": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_9f69c768765d": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_b6f9d8d36fbb": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_b86f11a2a861": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_bc225edaf0d8": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_ce03ce204954": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_d44344de6e10": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_db1986cc1b0e": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_fa7c2cece8be": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_038b56979608": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_08c587fd7a62": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_117b5fdb1ad2": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_3e5180e10756": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_6e17f3d5cc01": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_935fa94ac30d": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_9acf34cc6ea5": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_a471f8a9b1ea": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_af2dc3901587": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_b0976d8079c6": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_d9429c0843cc": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_ebefcb3dbc9a": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    },
+    "teacher_fe1d333782d1": {
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "empty": true
+    }
+  },
+  "empty_terminal_hash_files": 90,
+  "model_requests": 0,
+  "real_tool_calls": 0,
+  "hidden_answers_loaded": false,
+  "training_started": false,
+  "original_rewards_modified": false
+}

@@ -1,0 +1,13 @@
+{
+  "runtime_source_files_checked": 50,
+  "runtime_source_match": true,
+  "archive_sha256": "68231f625b876db259c5085d08e70c77604ffbaaf6b0809b807852e2bfc3b9ed",
+  "manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "private_bundle_unchanged": true,
+  "software_tests_passed": 155,
+  "ruff_pass": true,
+  "formatted_files": 76,
+  "paid_model_requests": 0,
+  "diagnostic_real_tool_calls": 66,
+  "training_steps": 0
+}

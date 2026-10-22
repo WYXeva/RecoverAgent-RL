@@ -1,10 +1,19 @@
 # 项目状态
 
-- 最后更新：2026-10-21（Asia/Shanghai）
+- 最后更新：2026-10-22（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.11；正式 Student `Qwen/Qwen3-4B`。
-- 本轮状态：**P3-A正式数据95条/75任务/29家族；数量目标PARTIAL，Teacher补采因余额不足BLOCKED；数据交付与完整性检查PASS**。新增实际118次、58成功，2项计划任务未执行。P3-B及以后 `NOT_STARTED`。
+- 当前状态：**失败诊断PASS；AppWorld/SQLAlchemy数据库URI兼容与跨进程官方复评BLOCKED待修复**。v1的95条/75任务/29家族及原始成功回执、SHA不变；不能将原包完整性PASS解释为终态复评可靠。数量目标PARTIAL；补采上次因余额不足停止，本轮未复查余额。P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮fetch/pull核对基线 `5f420909f228945b1643375b9a917b61906a29f4`。真实克隆 `/tmp/recoveragent-dev-20261019`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮诊断核对最新基线 `919e8c83fbe9c17a5f05384ed98781420abb8c02`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## B失败排查（2026-10-22，诊断通过，未启用修复）
+
+- 范围：118次新增全部B dynamic_discovery/execution_v5，A仅历史示范。逐份原trajectory/evaluation SHA与封存metrics一致，重算58成功、60未成功：25传输错误、3本地请求字节边界、7未开放工具、6输出截断、3回合耗尽、16完成后官方失败。
+- **新增关键环境问题**：当前SQLAlchemy2.1.5将数据库URI的file:编码成file%3A，固定AppWorld字符串解析得到错误memory home。两个不同播放任务三次独立原动作重放，共66真实工具调用，返回全匹配，官方suppress_errors=False均抛OperationalError/no such table:songs。3条历史播放失败不能简单归因模型选错歌；原默认异常抑制使其成为普通失败。90份终态model_hashes均为空，单例全新进程复评漏识别实际修改。先修兼容及独立进程复评，再确认正式训练就绪；不改历史分数/验证器/冻结依赖。详见D030。
+- 其他证据：两次40回合循环抄错token持续401；另一次读空页仍翻到27。额外加好友、推荐计数、交并集、漏删、分页条件切换导致业务失败。HTTP状态在Teacher异常消息里有、最终轨迹只存类型；continue_after_infrastructure_error=true且无连续熔断，放大服务故障。7个未开放API都真实存在，函数目录不等于当前可调用schema。6次截断中4次4096、2次为累计预算剩余2327/2024。
+- 证据：reports/base_sft_failure_diagnosis_20261022.md/json、base_sft_failure_playback_probe_20261022.json、base_sft_failure_playback_repeats_20261022.json；scripts/diagnose_base_sft_failures.py、probe_appworld_evaluator.py。命令见报告。本轮0付费模型请求、0示范、0训练；首次受限内核启动未完成已中断，后续3次真实重放均有120秒硬超时。66调用只计诊断，不计Teacher成功数。
+- 验证：155软件测试、Ruff及76文件格式检查通过；封存50源码锁及manifest/归档SHA不变，见base_sft_failure_integrity_20261022.json。
+- 下一步：独立版本验证兼容依赖/官方实现，测试URI往返、真实状态保存恢复、model-hash持久化及新进程官方评价，保持v1不可变；再做HTTP记录/熔断和协议纠错。95条原始成功证据保留，但远程正式训练前置尚未通过。本轮未擅自切换A、充值或修改prompt。
 
 ## 正式Base-SFT v1构建（2026-10-21，已交付）
 

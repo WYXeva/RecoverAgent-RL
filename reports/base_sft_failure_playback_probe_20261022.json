@@ -1,0 +1,246 @@
+{
+  "url_probe": {
+    "sqlalchemy": "2.1.5",
+    "sqlmodel": "0.0.48",
+    "rendered_url": "sqlite:///file%3Adiagnostic/spotify.db?cache=shared&mode=memory&uri=true",
+    "database_component": "file:diagnostic/spotify.db",
+    "expected_home": ":memory:diagnostic",
+    "actual_home": ":memory:file%3Adiagnostic",
+    "matches": false
+  },
+  "training_started": false,
+  "replay": {
+    "scope": "scripted historical action replay; not new Teacher data",
+    "source": "runs/base_sft_v1_20261021_b02/teacher_997b7a07036e/trajectory.json",
+    "source_sha256": "2fd917d7c2043ff75834f826cbeabe1b868543121cfa00e62ac8e1ebc1124fd0",
+    "namespace": "diagnostic_playback_20261022_d",
+    "task_id": "c901732_2",
+    "real_tool_calls": 24,
+    "observations": [
+      {
+        "tool": "api_docs__show_api_descriptions",
+        "exact_match": true
+      },
+      {
+        "tool": "supervisor__show_account_passwords",
+        "exact_match": true
+      },
+      {
+        "tool": "api_docs__show_api_doc",
+        "exact_match": true
+      },
+      {
+        "tool": "api_docs__show_api_doc",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__login",
+        "exact_match": true
+      },
+      {
+        "tool": "api_docs__show_api_doc",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_playlist_library",
+        "exact_match": true
+      },
+      {
+        "tool": "api_docs__show_api_doc",
+        "exact_match": true
+      },
+      {
+        "tool": "api_docs__show_api_doc",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_song",
+        "exact_match": true
+      },
+      {
+        "tool": "api_docs__show_api_doc",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__play_music",
+        "exact_match": true
+      },
+      {
+        "tool": "api_docs__show_api_doc",
+        "exact_match": true
+      },
+      {
+        "tool": "spotify__show_current_song",
+        "exact_match": true
+      },
+      {
+        "tool": "supervisor__complete_task",
+        "exact_match": true
+      }
+    ],
+    "model_requests": 0,
+    "teacher_demonstrations_generated": 0,
+    "original_reward": 0,
+    "original_evidence_modified": false,
+    "official_validator_modified": false,
+    "evaluation_exception": {
+      "type": "OperationalError",
+      "missing_songs_table": true,
+      "stack": [
+        {
+          "file": "probe_appworld_evaluator.py",
+          "line": 84,
+          "function": "replay"
+        },
+        {
+          "file": "evaluator.py",
+          "line": 501,
+          "function": "evaluate_task"
+        },
+        {
+          "file": "evaluation.py",
+          "line": 74,
+          "function": "evaluate"
+        },
+        {
+          "file": "models.py",
+          "line": 933,
+          "function": "current_song"
+        },
+        {
+          "file": "orm.py",
+          "line": 1865,
+          "function": "map_all_getter"
+        },
+        {
+          "file": "orm.py",
+          "line": 1305,
+          "function": "map_all"
+        },
+        {
+          "file": "orm.py",
+          "line": 483,
+          "function": "by_ids"
+        },
+        {
+          "file": "orm.py",
+          "line": 681,
+          "function": "find_all"
+        },
+        {
+          "file": "session.py",
+          "line": 80,
+          "function": "exec"
+        },
+        {
+          "file": "session.py",
+          "line": 2473,
+          "function": "execute"
+        },
+        {
+          "file": "session.py",
+          "line": 2363,
+          "function": "_execute_internal"
+        },
+        {
+          "file": "context.py",
+          "line": 316,
+          "function": "orm_execute_statement"
+        },
+        {
+          "file": "base.py",
+          "line": 1458,
+          "function": "execute"
+        },
+        {
+          "file": "elements.py",
+          "line": 533,
+          "function": "_execute_on_connection"
+        },
+        {
+          "file": "base.py",
+          "line": 1678,
+          "function": "_execute_clauseelement"
+        },
+        {
+          "file": "base.py",
+          "line": 1832,
+          "function": "_execute_context"
+        },
+        {
+          "file": "base.py",
+          "line": 1972,
+          "function": "_exec_single_context"
+        },
+        {
+          "file": "base.py",
+          "line": 2342,
+          "function": "_handle_dbapi_exception"
+        },
+        {
+          "file": "base.py",
+          "line": 1953,
+          "function": "_exec_single_context"
+        },
+        {
+          "file": "default.py",
+          "line": 1192,
+          "function": "do_execute"
+        }
+      ]
+    },
+    "db_bindings_at_exception": [
+      {
+        "function": "current_song",
+        "instance_db_home": ":memory:file%3Atask_output-c901732_2",
+        "class_db_home": ":memory:file%3Afile%3Atask_output-c901732_2"
+      },
+      {
+        "function": "map_all_getter",
+        "instance_db_home": ":memory:file%3Atask_output-c901732_2",
+        "class_db_home": ":memory:file%3Afile%3Atask_output-c901732_2"
+      },
+      {
+        "function": "map_all",
+        "instance_db_home": ":memory:file%3Atask_output-c901732_2",
+        "class_db_home": ":memory:file%3Afile%3Atask_output-c901732_2"
+      }
+    ]
+  }
+}
