@@ -1,0 +1,49 @@
+{
+  "base_commit": "8ea72d8b1078f493f4eeaa1c530cf9ad2a3527e7",
+  "scope": "two-task real Teacher smoke; first two tasks from previous frozen v5 list, not unbiased benchmark",
+  "source_task_manifest": "configs/train_v5_ab_20261021.json",
+  "source_task_manifest_hash": "2fb8b2e2c3449844f32c715e548190a49288bf009f7a861775a520f343645744",
+  "new_task_manifest_hash": "73c9311ee65708a38599209646d19482cbe9948be33bf4f1c9be5ae6238dfe55",
+  "tasks": [
+    {
+      "task_id": "771d8fc_2",
+      "scenario_id": "771d8fc"
+    },
+    {
+      "task_id": "e7a10f8_3",
+      "scenario_id": "e7a10f8"
+    }
+  ],
+  "tool_mode": "dynamic_discovery",
+  "protocol_lock_digest": "377179371800cbb4b818c6ebd3b1ee3031142094444b1069aa8ff7ab4f02b779",
+  "teacher_model": "deepseek-flash",
+  "limits": {
+    "max_tasks": 2,
+    "max_requests": 80,
+    "total_generated_tokens": 32768,
+    "max_model_turns": 40,
+    "max_tool_calls": null,
+    "episode_generated_tokens": 16384,
+    "episode_wall_seconds": 600,
+    "total_wall_seconds": 1200,
+    "tool_timeout_seconds": 60,
+    "max_infrastructure_retries": 0,
+    "repeated_identical_call_limit": 3,
+    "episode_requests": 40,
+    "episode_cost": 1
+  },
+  "max_cost_usd": 2,
+  "pricing": {
+    "currency": "USD",
+    "input_per_million": 0.3,
+    "cached_input_per_million": 0.006,
+    "output_per_million": 1.2,
+    "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+    "checked_at": "2026-10-23",
+    "basis": "published peak rates; estimate, not invoice"
+  },
+  "fault_injection": false,
+  "training_enabled": false,
+  "replace_failed_tasks": false,
+  "extend_until_correction_observed": false
+}

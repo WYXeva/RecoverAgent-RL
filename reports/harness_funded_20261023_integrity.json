@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "dataset_id": "0cb59492cab7f608fda3a38a3c9af9535fcfeef7b92841accfcb5f5196f3c19b",
+  "manifest_sha256": "e9372bf7e7cd914eeb3f9f8cb97d2682606ae55b0557aa3978305a0906b3d4db",
+  "counts": {
+    "attempted": 2,
+    "valid": 2,
+    "infrastructure_errors": 0,
+    "official_successes": 2,
+    "accepted": 2,
+    "unique_tasks": 2,
+    "success_per_attempt": 1.0,
+    "success_per_valid": 1.0
+  },
+  "files_verified": 52,
+  "old_manifest_unchanged": true,
+  "old_archive_unchanged": true
+}

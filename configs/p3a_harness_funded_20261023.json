@@ -1,0 +1,81 @@
+{
+  "project_version": "0.10",
+  "tool_mode": "dynamic_discovery",
+  "actor_prompt_variant": "execution_v5",
+  "predictor_prompt_variant": "dependency_examples_v2",
+  "appworld_root": "data/appworld",
+  "student": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false
+  },
+  "teacher": {
+    "provider": "deepseek",
+    "base_url": "https://api.deepseek.com",
+    "allowed_host": "api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-flash",
+    "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+    "revision_is_immutable": false,
+    "revision_source": "https://api-docs.deepseek.com/",
+    "thinking": false,
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": null,
+    "max_request_bytes": 524288,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "USD",
+      "input_per_million": 0.3,
+      "cached_input_per_million": 0.006,
+      "output_per_million": 1.2,
+      "source": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "checked_at": "2026-10-23",
+      "basis": "published peak rates; estimate, not invoice"
+    }
+  },
+  "authorization": {
+    "approved": false,
+    "reference": null,
+    "currency": "USD",
+    "max_cost": null
+  },
+  "limits": {
+    "max_tasks": 2,
+    "max_requests": 80,
+    "total_generated_tokens": 32768,
+    "max_model_turns": 40,
+    "max_tool_calls": null,
+    "episode_generated_tokens": 16384,
+    "episode_wall_seconds": 600,
+    "total_wall_seconds": 1200,
+    "tool_timeout_seconds": 60,
+    "max_infrastructure_retries": 0,
+    "repeated_identical_call_limit": 3,
+    "episode_requests": 40,
+    "episode_cost": 1
+  },
+  "environment_seed": 42,
+  "training_enabled": false,
+  "collection_profile": "scenario_expansion_v1",
+  "protocol_lock": "configs/harness_review_protocol_lock.json",
+  "sampling": {
+    "strategy": "explicit",
+    "seed": 2026102301,
+    "num_tasks": 2,
+    "task_ids": [
+      "771d8fc_2",
+      "e7a10f8_3"
+    ]
+  },
+  "task_manifest": "configs/train_harness_funded_20261023.json",
+  "continue_after_infrastructure_error": true,
+  "task_manifest_hash": "73c9311ee65708a38599209646d19482cbe9948be33bf4f1c9be5ae6238dfe55",
+  "selection_protocol": "api_predictor_validated_v1",
+  "compare_tool_modes": false,
+  "answer_guard_protocol": "numeric_answer_self_correction_v1",
+  "harness_protocol": "public_protocol_correction_v1",
+  "environment_profile": "appworld_sqlalchemy20_v1",
+  "harness_runtime_revision": "review_20261023"
+}

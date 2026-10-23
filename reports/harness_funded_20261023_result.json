@@ -1,0 +1,144 @@
+{
+  "base_commit": "8ea72d8b1078f493f4eeaa1c530cf9ad2a3527e7",
+  "scope": "two predetermined train tasks, real DeepSeek and official AppWorld, no injected errors",
+  "tool_mode": "dynamic_discovery",
+  "protocol_lock_digest": "377179371800cbb4b818c6ebd3b1ee3031142094444b1069aa8ff7ab4f02b779",
+  "summary": {
+    "status": "PASS",
+    "attempts": 2,
+    "dataset_id": "0cb59492cab7f608fda3a38a3c9af9535fcfeef7b92841accfcb5f5196f3c19b",
+    "counts": {
+      "attempted": 2,
+      "valid": 2,
+      "infrastructure_errors": 0,
+      "official_successes": 2,
+      "accepted": 2,
+      "unique_tasks": 2,
+      "success_per_attempt": 1.0,
+      "success_per_valid": 1.0
+    },
+    "costs": {
+      "provider_requests": 15,
+      "prompt_tokens": 128599,
+      "generated_tokens": 6327,
+      "cached_prompt_tokens": 104832,
+      "tool_calls": 49,
+      "usage_priced_cost": 0.015351491999999998,
+      "unknown_cost_reservation": 0.0,
+      "unknown_generation_reservation": 0,
+      "tool_requests": 49,
+      "harness_rejections": 0,
+      "protocol_rejections": 0,
+      "harness_notices": 0,
+      "billed_cost": null,
+      "currency": "USD",
+      "unknown_usage_attempts": 0
+    },
+    "wall_seconds": 85.47818705999816,
+    "training_started": false,
+    "teacher_capability": "pilot_success_observed",
+    "service_stop_reason": null,
+    "unattempted_schedule": []
+  },
+  "rows": [
+    {
+      "trajectory_id": "teacher_76da979853c8",
+      "task_id": "771d8fc_2",
+      "scenario_id": "771d8fc",
+      "status": "valid",
+      "official_success": true,
+      "evaluation_status": "valid",
+      "termination": "completion_claim",
+      "usage": {
+        "provider_requests": 8,
+        "model_turns": 8,
+        "tool_calls": 34,
+        "prompt_tokens": 71706,
+        "generated_tokens": 4494,
+        "cached_prompt_tokens": 61056,
+        "usage_priced_cost": 0.008954135999999998,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "protocol_rejections": 0,
+        "harness_notices": 0,
+        "tool_requests": 34,
+        "harness_rejections": 0,
+        "wall_seconds": 47.15482918599446
+      },
+      "harness": {
+        "protocol": "public_protocol_correction_v1",
+        "runtime_revision": "review_20261023",
+        "rejections": 0,
+        "notices": 0,
+        "stopped": false
+      },
+      "answer_correction_used": false,
+      "backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "trajectory_sha256": "20823f00f400424bca05b3f0e2e6df412545822677ba31ca03f545b4a9974bec",
+      "official_evaluation_sha256": "aff40a8cd17ad7508d9567844e083a6f22b8b39d7b9e075a6ced358621ea2e92",
+      "tool_execution_error_returns": 0
+    },
+    {
+      "trajectory_id": "teacher_78b7d3c2334b",
+      "task_id": "e7a10f8_3",
+      "scenario_id": "e7a10f8",
+      "status": "valid",
+      "official_success": true,
+      "evaluation_status": "valid",
+      "termination": "completion_claim",
+      "usage": {
+        "provider_requests": 7,
+        "model_turns": 7,
+        "tool_calls": 15,
+        "prompt_tokens": 56893,
+        "generated_tokens": 1833,
+        "cached_prompt_tokens": 43776,
+        "usage_priced_cost": 0.006397356,
+        "unknown_cost_reservation": 0.0,
+        "unknown_generation_reservation": 0,
+        "billed_cost": null,
+        "currency": "USD",
+        "protocol_rejections": 0,
+        "harness_notices": 0,
+        "tool_requests": 15,
+        "harness_rejections": 0,
+        "wall_seconds": 36.05420210499142
+      },
+      "harness": {
+        "protocol": "public_protocol_correction_v1",
+        "runtime_revision": "review_20261023",
+        "rejections": 0,
+        "notices": 0,
+        "stopped": false
+      },
+      "answer_correction_used": false,
+      "backend": [
+        "deepseek-flash",
+        "e72d3c7f663d3e1383b00b3884cb4501"
+      ],
+      "trajectory_sha256": "74290ae6034c8ff2938c97bf722c1702b7c33aea8db6e6a50929ab62f27e226d",
+      "official_evaluation_sha256": "3f4da242184c1531c3ddbfba593dbf1bd2bc4e8f4b70a8da01f5c22483eec817",
+      "tool_execution_error_returns": 0
+    }
+  ],
+  "observed_account_balance_decrease": {
+    "CNY": "0.03"
+  },
+  "balance_receipt_sha256": {
+    "before": "5835f3707c4e45a0285297810c6127b3a3f8834fe9c984451a73a929922fb75e",
+    "after": "57e0416c429c6d08d30a0d085817190de5664a9dcef9ab32f1f402658e59bac4"
+  },
+  "billing_note": "Account-level rounded balance delta is not a per-request invoice; usage_priced_cost is a published peak-USD-rate estimate. billed_cost remains null.",
+  "availability": "PASS",
+  "real_execution_and_export": "PASS",
+  "harness_self_correction_effect": "NOT_OBSERVED_NO_TRIGGER",
+  "new_clean_trajectories": 2,
+  "original_formal_dataset_selected": 95,
+  "original_dataset_modified": false,
+  "training_started": false
+}

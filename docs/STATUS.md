@@ -2,9 +2,20 @@
 
 - 最后更新：2026-10-23（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.12；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Harness审查修订/软件/真实状态探针/原95条数据审计PASS；真实Teacher自纠正效果BLOCKED（余额不可用）**。原数据仍95条/75任务/29家族，数量目标PARTIAL；原包及历史成绩不变。P3-B及以后 `NOT_STARTED`。
+- 当前状态：**Harness审查修订及真实Teacher两任务执行/官方评价/新数据过滤PASS；DeepSeek余额阻塞已解除；真实Harness自纠正效果NOT_OBSERVED（本次无错误触发）**。原数据仍95条/75任务/29家族，数量目标PARTIAL；原包及历史成绩不变。P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮审查拉取最新基线 `49d3e5b9263572b27b77f15fbaabb13d05c065b5`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## 余额恢复后的真实Teacher验证（2026-10-23，完成）
+
+- 用户确认DeepSeek已充值；前后只读余额接口均HTTP200、可用且有正余额。运行冻结在`8ea72d8`，没有改源码、Prompt或官方评价器。
+- 预先固定旧v5清单前两个任务771d8fc_2/e7a10f8_3、seed2026102301，使用B dynamic_discovery；一次/任务，合计上限80请求/32768输出token/1200秒/USD2，无注入错误或结果替换。
+- **真实执行PASS**：官方成功2/2、完整过滤2/2，15模型请求、49工具调用、128599输入+6327输出token，整批85.48秒。原始独立Clean Dataset有SHA清单；原正式95条及哈希不变，新增2条尚未并入正式v1。
+- **Qwen格式PASS**：2条均可放入32768；15个Assistant目标/5730监督token，最长14211、最长目标2776，动态Schema、Assistant-only/历史/pad mask及解析回读通过；无权重更新。首次因缺verified sidecar拒绝编码，补做官方成员/来源校验后通过，未绕过校验。
+- **纠错效果NOT_OBSERVED**：协议拒绝、数值纠正、notice和业务API错误均0；不能把正常成功解释为出错后修复，也不为触发纠错扩大任务数。基础设施/评价异常均0。余额已不再是阻塞。
+- **费用**：真实usage按冻结峰时价估算USD0.015351492；账户窗口余额差额CNY0.03，非逐请求账单，billed_cost仍null。2次只读余额查询，无额外模型请求、无训练。
+- **证据/命令**：`reports/harness_funded_validation_20261023.md`及`harness_funded_20261023_*.json`；新公开参数/任务清单`configs/p3a_harness_funded_20261023.json`、`train_harness_funded_20261023.json`。真实数据/日志`runs/harness_funded_20261023_a/`与`.cache/harness_funded_20261023_*`仅本机保留；实际collect/verify/sft_quality命令见报告。Ruff通过，原201测试源码基线未变。
+- 下一步：后续采样观察自然纠错；本轮两任务验证已停止。远程96GB和P3-B真实训练仍未启动。
 
 ## Harness审查修订（2026-10-23，完成）
 
