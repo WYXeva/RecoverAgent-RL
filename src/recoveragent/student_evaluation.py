@@ -139,6 +139,7 @@ def run_episode(config, case, arm, output):
     output.mkdir(parents=True, exist_ok=False)
     started = time.monotonic()
     adapter, session = None, None
+    experiment = "p3b_eval_" + digest(str(output.resolve()))[:24]
     record = {
         "task_id": case["task_id"],
         "partition": case["partition"],
@@ -149,15 +150,20 @@ def run_episode(config, case, arm, output):
         "training_started": False,
         "scope": "p3b_fixed_sample_evaluation",
         "config_hash": digest(config),
+        "experiment": experiment,
     }
     try:
+        if config["tool_mode"] != "dynamic_discovery":
+            raise ValueError("This frozen evaluation uses dynamic discovery")
         record["environment"] = environment_check()
         identity = request_json(config["inference_url"])
         adapter = EvaluationAdapter(
-            config["appworld_root"], case["task_id"], output.name, case["split"]
+            config["appworld_root"], case["task_id"], experiment, case["split"]
         )
         record["initial_state_hash"] = adapter.fingerprint()
         record["scenario_id"] = adapter.world.task.generator_id
+        if record["scenario_id"] != case["scenario_id"]:
+            raise ValueError("Official scenario differs from the committed plan")
         messages = [
             {"role": "system", "content": evaluation_prompt(config)},
             {
@@ -205,7 +211,7 @@ def run_episode(config, case, arm, output):
         adapter.close()
         adapter = None
         evaluation = evaluate_terminal(
-            case["task_id"], output.name, config["appworld_root"], case["split"], output
+            case["task_id"], experiment, config["appworld_root"], case["split"], output
         )
         record.update(
             status=evaluation["status"],
