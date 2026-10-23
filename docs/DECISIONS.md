@@ -293,3 +293,15 @@ Teacher旧transport已生成安全HTTP错误文本，新增捕获层只解析这
 旧终态空model_hashes不回填、不覆盖。固定原95条选择顺序，在新进程从原始train初态重放真实Teacher历史动作，要求每个公开结果严格一致，保存/恢复新终态，再独立官方评价；新证据绑定原轨迹与数据包SHA。无模型请求，不计新增Teacher数据，也不反写旧分数。完整结果见`reports/harness_v1_report.md`及复验机器报告；本机通过仍不代表远程GPU/训练通过。
 
 本轮只读DeepSeek余额回执HTTP200但is_available=false、无正余额，未发生成请求。已有费用授权继续有效；真实Teacher自纠正效果需账户恢复后在新run中验证，不能用软件夹具或脚本动作冒充。SFT/GRPO均未启动。
+
+## D033 · 2026-10-23 · Harness审查修订，保留原Prompt与数据
+
+按用户要求完成工程审查而不开发Harness v2。确认活跃任务纯文本提前停止、普通初始化异常漏计连续熔断、批次中断终态保存不足，以及评价子进程异常分类缺口。使用 `public_protocol_correction_v1` + `runtime_revision=review_20261023` 明确版本；旧源码锁不变，新配置/锁绑定修复。RULES、execution_v3/v4/v5、AnswerGuard、官方Adapter和evaluator不改。新运行缺失revision拒绝配置，不将新行为冒称旧协议。
+
+Teacher/Student共用完整批次校验和rejection_event；意外停止使用原2次纠正机会，反馈只要求继续工具或正式status=fail。数值pending时该回复消耗唯一纠正，不延长预算。保留原始响应，拒绝不监督。已完成world不生成新请求。Provider状态只取安全回执，不从业务工具401推断；普通infra连续2次停止，评价错误立即停批。未知费用保留，无自动重发。
+
+新增的必要证据仅为执行前intent与两端共用中断导出。逐个真实返回记录；写入后丢失返回时记录未知call ID、实际状态、部分历史和schema，明确不可直接恢复，不能补造tool结果。执行前历史指针不宣称拥有执行前数据库快照。SIGKILL/磁盘故障的终态保证仍有限，保存失败不能遮蔽原异常。未来Recovery Runner仍需真正的完整边界快照，本轮不提前实现。
+
+真实AppWorld探针证实未完成业务状态也可能触发官方IndexError/UnboundLocalError。因此evaluation_error是一类运行结果，不直接断言环境坏了，也不变成策略0分。保守停批暂保留；若细分必须新增控制侧证据，不改断言。本轮首次探针错误预期退出1的原记录保留，第二次只修正测试预期，没有改奖励。
+
+原95条完整审计、18独立来源包、原manifest/archive SHA均通过且不变；仅重放封存顺序首条成功历史，40真实调用及官方成功，不计新Teacher数据。加两次中断探针4调用和A/B发现2调用，本轮46真实工具调用、0生成/训练。账户余额仍不可用，真实Teacher效果BLOCKED。201软件测试、真实状态、tokenizer/mask通过不能替代4B训练通过；最终报告见reports/harness_review_report.md。

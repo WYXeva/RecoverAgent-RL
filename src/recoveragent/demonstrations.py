@@ -26,7 +26,7 @@ from .answer_guard import validate_guard_record
 from .harness import (
     validate_record as validate_harness_record,
     check_batch,
-    ProtocolViolation,
+    rejection_details,
 )
 
 FORMAT = "clean-teacher-normal-v1"
@@ -126,22 +126,19 @@ def validate_receipts(trajectory, directory):
                 rejected = normalize_message(
                     response, trajectory["teacher"].get("max_tool_calls_per_turn", 1)
                 )
-                check_batch(rejected, messages[:index], turn["tools"])
-            except (ValueError, KeyError, TypeError) as exc:
-                code = (
-                    exc.code
-                    if isinstance(exc, ProtocolViolation)
-                    else (
-                        "truncated_output"
-                        if any(
-                            c.get("finish_reason") == "length"
-                            for c in response.get("choices", [])
-                        )
-                        else "malformed_output"
-                    )
+                check_batch(
+                    rejected,
+                    messages[:index],
+                    turn["tools"],
+                    require_action=bool(trajectory["harness"].get("runtime_revision")),
                 )
-                rejected_function = (
-                    exc.tool_name if isinstance(exc, ProtocolViolation) else None
+            except (ValueError, KeyError, TypeError) as exc:
+                code, rejected_function = rejection_details(
+                    exc,
+                    truncated=any(
+                        c.get("finish_reason") == "length"
+                        for c in response.get("choices", [])
+                    ),
                 )
                 if code != turn["protocol_rejection"] or rejected_function != turn.get(
                     "rejected_function"

@@ -19,6 +19,8 @@ def verify_lock(config, root=None):
         != lock.get("selection_protocol", "frozen_v3")
         or config.get("answer_guard_protocol") != lock.get("answer_guard_protocol")
         or config.get("harness_protocol") != lock.get("harness_protocol")
+        or config.get("harness_runtime_revision")
+        != lock.get("harness_runtime_revision")
         or config.get("environment_profile") != lock.get("environment_profile")
         or config["teacher"]["max_new_tokens"] != 4096
         or config["limits"]["max_tool_calls"] is not None

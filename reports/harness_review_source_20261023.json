@@ -1,0 +1,20 @@
+{
+  "baseline_commit": "49d3e5b9263572b27b77f15fbaabb13d05c065b5",
+  "p0_p2_unchanged_files": 17,
+  "v3_unchanged_files": 5,
+  "unchanged_old_locks": [
+    "configs/prompt_protocol_lock.json",
+    "configs/execution_v4_protocol_lock.json",
+    "configs/execution_v5_protocol_lock.json",
+    "configs/base_sft_collection_lock.json",
+    "configs/harness_v1_protocol_lock.json",
+    "requirements/appworld.lock.txt",
+    "requirements/appworld-harness.lock.txt"
+  ],
+  "answer_guard_evaluator_and_v4_v5_unchanged": true,
+  "harness_prompt_unchanged": true,
+  "runtime_revision": "review_20261023",
+  "new_lock_sha256": "30c7e3127d12ba14b1188cecbab12af3ccf29d482a1f6a5da28e2f3d4cd8cf29",
+  "new_lock_digest": "377179371800cbb4b818c6ebd3b1ee3031142094444b1069aa8ff7ab4f02b779",
+  "official_source_modified": false
+}

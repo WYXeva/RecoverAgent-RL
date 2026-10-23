@@ -1,0 +1,8 @@
+{
+  "purpose": "read_only_funding_preflight",
+  "model_requests": 0,
+  "credential_present": true,
+  "http_status": 200,
+  "is_available": false,
+  "positive_balance": false
+}

@@ -19,19 +19,12 @@ from .tool_modes import MODES, execute_with_mode
 from .answer_guard import AnswerGuard, RULES as ANSWER_RULES
 from .harness import (
     ProtocolHarness,
-    ProtocolViolation,
+    capture_interruption,
+    record_call_intent,
+    json_object,
     check_batch,
     RULES as HARNESS_RULES,
 )
-
-
-def _object(pairs):
-    result = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError("Duplicate JSON key")
-        result[key] = value
-    return result
 
 
 def _constant(_):
@@ -60,7 +53,7 @@ def parse_batch(text, call_prefix, finish_reason):
     content, tail, calls = text[:start].rstrip(), text[start:], []
     if "</tool_call>" in content:
         raise ValueError("Unmatched tool-call closing tag")
-    decoder = json.JSONDecoder(object_pairs_hook=_object, parse_constant=_constant)
+    decoder = json.JSONDecoder(object_pairs_hook=json_object, parse_constant=_constant)
     while tail.strip():
         tail = tail.lstrip()
         if not tail.startswith("<tool_call>"):
@@ -209,6 +202,9 @@ class StudentSession:
         ):
             self.stopped, self.termination = True, "budget_exhausted"
             raise ValueError("Student resource budget exhausted")
+        if self.harness and self.adapter.world.task_completed():
+            self.stopped, self.termination = True, "completion_claim"
+            raise ValueError("AppWorld task already completed")
         validate_history(self.messages)
         text = self.tokenizer.apply_chat_template(
             self.messages,
@@ -255,7 +251,7 @@ class StudentSession:
             "dispatched_count": 0,
         }
         self.events.append(event)
-        dispatch_started, response_received = False, False
+        batch_open, response_received = False, False
         try:
             self.usage["unknown_generation_reservation"] = request["max_new_tokens"]
             response = generate(copy.deepcopy(request))
@@ -294,38 +290,23 @@ class StudentSession:
                     text, "student_" + name, response["finish_reason"]
                 )
                 if self.harness:
-                    check_batch(message, self.messages, request["tools"])
+                    check_batch(
+                        message, self.messages, request["tools"], require_action=True
+                    )
             except (ValueError, KeyError, TypeError) as exc:
                 if not self.harness:
                     raise
-                code = (
-                    exc.code
-                    if isinstance(exc, ProtocolViolation)
-                    else (
-                        "truncated_output"
-                        if response["finish_reason"] == "length"
-                        else "malformed_output"
+                event.update(
+                    self.harness.rejection_event(
+                        exc,
+                        truncated=response["finish_reason"] == "length",
+                        guard=self.answer_guard,
                     )
                 )
-                pending = bool(self.answer_guard and self.answer_guard.pending)
-                rejected_function = (
-                    exc.tool_name if isinstance(exc, ProtocolViolation) else None
-                )
-                feedback = self.harness.reject(
-                    code, answer_pending=pending, tool_name=rejected_function
-                )
-                if pending:
-                    self.answer_guard.inspect([])
-                self.messages.append(feedback)
+                self.messages.append(event["feedback"])
                 self.usage["protocol_rejections"] += 1
-                event.update(
-                    protocol_rejection=code,
-                    rejected_function=rejected_function,
-                    feedback=feedback,
-                    supervise=False,
-                    appworld_dispatched_count=0,
-                    status="protocol_rejected",
-                )
+                event["status"] = "protocol_rejected"
+                event["failure_category"] = "model_tool_execution"
                 if self.harness.stopped:
                     self.stopped, self.termination = (
                         True,
@@ -333,23 +314,24 @@ class StudentSession:
                     )
                 return event
             calls = message.get("tool_calls", [])
-            validate_history(
-                self.messages
-                + [message]
-                + [
-                    {"role": "tool", "tool_call_id": c["id"], "content": ""}
-                    for c in calls
-                ]
-            )
-            # Whole-batch validation uses ONLY the schemas visible before generation.
-            for offset, call in enumerate(calls):
-                f = call["function"]
-                call_code(f["name"], f["arguments"], request["tools"])
-                if (
-                    f["name"] == "supervisor__complete_task"
-                    and offset != len(calls) - 1
-                ):
-                    raise ValueError("Completion must be last")
+            if not self.harness:
+                validate_history(
+                    self.messages
+                    + [message]
+                    + [
+                        {"role": "tool", "tool_call_id": c["id"], "content": ""}
+                        for c in calls
+                    ]
+                )
+                # Whole-batch validation uses ONLY the schemas visible before generation.
+                for offset, call in enumerate(calls):
+                    f = call["function"]
+                    call_code(f["name"], f["arguments"], request["tools"])
+                    if (
+                        f["name"] == "supervisor__complete_task"
+                        and offset != len(calls) - 1
+                    ):
+                        raise ValueError("Completion must be last")
             self.messages.append(message)
             guard = self.answer_guard
             verdicts = guard.inspect(calls) if guard else [None] * len(calls)
@@ -359,14 +341,17 @@ class StudentSession:
                     supervise=not any(verdicts),
                     appworld_dispatched_count=0,
                 )
+            batch_open = bool(calls)
+            event["tool_results"] = []
             for call, verdict in zip(calls, verdicts):
                 if time.monotonic() - self.started >= self.wall_seconds:
                     raise TimeoutError("Batch interrupted by wall-clock budget")
-                dispatch_started = True
                 f = call["function"]
                 if guard:
                     self.usage["tool_requests"] += 1
                 if verdict is None:
+                    if self.harness:
+                        record_call_intent(self.output, event, call)
                     self.usage["tool_calls"] += 1
                     result, self.tools = execute_with_mode(
                         self.adapter,
@@ -375,6 +360,7 @@ class StudentSession:
                         self.tools,
                         self.tool_mode,
                     )
+                    event.pop("inflight_call_id", None)
                     if guard:
                         event["appworld_dispatched_count"] += 1
                 else:
@@ -387,6 +373,7 @@ class StudentSession:
                     "content": result,
                 }
                 self.messages.append(observation)
+                event["tool_results"].append(copy.deepcopy(observation))
                 event["dispatched_count"] += 1
                 if self.output:
                     write_json(
@@ -396,6 +383,7 @@ class StudentSession:
                         observation,
                     )
             validate_history(self.messages)
+            batch_open = False
             if (
                 self.harness
                 and calls
@@ -425,10 +413,20 @@ class StudentSession:
                 "infrastructure_error"
                 if not response_received
                 else "interrupted_batch"
-                if dispatch_started
+                if batch_open
                 else "rejected_generation"
             )
             event.update(status=self.termination, error_type=type(exc).__name__)
+            if self.harness:
+                event["failure_category"] = (
+                    "worker_environment"
+                    if batch_open or not response_received
+                    else "model_tool_execution"
+                )
+            if self.harness and batch_open:
+                event["interruption"] = capture_interruption(
+                    self.adapter, self.output, self.messages, self.tools, event
+                )
             raise
         finally:
             if self.harness:
@@ -455,6 +453,7 @@ class StudentSession:
                 if self.termination not in {
                     "budget_exhausted",
                     "context_budget_exhausted",
+                    "completion_claim",
                 }:
                     raise
         return {

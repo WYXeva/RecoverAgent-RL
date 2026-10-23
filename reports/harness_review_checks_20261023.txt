@@ -1,0 +1,30 @@
+$ .venv/bin/python -m pytest -q
+........................................................................ [ 36%]
+........................................................................ [ 72%]
+........................................................                 [100%]
+200 passed in 0.46s
+exit_code=0
+
+$ .venv/bin/ruff check src tests scripts
+All checks passed!
+exit_code=0
+
+$ .venv/bin/ruff format --check src tests scripts
+85 files already formatted
+exit_code=0
+
+Final check after interrupted-turn accounting regression fix:
+$ .venv/bin/python -m pytest -q
+........................................................................ [ 35%]
+........................................................................ [ 71%]
+.........................................................                [100%]
+201 passed in 0.45s
+exit_code=0
+
+$ .venv/bin/ruff check src tests scripts
+All checks passed!
+exit_code=0
+
+$ .venv/bin/ruff format --check src tests scripts
+85 files already formatted
+exit_code=0

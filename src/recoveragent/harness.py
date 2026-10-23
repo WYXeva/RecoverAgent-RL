@@ -7,14 +7,16 @@ harness user message is added to the legal conversation for the next generation.
 
 import json
 import re
+from pathlib import Path
 
 from jsonschema import ValidationError
 
 from .adapter import call_code
-from .io import canonical, digest
+from .io import canonical, digest, files_manifest, write_json
 from .teacher_history import validate_history
 
 PROTOCOL = "public_protocol_correction_v1"
+RUNTIME_REVISION = "review_20261023"
 RULES = """PUBLIC HARNESS PROTOCOL v1
 The harness checks complete responses before executing any call in the batch.
 On harness_protocol_error the ENTIRE batch was NOT executed. Raw invalid output
@@ -34,6 +36,7 @@ The separate numeric-answer rule still allows only the immediately next reply.
 """
 
 MESSAGES = {
+    "unexpected_stop": "The task is still active. Continue using the visible tools, or report inability with supervisor__complete_task(status='fail'). Plain text does not end an AppWorld task. No tool was executed.",
     "truncated_output": "Generate a smaller complete batch. No prefix of the truncated response was executed.",
     "malformed_output": "Generate a complete non-thinking function-call response with valid JSON and unique call IDs.",
     "invalid_history": "Use fresh unique call IDs and a complete batch. No calls were executed.",
@@ -90,7 +93,7 @@ def observed_tokens(messages):
     return tokens
 
 
-def check_batch(message, messages, tools):
+def check_batch(message, messages, tools, *, require_action=False):
     calls = message.get("tool_calls", [])
     try:
         validate_history(
@@ -100,6 +103,8 @@ def check_batch(message, messages, tools):
         )
     except (ValueError, KeyError, TypeError):
         raise ProtocolViolation("invalid_history") from None
+    if require_action and not calls:
+        raise ProtocolViolation("unexpected_stop")
     visible = {t["function"]["name"] for t in tools}
     tokens = observed_tokens(messages)
     for offset, call in enumerate(calls):
@@ -125,10 +130,13 @@ def check_batch(message, messages, tools):
 
 
 class ProtocolHarness:
-    def __init__(self, tool_mode):
+    def __init__(self, tool_mode, *, revision=RUNTIME_REVISION):
         if tool_mode not in {"dynamic_discovery", "api_predictor"}:
             raise ValueError("Unknown tool mode")
         self.tool_mode = tool_mode
+        if revision not in {None, RUNTIME_REVISION}:
+            raise ValueError("Unknown harness runtime revision")
+        self.revision = revision
         self.rejections = 0
         self.notices = 0
         self.stopped = False
@@ -155,6 +163,22 @@ class ProtocolHarness:
         if tool_name is not None:
             feedback["function"] = tool_name
         return {"role": "user", "content": canonical(feedback)}
+
+    def rejection_event(self, exc, *, truncated, guard):
+        code, function = rejection_details(exc, truncated=truncated)
+        pending = bool(guard and guard.pending)
+        feedback = self.reject(code, answer_pending=pending, tool_name=function)
+        if pending:
+            guard.inspect([])  # Never extend the one-response numeric budget.
+        return {
+            "protocol_rejection": code,
+            "rejected_function": function,
+            "supervise": False,
+            "feedback": feedback,
+            "appworld_dispatched_count": 0,
+            "dispatched_count": 0,
+            "tool_results": [],
+        }
 
     def notice(self, messages):
         """Conservative consecutive-result warning; never suppress a real result.
@@ -206,6 +230,7 @@ class ProtocolHarness:
     def summary(self):
         return {
             "protocol": PROTOCOL,
+            **({"runtime_revision": self.revision} if self.revision else {}),
             "rejections": self.rejections,
             "notices": self.notices,
             "stopped": self.stopped,
@@ -225,17 +250,97 @@ class ServiceCircuitBreaker:
 
     def observe(self, trajectory):
         error = trajectory.get("provider_error", {})
-        if trajectory.get("termination_reason") == "evaluation_error":
+        category = failure_category(trajectory)
+        if category == "evaluation_runtime":
             self.reason = "evaluation_runtime_error"
         if error.get("http_status") in {401, 402, 403}:
             self.reason = "provider_global_block"
-        if error or trajectory.get("termination_reason") == "worker_interrupted":
+        if category in {"provider", "worker_environment"}:
             self.consecutive += 1
         else:
             self.consecutive = 0
         if self.consecutive >= 2 and self.reason is None:
             self.reason = "consecutive_service_failures"
         return self.reason is not None
+
+
+def failure_category(trajectory):
+    """Classify controller failures; NEVER infer a provider status from tool text."""
+    if trajectory.get("provider_error"):
+        return "provider"
+    if trajectory.get("termination_reason") == "evaluation_error":
+        return "evaluation_runtime"
+    if (
+        trajectory.get("status") == "infrastructure_error"
+        or trajectory.get("termination_reason") == "worker_interrupted"
+    ):
+        return "worker_environment"
+    if trajectory.get("reward") == 0:
+        return "model_tool_execution"
+    return None
+
+
+def rejection_details(exc, *, truncated):
+    if isinstance(exc, ProtocolViolation):
+        return exc.code, exc.tool_name
+    return ("truncated_output" if truncated else "malformed_output"), None
+
+
+def record_call_intent(directory, event, call):
+    """Durable BEFORE dispatch, so a missing result is unknown, never zero calls."""
+    event["inflight_call_id"] = call["id"]
+    event["appworld_attempted_count"] = event.get("appworld_attempted_count", 0) + 1
+    if directory is not None:
+        write_json(
+            Path(directory)
+            / "call_intents"
+            / f"{event['request_id']}_{event['appworld_attempted_count']:03d}.json",
+            {
+                "request_id": event["request_id"],
+                "call": call,
+                "history_hash": event["history_hash"],
+                "tools_hash": digest(event["tools"]),
+            },
+        )
+
+
+def capture_interruption(adapter, directory, messages, tools, event):
+    """Best-effort control evidence, NEVER a resumable complete-batch checkpoint.
+
+    Keep the actual partial conversation and DB together. An in-flight call may
+    have mutated state without returning; do not fabricate its missing result.
+    Saving failure is explicit and must not mask the original execution error.
+    """
+    if directory is None:
+        return {"status": "unavailable", "reason": "no_output_directory"}
+    destination = Path(directory) / "interruption"
+    result = {"status": "saved", "resume_eligible": False}
+    try:
+        validate_history(messages[: event["assistant_index"]])
+        write_json(
+            destination / "context.json",
+            {"messages": messages, "tools": tools, "event": event},
+        )
+        adapter.export_state(
+            "harness_interrupted_" + event["request_id"], destination / "dbs"
+        )
+        write_json(destination / "runtime.json", adapter.runtime())
+        manifest = {
+            "format": "harness-interruption-evidence-v1",
+            "position": "interrupted_batch",
+            "resume_eligible": False,
+            "pre_batch_history_end": event["assistant_index"],
+            "pre_batch_history_hash": digest(messages[: event["assistant_index"]]),
+            "history_hash": digest(messages),
+            "logical_state_hash": adapter.fingerprint(),
+            "uncertain_call_id": event.get("inflight_call_id"),
+            "files": files_manifest(destination),
+        }
+        write_json(destination / "manifest.json", manifest)
+        result["manifest_hash"] = digest(manifest)
+    except Exception as exc:
+        result.update(status="save_error", error_type=type(exc).__name__)
+    return result
 
 
 def provider_error_record(exc):
@@ -263,7 +368,9 @@ def validate_record(record):
     messages = record["messages"]
     if _harness_missing(record):
         raise ValueError("Harness prompt or version mismatch")
-    h = ProtocolHarness(record["tool_mode"])
+    h = ProtocolHarness(
+        record["tool_mode"], revision=record["harness"].get("runtime_revision")
+    )
     guard = AnswerGuard(json.loads(messages[1]["content"])["instruction"])
     cursor = 2
     for t in record["turns"]:
@@ -274,6 +381,10 @@ def validate_record(record):
         ):
             raise ValueError("Harness history coverage mismatch")
         if "protocol_rejection" in t:
+            if t["protocol_rejection"] == "unexpected_stop" and not h.revision:
+                raise ValueError(
+                    "Unexpected-stop correction requires the reviewed runtime"
+                )
             feedback = h.reject(
                 t["protocol_rejection"],
                 answer_pending=guard.pending,
@@ -292,7 +403,12 @@ def validate_record(record):
                 )
             cursor += 1
         else:
-            check_batch(messages[cursor], messages[:cursor], t["tools"])
+            check_batch(
+                messages[cursor],
+                messages[:cursor],
+                t["tools"],
+                require_action=bool(h.revision),
+            )
             calls = messages[cursor].get("tool_calls", [])
             verdicts = guard.inspect(calls)
             cursor += 1 + len(calls)

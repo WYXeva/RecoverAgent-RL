@@ -18,6 +18,7 @@ from recoveragent.demonstrations import (
 )
 from recoveragent.harness import (
     PROTOCOL,
+    RUNTIME_REVISION,
     RULES,
     ProtocolHarness,
     ProtocolViolation,
@@ -40,6 +41,7 @@ def config():
         actor_prompt_variant="execution_v5",
         answer_guard_protocol=ANSWER_PROTOCOL,
         harness_protocol=PROTOCOL,
+        harness_runtime_revision=RUNTIME_REVISION,
         environment_profile="appworld_sqlalchemy20_v1",
     )
     c["teacher"].update(max_new_tokens=4096, max_tool_calls_per_turn=None)

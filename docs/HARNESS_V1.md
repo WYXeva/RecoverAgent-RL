@@ -2,6 +2,17 @@
 
 用户在失败讨论后明确要求工程化实现。基线为 `473693c3b768940679a2367d149fd54293e27496`；新增 `public_protocol_correction_v1`，不反写旧实验。实现及验证结果见 `../reports/harness_v1_report.md`。
 
+## 2026-10-23 审查修订（当前运行入口）
+
+审查基线 `49d3e5b`，完整发现与证据见 [Harness审查报告](../reports/harness_review_report.md)。Prompt/RULES/AnswerGuard不变；行为修订用 `runtime_revision=review_20261023` 明确标识。当前入口 `configs/p3a_harness_review.json` 与 `configs/harness_review_protocol_lock.json`；以下原v1配置及锁仍作为历史保留，不能改写后冒称旧运行。
+
+- 活跃任务返回无工具普通文本，使用原通用预算反馈 `unexpected_stop`，要求继续公开工具执行或正式 `complete_task(status='fail')`；不猜测自然语言是否等于结束。已经完成的world不继续请求模型；合法失败完成不拦截。原响应仍只在回执中保存，拒绝回合不监督。
+- 连续两次普通 infrastructure_error（包括初始化失败）也会熔断；评价子进程启动/超时/读取错误与官方非断言错误均单列 evaluation_runtime、立即停止。业务工具401不会成为Provider401。
+- 每个真实调用前写入call_intent，实际结果逐个落盘；中途失败导出实际DB/runtime/部分历史/当时schema和未知调用ID。`interruption/manifest.json`固定 `resume_eligible=false`，不伪装成完整恢复检查点。硬杀或保存失败只能保留已有证据，显式标识save_error/unavailable。
+- 通用拒绝事件、分类与Student重复键校验共享；保留原数值纠正和两次notice限制，不增加业务语义修补。
+
+原95条数据及所有旧锁、Prompt、官方奖励保持原样；当前源码审计兼容旧数据，但运行原包训练代码仍需匹配原封存源码。Harness纠错不是Recovery-SFT。
+
 ## 执行流程
 
 ```text

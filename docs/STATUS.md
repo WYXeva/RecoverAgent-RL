@@ -1,10 +1,21 @@
 # 项目状态
 
-- 最后更新：2026-10-22（Asia/Shanghai）
+- 最后更新：2026-10-23（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.12；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Harness v1实现/软件/本机真实环境及原95条复验PASS；真实Teacher自纠正效果BLOCKED（余额不可用）**。原数据仍95条/75任务/29家族，数量目标PARTIAL；原包及历史成绩不变。P3-B及以后 `NOT_STARTED`。
+- 当前状态：**Harness审查修订/软件/真实状态探针/原95条数据审计PASS；真实Teacher自纠正效果BLOCKED（余额不可用）**。原数据仍95条/75任务/29家族，数量目标PARTIAL；原包及历史成绩不变。P3-B及以后 `NOT_STARTED`。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮工程化核对最新基线 `473693c3b768940679a2367d149fd54293e27496`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮审查拉取最新基线 `49d3e5b9263572b27b77f15fbaabb13d05c065b5`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Harness审查修订（2026-10-23，完成）
+
+- **修复/简化PASS**：活跃任务纯文本意外停止纳入原两次纠错预算，合法status=fail及已完成任务不拦截；连续两次普通worker初始化异常熔断；评价子进程异常单列；中断批次逐调用intent/返回计数及实际DB导出，两端共用纠错事件和中断保存。非完整批次明确不可直接恢复，不补造结果。AnswerGuard、官方Adapter/evaluator、RULES及execution_v3/v4/v5不改。
+- **版本冻结**：`public_protocol_correction_v1` + `runtime_revision=review_20261023`，新入口`configs/p3a_harness_review.json`、新锁`configs/harness_review_protocol_lock.json`；旧v1/旧数据源码锁保留。详见`reports/harness_review_report.md` A–E、`docs/HARNESS_V1.md`、D033。
+- **软件PASS**：全套201测试、新增22个回归用例；Ruff check/format通过。Teacher/Student相同协议反馈一致；Provider401/402/403立即停止，业务API401仅真实观察/有限提示；数值纠正不借通用预算延长。
+- **真实环境PASS（脚本，非模型）**：两次写入后返回丢失探针均保留副作用/部分历史/未知调用，第二次完整验收通过；A/B各一次发现验证；封存清单首条成功Teacher重放40调用，观察及快照恢复一致，独立官方成功。首次探针错误地要求未完成状态必得有效0分，官方非断言异常使脚本退出1；仅修正探针预期，原证据保留。异常类型不等于环境故障，不产生有效策略奖励。
+- **数据/mask PASS**：原95条/75任务/29家族、1072目标及273003监督token不变；18独立源包（21路径含副本）复验。manifest `5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c`、archive `68231f625b876db259c5085d08e70c77604ffbaaf6b0809b807852e2bfc3b9ed`不变；真实Qwen tokenizer在合成纠错样例上验证mask/parser，非训练。
+- **资源/阻塞**：46真实工具调用、1只读余额查询、0模型生成/新增费用/训练步；DeepSeek余额仍不可用，真实Teacher纠正效果BLOCKED。没有重放全部95条、没有新采集。远程96GB/4B真实更新和重载仍未验证；当前checkout与原包训练源码锁不匹配是预期保护，按REMOTE_BASE_SFT版本分工使用。
+- **证据/命令**：`reports/harness_review_{data,source,world,modes,success,mask,provider}_20261023.json`、`harness_review_checks_20261023.txt`；`PYTHONPATH=src:. .venv/bin/pytest -q`、Ruff、两个probe脚本及单条revalidate完整命令见审查报告。私有`.cache/harness_review_*`保留原始日志、状态和评价，不上传。
+- **下一步**：账户恢复后少量真实Teacher纠错验收；远程就绪后使用原数据/对应封存源码做短长样本LoRA烟测。当前无新增Harness正确性阻塞，不代表P3-B训练已通过。
 
 ## Harness v1工程化（2026-10-22，完成）
 

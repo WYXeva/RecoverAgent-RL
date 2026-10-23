@@ -1,0 +1,23 @@
+{
+  "trajectory_id": "teacher_00013f09020d",
+  "task_id": "e3d6c94_3",
+  "source_sha256": "a698405edeeabfbd3e8e5af72450dcfcf6db5fe723873beddc53d789ed128588",
+  "scope": "historical_action_replay",
+  "namespace": "harness_review_success_20261023",
+  "environment": {
+    "sqlalchemy": "2.0.52",
+    "sqlmodel": "0.0.48",
+    "uri_roundtrip": true
+  },
+  "model_requests": 0,
+  "teacher_demonstrations_generated": 0,
+  "real_tool_calls": 40,
+  "observations_match": true,
+  "status": "valid",
+  "initial_state_matches": true,
+  "model_hash_entries": 2,
+  "snapshot_roundtrip_matches": true,
+  "official_success": true,
+  "evaluation_exception_types": [],
+  "evaluation_sha256": "ba287793d71b7dbc6eb527a5aeedf83521eacbc8b46223e379dc2cb4b5b69b83"
+}

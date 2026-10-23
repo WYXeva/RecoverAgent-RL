@@ -3,7 +3,7 @@
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
 > 版本：v0.12
 > 创建日期：2026-10-19  
-> 状态：v0.12 Harness工程化、AppWorld兼容修复与既有Teacher数据复验；实际结果见`docs/STATUS.md`，本轮不训练。
+> 状态：v0.12 Harness工程化后完成2026-10-23审查修订（runtime_revision=review_20261023）；需求与训练顺序不变，报告见`reports/harness_review_report.md`，本轮不训练。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 

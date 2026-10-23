@@ -50,6 +50,8 @@ v0.10 用户授权最终金额格式检查与一次模型自纠正。新 `execut
 
 服务HTTP状态安全记录，401/402/403立即停止，连续2次传输/worker故障熔断并阻止下一批；不自动付费重试，不抹去未知用量。新独立AppWorld兼容环境与依赖锁保持原环境不变；新进程官方评价只读观察异常，不修改测试断言，非断言异常单列evaluation_error。历史动作重放/脚本协议探针不计新增Teacher或Student成绩。拒绝回合不监督，纠正后的真实Teacher输出仍需官方成功与完整过滤。Student输入加回复不超过32768，单回复4096；原数据保持不可变。实现契约见`docs/HARNESS_V1.md`，本轮不训练。
 
+2026-10-23 工程审查修订：当前运行使用 `runtime_revision=review_20261023` 与 `configs/p3a_harness_review.json`；原Prompt、旧锁和95条数据不变。意外停止共用原纠错预算，普通初始化错误纳入熔断，中断批次导出实际状态但标记不可直接恢复。详细发现/限制见 `reports/harness_review_report.md` 与 D033，训练顺序仍按本v0.12要求。
+
 ## 2. 每次开始工作
 
 1. 阅读本文件、`PROJECT_PLAN.md`，以及已存在的 `docs/STATUS.md`、相关决策和最近阶段报告。

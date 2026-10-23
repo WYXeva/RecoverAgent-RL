@@ -35,8 +35,11 @@ from .teacher import (
 from .harness import (
     PROTOCOL as HARNESS_PROTOCOL,
     RULES as HARNESS_RULES,
+    RUNTIME_REVISION,
     ProtocolHarness,
-    ProtocolViolation,
+    capture_interruption,
+    record_call_intent,
+    failure_category,
     ServiceCircuitBreaker,
     check_batch,
     provider_error_record,
@@ -47,7 +50,8 @@ def validate_config(config):
     if config.get("harness_protocol") not in {None, HARNESS_PROTOCOL}:
         raise ValueError("Unknown harness protocol")
     if config.get("harness_protocol") and (
-        config.get("actor_prompt_variant") != "execution_v5"
+        config.get("harness_runtime_revision") != RUNTIME_REVISION
+        or config.get("actor_prompt_variant") != "execution_v5"
         or config.get("environment_profile") != "appworld_sqlalchemy20_v1"
         or config["teacher"]["max_new_tokens"] != 4096
         or config["limits"]["max_tool_calls"] is not None
@@ -170,6 +174,11 @@ def interrupted_usage(directory, teacher):
         "currency": teacher["pricing"]["currency"],
     }
     feedback = list((directory / "harness_feedback").glob("*.json"))
+    intents = list((directory / "call_intents").glob("*.json"))
+    if intents:
+        completed = totals["tool_calls"]
+        totals["tool_calls"] = max(completed, len(intents))
+        totals["tool_results_missing"] = max(0, len(intents) - completed)
     worker_path = directory.parent / (directory.name + ".config.json")
     guarded = worker_path.exists() and read_json(worker_path).get(
         "answer_guard_protocol"
@@ -177,6 +186,17 @@ def interrupted_usage(directory, teacher):
     if feedback or guarded:
         totals["harness_rejections"] = len(feedback)
         totals["tool_requests"] = totals["tool_calls"] + len(feedback)
+    if worker_path.exists() and read_json(worker_path).get("harness_protocol"):
+        events, unreadable = [], 0
+        for path in (directory / "turns").glob("*.json"):
+            try:
+                events.append(read_json(path)["event"])
+            except (OSError, ValueError, KeyError, TypeError):
+                unreadable += 1  # A killed write must not hide billing reservations.
+        totals["protocol_rejections"] = sum("protocol_rejection" in e for e in events)
+        totals["harness_notices"] = sum("harness_notice" in e for e in events)
+        totals["unreadable_turn_records"] = unreadable
+        totals["harness_counters_lower_bound"] = True
     for path in sorted((directory / "requests").glob("*.reservation.json")):
         totals["provider_requests"] += 1
         reservation = read_json(path)
@@ -244,6 +264,8 @@ def run_teacher_episode(config, task_id, output, credentials):
         "constraint_check": "official_terminal_checks_only; other safety NOT_MEASURED",
     }
     adapter, guard = None, None
+    batch_open, event = False, None
+    evaluation_started = False
     harness = (
         ProtocolHarness(trajectory["tool_mode"])
         if config.get("harness_protocol")
@@ -304,6 +326,9 @@ def run_teacher_episode(config, task_id, output, credentials):
             else None
         )
         for index in range(limits["max_model_turns"] if prediction_valid else 0):
+            if harness and adapter.world.task_completed():
+                termination = "completion_claim"
+                break
             left = (
                 min(
                     limits["episode_generated_tokens"],
@@ -394,10 +419,10 @@ def run_teacher_episode(config, task_id, output, credentials):
                     response, teacher.get("max_tool_calls_per_turn", 1)
                 )
                 if harness:
-                    check_batch(message, messages, tools)
+                    check_batch(message, messages, tools, require_action=True)
                 # Check IDs against the existing history before any dispatch.
                 calls = message.get("tool_calls", [])
-                if calls:
+                if calls and not harness:
                     validate_history(
                         messages
                         + [message]
@@ -425,36 +450,17 @@ def run_teacher_episode(config, task_id, output, credentials):
                             raise ValueError("Completion must be the last batch call")
             except (ValueError, KeyError, TypeError, ValidationError) as exc:
                 if harness:
-                    code = (
-                        exc.code
-                        if isinstance(exc, ProtocolViolation)
-                        else "truncated_output"
-                        if any(
-                            c.get("finish_reason") == "length"
-                            for c in response.get("choices", [])
-                        )
-                        else "malformed_output"
-                    )
-                    pending = bool(guard and guard.pending)
-                    rejected_function = (
-                        exc.tool_name if isinstance(exc, ProtocolViolation) else None
-                    )
-                    feedback = harness.reject(
-                        code, answer_pending=pending, tool_name=rejected_function
-                    )
-                    if pending:
-                        guard.inspect(
-                            []
-                        )  # The numeric correction cannot acquire extra retries.
                     event.update(
-                        protocol_rejection=code,
-                        rejected_function=rejected_function,
-                        supervise=False,
-                        feedback=feedback,
-                        appworld_dispatched_count=0,
-                        dispatched_count=0,
-                        tool_results=[],
+                        harness.rejection_event(
+                            exc,
+                            truncated=any(
+                                c.get("finish_reason") == "length"
+                                for c in response.get("choices", [])
+                            ),
+                            guard=guard,
+                        )
                     )
+                    feedback = event["feedback"]
                     usage["protocol_rejections"] += 1
                     messages.append(feedback)
                     write_json(
@@ -485,7 +491,8 @@ def run_teacher_episode(config, task_id, output, credentials):
                 if guard:
                     event.update(tool_results=[], dispatched_count=0)
                 break
-            event["tool_results"] = []
+            event.update(tool_results=[], dispatched_count=0)
+            batch_open = True
             for call, verdict in zip(calls, verdicts):
                 if harness and now() - started >= limits["episode_wall_seconds"]:
                     raise TimeoutError("Batch interrupted by wall-clock budget")
@@ -494,10 +501,13 @@ def run_teacher_episode(config, task_id, output, credentials):
                 if guard:
                     usage["tool_requests"] += 1
                 if verdict is None:
+                    if harness:
+                        record_call_intent(output, event, call)
                     usage["tool_calls"] += 1
                     result, tools = execute_with_mode(
                         adapter, name, arguments, tools, trajectory["tool_mode"]
                     )
+                    event.pop("inflight_call_id", None)
                     if guard:
                         event["appworld_dispatched_count"] += 1
                 else:
@@ -513,6 +523,7 @@ def run_teacher_episode(config, task_id, output, credentials):
                 }
                 messages.append(observation)
                 event["tool_results"].append(copy.deepcopy(observation))
+                event["dispatched_count"] += 1
                 # Preserve completed calls even if a later batch call is interrupted.
                 write_json(
                     output
@@ -520,8 +531,8 @@ def run_teacher_episode(config, task_id, output, credentials):
                     / f"{request_id}_{len(event['tool_results']):03d}.json",
                     observation,
                 )
-            event["dispatched_count"] = len(calls)
             validate_history(messages)
+            batch_open = False
             if (
                 harness
                 and not any(verdicts)
@@ -561,6 +572,7 @@ def run_teacher_episode(config, task_id, output, credentials):
         adapter.save_terminal()
         adapter.close()
         adapter = None
+        evaluation_started = bool(harness)
         if harness:
             from .evaluation import evaluate_isolated
 
@@ -597,12 +609,23 @@ def run_teacher_episode(config, task_id, output, credentials):
             error_type=type(exc).__name__,
             termination_reason=(
                 "evaluation_error"
-                if "evaluation_error" in trajectory
+                if evaluation_started or "evaluation_error" in trajectory
                 else "infrastructure_error"
             ),
         )
-        if harness and isinstance(exc, TeacherTransportError):
-            trajectory["provider_error"] = provider_error_record(exc)
+        if harness:
+            if isinstance(exc, TeacherTransportError):
+                trajectory["provider_error"] = provider_error_record(exc)
+            if batch_open:
+                event.update(status="interrupted_batch", error_type=type(exc).__name__)
+                trajectory["termination_reason"] = "interrupted_batch"
+                trajectory["interruption"] = capture_interruption(
+                    adapter, output, messages, tools, event
+                )
+                write_json(
+                    output / "turns" / f"{event['request_id']}.json",
+                    {"event": event, "messages": messages},
+                )
     finally:
         if harness:
             trajectory["harness"] = harness.summary()
@@ -618,6 +641,8 @@ def run_teacher_episode(config, task_id, output, credentials):
                     cleanup_error=type(exc).__name__,
                 )
     usage["wall_seconds"] = now() - started
+    if harness:
+        trajectory["failure_category"] = failure_category(trajectory)
     write_json(output / "trajectory.json", trajectory)
     return trajectory
 

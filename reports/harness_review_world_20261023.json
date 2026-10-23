@@ -1,0 +1,27 @@
+{
+  "scope": "scripted generations and injected post-write return loss on real AppWorld; NOT Teacher/Student performance",
+  "environment": {
+    "sqlalchemy": "2.0.52",
+    "sqlmodel": "0.0.48",
+    "uri_roundtrip": true
+  },
+  "unexpected_stop_zero_calls": true,
+  "invalid_mixed_batch_zero_calls": true,
+  "real_tool_calls": 2,
+  "returned_results": 1,
+  "uncertain_call_preserved": true,
+  "actual_state_changed": true,
+  "saved_state_matches": true,
+  "state_roundtrip_matches": true,
+  "incomplete_history_not_resumable": true,
+  "official_evaluation_status": "evaluation_error",
+  "official_success": null,
+  "evaluation_exception_types": [
+    "IndexError",
+    "UnboundLocalError"
+  ],
+  "source_directory": ".cache/harness_review_20261023_b",
+  "model_requests": 0,
+  "new_teacher_demonstrations": 0,
+  "training_steps": 0
+}

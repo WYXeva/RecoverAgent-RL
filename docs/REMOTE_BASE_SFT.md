@@ -80,6 +80,6 @@ Trainer 的周期 checkpoint 包括 adapter/optimizer/scheduler/RNG/trainer 状�
 
 远程推理沿用冻结 `execution_v5`、`dynamic_discovery` 和 `numeric_answer_self_correction_v1`；函数调用解析器 `student.parse_batch` 与训练目标回读共用。工具调用必须在生成时已可见；批次全部结果返回后才生成下一次，动态依赖不得在同批猜测。正式长 SFT 与 GRPO 本轮不启动。
 
-现有 StudentSession 分别检查输入和单次输出长度。真实后端接入时还必须将生成上限设为 `min(4096, 32768 - 实际输入token数, 剩余生成预算)`；没有余量则以明确预算原因终止，不能让输入32768再额外生成4096。此后端尚未接入，不能把数据长度检查当作推理总窗口已验收。
+原数据包封存的历史 StudentSession 分别检查输入和单次输出长度；当前 Harness及review_20261023运行时已经将生成上限设为 `min(4096, 32768 - 实际输入token数, 剩余生成预算)`；没有余量则以明确预算原因终止，不能让输入32768再额外生成4096。真实4B后端尚未接入，当前软件窗口校验通过不等于真实模型推理已验收。原包继续使用对应封存训练源码，当前Harness/兼容AppWorld worker按独立源码锁部署；不得修改原包锁以绕过版本检查。
 
 固定采样seed可以重建任务清单，固定源文件与tokenizer可以重建分组、mask及token文件；DeepSeek是带温度采样的在线别名，provider没有承诺不可变revision，不能保证重新付费生成得到逐token相同的轨迹。原始回执与backend指纹必须保留。
