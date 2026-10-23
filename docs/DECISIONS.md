@@ -319,3 +319,11 @@ Teacher/Student共用完整批次校验和rejection_event；意外停止使用�
 新增本机私有HTTP推理后端（仅远程loopback）：固定Qwen revision/BF16/non-thinking/chat template，逐请求复核完整输入token和checkpoint身份；只负责真实生成，不代选业务API。评估worker复用现有StudentSession、Harness、公开工具和官方评价；原train-only Adapter不改，独立评估构造器只放行明确train/dev成员，评价结果不回传Actor。调用/回执/真实状态/工具结果与控制评价分别保存。
 
 预先固定seed20261023，原训练/内部验证/官方dev各2个公开任务ID，两种权重共享相同6任务、4096单回复/32768总窗口/40请求/16384生成token/600秒预算。此小样本是管线及行为验收，内部validation不冒称未接触泛化集，不报告完整官方benchmark。dev只评价、不训练；原Teacher数据与历史P0–P2不变。最后先备份checkpoint和证据，再按用户要求关闭租用实例。实际结果以P3-B报告为准。
+
+## D036 · 2026-10-23 · 实测修复BF16重载上下文，不降低门槛或改旧锁
+
+run_001在权重加载前失败：新编排器Path.resolve解引用venv Python链接而使用系统环境；改为absolute保留解释器身份，加软链接回归测试。run_002真实短烟测完成2个optimizer step、有限loss、参数更新与保存，重载tensor哈希一致，但logits检查失败，后续阶段正确停止。
+
+使用保存的真实adapter和官方Accelerator.prepare_model做独立诊断：默认独立推理与Trainer BF16包装最大差0.421875；两端显式CUDA BF16 autocast后最大差0，重新加载新基座/adapter也为0。原0.01绝对/相对阈值不调整。根因是FP32 LoRA运算的autocast上下文不同，非权重丢失。
+
+原sft_recipe.py及50文件封存锁不改。新增sft_bf16_runtime.py保留封存execute主体，仅增加两次推理probe的显式autocast、补充源码锁校验与runtime_contract元数据；复用原loss/梯度/训练配置/数据检查，依然要求原50文件全部匹配。configs/p3b_bf16_runtime_lock.json额外绑定新入口与原recipe哈希。这一小段版本化重复是为了保持历史原样，后续新数据/runtime发布再合并，不动态猴补丁或绕过旧校验。独立Student后端使用同一BF16上下文。run_003从头重做两项烟测，旧失败目录及其参数更新事实保留；未通过的烟测不能记为PASS。

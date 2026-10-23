@@ -30,6 +30,11 @@ def main():
     p.add_argument("--retokenization-report", required=True)
     p.add_argument("--expected-manifest-sha256", required=True)
     p.add_argument("--output", required=True)
+    p.add_argument(
+        "--runtime-module",
+        choices=["recoveragent.sft_recipe", "recoveragent.sft_bf16_runtime"],
+        default="recoveragent.sft_recipe",
+    )
     a = p.parse_args()
     source, output = Path(a.source).resolve(), Path(a.output).resolve()
     dataset = Path(a.dataset).resolve()
@@ -74,7 +79,7 @@ def main():
                 # Resolving a venv's python symlink selects the system environment.
                 str(Path(a.python).absolute()),
                 "-m",
-                "recoveragent.sft_recipe",
+                a.runtime_module,
                 "execute",
                 "--config",
                 str(source / "configs" / config),

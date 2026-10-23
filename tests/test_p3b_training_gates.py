@@ -79,3 +79,18 @@ def test_formal_training_requires_both_verified_smokes(
         assert len(calls) == 3
     with pytest.raises(FileExistsError):
         driver.main()
+
+
+def test_bf16_supplement_rejects_source_change_without_rewriting_old_lock(tmp_path):
+    from pathlib import Path
+    from recoveragent.sft_bf16_runtime import verify_supplement
+
+    lock = json.loads(Path("configs/p3b_bf16_runtime_lock.json").read_text())
+    for name in ["configs/p3b_bf16_runtime_lock.json", *lock["files"]]:
+        destination = tmp_path / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(Path(name).read_bytes())
+    assert verify_supplement(tmp_path)["all_original_50_source_files_still_required"]
+    (tmp_path / "src/recoveragent/sft_bf16_runtime.py").write_text("# altered")
+    with pytest.raises(ValueError, match="source mismatch"):
+        verify_supplement(tmp_path)

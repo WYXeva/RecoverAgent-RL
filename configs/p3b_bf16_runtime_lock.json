@@ -1,0 +1,11 @@
+{
+  "runtime_contract": "bf16_autocast_reload_v1",
+  "parent_training_source_commit": "473693c3b768940679a2367d149fd54293e27496",
+  "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "all_original_50_source_files_still_required": true,
+  "change": "Only explicitly match CUDA BF16 autocast during both reload probes; unchanged 0.01 tolerances, optimizer, loss and data",
+  "files": {
+    "src/recoveragent/sft_recipe.py": "12304cb55e8197d2d1509ee2c87219bcc7974b7b37570972577d6a9d86d4c132",
+    "src/recoveragent/sft_bf16_runtime.py": "c2c7b0dc3af559d4bb5ec550cf4b392c5868781031f07c202144e6ac61c71a17"
+  }
+}

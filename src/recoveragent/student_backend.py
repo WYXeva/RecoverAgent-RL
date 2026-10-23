@@ -54,6 +54,7 @@ def main():
             not metadata["parameter_update_and_reload_pass"]
             or metadata["model"] != MODEL
             or metadata["revision"] != REVISION
+            or metadata.get("runtime_contract") != "bf16_autocast_reload_v1"
         ):
             raise ValueError("Unverified adapter checkpoint")
         model = PeftModel.from_pretrained(model, a.adapter, is_trainable=False)
@@ -93,7 +94,10 @@ def main():
                 torch.manual_seed(request["seed"])
                 torch.cuda.reset_peak_memory_stats()
                 started = time.monotonic()
-                with torch.inference_mode():
+                with (
+                    torch.inference_mode(),
+                    torch.autocast("cuda", dtype=torch.bfloat16),
+                ):
                     out = model.generate(
                         input_ids=inputs,
                         attention_mask=torch.ones_like(inputs),
