@@ -71,7 +71,8 @@ def main():
         for stage, config, timeout in stages:
             report = output / (stage + ".json")
             command = [
-                str(Path(a.python).resolve()),
+                # Resolving a venv's python symlink selects the system environment.
+                str(Path(a.python).absolute()),
                 "-m",
                 "recoveragent.sft_recipe",
                 "execute",

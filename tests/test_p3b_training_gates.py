@@ -24,6 +24,8 @@ def test_formal_training_requires_both_verified_smokes(
         )
     )
     output = tmp_path / "run"
+    interpreter = tmp_path / "venv_python"
+    interpreter.symlink_to(sys.executable)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -32,7 +34,7 @@ def test_formal_training_requires_both_verified_smokes(
             "--source",
             str(tmp_path),
             "--python",
-            sys.executable,
+            str(interpreter),
             "--dataset",
             str(data),
             "--model-cache",
@@ -48,6 +50,7 @@ def test_formal_training_requires_both_verified_smokes(
     calls = []
 
     def launch(command, **kwargs):
+        assert command[0] == str(interpreter)
         calls.append(command)
         report = command[command.index("--report") + 1]
         driver.write(
