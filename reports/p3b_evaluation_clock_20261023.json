@@ -1,0 +1,10 @@
+{
+  "runtime": {
+    "revision": "p3b_real_clock_v1",
+    "lock_sha256": "a8794775e00f0487409e9164fe3ae6058c56a8eb94561084bfe00a450edab283"
+  },
+  "official_frozen_monotonic_delta": 0.0,
+  "injected_system_clock_delta": 0.10020329803228378,
+  "status": "PASS",
+  "original_frozen_source_not_modified": true
+}

@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "archive_sha256": "1f6b14f49ccc69114e7a732c0b4e68bf3d4f2c4192cc3d7c6c339340041d6f45",
+  "bytes": 1440872774,
+  "local_archive": "runs/p3b_remote_20261023_phase1.tar.gz",
+  "extracted_to": "runs/p3b_remote_20261023",
+  "contains_private_checkpoints": true,
+  "publicly_uploaded": false
+}

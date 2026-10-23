@@ -343,3 +343,12 @@ StudentSession仅增加可选clock注入，旧默认及历史源码/锁不回写
 检查官方Freezegun configure/teardown实现后，采用公开configure(extend_ignore_list=['transformers'])，仅排除控制侧tokenizer模块，并在world创建前加载tokenizer；不改AppWorld/验证器源码。真实远程探针确认公开工具可执行、任务时间仍冻结、输入token IDs不变、真实墙钟正常、close成功。正常关闭前解除adapter的finally所有权，异常清理错误另记，保证不遮蔽主错误与结果落盘。相应软件回归通过。
 
 新增独立p3b_real_clock_transformers_v2锁，原v1锁及两个失败运行保留。evaluations_v2从原6任务/seed/预算/Prompt重新进行两模型对照，不据结果选任务或调模型。首轮2个基础设施尝试的模型请求/token/工具成本从原始回执重算后计入全部成本；有效官方成功率与基础设施异常分开。此修复不改变训练参数、正式adapter或原95条数据。
+
+
+## D039 · 2026-10-23 · Base-SFT交付与小样本效果分开验收
+
+真实run_003完成短/长烟测2/1步和正式116步、1epoch；全部参数更新/梯度/保存/重新加载通过，原95条与可信SHA不变。最终固定checkpoint及optimizer状态私有回传，公开交接报告绑定adapter文件/tensor、数据/model/template/runtime与归档哈希。没有因为任务效果有限重训、换任务或调整Prompt。
+
+两端固定6任务各4个有效官方结果、2个非断言运行异常，Raw成功0/4，Base-SFT1/4，唯一成功在train。严格区分有效结果成功率、总尝试已确认成功比例及unknown，保留异常为null、不转换为奖励0。内部validation/dev没有成功，不能由loss下降或训练集成功推断泛化提升。语法/截断、参数Schema及可见性分别统计，不能把全部协议拒绝混称语法格式错误。
+
+首次2条Freezegun基础设施尝试及失败smoke仍计入资源：本轮121实际optimizer steps、14任务尝试/190模型请求/213工具调用。安装/下载/空闲时间不包含在阶段墙钟中，GPU实扣未知。三包共2318088201字节已在本机核验后执行平台shell shutdown，远端断开、SSH不可达；不把连接证据冒称平台账单核验。没有自动进入P3-C或两阶段后的GRPO，后续需先明确官方评价异常边界，再按已保存Base-SFT策略产生新train失败。

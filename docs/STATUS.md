@@ -2,18 +2,21 @@
 
 - 最后更新：2026-10-23（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.13；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**P3-B进行中：远程环境与不可变数据复验PASS，权重准备及真实训练待执行**。正式集95条/75任务/29家族及历史成绩保持不变；上一阶段Harness审查与充值后Teacher验证已完成。
+- 当前状态：**P3-B真实训练与checkpoint交付PASS；官方评价完整性/效果验收PARTIAL，远程已执行关机**。正式集95条/75任务/29家族及历史成绩保持不变；上一阶段Harness审查与充值后Teacher验证已完成。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮审查拉取最新基线 `49d3e5b9263572b27b77f15fbaabb13d05c065b5`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮P3-B拉取最新基线 `2145a930f94f54bbe2170b677c6f985b48dc9fd8`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
 
-## P3-B远程执行（2026-10-23，进行中）
+## P3-B远程执行（2026-10-23，训练完成、效果验收部分通过）
 
-- 用户明确授权真实Base-SFT及结束关机。已同步2145a930；SSH可用，实测RTX PRO6000 Blackwell Server Edition 97887MiB/驱动595.71.05。使用独立训练与AppWorld环境。
-- 原95轨迹/75任务/29家族、1072样本/273003监督token与可信manifest、归档SHA均核验通过；50文件训练锁使用473693c对应源码，不修改原包。
-- 已安全迁移私有正式集与AppWorld数据。远程依赖/权重和数据重验尚在进行；此处尚不报告训练PASS。
-- 新增实际Qwen推理后端及固定6任务对照入口；训练/内部验证/dev各2个，选择时不读取隐藏标签。203软件测试和Ruff通过；尚不等于真实推理或效果验收。
-- 错误：远程非交互PATH无python3，改用实际Miniconda Python3.12；官方HF连接等待，正用本机官方固定revision下载/核验后迁移。首次pytest缺项目根PYTHONPATH导致收集失败，按既有src:.命令重跑通过。
-- 证据：reports/p3b_local_*_20261023.json；私有.cache/p3b_*及远程recoveragent_p3b_20261023目录。下一步远程重新分词及短/长烟测，全部通过后正式训练。
+- **真实训练/交付PASS**：实测RTX PRO6000 Blackwell 97887MiB，固定4B BF16+LoRA，先短/最长烟测2/1步再正式116步、1epoch。训练loss0.227391，最终内部验证loss0.164290；116次有限非零梯度检查，LoRA真实变化，保存/重新加载tensor一致、logits误差0。正式阶段2701.740秒，CUDA allocated峰值22.77GiB，nvidia-smi采样峰值40029MiB。
+- **原数据PASS且不可变**：95轨迹/75任务/29家族，train82条/925样本/229776监督token，validation13条/147样本/43227监督token。可信manifest `5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c`与原归档SHA不变；18来源重验、远程重新分词逐字节一致，最长31102/32610均完整。原50文件训练源码锁对应473693c，未被修改。
+- **真实对照PARTIAL**：预先固定train/内部validation/dev各2任务，B dynamic_discovery/execution_v5，Raw与SFT使用相同预算、初态和首次输入。两端各6尝试、4有效官方结果、2评价运行异常；Raw成功0/4，SFT1/4，唯一成功在训练集。内部验证/dev均无成功，不能声称泛化提升。未知结果不改成0分。
+- **错误/成本全保留**：run_001解释器错误0更新；run_002短烟测真实2更新后BF16上下文不一致，补充版本锁修复而不降低门槛。总实际121更新。首次评价2条Freezegun/Transformers清理错误保留；新v2独立目录重跑固定清单。全部14任务尝试共190模型请求、2162051输入/18685输出token、213工具调用；0Teacher请求，GPU货币账单未知。
+- **运行修复**：实际冻结时间探针发现monotonic不前进，Student新增可选真实时钟注入；Freezegun官方configure排除控制侧tokenizer模块，任务时间不变，并保留清理主错误。训练补充锁`p3b_bf16_runtime_lock.json`和评价v1/v2锁独立保留；实际评价代码975b506，详见D035–D039。
+- **备份/关机完成**：三份私有归档共2318088201字节，整包/分片/文件SHA通过；最终checkpoint在`runs/p3b_remote_20261023/checkpoints/run_003/formal/`，含checkpoint-100/116 optimizer状态。约21:25执行平台shutdown，远端关闭连接，后续SSH exit255、无认证提示；未删除实例、未核验平台账单。精确optimizer断点续训仍未测试。
+- **软件/审计PASS**：210测试、Ruff check/format；实际checkpoint文件、原始请求token计数、6对初态/首输入及结束数据SHA复验。训练、真实工具探针与软件模拟分别报告。
+- **命令/证据**：完整命令与异常见`reports/p3b_base_sft_report.md`、`p3b_training_pipeline_20261023.json`、`p3b_results_20261023.json`、`p3b_checkpoint_release_20261023.json`、`p3b_shutdown_20261023.json`。本机`PYTHONPATH=src:. .venv/bin/python -m pytest -q`及`scripts/summarize_p3b.py`；真实日志/模型回执在私有`runs/p3b_remote_20261023/`，未上传权重/数据/凭据。
+- **下一步**：控制侧诊断2个固定任务的官方非断言异常，明确有效开发评价口径；随后从已保存4B Base-SFT checkpoint规划P3-C新train失败与完整快照。本轮不启动Recovery-SFT/GRPO，不把内部validation/dev失败回灌训练。
 
 ## 余额恢复后的真实Teacher验证（2026-10-23，完成）
 

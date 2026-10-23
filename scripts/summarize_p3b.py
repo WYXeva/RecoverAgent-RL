@@ -22,6 +22,11 @@ def sha(path):
 def aggregate(rows):
     valid = [r for r in rows if r["status"] == "valid"]
     successes = sum(r["official_success"] is True for r in valid)
+    requests = sum(r.get("usage", {}).get("model_requests", 0) for r in rows)
+    codes = Counter()
+    for row in rows:
+        codes.update(row.get("protocol_rejection_codes", {}))
+    strict_errors = codes["malformed_output"] + codes["truncated_output"]
     return {
         "attempts": len(rows),
         "valid_official_evaluations": len(valid),
@@ -31,6 +36,11 @@ def aggregate(rows):
         "confirmed_success_fraction_over_attempts": successes / len(rows)
         if rows
         else None,
+        "protocol_rejection_codes": dict(sorted(codes.items())),
+        "strict_format_error_responses": strict_errors,
+        "strict_format_error_rate": strict_errors / requests if requests else None,
+        "schema_argument_error_responses": codes["invalid_arguments"],
+        "visibility_error_responses": codes["invisible_tool"],
         "usage": {
             k: sum(r.get("usage", {}).get(k, 0) for r in rows)
             for k in [
@@ -178,10 +188,84 @@ def summarize(root):
     sft = {r["task_id"]: r for r in arms["base_sft"]["rows"]}
     pairs = {
         task: raw[task].get("initial_state_hash") == sft[task].get("initial_state_hash")
-        for task in raw.keys() & sft.keys()
+        for task in sorted(raw.keys() & sft.keys())
         if raw[task].get("initial_state_hash") and sft[task].get("initial_state_hash")
     }
     assert all(pairs.values()), "Paired initial AppWorld states differ"
+    first_inputs = {}
+    for task in pairs:
+        inputs = []
+        for arm, rows in [("raw_base", raw), ("base_sft", sft)]:
+            folder = (
+                root
+                / "evaluations_v2"
+                / arm
+                / (arm + "_" + rows[task]["partition"] + "_" + task)
+            )
+            first = sorted((folder / "session/requests").glob("*.request.json"))[0]
+            inputs.append(read(first)["input_token_ids"])
+        first_inputs[task] = inputs[0] == inputs[1]
+    assert all(first_inputs.values()), "Paired first model inputs differ"
+    diagnostics = []
+    for arm in ["raw_base", "base_sft"]:
+        directory = root / "evaluations" / arm
+        for original in read(directory / "summary.json")["rows"]:
+            folder = directory / (
+                arm + "_" + original["partition"] + "_" + original["task_id"]
+            )
+            requests = {
+                p.stem.split(".")[0]: read(p)
+                for p in (folder / "session/requests").glob("*.request.json")
+            }
+            receipts = {
+                p.stem.split(".")[0]: read(p)
+                for p in (folder / "session/requests").glob("*.response.json")
+            }
+            events = [
+                read(p)["event"] for p in (folder / "session/turns").glob("*.json")
+            ]
+            diagnostics.append(
+                {
+                    "arm": arm,
+                    "task_id": original["task_id"],
+                    "status": original["status"],
+                    "official_success": None,
+                    "reason": "freezegun_transformers_cleanup_error_before_official_evaluation",
+                    "usage_recomputed_from_actual_receipts": {
+                        "model_requests": len(requests),
+                        "prompt_tokens": sum(
+                            len(r["input_token_ids"]) for r in requests.values()
+                        ),
+                        "generated_tokens": sum(
+                            len(r["token_ids"]) for r in receipts.values()
+                        ),
+                        "tool_calls": len(
+                            list((folder / "session/call_intents").glob("*.json"))
+                        ),
+                        "unknown_generation_reservation": sum(
+                            requests[k]["max_new_tokens"]
+                            for k in requests.keys() - receipts.keys()
+                        ),
+                    },
+                    "protocol_rejections": sum(
+                        "protocol_rejection" in e for e in events
+                    ),
+                    "source_worker_error_sha256": sha(
+                        directory / (folder.name + ".worker_error.json")
+                    ),
+                }
+            )
+    all_costs = {
+        k: sum(a["overall"]["usage"][k] for a in arms.values())
+        + sum(d["usage_recomputed_from_actual_receipts"][k] for d in diagnostics)
+        for k in [
+            "model_requests",
+            "prompt_tokens",
+            "generated_tokens",
+            "tool_calls",
+            "unknown_generation_reservation",
+        ]
+    }
     return {
         "scope": "fixed_6_task_p3b_acceptance_not_full_benchmark",
         "formal_manifest_sha256": pipeline["manifest_sha256"],
@@ -190,7 +274,12 @@ def summarize(root):
         "all_actual_optimizer_steps": failed_steps
         + sum(s["optimizer_steps"] for s in stages.values()),
         "evaluation": arms,
+        "initial_infrastructure_attempts": diagnostics,
+        "all_evaluation_attempts": len(diagnostics)
+        + sum(a["overall"]["attempts"] for a in arms.values()),
+        "all_evaluation_usage_including_failed_workers": all_costs,
         "paired_initial_state_equal": pairs,
+        "paired_first_input_tokens_equal": first_inputs,
         "unknown_gpu_billed_cost": True,
         "teacher_requests": 0,
         "recovery_sft_or_grpo_started": False,

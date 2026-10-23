@@ -4,7 +4,9 @@
 
 > 源码版本注意：harness v1更新了共享运行和审计模块，原v1包的50文件源码锁不会随之改写。训练旧包时应使用与其锁匹配的源码checkout（本轮基线`473693c3b768940679a2367d149fd54293e27496`的这50文件匹配），或另行构建并验证新版本数据包；不要修改旧manifest/源码锁放行。新版AppWorld验证worker可以使用独立当前checkout和兼容环境，实际依赖须另存运行清单。真实4B训练及后端仍未验收。
 
-2026-10-23 用户已授权并开始真实远程P3-B。实际已连接RTX PRO6000 Blackwell Server Edition（97887MiB），固定训练依赖、真实CUDA BF16计算、远程数据导入与逐字节重新分词通过。权重加载、训练更新及后续评价的最终验收见`../reports/p3b_base_sft_report.md`。下文保留原准备说明，历史“未执行”不能替代本轮机器证据。
+2026-10-23 实际P3-B训练已完成：RTX PRO6000 Blackwell Server Edition（97887MiB），固定4B BF16+LoRA，短/长烟测及正式116步全部通过，重载logits差0。原数据SHA不变；Raw/Base-SFT固定6任务评价各有2个官方运行异常，有效结果0/4对1/4，尚无泛化提升证据。私有checkpoint和证据已回传核验，平台shutdown后SSH不可达。最终结果见`../reports/p3b_base_sft_report.md`与`../reports/p3b_checkpoint_release_20261023.json`。
+
+**第1–5节保留历史准备阶段的说明与原命令。** 当时“未执行/待验证”不代表当前状态；本轮执行必须使用末节记录的BF16补充runtime、独立评价源码锁与实际报告，不直接用旧reload上下文重复训练。旧数据/源码锁不得改写。
 
 ## 1. 数据与可信来源
 
@@ -86,7 +88,7 @@ Trainer 的周期 checkpoint 包括 adapter/optimizer/scheduler/RNG/trainer 状�
 
 ## 2026-10-23真实执行入口
 
-新增`scripts/run_p3b_training.py`仅编排封存checkout的既有`sft_recipe execute`，不编辑锁内配置或数据。显式传入可信manifest SHA、已验证的重新分词报告和缓存路径；按短烟测→最长完整样本烟测→正式顺序执行，任一参数更新/重载检查失败即停止。输出根目录必须不存在，保存实际命令、每步日志、GPU采样和最终checkpoint。脚本不会下载权重或静默截断。
+新增`scripts/run_p3b_training.py`编排封存checkout；本轮显式指定`--runtime-module recoveragent.sft_bf16_runtime`，不编辑原50文件、锁内配置或数据。新runtime及`configs/p3b_bf16_runtime_lock.json`作为额外文件放入封存checkout，验证旧锁后再核验补充锁。显式传入可信manifest SHA、已验证的重新分词报告和缓存路径；按短烟测→最长完整样本烟测→正式顺序执行，任一参数更新/重载检查失败即停止。输出根目录必须不存在，保存实际命令、每步日志、GPU采样和最终checkpoint。脚本不会下载权重或静默截断。
 
 `student_backend`在远程单GPU加载固定Raw Base或已核验adapter，仅绑定loopback，核对实际输入token、模板和checkpoint身份。`student_evaluation`使用冻结execution_v5/B动态发现及review_20261023 Harness，按`configs/p3b_paired_evaluation_20261023.json`固定清单在独立AppWorld进程执行。官方非断言异常保留unknown并继续预定评价，worker/backend故障停止该arm、保存未知用量和未尝试清单；不改Teacher采集熔断或官方奖励。
 
@@ -95,3 +97,8 @@ Trainer 的周期 checkpoint 包括 adapter/optimizer/scheduler/RNG/trainer 状�
 网络诊断中直连HF失败，本机Xet无进展；AutoDL官方学术加速有503/低速。Qwen官方ModelScope镜像可作为纯传输来源，但每个权重必须与独立取得的HF固定revision LFS SHA-256完全一致，普通配置/tokenizer文件校验HF Git blob或LFS哈希，不能仅相信镜像master名称。参考[AutoDL官方学术加速](https://api.autodl.com/docs/network_turbo/)和[Qwen官方镜像](https://modelscope.cn/models/Qwen/Qwen3-4B)。
 
 本轮用户要求结束后关机：先下载并验证私有adapter/checkpoint与运行证据，再执行AutoDL官方`shutdown`并核对断连；不释放/删除实例数据，也不把SSH断连当作已核验账单结算。[AutoDL关机说明](https://www.autodl.com/docs/save_money/)。
+
+
+实际run_003两项烟测和正式训练均PASS，最终checkpoint私有本机位置为`runs/p3b_remote_20261023/checkpoints/run_003/formal/`。可信adapter文件SHA为`14ef88e8d9d460e7806b9decf7ddd73a2fcd926486feefcb77800359e394f2ff`，tensor哈希为`aefac6f068361cb5c0fc76c6a26f8b45231953b37d141f1ec9352a29917cf9c0`。新机器须核验公开交接摘要及归档、加载同revision基座、固定tokenizer/template，再用同一BF16上下文加载adapter；不能仅凭目录名认定身份。
+
+实际评价使用`configs/p3b_evaluation_runtime_v2_lock.json`（p3b_real_clock_transformers_v2）。它保留冻结公开任务时钟，对Student预算注入Linux真实CLOCK_MONOTONIC，并使用官方Freezegun configure API排除控制侧Transformers延迟模块；旧v1失败目录/源码锁保留。新后端已用真实4B权重验收，完整模型请求和工具调用记录已回传。未验证精确optimizer续训，未启动P3-C/Recovery-SFT/GRPO；不要把保存optimizer状态等同续训验证通过。

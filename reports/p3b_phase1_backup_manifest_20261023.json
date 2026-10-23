@@ -1,0 +1,21 @@
+{
+  "sha256": "1f6b14f49ccc69114e7a732c0b4e68bf3d4f2c4192cc3d7c6c339340041d6f45",
+  "bytes": 1440872774,
+  "contents": [
+    "checkpoints/run_001",
+    "checkpoints/run_002",
+    "checkpoints/run_003/short_smoke",
+    "checkpoints/run_003/short_smoke.json",
+    "checkpoints/run_003/short_smoke.log",
+    "checkpoints/run_003/short_smoke_gpu.csv",
+    "checkpoints/run_003/length_smoke",
+    "checkpoints/run_003/length_smoke.json",
+    "checkpoints/run_003/length_smoke.log",
+    "checkpoints/run_003/length_smoke_gpu.csv",
+    "reports",
+    "logs",
+    "scripts",
+    "bf16_runtime_overlay"
+  ],
+  "note": "Pre-formal-completion snapshot. Formal checkpoint and final evaluations backed up separately."
+}

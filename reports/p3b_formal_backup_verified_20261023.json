@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+  "bytes": 867459412,
+  "chunks_verified": 13,
+  "local_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+  "extracted_to": "runs/p3b_remote_20261023",
+  "includes_optimizer_checkpoints": true,
+  "publicly_uploaded": false
+}

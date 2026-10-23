@@ -1,0 +1,52 @@
+{
+  "status": "PASS",
+  "real_appworld": true,
+  "natural_failure": false,
+  "task_id": "82e2fac_1",
+  "branches": [
+    {
+      "pid": 3458,
+      "start_hash": "d38706ad267a290ca5c367dccd9f22b272d09060b06fbffbf2a9ced071b5ef5a",
+      "mutated_hash": "42211f536851c577a6c7f5aabcaa52d79275863fa2ce263da09808fb37413b70",
+      "restored_again_hash": "d38706ad267a290ca5c367dccd9f22b272d09060b06fbffbf2a9ced071b5ef5a",
+      "source_id": "9dfcb80642c9ec88c020db6ff0359b7976ca86e7d964162ec2cd9607aec2ba35",
+      "history_hash": "aea83b37b3ee2114f9558d418cd69b8d94cd93d1f18fe584e2de1780aa6d8e2a",
+      "official_success": false,
+      "ground_truth_hidden_from_world": true
+    },
+    {
+      "pid": 3512,
+      "start_hash": "d38706ad267a290ca5c367dccd9f22b272d09060b06fbffbf2a9ced071b5ef5a",
+      "mutated_hash": "ea87e66081b81b3f7603f3951d55913783350d935d1e5bc68e50b236ec8260b6",
+      "restored_again_hash": "d38706ad267a290ca5c367dccd9f22b272d09060b06fbffbf2a9ced071b5ef5a",
+      "source_id": "9dfcb80642c9ec88c020db6ff0359b7976ca86e7d964162ec2cd9607aec2ba35",
+      "history_hash": "aea83b37b3ee2114f9558d418cd69b8d94cd93d1f18fe584e2de1780aa6d8e2a",
+      "official_success": false,
+      "ground_truth_hidden_from_world": true
+    },
+    {
+      "pid": 3662,
+      "start_hash": "d38706ad267a290ca5c367dccd9f22b272d09060b06fbffbf2a9ced071b5ef5a",
+      "mutated_hash": "96ae8bc7075749c0ec42fc914d5bf2e4f1e79dae08402b60674cb8cfa767ffa5",
+      "restored_again_hash": "d38706ad267a290ca5c367dccd9f22b272d09060b06fbffbf2a9ced071b5ef5a",
+      "source_id": "9dfcb80642c9ec88c020db6ff0359b7976ca86e7d964162ec2cd9607aec2ba35",
+      "history_hash": "aea83b37b3ee2114f9558d418cd69b8d94cd93d1f18fe584e2de1780aa6d8e2a",
+      "official_success": false,
+      "ground_truth_hidden_from_world": true
+    },
+    {
+      "pid": 3719,
+      "start_hash": "d38706ad267a290ca5c367dccd9f22b272d09060b06fbffbf2a9ced071b5ef5a",
+      "mutated_hash": "d03460a2b4bba7ad7547fbcac09debcd4f169037f206b80d1eceddc916781158",
+      "restored_again_hash": "d38706ad267a290ca5c367dccd9f22b272d09060b06fbffbf2a9ced071b5ef5a",
+      "source_id": "9dfcb80642c9ec88c020db6ff0359b7976ca86e7d964162ec2cd9607aec2ba35",
+      "history_hash": "aea83b37b3ee2114f9558d418cd69b8d94cd93d1f18fe584e2de1780aa6d8e2a",
+      "official_success": false,
+      "ground_truth_hidden_from_world": true
+    }
+  ],
+  "source_unchanged": true,
+  "original_reference_evaluation": true,
+  "private_source_sha256": "e5c37a73a3020e21895d5ea3a4909343445ef2de0678b1140b43888291e45086",
+  "public_summary_omits_official_test_metadata": true
+}

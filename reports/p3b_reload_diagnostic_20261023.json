@@ -1,0 +1,10 @@
+{
+  "same_parameter_hash": true,
+  "default_vs_prepared_max_abs": 0.421875,
+  "explicit_vs_prepared_max_abs": 0.0,
+  "fresh_explicit_vs_prepared_max_abs": 0.0,
+  "explicit_reload_allclose_original_tolerance": true,
+  "source": "accelerate.Accelerator.prepare_model official installed implementation",
+  "torch": "2.10.0+cu128",
+  "adapter_source": "run_002 short_smoke; real two optimizer steps"
+}

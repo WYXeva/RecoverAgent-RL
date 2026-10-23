@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "stages": [
+    {
+      "stage": "short_smoke",
+      "command": [
+        "/root/autodl-tmp/recoveragent_p3b_20261023/.venv-sft/bin/python",
+        "-m",
+        "recoveragent.sft_bf16_runtime",
+        "execute",
+        "--config",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/training_source/configs/base_sft_qwen3_4b_smoke.json",
+        "--dataset",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/training_source/data/base_sft_v1",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--output",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/checkpoints/run_003/short_smoke",
+        "--report",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/checkpoints/run_003/short_smoke.json"
+      ],
+      "started_unix": 1792756886.6672456,
+      "exit_code": 0,
+      "status": "PASS",
+      "wall_seconds": 23.696543602272868,
+      "optimizer_steps": 2
+    },
+    {
+      "stage": "length_smoke",
+      "command": [
+        "/root/autodl-tmp/recoveragent_p3b_20261023/.venv-sft/bin/python",
+        "-m",
+        "recoveragent.sft_bf16_runtime",
+        "execute",
+        "--config",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/training_source/configs/base_sft_qwen3_4b_length_smoke.json",
+        "--dataset",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/training_source/data/base_sft_v1",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--output",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/checkpoints/run_003/length_smoke",
+        "--report",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/checkpoints/run_003/length_smoke.json"
+      ],
+      "started_unix": 1792756910.3658836,
+      "exit_code": 0,
+      "status": "PASS",
+      "wall_seconds": 39.74217129871249,
+      "optimizer_steps": 1
+    },
+    {
+      "stage": "formal",
+      "command": [
+        "/root/autodl-tmp/recoveragent_p3b_20261023/.venv-sft/bin/python",
+        "-m",
+        "recoveragent.sft_bf16_runtime",
+        "execute",
+        "--config",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/training_source/configs/base_sft_qwen3_4b_lora.json",
+        "--dataset",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/training_source/data/base_sft_v1",
+        "--expected-manifest-sha256",
+        "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "--output",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/checkpoints/run_003/formal",
+        "--report",
+        "/root/autodl-tmp/recoveragent_p3b_20261023/checkpoints/run_003/formal.json"
+      ],
+      "started_unix": 1792756950.1103046,
+      "exit_code": 0,
+      "status": "PASS",
+      "wall_seconds": 2701.740438334644,
+      "optimizer_steps": 116
+    }
+  ],
+  "driver_sha256": "28cd0cafac5de5d495e5a4922774543d311a8a8005d52d7cc95e5e80d2fb4366",
+  "finished_unix": 1792759651.852162
+}

@@ -1,0 +1,31 @@
+{
+  "status": "TRAINING_AND_RELOAD_PASS",
+  "model": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "thinking": false,
+  "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "optimizer_steps": 116,
+  "epoch": 1.0,
+  "adapter_tensor_sha256": "aefac6f068361cb5c0fc76c6a26f8b45231953b37d141f1ec9352a29917cf9c0",
+  "local_checkpoint": "runs/p3b_remote_20261023/checkpoints/run_003/formal",
+  "files": {
+    "adapter_config.json": "add7bb52284f2fb3f73852393e17c77d6afae76c2c49e9afba483d37577d008a",
+    "adapter_model.safetensors": "14ef88e8d9d460e7806b9decf7ddd73a2fcd926486feefcb77800359e394f2ff",
+    "recoveragent_checkpoint.json": "47276ed81378ff50d1c778e67d62a922b9ac88264c36c7fb4e31960ebee5417e",
+    "run_config.json": "3def80fa5ff8f59cecd18f06afe007eed4239bf7c43f41f740752842d0abb592",
+    "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "tokenizer_config.json": "443bfa629eb16387a12edbf92a76f6a6f10b2af3b53d87ba1550adfcf45f7fa0",
+    "chat_template.jinja": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+  },
+  "private_training_archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+  "training_runtime_lock_sha256": "0bc57f6631a6d73c3334e094c0582611027a1aa67e78bd40c7f319ee328a0f1e",
+  "evaluation_runtime_lock_sha256": "95c56bdd752636d8ad48a90c96f78d1c19c3cba3b180a1ec55a882218b2020d6",
+  "saved_periodic_checkpoints": [
+    "checkpoint-100",
+    "checkpoint-116"
+  ],
+  "exact_optimizer_resume_tested": false,
+  "public_weights_uploaded": false,
+  "recovery_sft_or_grpo_started": false
+}

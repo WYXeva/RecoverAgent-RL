@@ -6,7 +6,7 @@
 
 ## 1. 项目目标和用户确认的强制训练顺序（v0.3）
 
-只使用 AppWorld。**正式 Student 锁定为 `Qwen/Qwen3-4B`**，在本机采集并验证 Teacher 正常成功轨迹，转移到计划中的远程 RTX PRO 6000 Blackwell 96GB（未实测）完成 Base-SFT、4B Student 新失败、Recovery-SFT、GRPO 与迭代。旧本机 1.7B 只作为 P0–P2 基础设施历史记录。**不要先让基座 Student 失败、Teacher 接管并把恢复 SFT 当作第一次基础训练。**
+只使用 AppWorld。**正式 Student 锁定为 `Qwen/Qwen3-4B`**，在本机采集并验证 Teacher 正常成功轨迹，转移到计划中的远程 RTX PRO 6000 Blackwell 96GB（2026-10-23已实测）完成 Base-SFT、4B Student 新失败、Recovery-SFT、GRPO 与迭代。旧本机 1.7B 只作为 P0–P2 基础设施历史记录。**不要先让基座 Student 失败、Teacher 接管并把恢复 SFT 当作第一次基础训练。**
 
 训练顺序必须是：
 1. 固定更强 Teacher 从干净原始 train 任务初态执行真实公开工具，生成经官方验证的**正常成功任务完整轨迹**。

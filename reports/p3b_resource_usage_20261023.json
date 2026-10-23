@@ -1,0 +1,81 @@
+{
+  "training_runs": {
+    "run_001": {
+      "status": "FAILED",
+      "wall_seconds_including_failed_stages": 2.2940282821655273,
+      "stages": [
+        {
+          "name": "short_smoke",
+          "wall_seconds": null,
+          "sampled_peak_memory_used_MiB": 0.0,
+          "sampled_peak_gpu_utilization_percent": 0.0,
+          "gpu_samples": 1
+        }
+      ]
+    },
+    "run_002": {
+      "status": "FAILED",
+      "wall_seconds_including_failed_stages": 23.032062768936157,
+      "stages": [
+        {
+          "name": "short_smoke",
+          "wall_seconds": null,
+          "sampled_peak_memory_used_MiB": 9337.0,
+          "sampled_peak_gpu_utilization_percent": 74.0,
+          "gpu_samples": 5
+        }
+      ]
+    },
+    "run_003": {
+      "status": "PASS",
+      "wall_seconds_including_failed_stages": 2765.1849162578583,
+      "stages": [
+        {
+          "name": "short_smoke",
+          "wall_seconds": 23.696543602272868,
+          "sampled_peak_memory_used_MiB": 9983.0,
+          "sampled_peak_gpu_utilization_percent": 100.0,
+          "gpu_samples": 5
+        },
+        {
+          "name": "length_smoke",
+          "wall_seconds": 39.74217129871249,
+          "sampled_peak_memory_used_MiB": 26253.0,
+          "sampled_peak_gpu_utilization_percent": 100.0,
+          "gpu_samples": 8
+        },
+        {
+          "name": "formal",
+          "wall_seconds": 2701.740438334644,
+          "sampled_peak_memory_used_MiB": 40029.0,
+          "sampled_peak_gpu_utilization_percent": 100.0,
+          "gpu_samples": 533
+        }
+      ]
+    }
+  },
+  "paired_evaluation": {
+    "raw_base": {
+      "episode_wall_seconds": 313.2524059098214,
+      "generation_seconds": 78.91024698130786,
+      "max_input_tokens": 32569,
+      "peak_inference_allocated_bytes": 15499520000
+    },
+    "base_sft": {
+      "episode_wall_seconds": 765.213144345209,
+      "generation_seconds": 526.3597825393081,
+      "max_input_tokens": 30765,
+      "peak_inference_allocated_bytes": 16135175168
+    }
+  },
+  "all_evaluation_usage": {
+    "model_requests": 190,
+    "prompt_tokens": 2162051,
+    "generated_tokens": 18685,
+    "tool_calls": 213,
+    "unknown_generation_reservation": 0
+  },
+  "gpu_billed_cost": null,
+  "setup_download_and_idle_billing_not_in_stage_wall_times": true,
+  "remote_tar_backups_bytes": 2318088201
+}

@@ -1,0 +1,19 @@
+{
+  "status": "SHUTDOWN_REQUESTED_AND_SSH_UNREACHABLE",
+  "requested_utc": "2026-10-23T13:25:11.607945+00:00",
+  "initial_direct_exec_error": "OSError: Exec format error; provider wrapper then invoked through SSH shell",
+  "shell_command": "shutdown",
+  "shell_exit_code": 0,
+  "connection_closed_by_remote_host": true,
+  "subsequent_ssh_exit_code": 255,
+  "subsequent_authentication_prompt_seen": false,
+  "final_gpu": "0 MiB, 0 %",
+  "all_three_private_backups_verified": true,
+  "billing_state_independently_verified": false,
+  "instance_deleted": false,
+  "receipt_sha256": {
+    "p3b_shutdown_response.log": "3fdae9841e0ac2b203ce5514feb6d19c745f9b9b9f7a9e5aea22b054fcf9b7c3",
+    "p3b_shutdown_shell_response.log": "acee7475162f2c23a750c181939479917633bbfb84d1b96a5e59c1a269fb26e3",
+    "p3b_shutdown_connectivity.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

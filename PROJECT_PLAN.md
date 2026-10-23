@@ -5,7 +5,7 @@
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
 > 版本：v0.13
 > 创建日期：2026-10-19  
-> 状态：v0.13 用户授权执行真实远程P3-B；Harness冻结review_20261023，正式95条数据与原训练源码锁保持不变，当前验收见`reports/p3b_base_sft_report.md`。
+> 状态：v0.13 P3-B真实训练/保存重载PASS（116步），任务效果验收PARTIAL；原95条数据与旧源码锁不变，BF16训练补充锁及独立评价v2锁绑定本轮修复。checkpoint已回传、远程已执行关机，详见`reports/p3b_base_sft_report.md`。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 
@@ -150,7 +150,7 @@ ReTerm 已有失败状态恢复、Teacher SFT 与恢复 GRPO。中间状态分�
 
 **本机（已验 RTX 5050 8GB）**：负责 AppWorld 正常 Teacher 工具执行、官方成功验证、过滤与结构化轨迹导出。Teacher 可以是另行合法接入的更强远端/本地服务，实际可用性和费用必须核查。不得把 Qwen3-1.7B 生成的 token IDs 当作 4B 训练标签。正式 4B SFT/GRPO 不安排在本机。
 
-**远程（计划为单张 NVIDIA RTX PRO 6000 Blackwell 96GB，尚未实测）**：负责 P3-B Qwen3-4B 基础 SFT、P3-C Base-SFT Student 执行与新失败、P4 多检查点 Teacher 恢复、Recovery-SFT/GRPO、P5 迭代。远程必须运行匹配版本的 AppWorld worker 才能进行真正的在线 agentic RL；仅复制教师文本不够。
+**远程（单张 NVIDIA RTX PRO 6000 Blackwell 96GB，2026-10-23已实测）**：负责 P3-B Qwen3-4B 基础 SFT、P3-C Base-SFT Student 执行与新失败、P4 多检查点 Teacher 恢复、Recovery-SFT/GRPO、P5 迭代。远程必须运行匹配版本的 AppWorld worker 才能进行真正的在线 agentic RL；仅复制教师文本不够。
 
 **传输和环境验收契约：**
 1. 本机导出未分词的 **结构化多轮消息**（User/Assistant 工具调用和参数/对应真实 Tool 返回），保留任务与场景 ID、模型身份、轨迹合法性、成功/失败分母及调用成本。只能从 train 构建训练数据。

@@ -2,9 +2,11 @@
 
 Self-Improving Tool Agents through Failure Recovery
 
-在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.11 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
+在 AppWorld 中研究工具调用 Agent 如何从自身自然失败恢复，并利用恢复结果更新策略。需求基线为 [v0.13 计划](PROJECT_PLAN.md)；工作规则见 [AGENTS.md](AGENTS.md)。
 
-**正式Base-SFT v1数据交付PASS，数量目标PARTIAL**：95条合格完整Teacher轨迹，覆盖75任务/29场景家族；按scenario划分训练82条、内部验证13条，1072个Assistant样本/273003监督token。155测试、真实来源/动态Schema/mask/函数解析、SHA与迁移复验通过。约120条目标因DeepSeek余额不足（HTTP402）停止，全部118次新增尝试及未知费用保留；原数据私有存放，不上传GitHub。正式SFT/GRPO未启动。见[正式报告](reports/base_sft_dataset_v1_report.md)、[可信SHA](reports/base_sft_dataset_v1_release.json)、[远程交接与烟测说明](docs/REMOTE_BASE_SFT.md)。
+**2026-10-23 P3-B真实训练与checkpoint交付PASS，效果验收PARTIAL**：远程RTX PRO6000 96GB完成Qwen3-4B BF16+LoRA短/长烟测及正式116步、1epoch，最终内部验证loss0.16429，参数更新/重载通过。固定6任务对照Raw成功0/4、Base-SFT1/4（各另有2个官方评价异常）；唯一成功来自训练集，未证明泛化提升。原95条数据不变，checkpoint/证据已回传核验并执行远程关机。见[P3-B完整报告](reports/p3b_base_sft_report.md)、[checkpoint交接SHA](reports/p3b_checkpoint_release_20261023.json)与[STATUS](docs/STATUS.md)。未启动Recovery-SFT或GRPO。
+
+历史**正式Base-SFT v1数据交付PASS，数量目标PARTIAL**：95条合格完整Teacher轨迹，覆盖75任务/29场景家族；按scenario划分训练82条、内部验证13条，1072个Assistant样本/273003监督token。155测试、真实来源/动态Schema/mask/函数解析、SHA与迁移复验通过。约120条目标因DeepSeek余额不足（HTTP402）停止，全部118次新增尝试及未知费用保留；原数据私有存放，不上传GitHub。正式SFT/GRPO未启动。见[正式报告](reports/base_sft_dataset_v1_report.md)、[可信SHA](reports/base_sft_dataset_v1_release.json)、[远程交接与烟测说明](docs/REMOTE_BASE_SFT.md)。
 
 历史**P3-A v5实现、采集与数据格式 PASS**：新增公开单值格式检查，最多一次模型同值纠正，Teacher/Student共用，拒绝回复仅作masked上下文。固定10个新任务/5家族，真实Teacher A成功7/10、B成功9/10，16条合格示范全部适配当前32k，143目标/44,126监督token。142测试、真实AppWorld探针与Qwen mask检查通过。该清单未触发金额纠正，**不能据此宣称纠正效果提升；未训练或运行真实4B权重。** 见[历史v5报告](reports/answer_guard_report.md)、[协议](docs/ANSWER_GUARD.md)、[STATUS](docs/STATUS.md)。
 
@@ -53,7 +55,7 @@ export IPYTHONDIR="$PWD/.cache/ipython"
 .venv/bin/python scripts/state_probe.py --output runs/p0_state_new_id
 ```
 
-**以下仅是历史 P0–P2 基础设施复现命令**：本机 RTX 5050 8GB 曾使用 Qwen3-1.7B，实际版本固定于 `configs/p0_p2.json`。它不再是正式训练 Student。**正式主模型锁定 Qwen/Qwen3-4B**，本机先收集 Teacher 正常成功轨迹，计划在远程 RTX PRO 6000 96GB 上完成 Base-SFT、后续 4B Student 与 GRPO。远程硬件、依赖和训练尚待真实核验：
+**以下仅是历史 P0–P2 基础设施复现命令**：本机 RTX 5050 8GB 曾使用 Qwen3-1.7B，实际版本固定于 `configs/p0_p2.json`。它不再是正式训练 Student。**正式主模型锁定 Qwen/Qwen3-4B**，本机先收集 Teacher 正常成功轨迹，计划在远程 RTX PRO 6000 96GB 上完成 Base-SFT、后续 4B Student 与 GRPO。下面命令只用于历史1.7B复现；实际远程4B执行见上方P3-B报告：
 
 ```bash
 python3 -m venv .venv-inference
@@ -83,4 +85,4 @@ HF_HUB_OFFLINE=1 .venv-inference/bin/python -m recoveragent.inference \
 
 执行 world 不加载 ground truth。官方 `evaluate_task` 在控制侧、终态保存后运行，以原始任务为参照。恢复 schema、历史、环境 RNG 和预算一致，仅改变模型采样种子；同奖励组可以通过基础设施验收。P0–P2 轨迹没有行为 log probabilities，明确禁止直接作为在线 GRPO 批次。
 
-凭据、原始基准内容、解包代码、轨迹、快照和权重不上传 GitHub；仅提交代码、配置和可公开的证据摘要。**后续先扩大 P3-A Teacher 正常成功数据的场景覆盖**，导出带 SHA-256 的结构化消息/manifest（不得用旧 1.7B token ID 代替 4B SFT 标签）；之后在远程 96GB 上准备 Qwen3-4B 基础 SFT，远程 AppWorld 数据/源码版本必须匹配。P0–P2 仍是历史基础设施证据，未证明 4B 提升。
+凭据、原始基准内容、解包代码、轨迹、快照和权重不上传 GitHub；仅提交代码、配置和可公开的证据摘要。后续先处理本轮官方评价异常并固定有效开发评价口径，再从已保存4B Base-SFT checkpoint规划P3-C新train自主失败与多检查点恢复；不能将内部验证/dev轨迹回灌训练。P0–P2仍为历史基础设施证据，本轮小样本也未证明4B泛化提升。

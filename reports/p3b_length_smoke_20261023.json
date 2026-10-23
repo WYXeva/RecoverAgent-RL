@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "runtime_contract": "bf16_autocast_reload_v1",
+  "profile": "smoke",
+  "model": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "trainable_before_hash": "029b841888928835aab325ecfa0f304f271829422a58776f5a0daa6dcd1f9f49",
+  "trainable_after_hash": "9642d5e83e056f09bec67ff646c2df3c302efbf8bf3633ac43d5dddafe761fde",
+  "gradient_checks": [
+    {
+      "step": 1,
+      "gradient_tensors": 504,
+      "l2_norm": 0.9999998030607385
+    }
+  ],
+  "checkpoint_reloaded": true,
+  "restored_trainable_hash": "9642d5e83e056f09bec67ff646c2df3c302efbf8bf3633ac43d5dddafe761fde",
+  "reload_max_abs_error": 0.0,
+  "peak_allocated_bytes": 24055990272,
+  "metrics": {
+    "train_runtime": 13.2783,
+    "train_samples_per_second": 0.075,
+    "train_steps_per_second": 0.075,
+    "total_flos": 684220750632960.0,
+    "train_loss": 0.7814499735832214,
+    "epoch": 1.0
+  },
+  "evaluation": {
+    "eval_loss": 0.5155409574508667,
+    "eval_runtime": 2.5914,
+    "eval_samples_per_second": 0.386,
+    "eval_steps_per_second": 0.386,
+    "epoch": 1.0
+  },
+  "training_started": true,
+  "parameter_update_and_reload_pass": true,
+  "p3b_complete": false,
+  "files": {
+    "README.md": "b97571993f0892690b3c2b1d43bf6b6369f2d873b9b2de9c1bbaab16f4f38806",
+    "adapter_config.json": "082ff68eefd4a85dc663ad040ac4caeef57a83aaef9d6d847c339aa2404974cf",
+    "adapter_model.safetensors": "b4f7906c59fc0ed182055e72a2e4039f368302f8d04533c424e9a9730c6fa09d",
+    "added_tokens.json": "c0284b582e14987fbd3d5a2cb2bd139084371ed9acbae488829a1c900833c680",
+    "chat_template.jinja": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint-1/README.md": "b97571993f0892690b3c2b1d43bf6b6369f2d873b9b2de9c1bbaab16f4f38806",
+    "checkpoint-1/adapter_config.json": "082ff68eefd4a85dc663ad040ac4caeef57a83aaef9d6d847c339aa2404974cf",
+    "checkpoint-1/adapter_model.safetensors": "b4f7906c59fc0ed182055e72a2e4039f368302f8d04533c424e9a9730c6fa09d",
+    "checkpoint-1/added_tokens.json": "c0284b582e14987fbd3d5a2cb2bd139084371ed9acbae488829a1c900833c680",
+    "checkpoint-1/chat_template.jinja": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint-1/merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+    "checkpoint-1/optimizer.pt": "673939612809a7f565e842a8c4566e0be24160238ccf8d501fdf05774feb0eec",
+    "checkpoint-1/rng_state.pth": "2e66cb5cbe66d1c31501d329af2d847ba27740e3006a233ded6a821cc12fc99a",
+    "checkpoint-1/scheduler.pt": "ae3f967f6b2f0afb87d57eae1ff7905cd6a85bea8832d020ba65b4b599938e05",
+    "checkpoint-1/special_tokens_map.json": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+    "checkpoint-1/tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "checkpoint-1/tokenizer_config.json": "443bfa629eb16387a12edbf92a76f6a6f10b2af3b53d87ba1550adfcf45f7fa0",
+    "checkpoint-1/trainer_state.json": "c4ce2530ffa5787e0b387461a69d6f68b74f71f21d0e73045c4fe2641505c1d5",
+    "checkpoint-1/training_args.bin": "2972aaf4378e47b1d68f84c61efce024d79a98a0ea4167185d38b993cf0c7221",
+    "checkpoint-1/vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+    "example_selection.json": "be0da8d3d02fac81553e692c6a668f4351c546cbffaa96f41f71f71f0cae8418",
+    "merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+    "run_config.json": "0ab495ce1e2ec0156522e2ed2f3722b66de894a0ff4d6d1c9c20bc069bc9b56b",
+    "special_tokens_map.json": "76862e765266b85aa9459767e33cbaf13970f327a0e88d1c65846c2ddd3a1ecd",
+    "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "tokenizer_config.json": "443bfa629eb16387a12edbf92a76f6a6f10b2af3b53d87ba1550adfcf45f7fa0",
+    "training_args.bin": "2972aaf4378e47b1d68f84c61efce024d79a98a0ea4167185d38b993cf0c7221",
+    "vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+  }
+}

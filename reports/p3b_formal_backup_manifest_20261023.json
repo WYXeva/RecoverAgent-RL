@@ -1,0 +1,78 @@
+{
+  "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+  "bytes": 867459412,
+  "contents": [
+    "checkpoints/run_003/formal",
+    "checkpoints/run_003/formal.json",
+    "checkpoints/run_003/formal.log",
+    "checkpoints/run_003/formal_gpu.csv",
+    "checkpoints/run_003/summary.json"
+  ],
+  "chunks": [
+    {
+      "name": "part_000",
+      "bytes": 67108864,
+      "sha256": "ca7c6b0472c30c3ccd83dbf53286ae4d9881caf824f5887b3963350846eae573"
+    },
+    {
+      "name": "part_001",
+      "bytes": 67108864,
+      "sha256": "deff943867bfb7ee896c83418dffa3d6f7ecded32435aad36e65cdcce3fd90b8"
+    },
+    {
+      "name": "part_002",
+      "bytes": 67108864,
+      "sha256": "567139cf5a7ba42fb4fb4400c9080a83f8ab3dbd23dcc96523ead42fa239a9f0"
+    },
+    {
+      "name": "part_003",
+      "bytes": 67108864,
+      "sha256": "24a2cc92e78c5f385f26628902f9f8ec34ad1f47db7c22c23bb14e50bc2b79c4"
+    },
+    {
+      "name": "part_004",
+      "bytes": 67108864,
+      "sha256": "8e54b2ffc448b55da896608da44429ffccd322e06ae9ad1bff9273274eb6d9a0"
+    },
+    {
+      "name": "part_005",
+      "bytes": 67108864,
+      "sha256": "e3d177e3fd4767dce38a8ffd4912f5acf30c42e7bb056a2dd782fbc1d3d362af"
+    },
+    {
+      "name": "part_006",
+      "bytes": 67108864,
+      "sha256": "6c61a84c87faad6c57fd6126cc760fe79fd27e76e1b9ba45eddf5f5f383ef174"
+    },
+    {
+      "name": "part_007",
+      "bytes": 67108864,
+      "sha256": "fade0f5ebfb6e2e27039312324b597e3f4860d998665585cbd7d5001a2431789"
+    },
+    {
+      "name": "part_008",
+      "bytes": 67108864,
+      "sha256": "a5f67fda9f8dad11327b93d290d028ce87970d0350e69a9aee62b4f2f1fb3fd7"
+    },
+    {
+      "name": "part_009",
+      "bytes": 67108864,
+      "sha256": "3ba46c1eb3a159ac992fb8f7dcf2657de5d459daa8f0c243589407c77f491906"
+    },
+    {
+      "name": "part_010",
+      "bytes": 67108864,
+      "sha256": "8c7f845a6492c1c8b76ab13b7afa2407ff7216faa9f50390773ad16f72fa6c9f"
+    },
+    {
+      "name": "part_011",
+      "bytes": 67108864,
+      "sha256": "d471edc31d01863059ddbfce4243fb6e5ca5bb77259dd5f4b64469354d690823"
+    },
+    {
+      "name": "part_012",
+      "bytes": 62153044,
+      "sha256": "be880eeed40bbd66cb394f246828b10eaae00e3ba84bdbbfa7cbd74495022817"
+    }
+  ]
+}

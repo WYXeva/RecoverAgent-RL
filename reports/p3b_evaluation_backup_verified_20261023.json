@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "archive_sha256": "e0230b101f7ea57a6b8c830b21d8ed6cf3dfba66960d652f0c175e18537b8abb",
+  "bytes": 9756015,
+  "files_verified": 1489,
+  "file_manifest_sha256": "31516dc76b8f3055e511ae2301b7350ec13550945e4904462dcfcfedb0f5004b",
+  "local_archive": "runs/p3b_remote_20261023_evaluation.tar.gz",
+  "extracted_to": "runs/p3b_remote_20261023",
+  "publicly_uploaded": false
+}
