@@ -327,3 +327,11 @@ run_001在权重加载前失败：新编排器Path.resolve解引用venv Python�
 使用保存的真实adapter和官方Accelerator.prepare_model做独立诊断：默认独立推理与Trainer BF16包装最大差0.421875；两端显式CUDA BF16 autocast后最大差0，重新加载新基座/adapter也为0。原0.01绝对/相对阈值不调整。根因是FP32 LoRA运算的autocast上下文不同，非权重丢失。
 
 原sft_recipe.py及50文件封存锁不改。新增sft_bf16_runtime.py保留封存execute主体，仅增加两次推理probe的显式autocast、补充源码锁校验与runtime_contract元数据；复用原loss/梯度/训练配置/数据检查，依然要求原50文件全部匹配。configs/p3b_bf16_runtime_lock.json额外绑定新入口与原recipe哈希。这一小段版本化重复是为了保持历史原样，后续新数据/runtime发布再合并，不动态猴补丁或绕过旧校验。独立Student后端使用同一BF16上下文。run_003从头重做两项烟测，旧失败目录及其参数更新事实保留；未通过的烟测不能记为PASS。
+
+## D037 · 2026-10-23 · P3-B真实墙钟预算与独立评价运行锁
+
+在实际官方appworld.common.utils.freeze_time探针中，睡眠0.1秒后time.monotonic差为0，Linux clock_gettime(CLOCK_MONOTONIC)差约0.100秒。原Student内部wall_seconds依赖前者，因此不能单独保证冻结world中的真实执行时限。正式SFT不使用AppWorld冻结时间，不受影响。
+
+StudentSession仅增加可选clock注入，旧默认及历史源码/锁不回写；本轮评估显式使用系统CLOCK_MONOTONIC，替换其3处预算计时，并用于外层运行耗时。工具内的任务日期仍按官方冻结，未修改AppWorld或伪造时间。父进程仍有独立worker超时，未知回执/部分副作用保留原规则。新configs/p3b_evaluation_runtime_lock.json（p3b_real_clock_v1）绑定本轮全部运行源码；每个episode执行前检查，Raw与SFT共用。旧Harness review精确重跑使用其历史checkout，不能用新源码冒称旧锁通过。原50文件训练checkout保持不变。
+
+新增注入时钟预算回归测试、远程官方freeze_time探针；209软件测试通过。此发现不据此改写任何历史Teacher/P0–P2用时、奖励或95条数据，也不宣称已全面修复旧Teacher计时路径。实际评估尚未开始时完成修复，固定任务/seed/Prompt/工具协议/600秒额度均未按结果调整。

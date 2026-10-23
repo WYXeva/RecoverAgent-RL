@@ -114,6 +114,7 @@ class StudentSession:
         top_p=0.95,
         answer_guard=False,
         protocol_harness=False,
+        clock=None,
     ):
         if (
             hashlib.sha256(tokenizer.chat_template.encode()).hexdigest()
@@ -177,7 +178,8 @@ class StudentSession:
             max_requests,
             max_generated_tokens,
         )
-        self.wall_seconds, self.started = wall_seconds, time.monotonic()
+        self.clock = clock or time.monotonic
+        self.wall_seconds, self.started = wall_seconds, self.clock()
         self.seed, self.temperature, self.top_p = seed, temperature, top_p
         self.usage = {
             "model_requests": 0,
@@ -198,7 +200,7 @@ class StudentSession:
         if (
             self.usage["model_requests"] >= self.max_requests
             or self.usage["generated_tokens"] >= self.max_generated_tokens
-            or time.monotonic() - self.started >= self.wall_seconds
+            or self.clock() - self.started >= self.wall_seconds
         ):
             self.stopped, self.termination = True, "budget_exhausted"
             raise ValueError("Student resource budget exhausted")
@@ -344,7 +346,7 @@ class StudentSession:
             batch_open = bool(calls)
             event["tool_results"] = []
             for call, verdict in zip(calls, verdicts):
-                if time.monotonic() - self.started >= self.wall_seconds:
+                if self.clock() - self.started >= self.wall_seconds:
                     raise TimeoutError("Batch interrupted by wall-clock budget")
                 f = call["function"]
                 if guard:

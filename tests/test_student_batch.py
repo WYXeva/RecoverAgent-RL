@@ -191,3 +191,16 @@ def test_mid_batch_failure_keeps_observed_effects_and_stops(session):
         session.build_request()
     with pytest.raises(ValueError, match="unfinished"):
         validate_history(session.messages)
+
+
+def test_injected_wall_clock_ends_session_even_if_environment_time_stops(session):
+    now = [10.0]
+    session.clock = lambda: now[0]
+    session.started = now[0]
+    session.wall_seconds = 2
+    session.build_request()
+    now[0] += 3
+    with pytest.raises(ValueError, match="budget exhausted"):
+        session.build_request()
+    assert session.termination == "budget_exhausted"
+    assert not session.adapter.calls

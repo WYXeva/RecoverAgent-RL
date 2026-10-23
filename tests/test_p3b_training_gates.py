@@ -94,3 +94,26 @@ def test_bf16_supplement_rejects_source_change_without_rewriting_old_lock(tmp_pa
     (tmp_path / "src/recoveragent/sft_bf16_runtime.py").write_text("# altered")
     with pytest.raises(ValueError, match="source mismatch"):
         verify_supplement(tmp_path)
+
+
+def test_evaluation_unknowns_are_not_converted_to_policy_failures():
+    from scripts.summarize_p3b import aggregate
+
+    result = aggregate(
+        [
+            {
+                "status": "valid",
+                "official_success": True,
+                "usage": {"model_requests": 2},
+            },
+            {
+                "status": "evaluation_error",
+                "official_success": None,
+                "usage": {"model_requests": 3},
+            },
+        ]
+    )
+    assert result["attempts"] == 2 and result["valid_official_evaluations"] == 1
+    assert result["unknown_outcomes"] == 1 and result["success_rate_over_valid"] == 1
+    assert result["confirmed_success_fraction_over_attempts"] == 0.5
+    assert result["usage"]["model_requests"] == 5

@@ -1,0 +1,31 @@
+{
+  "runtime_revision": "p3b_real_clock_v1",
+  "parent_lock_sha256": "30c7e3127d12ba14b1188cecbab12af3ccf29d482a1f6a5da28e2f3d4cd8cf29",
+  "parent_lock_path": "configs/harness_review_protocol_lock.json",
+  "change": "Student optional injected clock; explicit Linux CLOCK_MONOTONIC for P3-B. Original Harness feedback, prompts and budgets unchanged. Independent output identity and BF16 inference match.",
+  "files": {
+    "configs/p3b_paired_evaluation_20261023.json": "b237427c7f41531400e7139de54bc4e524a14dc428959ec9d1ada320f56d939d",
+    "requirements/appworld-harness.lock.txt": "aab961a4e70cbd9c6db8bf7d2900c7e833314dad69d334cbcaaab983dc8125bc",
+    "scripts/collect_base_sft.py": "70e75f77f51037a18a46a96a9b284a58ba6d8908507eb8b3b2d873370917f7d9",
+    "src/recoveragent/adapter.py": "5720c819260d2f066acc1003b733f38e8218952efe33cbf40f7ce17b5b3d60eb",
+    "src/recoveragent/answer_guard.py": "a675ff8d51e90502619ae694b3b9a59c0ce46acb4fde9dafe3b0c64266fb04f3",
+    "src/recoveragent/base_sft.py": "66393c8f4defba16cc7b0e70563c43f95877e9f5b44557e9d7ff7ed94e71b95e",
+    "src/recoveragent/demonstrations.py": "fb0fe05a1ab50a24111e8d2d9baafd2733b60e01c780ffe2eb67e963ae9e0e0c",
+    "src/recoveragent/evaluation.py": "3f77a0392778d0689667560321d13b745825498de594e676127f654cd532259a",
+    "src/recoveragent/execution_v4.py": "38c6cd1cbe1e0774a9996180667499704c0825fc37068e6633243e7d45030fbd",
+    "src/recoveragent/execution_v5.py": "203eb593033062182ef1acaa3a3108598158c659f391f480db783d9de616a25b",
+    "src/recoveragent/harness.py": "c637f0049c9a9eef34130502fdf360cfff6bc5d29710de56879f37bedb33ee70",
+    "src/recoveragent/inspect_teacher.py": "ff36462be34cc0f16e4d00b49394049efc685e4b3e80ac0bf4709cf9f1e3ce14",
+    "src/recoveragent/p3a.py": "f9c2b890f7a8eed588e2f7bca3708890ede32e5c4b6d92329bb70b5b96e3f456",
+    "src/recoveragent/p3a_prompts.py": "9ca1fdb2854df85edcab389ee590408827a0e9d159b81b695bc54412a5d942f3",
+    "src/recoveragent/predictor_prompts.py": "732e37174fc37d15f242e32776a2c14799d3c3eab7bea189828b9504376c2ddc",
+    "src/recoveragent/protocol_lock.py": "85a5a85ba42a06916fd1d1658e98379b4afd9b20c73f9630069218d20db0e323",
+    "src/recoveragent/student.py": "3a756bcb37a222def466faae2eb2b54d9921a74a28ef04140bc0774959bbc75a",
+    "src/recoveragent/student_backend.py": "ad17b6322fe0363db6e7542b7212b386a92e5c047defd593441397378305a73c",
+    "src/recoveragent/student_evaluation.py": "3339dff43baa9198bbfd594d70dc36e59327460f06f2168f2e4c0221658e0b71",
+    "src/recoveragent/teacher.py": "2743b15b4c445e4f340459ad8b0e115b2365f01580776d353b7c9e98575d3ff5",
+    "src/recoveragent/teacher_history.py": "1c3df359b739b7ddcde5afa609278f83b75306826f78c46b67dbb778d2075a07",
+    "src/recoveragent/tool_modes.py": "644e9f671fe35ca1e623373df1a9610daee97b434bce600d432e4b3eaf55cc32",
+    "src/recoveragent/validated_selection.py": "880ff18659ef10c261da8e4f6c86e86de701561dd56f18dfc4823e004651429a"
+  }
+}

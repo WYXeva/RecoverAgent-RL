@@ -2,6 +2,7 @@
 
 import argparse
 import importlib.metadata
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -19,6 +20,26 @@ from .execution_v5 import actor_system
 from .harness import RULES
 from .io import digest, files_manifest, read_json, write_json
 from .student import StudentSession
+
+
+def execution_clock():
+    # Official AppWorld freezes time.monotonic, but not this Linux system clock.
+    return time.clock_gettime(time.CLOCK_MONOTONIC)
+
+
+def verify_execution_runtime():
+    root = Path(__file__).resolve().parents[2]
+    path = root / "configs/p3b_evaluation_runtime_lock.json"
+    lock = read_json(path)
+    for name, expected in lock["files"].items():
+        if Path(name).is_absolute() or ".." in Path(name).parts:
+            raise ValueError("Invalid evaluation source path")
+        if hashlib.sha256((root / name).read_bytes()).hexdigest() != expected:
+            raise ValueError("Evaluation runtime source changed: " + name)
+    return {
+        "revision": lock["runtime_revision"],
+        "lock_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+    }
 
 
 def evaluation_prompt(config):
@@ -137,7 +158,7 @@ def evaluate_terminal(task, experiment, root, split, output):
 def run_episode(config, case, arm, output):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
-    started = time.monotonic()
+    started = execution_clock()
     adapter, session = None, None
     experiment = "p3b_eval_" + digest(str(output.resolve()))[:24]
     record = {
@@ -153,6 +174,7 @@ def run_episode(config, case, arm, output):
         "experiment": experiment,
     }
     try:
+        record["evaluation_runtime"] = verify_execution_runtime()
         if config["tool_mode"] != "dynamic_discovery":
             raise ValueError("This frozen evaluation uses dynamic discovery")
         record["environment"] = environment_check()
@@ -181,6 +203,7 @@ def run_episode(config, case, arm, output):
             checkpoint_id=identity["checkpoint_id"],
             answer_guard=True,
             protocol_harness=True,
+            clock=execution_clock,
             **config["student_limits"],
         )
         if identity != session.identity:
@@ -231,7 +254,7 @@ def run_episode(config, case, arm, output):
             )
         if adapter:
             adapter.close()
-        record["wall_seconds"] = time.monotonic() - started
+        record["wall_seconds"] = execution_clock() - started
         write_json(output / "result.json", record)
     return record
 
