@@ -335,3 +335,11 @@ run_001在权重加载前失败：新编排器Path.resolve解引用venv Python�
 StudentSession仅增加可选clock注入，旧默认及历史源码/锁不回写；本轮评估显式使用系统CLOCK_MONOTONIC，替换其3处预算计时，并用于外层运行耗时。工具内的任务日期仍按官方冻结，未修改AppWorld或伪造时间。父进程仍有独立worker超时，未知回执/部分副作用保留原规则。新configs/p3b_evaluation_runtime_lock.json（p3b_real_clock_v1）绑定本轮全部运行源码；每个episode执行前检查，Raw与SFT共用。旧Harness review精确重跑使用其历史checkout，不能用新源码冒称旧锁通过。原50文件训练checkout保持不变。
 
 新增注入时钟预算回归测试、远程官方freeze_time探针；209软件测试通过。此发现不据此改写任何历史Teacher/P0–P2用时、奖励或95条数据，也不宣称已全面修复旧Teacher计时路径。实际评估尚未开始时完成修复，固定任务/seed/Prompt/工具协议/600秒额度均未按结果调整。
+
+## D038 · 2026-10-23 · 官方冻结时间与Transformers延迟导入隔离
+
+首轮真实Raw/SFT各执行了固定清单首个任务，终态保存后关闭world时，Freezegun扫描新增Transformers延迟模块，触发integrations.bitnet中无torch的NameError；finally再次关闭又触发freezer栈IndexError，掩盖主错误并使result未写出。两个worker异常均由采集控制器记录，未赋予模型0分，也未删除。
+
+检查官方Freezegun configure/teardown实现后，采用公开configure(extend_ignore_list=['transformers'])，仅排除控制侧tokenizer模块，并在world创建前加载tokenizer；不改AppWorld/验证器源码。真实远程探针确认公开工具可执行、任务时间仍冻结、输入token IDs不变、真实墙钟正常、close成功。正常关闭前解除adapter的finally所有权，异常清理错误另记，保证不遮蔽主错误与结果落盘。相应软件回归通过。
+
+新增独立p3b_real_clock_transformers_v2锁，原v1锁及两个失败运行保留。evaluations_v2从原6任务/seed/预算/Prompt重新进行两模型对照，不据结果选任务或调模型。首轮2个基础设施尝试的模型请求/token/工具成本从原始回执重算后计入全部成本；有效官方成功率与基础设施异常分开。此修复不改变训练参数、正式adapter或原95条数据。

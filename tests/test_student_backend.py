@@ -101,3 +101,32 @@ def test_evaluation_worker_timeout_keeps_unknown_outcome_and_unattempted(
     assert result["attempts"] == 1 and len(result["unattempted"]) == 5
     assert result["rows"][0]["official_success"] is None
     assert result["rows"][0]["usage_unknown"]
+
+
+def test_cleanup_error_does_not_hide_primary_worker_failure(tmp_path, monkeypatch):
+    from recoveragent import student_evaluation as evaluation
+    import freezegun
+
+    class BrokenAdapter:
+        def fingerprint(self):
+            raise ValueError("synthetic primary failure")
+
+        def close(self):
+            raise RuntimeError("synthetic cleanup failure")
+
+    monkeypatch.setattr(freezegun, "configure", lambda **kwargs: None)
+    monkeypatch.setattr(
+        evaluation, "verify_execution_runtime", lambda: {"software_fixture": True}
+    )
+    monkeypatch.setattr(evaluation, "environment_check", lambda: {})
+    monkeypatch.setattr(evaluation, "load_tokenizer", lambda: object())
+    monkeypatch.setattr(evaluation, "request_json", lambda _: {})
+    monkeypatch.setattr(evaluation, "EvaluationAdapter", lambda *args: BrokenAdapter())
+    config = json.loads(Path("configs/p3b_paired_evaluation_20261023.json").read_text())
+    result = evaluation.run_episode(
+        config, config["cases"][0], "raw_base", tmp_path / "episode"
+    )
+    assert result["error_type"] == "ValueError"
+    assert result["cleanup_error_type"] == "RuntimeError"
+    assert result["official_success"] is None
+    assert (tmp_path / "episode/result.json").exists()

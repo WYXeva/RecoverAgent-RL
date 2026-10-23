@@ -79,12 +79,12 @@ def summarize(root):
             "checkpoint-*/trainer_state.json"
         )
     )
-    assert read(root / "evaluations/raw_base/config.json") == read(
-        root / "evaluations/base_sft/config.json"
+    assert read(root / "evaluations_v2/raw_base/config.json") == read(
+        root / "evaluations_v2/base_sft/config.json"
     )
     arms = {}
     for arm in ["raw_base", "base_sft"]:
-        directory = root / "evaluations" / arm
+        directory = root / "evaluations_v2" / arm
         summary = read(directory / "summary.json")
         rows = []
         for original in summary["rows"]:

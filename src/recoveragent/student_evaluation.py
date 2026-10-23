@@ -29,7 +29,7 @@ def execution_clock():
 
 def verify_execution_runtime():
     root = Path(__file__).resolve().parents[2]
-    path = root / "configs/p3b_evaluation_runtime_lock.json"
+    path = root / "configs/p3b_evaluation_runtime_v2_lock.json"
     lock = read_json(path)
     for name, expected in lock["files"].items():
         if Path(name).is_absolute() or ".." in Path(name).parts:
@@ -177,6 +177,12 @@ def run_episode(config, case, arm, output):
         record["evaluation_runtime"] = verify_execution_runtime()
         if config["tool_mode"] != "dynamic_discovery":
             raise ValueError("This frozen evaluation uses dynamic discovery")
+        from freezegun import configure
+
+        # Freezegun scans newly imported lazy modules on teardown. Keep tokenizer
+        # internals outside its patching; all AppWorld/task clocks remain frozen.
+        configure(extend_ignore_list=["transformers"])
+        tokenizer = load_tokenizer()
         record["environment"] = environment_check()
         identity = request_json(config["inference_url"])
         adapter = EvaluationAdapter(
@@ -195,7 +201,7 @@ def run_episode(config, case, arm, output):
         ]
         session = StudentSession(
             adapter,
-            load_tokenizer(),
+            tokenizer,
             messages,
             adapter.initial_tools(),
             tool_mode="dynamic_discovery",
@@ -231,8 +237,8 @@ def run_episode(config, case, arm, output):
             },
         )
         adapter.save_terminal()
-        adapter.close()
-        adapter = None
+        closing, adapter = adapter, None
+        closing.close()
         evaluation = evaluate_terminal(
             case["task_id"], experiment, config["appworld_root"], case["split"], output
         )
@@ -253,7 +259,10 @@ def run_episode(config, case, arm, output):
                 answer_guard=session.answer_guard.summary(),
             )
         if adapter:
-            adapter.close()
+            try:
+                adapter.close()
+            except Exception as exc:
+                record["cleanup_error_type"] = type(exc).__name__
         record["wall_seconds"] = execution_clock() - started
         write_json(output / "result.json", record)
     return record
