@@ -1,0 +1,14 @@
+{
+  "python": "3.12.3 | packaged by Anaconda, Inc. | (main, May  6 2024, 19:46:43) [GCC 11.2.0]",
+  "platform": "Linux-5.15.0-78-generic-x86_64-with-glibc2.35",
+  "torch": "2.10.0+cu128",
+  "cuda": "12.8",
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "memory_bytes": 101975851008,
+  "gpu_count": 1,
+  "bf16_supported": true,
+  "real_cuda_matmul_finite": true,
+  "driver": "595.71.05",
+  "cpu_max": "2200000 100000",
+  "memory_max": "118111600640"
+}

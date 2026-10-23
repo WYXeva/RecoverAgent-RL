@@ -311,3 +311,11 @@ Teacher/Student共用完整批次校验和rejection_event；意外停止使用�
 用户确认已有DeepSeek余额恢复并要求验证。沿用既有服务授权及冻结review_20261023，不调Prompt/模型参数；只读确认资金后，从旧固定v5清单取前两任务做B单模式串行烟测，预先固定seed2026102301和USD2/80请求/32768输出token/1200秒总预算，不为了制造纠错事件增加任务、降低输出上限或注入错误。
 
 实际两任务官方成功/过滤均2/2，15请求、49工具、6327生成token，形成独立新包2条；固定Qwen3-4B编码15目标/5730监督token通过，原95条不变。无任何通用/数值拒绝或业务API错误，因此只确认真实执行可用，Harness自纠正效果仍未观察到，而非继续标记余额BLOCKED或虚报修复成功率。实际token按官方峰时价估算USD0.015351492；前后余额差CNY0.03仅作为账户级证据，billed_cost不改成估算。无正式训练，完整报告见reports/harness_funded_validation_20261023.md。
+
+## D035 · 2026-10-23 · P3-B授权、封存训练源码与独立真实评估后端
+
+用户明确授权在提供的远程GPU完成真实Qwen3-4B Base-SFT，先数据/环境/短长烟测再正式1epoch，不沿用历史阶段“本轮不训练”的限制。原95条数据manifest与50文件锁均保持不变；训练checkout固定473693c，当前2145a93的AppWorld/Harness用于独立评估。配置通过已有CLI显式绑定可信manifest，原锁内配置不编辑。
+
+新增本机私有HTTP推理后端（仅远程loopback）：固定Qwen revision/BF16/non-thinking/chat template，逐请求复核完整输入token和checkpoint身份；只负责真实生成，不代选业务API。评估worker复用现有StudentSession、Harness、公开工具和官方评价；原train-only Adapter不改，独立评估构造器只放行明确train/dev成员，评价结果不回传Actor。调用/回执/真实状态/工具结果与控制评价分别保存。
+
+预先固定seed20261023，原训练/内部验证/官方dev各2个公开任务ID，两种权重共享相同6任务、4096单回复/32768总窗口/40请求/16384生成token/600秒预算。此小样本是管线及行为验收，内部validation不冒称未接触泛化集，不报告完整官方benchmark。dev只评价、不训练；原Teacher数据与历史P0–P2不变。最后先备份checkpoint和证据，再按用户要求关闭租用实例。实际结果以P3-B报告为准。

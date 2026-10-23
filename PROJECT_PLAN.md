@@ -1,9 +1,11 @@
 # RecoverAgent-RL：项目计划与需求文档
 
+> 2026-10-23 P3-B授权更新：用户明确授权在已提供的远程RTX PRO 6000 96GB上，数据/环境/短长烟测全部通过后执行既定Qwen3-4B Base-SFT和固定Raw对照；保留95条原数据与源码锁，结束回传checkpoint并关机。不启动Recovery-SFT或GRPO。旧阶段“不训练”文字为当时范围，当前以本项授权为准；实际验收见`reports/p3b_base_sft_report.md`。
+
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
-> 版本：v0.12
+> 版本：v0.13
 > 创建日期：2026-10-19  
-> 状态：v0.12 Harness工程化后完成2026-10-23审查修订（runtime_revision=review_20261023）；需求与训练顺序不变，报告见`reports/harness_review_report.md`，本轮不训练。
+> 状态：v0.13 用户授权执行真实远程P3-B；Harness冻结review_20261023，正式95条数据与原训练源码锁保持不变，当前验收见`reports/p3b_base_sft_report.md`。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 

@@ -1,10 +1,19 @@
 # 项目状态
 
 - 最后更新：2026-10-23（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.12；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Harness审查修订及真实Teacher两任务执行/官方评价/新数据过滤PASS；DeepSeek余额阻塞已解除；真实Harness自纠正效果NOT_OBSERVED（本次无错误触发）**。原数据仍95条/75任务/29家族，数量目标PARTIAL；原包及历史成绩不变。P3-B及以后 `NOT_STARTED`。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.13；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**P3-B进行中：远程环境与不可变数据复验PASS，权重准备及真实训练待执行**。正式集95条/75任务/29家族及历史成绩保持不变；上一阶段Harness审查与充值后Teacher验证已完成。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮审查拉取最新基线 `49d3e5b9263572b27b77f15fbaabb13d05c065b5`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## P3-B远程执行（2026-10-23，进行中）
+
+- 用户明确授权真实Base-SFT及结束关机。已同步2145a930；SSH可用，实测RTX PRO6000 Blackwell Server Edition 97887MiB/驱动595.71.05。使用独立训练与AppWorld环境。
+- 原95轨迹/75任务/29家族、1072样本/273003监督token与可信manifest、归档SHA均核验通过；50文件训练锁使用473693c对应源码，不修改原包。
+- 已安全迁移私有正式集与AppWorld数据。远程依赖/权重和数据重验尚在进行；此处尚不报告训练PASS。
+- 新增实际Qwen推理后端及固定6任务对照入口；训练/内部验证/dev各2个，选择时不读取隐藏标签。203软件测试和Ruff通过；尚不等于真实推理或效果验收。
+- 错误：远程非交互PATH无python3，改用实际Miniconda Python3.12；官方HF连接等待，正用本机官方固定revision下载/核验后迁移。首次pytest缺项目根PYTHONPATH导致收集失败，按既有src:.命令重跑通过。
+- 证据：reports/p3b_local_*_20261023.json；私有.cache/p3b_*及远程recoveragent_p3b_20261023目录。下一步远程重新分词及短/长烟测，全部通过后正式训练。
 
 ## 余额恢复后的真实Teacher验证（2026-10-23，完成）
 

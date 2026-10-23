@@ -1,0 +1,264 @@
+{
+  "status": "PASS",
+  "training_source_commit": "473693c3b768940679a2367d149fd54293e27496",
+  "current_development_commit": "2145a930f94f54bbe2170b677c6f985b48dc9fd8",
+  "source_check": {
+    "runtime_source_files_checked": 50,
+    "runtime_source_match": true
+  },
+  "partitions": {
+    "train": {
+      "trajectories": 82,
+      "tasks": 64,
+      "families": 24,
+      "assistant_examples": 925,
+      "supervised_tokens": 229776,
+      "max_sequence": 31102
+    },
+    "validation": {
+      "trajectories": 13,
+      "tasks": 11,
+      "families": 5,
+      "assistant_examples": 147,
+      "supervised_tokens": 43227,
+      "max_sequence": 32610
+    }
+  },
+  "recipes": {
+    "smoke": {
+      "source_path": "configs/base_sft_qwen3_4b_smoke.json",
+      "source_sha256": "167573ced06ab731f4b693d04fa27d0ffd53f6ff9b84ae80cd1dd31434d1102f",
+      "effective_config": {
+        "model": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+        "thinking": false,
+        "max_sequence_tokens": 32768,
+        "max_new_tokens": 4096,
+        "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "loss_contract": "family_task_cluster_trajectory_turn_balanced_sequence_mean",
+        "lora": {
+          "r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "bias": "none",
+          "task_type": "CAUSAL_LM",
+          "target_modules": [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj"
+          ]
+        },
+        "packages": {
+          "torch": "2.10.0+cu128",
+          "transformers": "4.57.6",
+          "tokenizers": "0.22.2",
+          "peft": "0.18.0",
+          "accelerate": "1.12.0",
+          "huggingface-hub": "0.36.2",
+          "Jinja2": "3.1.6",
+          "jsonschema": "4.25.1"
+        },
+        "training_args": {
+          "per_device_train_batch_size": 1,
+          "per_device_eval_batch_size": 1,
+          "gradient_accumulation_steps": 2,
+          "bf16": true,
+          "fp16": false,
+          "learning_rate": 0.0001,
+          "weight_decay": 0.01,
+          "warmup_ratio": 0.0,
+          "lr_scheduler_type": "cosine",
+          "optim": "adamw_torch",
+          "gradient_checkpointing": true,
+          "gradient_checkpointing_kwargs": {
+            "use_reentrant": false
+          },
+          "max_grad_norm": 1.0,
+          "logging_steps": 1,
+          "eval_strategy": "steps",
+          "eval_steps": 1,
+          "save_strategy": "steps",
+          "save_steps": 1,
+          "save_total_limit": 2,
+          "seed": 2026102121,
+          "data_seed": 2026102121,
+          "report_to": [],
+          "push_to_hub": false,
+          "remove_unused_columns": false,
+          "prediction_loss_only": true,
+          "dataloader_num_workers": 0,
+          "save_safetensors": true,
+          "num_train_epochs": 1.0,
+          "max_steps": 2
+        },
+        "profile": "smoke",
+        "smoke_max_example_length": 4096,
+        "readiness": "PREPARED_NOT_RUN",
+        "smoke_selection": "shortest",
+        "smoke_examples": 4
+      },
+      "binding_method": "existing CLI --expected-manifest-sha256, writes output/run_config.json; no frozen file edits"
+    },
+    "length_smoke": {
+      "source_path": "configs/base_sft_qwen3_4b_length_smoke.json",
+      "source_sha256": "b2beb84fdb96bad04f1ad3b4f991973e6cf3b91f2b997ff0aa393eb3a3bb9b2a",
+      "effective_config": {
+        "model": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+        "thinking": false,
+        "max_sequence_tokens": 32768,
+        "max_new_tokens": 4096,
+        "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "loss_contract": "family_task_cluster_trajectory_turn_balanced_sequence_mean",
+        "lora": {
+          "r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "bias": "none",
+          "task_type": "CAUSAL_LM",
+          "target_modules": [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj"
+          ]
+        },
+        "packages": {
+          "torch": "2.10.0+cu128",
+          "transformers": "4.57.6",
+          "tokenizers": "0.22.2",
+          "peft": "0.18.0",
+          "accelerate": "1.12.0",
+          "huggingface-hub": "0.36.2",
+          "Jinja2": "3.1.6",
+          "jsonschema": "4.25.1"
+        },
+        "training_args": {
+          "per_device_train_batch_size": 1,
+          "per_device_eval_batch_size": 1,
+          "gradient_accumulation_steps": 1,
+          "bf16": true,
+          "fp16": false,
+          "learning_rate": 0.0001,
+          "weight_decay": 0.01,
+          "warmup_ratio": 0.0,
+          "lr_scheduler_type": "cosine",
+          "optim": "adamw_torch",
+          "gradient_checkpointing": true,
+          "gradient_checkpointing_kwargs": {
+            "use_reentrant": false
+          },
+          "max_grad_norm": 1.0,
+          "logging_steps": 1,
+          "eval_strategy": "steps",
+          "eval_steps": 1,
+          "save_strategy": "steps",
+          "save_steps": 1,
+          "save_total_limit": 2,
+          "seed": 2026102121,
+          "data_seed": 2026102121,
+          "report_to": [],
+          "push_to_hub": false,
+          "remove_unused_columns": false,
+          "prediction_loss_only": true,
+          "dataloader_num_workers": 0,
+          "save_safetensors": true,
+          "num_train_epochs": 1.0,
+          "max_steps": 1
+        },
+        "profile": "smoke",
+        "smoke_max_example_length": 32768,
+        "readiness": "PREPARED_NOT_RUN",
+        "smoke_selection": "longest",
+        "smoke_examples": 1
+      },
+      "binding_method": "existing CLI --expected-manifest-sha256, writes output/run_config.json; no frozen file edits"
+    },
+    "lora": {
+      "source_path": "configs/base_sft_qwen3_4b_lora.json",
+      "source_sha256": "f8ab064dc736f0783b16755591ee995593edde7e45a62930f19544f06d1f817f",
+      "effective_config": {
+        "model": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+        "thinking": false,
+        "max_sequence_tokens": 32768,
+        "max_new_tokens": 4096,
+        "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+        "loss_contract": "family_task_cluster_trajectory_turn_balanced_sequence_mean",
+        "lora": {
+          "r": 16,
+          "lora_alpha": 32,
+          "lora_dropout": 0.05,
+          "bias": "none",
+          "task_type": "CAUSAL_LM",
+          "target_modules": [
+            "q_proj",
+            "k_proj",
+            "v_proj",
+            "o_proj",
+            "gate_proj",
+            "up_proj",
+            "down_proj"
+          ]
+        },
+        "packages": {
+          "torch": "2.10.0+cu128",
+          "transformers": "4.57.6",
+          "tokenizers": "0.22.2",
+          "peft": "0.18.0",
+          "accelerate": "1.12.0",
+          "huggingface-hub": "0.36.2",
+          "Jinja2": "3.1.6",
+          "jsonschema": "4.25.1"
+        },
+        "training_args": {
+          "per_device_train_batch_size": 1,
+          "per_device_eval_batch_size": 1,
+          "gradient_accumulation_steps": 8,
+          "bf16": true,
+          "fp16": false,
+          "learning_rate": 0.0001,
+          "weight_decay": 0.01,
+          "warmup_ratio": 0.03,
+          "lr_scheduler_type": "cosine",
+          "optim": "adamw_torch",
+          "gradient_checkpointing": true,
+          "gradient_checkpointing_kwargs": {
+            "use_reentrant": false
+          },
+          "max_grad_norm": 1.0,
+          "logging_steps": 1,
+          "eval_strategy": "steps",
+          "eval_steps": 50,
+          "save_strategy": "steps",
+          "save_steps": 50,
+          "save_total_limit": 2,
+          "seed": 2026102121,
+          "data_seed": 2026102121,
+          "report_to": [],
+          "push_to_hub": false,
+          "remove_unused_columns": false,
+          "prediction_loss_only": true,
+          "dataloader_num_workers": 0,
+          "save_safetensors": true,
+          "num_train_epochs": 1.0,
+          "max_steps": -1
+        },
+        "profile": "base_sft",
+        "readiness": "PREPARED_NOT_RUN"
+      },
+      "binding_method": "existing CLI --expected-manifest-sha256, writes output/run_config.json; no frozen file edits"
+    }
+  },
+  "training_started": false
+}

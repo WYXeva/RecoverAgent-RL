@@ -4,7 +4,7 @@
 
 > 源码版本注意：harness v1更新了共享运行和审计模块，原v1包的50文件源码锁不会随之改写。训练旧包时应使用与其锁匹配的源码checkout（本轮基线`473693c3b768940679a2367d149fd54293e27496`的这50文件匹配），或另行构建并验证新版本数据包；不要修改旧manifest/源码锁放行。新版AppWorld验证worker可以使用独立当前checkout和兼容环境，实际依赖须另存运行清单。真实4B训练及后端仍未验收。
 
-本轮只准备数据与配置，**没有连接远程服务器，没有加载 Qwen3-4B 权重，没有进行 Student 参数更新**。下面带“远程”的命令尚未执行。正式设备是计划中的 NVIDIA RTX PRO 6000 96GB；本机 RTX 5050 8GB 的预检结果不能代替它。
+2026-10-23 用户已授权并开始真实远程P3-B。实际已连接RTX PRO6000 Blackwell Server Edition（97887MiB），固定训练依赖、真实CUDA BF16计算、远程数据导入与逐字节重新分词通过。权重加载、训练更新及后续评价的最终验收见`../reports/p3b_base_sft_report.md`。下文保留原准备说明，历史“未执行”不能替代本轮机器证据。
 
 ## 1. 数据与可信来源
 
@@ -83,3 +83,15 @@ Trainer 的周期 checkpoint 包括 adapter/optimizer/scheduler/RNG/trainer 状�
 原数据包封存的历史 StudentSession 分别检查输入和单次输出长度；当前 Harness及review_20261023运行时已经将生成上限设为 `min(4096, 32768 - 实际输入token数, 剩余生成预算)`；没有余量则以明确预算原因终止，不能让输入32768再额外生成4096。真实4B后端尚未接入，当前软件窗口校验通过不等于真实模型推理已验收。原包继续使用对应封存训练源码，当前Harness/兼容AppWorld worker按独立源码锁部署；不得修改原包锁以绕过版本检查。
 
 固定采样seed可以重建任务清单，固定源文件与tokenizer可以重建分组、mask及token文件；DeepSeek是带温度采样的在线别名，provider没有承诺不可变revision，不能保证重新付费生成得到逐token相同的轨迹。原始回执与backend指纹必须保留。
+
+## 2026-10-23真实执行入口
+
+新增`scripts/run_p3b_training.py`仅编排封存checkout的既有`sft_recipe execute`，不编辑锁内配置或数据。显式传入可信manifest SHA、已验证的重新分词报告和缓存路径；按短烟测→最长完整样本烟测→正式顺序执行，任一参数更新/重载检查失败即停止。输出根目录必须不存在，保存实际命令、每步日志、GPU采样和最终checkpoint。脚本不会下载权重或静默截断。
+
+`student_backend`在远程单GPU加载固定Raw Base或已核验adapter，仅绑定loopback，核对实际输入token、模板和checkpoint身份。`student_evaluation`使用冻结execution_v5/B动态发现及review_20261023 Harness，按`configs/p3b_paired_evaluation_20261023.json`固定清单在独立AppWorld进程执行。官方非断言异常保留unknown并继续预定评价，worker/backend故障停止该arm、保存未知用量和未尝试清单；不改Teacher采集熔断或官方奖励。
+
+训练Python与AppWorld Python隔离：训练栈使用requirements/base-sft.txt固定组合；AppWorld先按appworld-harness.lock安装，再只补齐固定tokenizer依赖（HF Hub0.36.2），最终pip check及完整pip freeze另存，原依赖锁不回写。
+
+网络诊断中直连HF失败，本机Xet无进展；AutoDL官方学术加速有503/低速。Qwen官方ModelScope镜像可作为纯传输来源，但每个权重必须与独立取得的HF固定revision LFS SHA-256完全一致，普通配置/tokenizer文件校验HF Git blob或LFS哈希，不能仅相信镜像master名称。参考[AutoDL官方学术加速](https://api.autodl.com/docs/network_turbo/)和[Qwen官方镜像](https://modelscope.cn/models/Qwen/Qwen3-4B)。
+
+本轮用户要求结束后关机：先下载并验证私有adapter/checkpoint与运行证据，再执行AutoDL官方`shutdown`并核对断连；不释放/删除实例数据，也不把SSH断连当作已核验账单结算。[AutoDL关机说明](https://www.autodl.com/docs/save_money/)。

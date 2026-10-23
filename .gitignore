@@ -5,6 +5,7 @@
 !.env.*.example
 *.pem
 *.key
+/ssh.txt
 .aws/
 .codex/
 .agents/

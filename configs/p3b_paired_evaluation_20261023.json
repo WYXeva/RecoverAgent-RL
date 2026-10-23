@@ -1,0 +1,59 @@
+{
+  "format": "p3b-paired-evaluation-v1",
+  "seed": 20261023,
+  "selection": "Fixed random public IDs before model results; no hidden labels; 2 tasks per partition",
+  "model": "Qwen/Qwen3-4B",
+  "actor_prompt_variant": "execution_v5",
+  "tool_mode": "dynamic_discovery",
+  "appworld_root": "/root/autodl-tmp/recoveragent_p3b_20261023/appworld_root",
+  "inference_url": "http://127.0.0.1:8766",
+  "student_limits": {
+    "max_input_tokens": 32768,
+    "max_new_tokens": 4096,
+    "max_requests": 40,
+    "max_generated_tokens": 16384,
+    "wall_seconds": 600,
+    "seed": 42,
+    "temperature": 0.8,
+    "top_p": 0.95
+  },
+  "cases": [
+    {
+      "task_id": "e3d6c94_3",
+      "scenario_id": "e3d6c94",
+      "partition": "train",
+      "split": "train"
+    },
+    {
+      "task_id": "e85d92a_3",
+      "scenario_id": "e85d92a",
+      "partition": "train",
+      "split": "train"
+    },
+    {
+      "task_id": "7d7fbf6_2",
+      "scenario_id": "7d7fbf6",
+      "partition": "internal_validation",
+      "split": "train"
+    },
+    {
+      "task_id": "ce359b5_1",
+      "scenario_id": "ce359b5",
+      "partition": "internal_validation",
+      "split": "train"
+    },
+    {
+      "task_id": "68ee2c9_3",
+      "scenario_id": "68ee2c9",
+      "partition": "independent_dev",
+      "split": "dev"
+    },
+    {
+      "task_id": "6bdbc26_1",
+      "scenario_id": "6bdbc26",
+      "partition": "independent_dev",
+      "split": "dev"
+    }
+  ],
+  "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c"
+}
