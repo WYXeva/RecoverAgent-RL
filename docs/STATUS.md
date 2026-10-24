@@ -1,10 +1,19 @@
 # 项目状态
 
-- 最后更新：2026-10-23（Asia/Shanghai）
+- 最后更新：2026-10-24（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.13；正式 Student `Qwen/Qwen3-4B`。
 - 当前状态：**P3-B真实训练与checkpoint交付PASS；官方评价完整性/效果验收PARTIAL，远程已执行关机**。正式集95条/75任务/29家族及历史成绩保持不变；上一阶段Harness审查与充值后Teacher验证已完成。
 - P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮P3-B拉取最新基线 `2145a930f94f54bbe2170b677c6f985b48dc9fd8`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## P3-B离线诊断（2026-10-24，完成；未重新训练）
+
+- **统计口径更正**：原12份官方tracker全部返回完整测试计数，Raw原始官方成功0/6、SFT1/6（16.7%），train0/2对1/2、内部validation和dev均0/2。旧0/4、1/4来自项目guard排除非断言异常，是条件统计，不能作为总体成绩。旧结果及null标记保留，运行分类尚未修改。
+- **异常原因已定位**：推荐歌单未创建引发官方空列表IndexError/后续UnboundLocalError；文件未改名移动引发目标路径KeyError。不能笼统解释成环境坏了。按完整原始官方tracker另报失败，不回写旧数据/奖励。
+- **模型实际问题**：6任务中5个前两轮均漏show_api_descriptions必填app_name；压缩任务将登录字段放入文档工具；歌手粉丝数误用“本人是否关注”；文件任务猜错home目录并4096截断。删除旧歌任务真实删除14首，依据当时公开release_date其中9首不满足年份条件，歌单未处理；下一轮上下文32936而耗尽。
+- **数据/训练核对**：925+147目标重新解码，函数/参数与Teacher及当时schema一致，监督/前缀mask通过；105次原示范show_api_descriptions均带app_name。原manifest SHA不变，未发现参数未监督、权重未更新或adapter未加载证据。95条都没有后来新增Harness提示，部署分布差异已确认，因果效果未做消融。
+- **证据/命令**：`reports/p3b_diagnosis_20261024.md/json`；`PYTHONPATH=src HF_HOME="$PWD/.cache/huggingface" HF_HUB_OFFLINE=1 .venv-inference/bin/python scripts/diagnose_p3b.py --input runs/p3b_remote_20261023 --dataset data/base_sft_v1 --output reports/p3b_diagnosis_20261024.json`。210测试、新脚本Ruff通过，0模型请求/0工具新执行/0GPU训练；远程保持关机。
+- **下一步**：独立版本修正评价分类与报告口径、让参数错误反馈指出缺失字段，先做匹配Prompt的首轮/Teacher-prefix诊断，再决定新版本数据或训练；不靠放宽验证或Harness代做业务任务。真实训练PASS、基础任务能力仍弱且未证明泛化提升。
 
 ## P3-B远程执行（2026-10-23，训练完成、效果验收部分通过）
 

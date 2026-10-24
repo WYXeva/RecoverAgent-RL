@@ -6,6 +6,8 @@ Self-Improving Tool Agents through Failure Recovery
 
 **2026-10-23 P3-B真实训练与checkpoint交付PASS，效果验收PARTIAL**：远程RTX PRO6000 96GB完成Qwen3-4B BF16+LoRA短/长烟测及正式116步、1epoch，最终内部验证loss0.16429，参数更新/重载通过。固定6任务对照Raw成功0/4、Base-SFT1/4（各另有2个官方评价异常）；唯一成功来自训练集，未证明泛化提升。原95条数据不变，checkpoint/证据已回传核验并执行远程关机。见[P3-B完整报告](reports/p3b_base_sft_report.md)、[checkpoint交接SHA](reports/p3b_checkpoint_release_20261023.json)与[STATUS](docs/STATUS.md)。未启动Recovery-SFT或GRPO。
 
+**2026-10-24离线诊断更正**：按保存的完整AppWorld官方tracker，全六任务Raw为0/6、Base-SFT为1/6；旧0/4、1/4是项目guard排除非断言异常后的条件统计。两个异常任务实际未完成业务，不能将25%当作总体成功率。监督mask/参数回读通过，但SFT有漏必填参数、错误业务判断和误删，未证明泛化提升。详见[诊断报告](reports/p3b_diagnosis_20261024.md)；原证据和运行协议未改，未重新训练。
+
 历史**正式Base-SFT v1数据交付PASS，数量目标PARTIAL**：95条合格完整Teacher轨迹，覆盖75任务/29场景家族；按scenario划分训练82条、内部验证13条，1072个Assistant样本/273003监督token。155测试、真实来源/动态Schema/mask/函数解析、SHA与迁移复验通过。约120条目标因DeepSeek余额不足（HTTP402）停止，全部118次新增尝试及未知费用保留；原数据私有存放，不上传GitHub。正式SFT/GRPO未启动。见[正式报告](reports/base_sft_dataset_v1_report.md)、[可信SHA](reports/base_sft_dataset_v1_release.json)、[远程交接与烟测说明](docs/REMOTE_BASE_SFT.md)。
 
 历史**P3-A v5实现、采集与数据格式 PASS**：新增公开单值格式检查，最多一次模型同值纠正，Teacher/Student共用，拒绝回复仅作masked上下文。固定10个新任务/5家族，真实Teacher A成功7/10、B成功9/10，16条合格示范全部适配当前32k，143目标/44,126监督token。142测试、真实AppWorld探针与Qwen mask检查通过。该清单未触发金额纠正，**不能据此宣称纠正效果提升；未训练或运行真实4B权重。** 见[历史v5报告](reports/answer_guard_report.md)、[协议](docs/ANSWER_GUARD.md)、[STATUS](docs/STATUS.md)。

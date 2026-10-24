@@ -1,0 +1,634 @@
+{
+  "scope": "offline_existing_receipt_diagnosis_not_new_rollout",
+  "dataset": {
+    "train": {
+      "trajectories": 82,
+      "assistant_targets_checked": 925,
+      "supervised_tokens": 229776,
+      "show_api_descriptions_calls": 90,
+      "missing_app_name_in_training_targets": 0,
+      "current_harness_prompt_trajectories": 0,
+      "prompt_versions": {
+        "execution_v4": 11,
+        "execution_v5": 63,
+        "execution_v3": 8
+      },
+      "tool_modes": {
+        "dynamic_discovery": 67,
+        "api_predictor": 15
+      },
+      "model_input_sha256": "d941bba0137f53f4c5e1a0b9ba73be14b74511da367edc0e0b8fc9c554043e75"
+    },
+    "validation": {
+      "trajectories": 13,
+      "assistant_targets_checked": 147,
+      "supervised_tokens": 43227,
+      "show_api_descriptions_calls": 15,
+      "missing_app_name_in_training_targets": 0,
+      "current_harness_prompt_trajectories": 0,
+      "prompt_versions": {
+        "execution_v5": 7,
+        "execution_v3": 4,
+        "execution_v4": 2
+      },
+      "tool_modes": {
+        "dynamic_discovery": 11,
+        "api_predictor": 2
+      },
+      "model_input_sha256": "914a010fa87f3dadd4ec9fd7a3f2ad21c49f112f779f8a6339b3265f49da1175"
+    }
+  },
+  "evaluation": {
+    "raw_base": {
+      "rows": [
+        {
+          "task_id": "68ee2c9_3",
+          "partition": "independent_dev",
+          "project_guard_status": "evaluation_error",
+          "project_guard_success": null,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [
+            "KeyError"
+          ],
+          "official_evidence_sha256": "2dc9696fc3f07a40b6403272f0d3b708f6f57c4c99d1f01fcc0a179745421345",
+          "termination": "completion_claim",
+          "usage": {
+            "model_requests": 2,
+            "generated_tokens": 43,
+            "prompt_tokens": 6501,
+            "tool_calls": 2,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 2,
+            "harness_rejections": 0,
+            "protocol_rejections": 0,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [],
+          "protocol_errors": [],
+          "executed_function_counts": {
+            "supervisor__show_active_task": 1,
+            "supervisor__complete_task": 1
+          },
+          "successful_complete_without_business_tools": true
+        },
+        {
+          "task_id": "6bdbc26_1",
+          "partition": "independent_dev",
+          "project_guard_status": "valid",
+          "project_guard_success": false,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [],
+          "official_evidence_sha256": "c766e93e05b12575fc3b58ba320c50540211941753056da7bfb76213127e4f15",
+          "termination": "protocol_correction_exhausted",
+          "usage": {
+            "model_requests": 9,
+            "generated_tokens": 256,
+            "prompt_tokens": 52206,
+            "tool_calls": 6,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 6,
+            "harness_rejections": 0,
+            "protocol_rejections": 3,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [],
+          "protocol_errors": [
+            {
+              "request_id": "006",
+              "code": "invisible_tool",
+              "function": "spotify__show_current_song",
+              "missing_required_fields": []
+            },
+            {
+              "request_id": "007",
+              "code": "invisible_tool",
+              "function": "spotify__show_current_song",
+              "missing_required_fields": []
+            },
+            {
+              "request_id": "009",
+              "code": "invisible_tool",
+              "function": "spotify__show_current_song",
+              "missing_required_fields": []
+            }
+          ],
+          "executed_function_counts": {
+            "supervisor__show_active_task": 1,
+            "api_docs__show_app_descriptions": 1,
+            "api_docs__show_api_descriptions": 1,
+            "api_docs__show_api_doc": 1,
+            "spotify__show_following_artists": 1,
+            "api_docs__search_api_docs": 1
+          },
+          "successful_complete_without_business_tools": false
+        },
+        {
+          "task_id": "7d7fbf6_2",
+          "partition": "internal_validation",
+          "project_guard_status": "valid",
+          "project_guard_success": false,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [],
+          "official_evidence_sha256": "26478d3868ddf95eb65fc5a8a09b4e45e70fd2b414b8905363abd799ac5ab738",
+          "termination": "completion_claim",
+          "usage": {
+            "model_requests": 2,
+            "generated_tokens": 43,
+            "prompt_tokens": 6606,
+            "tool_calls": 2,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 2,
+            "harness_rejections": 0,
+            "protocol_rejections": 0,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [],
+          "protocol_errors": [],
+          "executed_function_counts": {
+            "supervisor__show_active_task": 1,
+            "supervisor__complete_task": 1
+          },
+          "successful_complete_without_business_tools": true
+        },
+        {
+          "task_id": "ce359b5_1",
+          "partition": "internal_validation",
+          "project_guard_status": "valid",
+          "project_guard_success": false,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [],
+          "official_evidence_sha256": "5952ca4ffabed1f67f2717a2b885955aab2a5cc983a1603417e333def35e7e00",
+          "termination": "completion_claim",
+          "usage": {
+            "model_requests": 2,
+            "generated_tokens": 43,
+            "prompt_tokens": 6421,
+            "tool_calls": 2,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 2,
+            "harness_rejections": 0,
+            "protocol_rejections": 0,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [],
+          "protocol_errors": [],
+          "executed_function_counts": {
+            "supervisor__show_active_task": 1,
+            "supervisor__complete_task": 1
+          },
+          "successful_complete_without_business_tools": true
+        },
+        {
+          "task_id": "e3d6c94_3",
+          "partition": "train",
+          "project_guard_status": "evaluation_error",
+          "project_guard_success": null,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [
+            "IndexError",
+            "UnboundLocalError"
+          ],
+          "official_evidence_sha256": "5c6473ca3e781065c9c75e1a21c2807f2df06c87536134dfc9e3db4fb16a4fa4",
+          "termination": "completion_claim",
+          "usage": {
+            "model_requests": 24,
+            "generated_tokens": 923,
+            "prompt_tokens": 253717,
+            "tool_calls": 22,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 22,
+            "harness_rejections": 0,
+            "protocol_rejections": 2,
+            "harness_notices": 2
+          },
+          "missing_app_name_requests": [],
+          "protocol_errors": [
+            {
+              "request_id": "013",
+              "code": "invisible_tool",
+              "function": "spotify__login",
+              "missing_required_fields": []
+            },
+            {
+              "request_id": "018",
+              "code": "invisible_tool",
+              "function": "spotify__login",
+              "missing_required_fields": []
+            }
+          ],
+          "executed_function_counts": {
+            "api_docs__search_api_docs": 6,
+            "supervisor__show_profile": 3,
+            "supervisor__show_addresses": 1,
+            "supervisor__show_payment_cards": 2,
+            "supervisor__show_account_passwords": 2,
+            "api_docs__show_api_doc": 2,
+            "spotify__show_recommendations": 3,
+            "spotify__login": 2,
+            "supervisor__complete_task": 1
+          },
+          "successful_complete_without_business_tools": false
+        },
+        {
+          "task_id": "e85d92a_3",
+          "partition": "train",
+          "project_guard_status": "valid",
+          "project_guard_success": false,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [],
+          "official_evidence_sha256": "6095a87f4cc241e051001c011e773f9dd95550cdaf8a74dd640246ddcf82c4b5",
+          "termination": "context_budget_exhausted",
+          "usage": {
+            "model_requests": 26,
+            "generated_tokens": 925,
+            "prompt_tokens": 506017,
+            "tool_calls": 26,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 26,
+            "harness_rejections": 0,
+            "protocol_rejections": 0,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [],
+          "protocol_errors": [],
+          "executed_function_counts": {
+            "api_docs__show_app_descriptions": 1,
+            "api_docs__show_api_descriptions": 1,
+            "api_docs__search_api_docs": 7,
+            "api_docs__show_api_doc": 1,
+            "spotify__search_songs": 16
+          },
+          "successful_complete_without_business_tools": false,
+          "next_input_tokens_from_saved_terminal": 33555,
+          "last_input_tokens": 32569,
+          "last_generation_cap": 199
+        }
+      ],
+      "attempts": 6,
+      "official_tracker_successes": 0,
+      "project_guard_unknowns": 2,
+      "missing_app_name_episodes": 0
+    },
+    "base_sft": {
+      "rows": [
+        {
+          "task_id": "68ee2c9_3",
+          "partition": "independent_dev",
+          "project_guard_status": "evaluation_error",
+          "project_guard_success": null,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [
+            "KeyError"
+          ],
+          "official_evidence_sha256": "941f4eff1c9303322069df9578a68a11fb3c3ef25515b243632be85fd52eddce",
+          "termination": "protocol_correction_exhausted",
+          "usage": {
+            "model_requests": 22,
+            "generated_tokens": 5612,
+            "prompt_tokens": 191560,
+            "tool_calls": 19,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 19,
+            "harness_rejections": 0,
+            "protocol_rejections": 3,
+            "harness_notices": 1
+          },
+          "missing_app_name_requests": [
+            "001",
+            "002"
+          ],
+          "protocol_errors": [
+            {
+              "request_id": "001",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            },
+            {
+              "request_id": "002",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            },
+            {
+              "request_id": "022",
+              "code": "truncated_output",
+              "function": null,
+              "missing_required_fields": []
+            }
+          ],
+          "executed_function_counts": {
+            "api_docs__show_api_descriptions": 1,
+            "api_docs__show_api_doc": 10,
+            "supervisor__show_account_passwords": 1,
+            "file_system__login": 1,
+            "file_system__show_directory": 6
+          },
+          "successful_complete_without_business_tools": false
+        },
+        {
+          "task_id": "6bdbc26_1",
+          "partition": "independent_dev",
+          "project_guard_status": "valid",
+          "project_guard_success": false,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [],
+          "official_evidence_sha256": "feed1b7b992c370d66279721665fd0d7393d52c3c2552d92a01d428607cf68c3",
+          "termination": "completion_claim",
+          "usage": {
+            "model_requests": 14,
+            "generated_tokens": 1019,
+            "prompt_tokens": 90231,
+            "tool_calls": 12,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 12,
+            "harness_rejections": 0,
+            "protocol_rejections": 2,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [
+            "001",
+            "002"
+          ],
+          "protocol_errors": [
+            {
+              "request_id": "001",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            },
+            {
+              "request_id": "002",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            }
+          ],
+          "executed_function_counts": {
+            "api_docs__show_api_descriptions": 1,
+            "api_docs__show_api_doc": 4,
+            "spotify__show_current_song": 2,
+            "supervisor__show_account_passwords": 1,
+            "spotify__login": 1,
+            "spotify__show_artist_following": 1,
+            "spotify__show_following_artists": 1,
+            "supervisor__complete_task": 1
+          },
+          "successful_complete_without_business_tools": false
+        },
+        {
+          "task_id": "7d7fbf6_2",
+          "partition": "internal_validation",
+          "project_guard_status": "valid",
+          "project_guard_success": false,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [],
+          "official_evidence_sha256": "d51beaac7a32016ada2a7621532cd2cbf5430522505aa239412bc7fa02183711",
+          "termination": "protocol_correction_exhausted",
+          "usage": {
+            "model_requests": 8,
+            "generated_tokens": 365,
+            "prompt_tokens": 34822,
+            "tool_calls": 5,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 5,
+            "harness_rejections": 0,
+            "protocol_rejections": 3,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [
+            "001",
+            "002"
+          ],
+          "protocol_errors": [
+            {
+              "request_id": "001",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            },
+            {
+              "request_id": "002",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            },
+            {
+              "request_id": "008",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_doc",
+              "missing_required_fields": []
+            }
+          ],
+          "executed_function_counts": {
+            "api_docs__show_app_descriptions": 1,
+            "api_docs__show_api_descriptions": 1,
+            "api_docs__show_api_doc": 2,
+            "supervisor__show_account_passwords": 1
+          },
+          "successful_complete_without_business_tools": false
+        },
+        {
+          "task_id": "ce359b5_1",
+          "partition": "internal_validation",
+          "project_guard_status": "valid",
+          "project_guard_success": false,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [],
+          "official_evidence_sha256": "a6bc678b41e47d9ed2ce927377a92d8427a1df21becb0fc17aeddd4945d3ee7e",
+          "termination": "context_budget_exhausted",
+          "usage": {
+            "model_requests": 16,
+            "generated_tokens": 5532,
+            "prompt_tokens": 313272,
+            "tool_calls": 55,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 55,
+            "harness_rejections": 0,
+            "protocol_rejections": 1,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [],
+          "protocol_errors": [
+            {
+              "request_id": "014",
+              "code": "invisible_tool",
+              "function": "spotify__remove_song_from_library",
+              "missing_required_fields": []
+            }
+          ],
+          "executed_function_counts": {
+            "api_docs__show_api_descriptions": 2,
+            "supervisor__show_account_passwords": 1,
+            "api_docs__show_api_doc": 13,
+            "spotify__login": 1,
+            "spotify__show_song_library": 1,
+            "spotify__show_album_library": 1,
+            "spotify__search_playlists": 1,
+            "spotify__show_liked_songs": 1,
+            "spotify__show_song": 14,
+            "spotify__show_album": 6,
+            "spotify__remove_song_from_library": 14
+          },
+          "successful_complete_without_business_tools": false,
+          "next_input_tokens_from_saved_terminal": 32936,
+          "last_input_tokens": 30765,
+          "last_generation_cap": 2003,
+          "public_date_filter_audit": {
+            "removed": 14,
+            "observed_release_before_2021": 5,
+            "observed_release_2021_or_later": 9
+          }
+        },
+        {
+          "task_id": "e3d6c94_3",
+          "partition": "train",
+          "project_guard_status": "evaluation_error",
+          "project_guard_success": null,
+          "official_tracker_success": false,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [
+            "IndexError",
+            "UnboundLocalError"
+          ],
+          "official_evidence_sha256": "d2a82e7fb4b0217c2d0b2f2730b48ac276740d5d8eb1cd1e561a795e0c8250f6",
+          "termination": "protocol_correction_exhausted",
+          "usage": {
+            "model_requests": 15,
+            "generated_tokens": 1252,
+            "prompt_tokens": 185195,
+            "tool_calls": 15,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 15,
+            "harness_rejections": 0,
+            "protocol_rejections": 3,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [
+            "001",
+            "002"
+          ],
+          "protocol_errors": [
+            {
+              "request_id": "001",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            },
+            {
+              "request_id": "002",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            },
+            {
+              "request_id": "015",
+              "code": "invalid_arguments",
+              "function": "spotify__search_songs",
+              "missing_required_fields": []
+            }
+          ],
+          "executed_function_counts": {
+            "api_docs__show_api_descriptions": 1,
+            "api_docs__show_api_doc": 6,
+            "supervisor__show_profile": 1,
+            "supervisor__show_account_passwords": 1,
+            "spotify__login": 1,
+            "spotify__show_genres": 1,
+            "spotify__search_songs": 3,
+            "spotify__show_recommendations": 1
+          },
+          "successful_complete_without_business_tools": false
+        },
+        {
+          "task_id": "e85d92a_3",
+          "partition": "train",
+          "project_guard_status": "valid",
+          "project_guard_success": true,
+          "official_tracker_success": true,
+          "official_tracker_all_tests_recorded": true,
+          "exception_types": [],
+          "official_evidence_sha256": "1a6cf83ce8e029fca9354cbfc7a23d5c405d2a4c2b3248dcb27d0508dfb8c6e4",
+          "termination": "completion_claim",
+          "usage": {
+            "model_requests": 11,
+            "generated_tokens": 497,
+            "prompt_tokens": 76591,
+            "tool_calls": 10,
+            "unknown_generation_reservation": 0,
+            "tool_requests": 10,
+            "harness_rejections": 0,
+            "protocol_rejections": 2,
+            "harness_notices": 0
+          },
+          "missing_app_name_requests": [
+            "001",
+            "002"
+          ],
+          "protocol_errors": [
+            {
+              "request_id": "001",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            },
+            {
+              "request_id": "002",
+              "code": "invalid_arguments",
+              "function": "api_docs__show_api_descriptions",
+              "missing_required_fields": [
+                "app_name"
+              ]
+            }
+          ],
+          "executed_function_counts": {
+            "api_docs__show_api_descriptions": 1,
+            "supervisor__show_account_passwords": 1,
+            "api_docs__show_api_doc": 4,
+            "spotify__login": 1,
+            "spotify__search_artists": 1,
+            "spotify__search_songs": 1,
+            "supervisor__complete_task": 1
+          },
+          "successful_complete_without_business_tools": false
+        }
+      ],
+      "attempts": 6,
+      "official_tracker_successes": 1,
+      "project_guard_unknowns": 2,
+      "missing_app_name_episodes": 5
+    }
+  },
+  "model_requests": 0,
+  "optimizer_steps": 0,
+  "historical_rewards_modified": false,
+  "official_validator_modified": false
+}
