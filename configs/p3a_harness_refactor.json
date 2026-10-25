@@ -1,0 +1,91 @@
+{
+  "project_version": "0.10",
+  "tool_mode": "dynamic_discovery",
+  "actor_prompt_variant": "execution_v5",
+  "predictor_prompt_variant": "dependency_examples_v2",
+  "appworld_root": "data/appworld",
+  "student": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false
+  },
+  "teacher": {
+    "provider": "deepseek",
+    "base_url": "https://api.deepseek.com",
+    "allowed_host": "api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-flash",
+    "revision": "DeepSeek-V4.1-Flash-1017 (provider documentation, 2026-10-20)",
+    "revision_is_immutable": false,
+    "revision_source": "https://api-docs.deepseek.com/",
+    "thinking": false,
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": null,
+    "max_request_bytes": 524288,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "USD",
+      "input_per_million": null,
+      "cached_input_per_million": null,
+      "output_per_million": null,
+      "source": null,
+      "checked_at": null
+    }
+  },
+  "authorization": {
+    "approved": false,
+    "reference": null,
+    "currency": "USD",
+    "max_cost": null
+  },
+  "limits": {
+    "max_tasks": 10,
+    "max_requests": 400,
+    "total_generated_tokens": 163840,
+    "max_model_turns": 40,
+    "max_tool_calls": null,
+    "episode_generated_tokens": 16384,
+    "episode_wall_seconds": 600,
+    "total_wall_seconds": 6000,
+    "tool_timeout_seconds": 60,
+    "max_infrastructure_retries": 0,
+    "repeated_identical_call_limit": 3,
+    "episode_requests": 40,
+    "episode_cost": 1
+  },
+  "environment_seed": 42,
+  "training_enabled": false,
+  "collection_profile": "scenario_expansion_v1",
+  "protocol_lock": "configs/harness_refactor_protocol_lock.json",
+  "sampling": {
+    "strategy": "scenario_balanced",
+    "seed": 2026102105,
+    "num_tasks": 10,
+    "num_scenarios": 5,
+    "exclude_scenarios": [
+      "82e2fac",
+      "29caf6f",
+      "22cc237",
+      "b0a8eae",
+      "287e338",
+      "34d9492",
+      "2a163ab",
+      "ccb4494",
+      "6ea6792",
+      "e3d6c94",
+      "6104387",
+      "76f2c72"
+    ]
+  },
+  "task_manifest": "configs/train_v5_ab_20261021.json",
+  "continue_after_infrastructure_error": true,
+  "task_manifest_hash": "2fb8b2e2c3449844f32c715e548190a49288bf009f7a861775a520f343645744",
+  "selection_protocol": "api_predictor_validated_v1",
+  "compare_tool_modes": false,
+  "answer_guard_protocol": "numeric_answer_self_correction_v1",
+  "harness_protocol": "public_protocol_correction_v1",
+  "environment_profile": "appworld_sqlalchemy20_v1",
+  "harness_runtime_revision": "shared_execution_20261025"
+}

@@ -21,10 +21,12 @@ from .harness import (
     ProtocolHarness,
     capture_interruption,
     record_call_intent,
+    record_tool_result,
+    failure_category,
     json_object,
     check_batch,
     RULES as HARNESS_RULES,
-    RUNTIME_REVISION,
+    REFACTOR_REVISION,
 )
 
 
@@ -115,7 +117,7 @@ class StudentSession:
         top_p=0.95,
         answer_guard=False,
         protocol_harness=False,
-        harness_revision=RUNTIME_REVISION,
+        harness_revision=REFACTOR_REVISION,
         clock=None,
     ):
         if (
@@ -274,8 +276,6 @@ class StudentSession:
                 type(i) is not int or i < 0 for i in ids
             ):
                 raise ValueError("Missing actual generated token IDs")
-            self.usage["generated_tokens"] += len(ids)
-            self.usage["unknown_generation_reservation"] = 0
             if (
                 response["policy"] != self.identity
                 or response["input_token_ids"] != request["input_token_ids"]
@@ -285,6 +285,8 @@ class StudentSession:
                 raise ValueError(
                     "Student identity, input, or generation boundary mismatch"
                 )
+            self.usage["generated_tokens"] += len(ids)
+            self.usage["unknown_generation_reservation"] = 0
             text = self.tokenizer.decode(ids, skip_special_tokens=False)
             if not self.harness and ids[-1] != self.tokenizer.eos_token_id:
                 raise ValueError("Missing Student EOS boundary")
@@ -314,7 +316,6 @@ class StudentSession:
                 self.messages.append(event["feedback"])
                 self.usage["protocol_rejections"] += 1
                 event["status"] = "protocol_rejected"
-                event["failure_category"] = "model_tool_execution"
                 if self.harness.stopped:
                     self.stopped, self.termination = (
                         True,
@@ -368,28 +369,17 @@ class StudentSession:
                         self.tools,
                         self.tool_mode,
                     )
-                    event.pop("inflight_call_id", None)
-                    if guard:
-                        event["appworld_dispatched_count"] += 1
                 else:
                     result = canonical(verdict)
                     self.usage["harness_rejections"] += 1
-                observation = {
-                    "role": "tool",
-                    "tool_call_id": call["id"],
-                    "name": f["name"],
-                    "content": result,
-                }
-                self.messages.append(observation)
-                event["tool_results"].append(copy.deepcopy(observation))
-                event["dispatched_count"] += 1
-                if self.output:
-                    write_json(
-                        self.output
-                        / ("dispatches" if verdict is None else "harness_feedback")
-                        / f"{name}_{event['dispatched_count']:03d}.json",
-                        observation,
-                    )
+                record_tool_result(
+                    self.output,
+                    event,
+                    self.messages,
+                    call,
+                    result,
+                    executed=verdict is None,
+                )
             validate_history(self.messages)
             batch_open = False
             if (
@@ -406,6 +396,8 @@ class StudentSession:
                     self.messages.append(notice)
                     self.usage["harness_notices"] += 1
             event["status"] = "complete_boundary"
+            if self.harness:
+                event["failure_category"] = failure_category(event)
             if guard:
                 event["answer_guard"] = guard.summary()
             if guard and guard.stopped:
@@ -426,11 +418,7 @@ class StudentSession:
             )
             event.update(status=self.termination, error_type=type(exc).__name__)
             if self.harness:
-                event["failure_category"] = (
-                    "worker_environment"
-                    if batch_open or not response_received
-                    else "model_tool_execution"
-                )
+                event["failure_category"] = failure_category(event)
             if self.harness and batch_open:
                 event["interruption"] = capture_interruption(
                     self.adapter, self.output, self.messages, self.tools, event

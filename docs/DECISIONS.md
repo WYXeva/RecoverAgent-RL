@@ -379,3 +379,13 @@ StudentSession仅增加可选clock注入，旧默认及历史源码/锁不回写
 原95条覆盖75/90个官方train任务；再排除固定内部validation家族和旧评测任务，仅余8个可用未见任务。预固定seed20261025的12任务/11家族清单：先8个未见，再按家族覆盖补4个train已见任务，明确exposure；不能据混合清单声称纯未见泛化，也不将validation/dev导入恢复训练。
 
 本轮SSH客户端退出255，端口TCP连接后未给SSH握手，远程GPU未核验。本地RTX5050 8151MiB未通过90000MiB配置门槛，采集在0模型请求前阻止。遵循“不自动启动/租用付费实例”；P3-C实现与真实AppWorld软件探针PASS，真实模型采集BLOCKED。进入P4-A前先在用户恢复可用的远程实例上完成固定清单采集、自然失败筛选及模型检查点独立恢复。不能因有已训练adapter或脚本探针就宣称P3-C通过。
+
+## D044 · 2026-10-25 · Harness有限重构：反馈审计、共享返回记录与错误分层
+
+用户要求可靠且易维护，不重写环境/执行框架。基线0d59b00已有精确Schema反馈和评价完整性分类；不重复实现。确认schema详情在validate_record重放时丢失，补齐重放并由validate_receipts从原响应/当轮schema独立核验，防止合法纠错误过滤与伪造详情。反馈不作Assistant目标，原始非法输出仅存审计。
+
+两端共用record_tool_result处理观察追加、实际返回/guard反馈计数、in-flight解除与落盘；保留原Runner预算/真实执行/数值guard，不引入ToolGraph或新状态机。Teacher在线与中断用量重算统一verified_response_usage；身份/边界不可信时保留原费用/token预留，Student同样不将后端故障算模型错误。原请求不自动重发。
+
+A协议错误有限纠正；B真实工具错误保留观察；C provider/worker故障按现有熔断；D评价未知无reward；E完整官方失败为0。局部事件与最终结果分层，返回数不是全部执行次数，部分副作用和未知调用保留不可恢复标记。保留AnswerGuard、无进展提醒及A/B协议，不补业务动作。
+
+新运行标识shared_execution_20261025与新配置/锁；默认Student精确反馈，新Teacher配置匹配。不是新Prompt或额外重试规则。旧264个保护文件和95条数据/adapter不改，旧锁拒绝新源码是预期，历史复现使用旧commit。真实AppWorld脚本与合成tokenizer只验工程，不声明模型效果；本轮不访问GPU、不启动训练或恢复学习。

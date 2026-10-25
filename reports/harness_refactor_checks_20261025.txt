@@ -1,0 +1,15 @@
+PYTHONPATH=src:. .venv/bin/python -m pytest -q
+........................................................................ [ 28%]
+........................................................................ [ 57%]
+........................................................................ [ 85%]
+....................................                                     [100%]
+252 passed in 0.58s
+
+.venv/bin/ruff check src tests scripts
+.venv/bin/ruff format --check src tests scripts
+All checks passed!
+99 files already formatted
+
+Final real AppWorld A/B scripted probes: PASS; model calls: 0.
+Pinned Qwen tokenizer on synthetic schema correction: PASS.
+New runtime lock digest: df07aa2b39af7be7002b71bf54616d47f411a0124c6905da1772b8834b5edb30

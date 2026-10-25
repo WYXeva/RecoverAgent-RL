@@ -5,6 +5,7 @@ executed, or represented as fabricated Assistant/tool messages. Only a declared
 harness user message is added to the legal conversation for the next generation.
 """
 
+import copy
 import json
 import re
 from pathlib import Path
@@ -18,6 +19,8 @@ from .teacher_history import validate_history
 PROTOCOL = "public_protocol_correction_v1"
 RUNTIME_REVISION = "review_20261023"
 SCHEMA_REVISION = "schema_feedback_20261025"
+REFACTOR_REVISION = "shared_execution_20261025"
+SCHEMA_REVISIONS = {SCHEMA_REVISION, REFACTOR_REVISION}
 RULES = """PUBLIC HARNESS PROTOCOL v1
 The harness checks complete responses before executing any call in the batch.
 On harness_protocol_error the ENTIRE batch was NOT executed. Raw invalid output
@@ -88,8 +91,6 @@ def schema_error_detail(error):
             k for k in error.validator_value if k not in error.instance
         ]
     elif error.validator == "additionalProperties":
-        import re
-
         properties = error.schema.get("properties", {})
         patterns = error.schema.get("patternProperties", {})
         detail["unknown_fields"] = sorted(
@@ -159,11 +160,11 @@ def check_batch(message, messages, tools, *, require_action=False):
 
 
 class ProtocolHarness:
-    def __init__(self, tool_mode, *, revision=RUNTIME_REVISION):
+    def __init__(self, tool_mode, *, revision=REFACTOR_REVISION):
         if tool_mode not in {"dynamic_discovery", "api_predictor"}:
             raise ValueError("Unknown tool mode")
         self.tool_mode = tool_mode
-        if revision not in {None, RUNTIME_REVISION, SCHEMA_REVISION}:
+        if revision not in {None, RUNTIME_REVISION, *SCHEMA_REVISIONS}:
             raise ValueError("Unknown harness runtime revision")
         self.revision = revision
         self.rejections = 0
@@ -191,7 +192,7 @@ class ProtocolHarness:
         }
         if tool_name is not None:
             feedback["function"] = tool_name
-        if self.revision == SCHEMA_REVISION and schema_error is not None:
+        if self.revision in SCHEMA_REVISIONS and schema_error is not None:
             feedback["schema_error"] = schema_error
         return {"role": "user", "content": canonical(feedback)}
 
@@ -208,6 +209,7 @@ class ProtocolHarness:
             guard.inspect([])  # Never extend the one-response numeric budget.
         return {
             "protocol_rejection": code,
+            "failure_category": "protocol",
             "rejected_function": function,
             "supervise": False,
             "feedback": feedback,
@@ -304,16 +306,39 @@ def failure_category(trajectory):
     """Classify controller failures; NEVER infer a provider status from tool text."""
     if trajectory.get("provider_error"):
         return "provider"
-    if trajectory.get("termination_reason") == "evaluation_error":
+    termination = trajectory.get("termination_reason", trajectory.get("status"))
+    if termination == "evaluation_error":
         return "evaluation_runtime"
-    if (
-        trajectory.get("status") == "infrastructure_error"
-        or trajectory.get("termination_reason") == "worker_interrupted"
-    ):
+    if trajectory.get("status") == "infrastructure_error" or termination in {
+        "worker_interrupted",
+        "interrupted_batch",
+        "rejected_generation",
+        "infrastructure_error",
+    }:
         return "worker_environment"
-    if trajectory.get("reward") == 0:
-        return "model_tool_execution"
+    if trajectory.get("status") == "valid" and trajectory.get("reward") == 0:
+        return "task_failure"
+    if "protocol_rejection" in trajectory or any(
+        trajectory.get("harness_verdicts", [])
+    ):
+        return "protocol"
+    if any(public_tool_error(r["content"]) for r in trajectory.get("tool_results", [])):
+        return "business"
     return None
+
+
+def public_tool_error(result):
+    """Recognize AppWorld error envelopes, not error words inside ordinary data.
+
+    A tool returning a business HTTP error remains a real observation. It is
+    never a provider failure or permission to replay the request automatically.
+    """
+    return isinstance(result, str) and bool(
+        re.match(
+            r"^(?:Execution failed\.|Response status code is [45]\d\d\b)",
+            result.lstrip(),
+        )
+    )
 
 
 def rejection_details(exc, *, truncated):
@@ -337,6 +362,37 @@ def record_call_intent(directory, event, call):
                 "history_hash": event["history_hash"],
                 "tools_hash": digest(event["tools"]),
             },
+        )
+
+
+def record_tool_result(directory, event, messages, call, result, *, executed):
+    """One ordered observation/receipt path shared by Teacher and Student.
+
+    Called only after execute returns, or for explicitly declared guard feedback.
+    On an exception before return the intent stays in flight and no result is
+    invented. Keep history/event before disk IO so interruption capture retains
+    known results even if persisting the individual receipt fails.
+    """
+    observation = {
+        "role": "tool",
+        "tool_call_id": call["id"],
+        "name": call["function"]["name"],
+        "content": result,
+    }
+    messages.append(observation)
+    event.setdefault("tool_results", []).append(copy.deepcopy(observation))
+    event["dispatched_count"] = event.get("dispatched_count", 0) + 1
+    event["appworld_dispatched_count"] = event.get(
+        "appworld_dispatched_count", 0
+    ) + int(executed)
+    if executed:
+        event.pop("inflight_call_id", None)
+    if directory is not None:
+        write_json(
+            Path(directory)
+            / ("dispatches" if executed else "harness_feedback")
+            / f"{event['request_id']}_{event['dispatched_count']:03d}.json",
+            observation,
         )
 
 
@@ -425,6 +481,10 @@ def validate_record(record):
                 t["protocol_rejection"],
                 answer_pending=guard.pending,
                 tool_name=t.get("rejected_function"),
+                # Details are part of visible harness feedback, not an Assistant
+                # target. validate_receipts independently recomputes them from
+                # the immutable provider response and this turn's schema.
+                schema_error=json.loads(t["feedback"]["content"]).get("schema_error"),
             )
             if guard.pending:
                 guard.inspect([])

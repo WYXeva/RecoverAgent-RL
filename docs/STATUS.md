@@ -2,9 +2,19 @@
 
 - 最后更新：2026-10-25（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.14；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**P3-B训练/重载PASS；P3-C实现与真实AppWorld状态探针PASS，真实Student采集BLOCKED**（远程SSH未握手、本机8GB未过门槛）。95条/75任务/29家族和已训练adapter原SHA复验通过；模型自然失败数仍为0。
+- 当前状态：**Harness重构工程PASS、真实模型效果未测；P3-B训练/重载PASS；P3-C真实Student采集仍BLOCKED**（远程SSH未握手、本机8GB未过门槛）。95条/75任务/29家族和已训练adapter原SHA复验通过；模型自然失败数仍为0。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮P3-C拉取最新基线 `5aed1fb3090adc3ff5f33729272468006f67faca`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Harness小范围重构（2026-10-25，工程PASS；模型效果未测）
+
+- **基线与范围**：同步`0d59b0099aae67626d56fa32c12746e99bcb4948`，工作区无未提交差异。先列代码问题并复现3个失败用例；已有精确Schema反馈/评价分类不重复开发。仅4个核心文件调整，没有新运行框架。
+- **实际修复**：精确反馈详情能通过重放/导出，receipt从原响应和可见schema核验详情防篡改；Teacher/Student共用工具返回/计数/落盘；去除真实返回数对AnswerGuard的依赖。后端身份/边界失败保留未知token与费用，Teacher现场/中断重算复用核验。协议、业务、执行、评价未知、最终任务失败分层；原两次纠错与熔断不变。
+- **验证**：252测试、Ruff check和全量99文件format通过；最终真实AppWorld A/B脚本各4调用，业务401保留、非法批次0执行、写后丢返回保存真实副作用且不可恢复。开发与冻结两轮合计16个真实工具调用，0模型调用/计费/训练。固定Qwen tokenizer对合成纠错样本得到1目标/24监督token/2238序列，反馈/历史/padding屏蔽及parser回读通过；不计真实Teacher示范。
+- **兼容**：95轨迹/75任务/29家族、18来源包与原manifest重验通过；原adapter7发布文件SHA一致，264个旧锁/报告及保留源码与基线相同。evaluation.py、Adapter、state、AnswerGuard、Prompt、训练mask实现均未修改。
+- **新入口**：`shared_execution_20261025`、`configs/p3a_harness_refactor.json`、`configs/harness_refactor_protocol_lock.json`。Student默认同版本；旧P3-B/P3-C源码锁不适用新checkout，必须用其原commit复现。配置付费授权仍false。
+- **证据/命令**：`reports/harness_refactor_report.md`，`harness_refactor_{world,world_final,mask,integrity,validation}_20261025.json`、`harness_refactor_checks_20261025.txt`。实际命令`PYTHONPATH=src:. .venv/bin/python -m pytest -q`、`ruff check src tests scripts`、`ruff format --check src tests scripts`；真实探针与tokenizer命令见报告。私有回执在`runs/harness_refactor_20261025_{a,b}`，日志`.cache/harness_refactor_*`。
+- **限制/下一步**：未测真实DeepSeek/Qwen纠错效果，没有新增Teacher示范、没有训练或Recovery。P3-C远程状态本轮未重新检查；旧真实模型采集BLOCKED不变。后续在匹配新运行锁的受控小样本中验证模型效果，不靠Harness代做业务。测试开发中发现fixture序列化/重复ID错误并修正，没有降低生产验收。
 
 ## P3-C评价修复、自然失败采集与多检查点（2026-10-25）
 

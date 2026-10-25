@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "scope": "Scripted protocol probes, not model or API Predictor performance",
+  "environment": {
+    "sqlalchemy": "2.0.52",
+    "sqlmodel": "0.0.48",
+    "uri_roundtrip": true
+  },
+  "rows": [
+    {
+      "mode": "dynamic_discovery",
+      "runtime_revision": "shared_execution_20261025",
+      "real_tool_calls": 4,
+      "real_model_requests": 0,
+      "missing_app_name_specific": true,
+      "dynamic_or_fixed_schema_correct": true,
+      "business_401_kept_without_retry": true,
+      "mixed_invalid_batch_zero_calls": true,
+      "partial_write_saved": true,
+      "known_results": 1,
+      "uncertain_calls": 1,
+      "incomplete_batch_resume_eligible": false,
+      "protocol_rejections": 2,
+      "official_category": "task_failure",
+      "official_success": false,
+      "elapsed_seconds": 32.841450385021744
+    },
+    {
+      "mode": "api_predictor",
+      "runtime_revision": "shared_execution_20261025",
+      "real_tool_calls": 4,
+      "real_model_requests": 0,
+      "missing_app_name_specific": true,
+      "dynamic_or_fixed_schema_correct": true,
+      "business_401_kept_without_retry": true,
+      "mixed_invalid_batch_zero_calls": true,
+      "partial_write_saved": true,
+      "known_results": 1,
+      "uncertain_calls": 1,
+      "incomplete_batch_resume_eligible": false,
+      "protocol_rejections": 2,
+      "official_category": "task_failure",
+      "official_success": false,
+      "elapsed_seconds": 29.94203534600092
+    }
+  ],
+  "real_model_requests": 0,
+  "training_steps": 0
+}

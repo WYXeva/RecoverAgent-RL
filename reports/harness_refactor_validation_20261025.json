@@ -1,0 +1,98 @@
+{
+  "engineering_status": "PASS",
+  "real_model_effectiveness": "NOT_TESTED",
+  "baseline_commit": "0d59b0099aae67626d56fa32c12746e99bcb4948",
+  "runtime_revision": "shared_execution_20261025",
+  "new_config_lock_digest": "df07aa2b39af7be7002b71bf54616d47f411a0124c6905da1772b8834b5edb30",
+  "new_config_lock_file_sha256": "852af2825d3d066c70319342d1252092e545cb4c84412f172979b1662473b025",
+  "software_tests_passed": 252,
+  "ruff_check": "PASS",
+  "ruff_format_files": 99,
+  "new_regression_cases": 14,
+  "initial_confirmed_regression_failures": 3,
+  "real_appworld_final": {
+    "status": "PASS",
+    "scope": "Scripted protocol probes, not model or API Predictor performance",
+    "environment": {
+      "sqlalchemy": "2.0.52",
+      "sqlmodel": "0.0.48",
+      "uri_roundtrip": true
+    },
+    "rows": [
+      {
+        "mode": "dynamic_discovery",
+        "runtime_revision": "shared_execution_20261025",
+        "real_tool_calls": 4,
+        "real_model_requests": 0,
+        "missing_app_name_specific": true,
+        "dynamic_or_fixed_schema_correct": true,
+        "business_401_kept_without_retry": true,
+        "mixed_invalid_batch_zero_calls": true,
+        "partial_write_saved": true,
+        "known_results": 1,
+        "uncertain_calls": 1,
+        "incomplete_batch_resume_eligible": false,
+        "protocol_rejections": 2,
+        "official_category": "task_failure",
+        "official_success": false,
+        "elapsed_seconds": 32.75306399099645
+      },
+      {
+        "mode": "api_predictor",
+        "runtime_revision": "shared_execution_20261025",
+        "real_tool_calls": 4,
+        "real_model_requests": 0,
+        "missing_app_name_specific": true,
+        "dynamic_or_fixed_schema_correct": true,
+        "business_401_kept_without_retry": true,
+        "mixed_invalid_batch_zero_calls": true,
+        "partial_write_saved": true,
+        "known_results": 1,
+        "uncertain_calls": 1,
+        "incomplete_batch_resume_eligible": false,
+        "protocol_rejections": 2,
+        "official_category": "task_failure",
+        "official_success": false,
+        "elapsed_seconds": 29.68406891898485
+      }
+    ],
+    "real_model_requests": 0,
+    "training_steps": 0
+  },
+  "real_qwen_tokenizer_synthetic_mask": {
+    "scope": "real tokenizer on synthetic rejection/correction; no model weights",
+    "samples": 1,
+    "rejected_turns": 1,
+    "supervised_tokens": 24,
+    "max_sequence": 2238,
+    "assistant_only": true,
+    "padding_mask": true,
+    "student_parser_roundtrip": true,
+    "model_requests": 0,
+    "training_steps": 0
+  },
+  "dataset_counts": {
+    "source_qualified": 104,
+    "selected": 95,
+    "unique_tasks": 75,
+    "families": 29,
+    "deferred": 5,
+    "reserved_by_task_cap": 4,
+    "exact_duplicates": 0,
+    "high_similarity_pairs": 18
+  },
+  "old_files_unchanged": 264,
+  "evidence_sha256": {
+    "reports/harness_refactor_world_20261025.json": "401327fa4434e96814cab5784de35494ae685a0f8ff0817cfe1febcc6108a77e",
+    "reports/harness_refactor_world_final_20261025.json": "ca541e4865837d723c3a8abff90cd6c8ec32c79522544c7c5cf3da29ac53a633",
+    "reports/harness_refactor_mask_20261025.json": "d8544aed36bd51371e6328771a2e082ccc8ad19304a86e3d990ae719ba93f3e2",
+    "reports/harness_refactor_integrity_20261025.json": "6f5ed854126f096bd91d6dce8255e3f37e393c58e7513833be649f86b98e7eb7",
+    ".cache/harness_refactor_tests_final.log": "b7d4e5fbff7678d11312ed9cb7bba5a12490c17e287395b2cb3a17cebb2c563d",
+    ".cache/harness_refactor_ruff_final.log": "eb9aa205309087c4cae18f49b39b39deab4f428d0315bd3819ca36b03b8c2a00"
+  },
+  "total_real_appworld_calls_including_development_probe": 16,
+  "model_requests": 0,
+  "new_teacher_demonstrations": 0,
+  "training_steps": 0,
+  "gpu_or_paid_instance_started": false
+}

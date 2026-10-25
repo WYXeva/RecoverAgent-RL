@@ -27,6 +27,7 @@ from .harness import (
     validate_record as validate_harness_record,
     check_batch,
     rejection_details,
+    SCHEMA_REVISIONS,
 )
 
 FORMAT = "clean-teacher-normal-v1"
@@ -145,6 +146,18 @@ def validate_receipts(trajectory, directory):
                 ):
                     raise ValueError(
                         "Protocol rejection differs from raw response"
+                    ) from None
+                expected_detail = (
+                    getattr(exc, "schema_error", None)
+                    if trajectory["harness"].get("runtime_revision") in SCHEMA_REVISIONS
+                    else None
+                )
+                if (
+                    json.loads(turn["feedback"]["content"]).get("schema_error")
+                    != expected_detail
+                ):
+                    raise ValueError(
+                        "Schema feedback differs from raw response and visible schema"
                     ) from None
             else:
                 raise ValueError("Valid response was falsely marked as rejected")

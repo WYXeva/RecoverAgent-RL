@@ -37,9 +37,11 @@ from .harness import (
     RULES as HARNESS_RULES,
     RUNTIME_REVISION,
     SCHEMA_REVISION,
+    REFACTOR_REVISION,
     ProtocolHarness,
     capture_interruption,
     record_call_intent,
+    record_tool_result,
     failure_category,
     ServiceCircuitBreaker,
     check_batch,
@@ -52,7 +54,7 @@ def validate_config(config):
         raise ValueError("Unknown harness protocol")
     if config.get("harness_protocol") and (
         config.get("harness_runtime_revision")
-        not in {RUNTIME_REVISION, SCHEMA_REVISION}
+        not in {RUNTIME_REVISION, SCHEMA_REVISION, REFACTOR_REVISION}
         or config.get("actor_prompt_variant") != "execution_v5"
         or config.get("environment_profile") != "appworld_sqlalchemy20_v1"
         or config["teacher"]["max_new_tokens"] != 4096
@@ -159,6 +161,22 @@ def official_evaluate(task_id, experiment_name):
     return bool(tracker.success), tracker.to_dict()
 
 
+def verified_response_usage(response, teacher, max_tokens, backend=None):
+    """Use the same receipt checks live and when recovering a killed worker."""
+    usage = response_usage(response)
+    if (
+        usage["generated_tokens"] > max_tokens
+        or usage["prompt_tokens"] > teacher["billing_context_tokens"]
+    ):
+        raise ValueError("Provider exceeded configured billing bound")
+    identity = (response.get("model"), response.get("system_fingerprint"))
+    if identity[0] != teacher["model"] or not identity[1]:
+        raise ValueError("Unverifiable Teacher response identity")
+    if backend is not None and backend != identity:
+        raise ValueError("Teacher backend identity changed during the episode")
+    return usage, identity
+
+
 def interrupted_usage(directory, teacher):
     """Recover known usage from durable receipts and reserve only unknown requests."""
     directory = Path(directory)
@@ -199,12 +217,15 @@ def interrupted_usage(directory, teacher):
         totals["harness_notices"] = sum("harness_notice" in e for e in events)
         totals["unreadable_turn_records"] = unreadable
         totals["harness_counters_lower_bound"] = True
+    backend = None
     for path in sorted((directory / "requests").glob("*.reservation.json")):
         totals["provider_requests"] += 1
         reservation = read_json(path)
         response = path.with_name(path.name.replace(".reservation.", ".response."))
         try:
-            usage = response_usage(read_json(response))
+            usage, backend = verified_response_usage(
+                read_json(response), teacher, reservation["max_tokens"], backend
+            )
         except (OSError, ValueError, KeyError, TypeError):
             totals["unknown_cost_reservation"] += reservation["max_cost"]
             totals["unknown_generation_reservation"] += reservation["max_tokens"]
@@ -392,32 +413,22 @@ def run_teacher_episode(config, task_id, output, credentials):
                 digest(payload),
                 digest(response),
             )
-            current_usage = response_usage(response)
+            current_usage, backend = verified_response_usage(
+                response, teacher, max_tokens, backend
+            )
+            event["usage"] = current_usage
+            event["response_model"] = response.get("model")
+            event["system_fingerprint"] = response.get("system_fingerprint")
+            trajectory["turns"].append(event)
+            trajectory["observed_backend"] = list(backend)
+            # Only a verified response can discharge the original reservation.
+            # An unexpected model/backend must not be priced as this Teacher.
             for key in ("prompt_tokens", "generated_tokens", "cached_prompt_tokens"):
                 usage[key] += current_usage[key]
             usage["usage_priced_cost"] += usage_cost(current_usage, teacher["pricing"])
             usage["unknown_cost_reservation"] = 0.0
             usage["unknown_generation_reservation"] = 0
             usage["model_turns"] += 1
-            event["usage"] = current_usage
-            event["response_model"] = response.get("model")
-            event["system_fingerprint"] = response.get("system_fingerprint")
-            trajectory["turns"].append(event)
-            if (
-                current_usage["generated_tokens"] > max_tokens
-                or current_usage["prompt_tokens"] > teacher["billing_context_tokens"]
-            ):
-                raise ValueError("Provider exceeded configured billing bound")
-            current_backend = (
-                response.get("model"),
-                response.get("system_fingerprint"),
-            )
-            if current_backend[0] != teacher["model"] or not current_backend[1]:
-                raise ValueError("Unverifiable Teacher response identity")
-            if backend is not None and backend != current_backend:
-                raise ValueError("Teacher backend identity changed during the episode")
-            backend = current_backend
-            trajectory["observed_backend"] = list(backend)
             try:
                 message = normalize_message(
                     response, teacher.get("max_tool_calls_per_turn", 1)
@@ -511,32 +522,23 @@ def run_teacher_episode(config, task_id, output, credentials):
                     result, tools = execute_with_mode(
                         adapter, name, arguments, tools, trajectory["tool_mode"]
                     )
-                    event.pop("inflight_call_id", None)
-                    if guard:
-                        event["appworld_dispatched_count"] += 1
                 else:
                     from .io import canonical
 
                     result = canonical(verdict)
                     usage["harness_rejections"] += 1
-                observation = {
-                    "role": "tool",
-                    "tool_call_id": call["id"],
-                    "name": name,
-                    "content": result,
-                }
-                messages.append(observation)
-                event["tool_results"].append(copy.deepcopy(observation))
-                event["dispatched_count"] += 1
-                # Preserve completed calls even if a later batch call is interrupted.
-                write_json(
-                    output
-                    / ("dispatches" if verdict is None else "harness_feedback")
-                    / f"{request_id}_{len(event['tool_results']):03d}.json",
-                    observation,
+                record_tool_result(
+                    output,
+                    event,
+                    messages,
+                    call,
+                    result,
+                    executed=verdict is None,
                 )
             validate_history(messages)
             batch_open = False
+            if harness:
+                event["failure_category"] = failure_category(event)
             if (
                 harness
                 and not any(verdicts)
@@ -622,6 +624,7 @@ def run_teacher_episode(config, task_id, output, credentials):
                 trajectory["provider_error"] = provider_error_record(exc)
             if batch_open:
                 event.update(status="interrupted_batch", error_type=type(exc).__name__)
+                event["failure_category"] = failure_category(event)
                 trajectory["termination_reason"] = "interrupted_batch"
                 trajectory["interruption"] = capture_interruption(
                     adapter, output, messages, tools, event

@@ -2,7 +2,15 @@
 
 用户在失败讨论后明确要求工程化实现。基线为 `473693c3b768940679a2367d149fd54293e27496`；新增 `public_protocol_correction_v1`，不反写旧实验。实现及验证结果见 `../reports/harness_v1_report.md`。
 
-## 2026-10-23 审查修订（当前运行入口）
+## 2026-10-25 重构修订（当前运行入口）
+
+新版本 `shared_execution_20261025`；Teacher 使用 `configs/p3a_harness_refactor.json` / `configs/harness_refactor_protocol_lock.json`，StudentSession 与 ProtocolHarness 默认使用同 revision。旧 revision 仍用于原数据重放；旧运行须匹配历史源码，不能改旧锁放行。此配置默认无付费授权。
+
+复用上一轮已有的精确 Schema 反馈，修复反馈详情无法通过示范复验的问题；receipt 校验从原始响应与当轮 schema 重算详情，不能只信保存的反馈。Teacher/Student 共用 `record_tool_result` 保存调用返回及计数；响应身份验证通过才清除 token/费用预留，后端契约异常是执行故障。两次通用纠错、AnswerGuard、Prompt、A/B 和 notice 限制不变。
+
+分类：协议 `protocol` → 有限纠正；真实工具错误 `business` → 保留观察，不自动重发；`provider`/`worker_environment` → 原服务熔断；`evaluation_runtime` → reward 未知；`task_failure` → 完整可用官方结果为0。局部错误与最终轨迹失败分别记录。评价包装层沿用上一轮完整性检查，本轮官方与项目 evaluation.py 均未改。新发现、测试和限制见 [重构报告](../reports/harness_refactor_report.md)。以下旧日期内容是当时契约，不覆盖本修订。
+
+## 2026-10-23 审查修订（历史运行入口）
 
 审查基线 `49d3e5b`，完整发现与证据见 [Harness审查报告](../reports/harness_review_report.md)。Prompt/RULES/AnswerGuard不变；行为修订用 `runtime_revision=review_20261023` 明确标识。当前入口 `configs/p3a_harness_review.json` 与 `configs/harness_review_protocol_lock.json`；以下原v1配置及锁仍作为历史保留，不能改写后冒称旧运行。
 

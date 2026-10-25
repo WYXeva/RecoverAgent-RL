@@ -1,0 +1,12 @@
+{
+  "scope": "real tokenizer on synthetic rejection/correction; no model weights",
+  "samples": 1,
+  "rejected_turns": 1,
+  "supervised_tokens": 24,
+  "max_sequence": 2238,
+  "assistant_only": true,
+  "padding_mask": true,
+  "student_parser_roundtrip": true,
+  "model_requests": 0,
+  "training_steps": 0
+}
