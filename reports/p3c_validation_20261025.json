@@ -1,0 +1,132 @@
+{
+  "stage": "P3-C",
+  "stage_acceptance": "BLOCKED",
+  "software_tests": {
+    "passed": 238,
+    "ruff": "PASS",
+    "changed_python_format": "PASS"
+  },
+  "runtime_lock_sha256": "c9529944c29c3173f6a580f4b77c2281660fa596ef2c4f3de6ef8b65f4379f9e",
+  "fixed_plan": {
+    "task_count": 12,
+    "scenario_count": 11,
+    "unseen_tasks": 8,
+    "seen_tasks": 4,
+    "seed": 20261025,
+    "manifest_sha256": "8a4c1d3bde71e0f1d6652e0427e3b29b21dff5a48170f27e54582dc189256f36"
+  },
+  "local_resources": {
+    "gpus": [
+      {
+        "name": "NVIDIA GeForce RTX 5050",
+        "total_mib": 8151,
+        "free_mib": 6115,
+        "driver": "610.62"
+      }
+    ],
+    "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+    "free_disk_bytes": 963152248832,
+    "appworld_version": "0.2.0.dev0",
+    "environment": {
+      "sqlalchemy": "2.0.52",
+      "sqlmodel": "0.0.48",
+      "uri_roundtrip": true
+    }
+  },
+  "remote_connection": {
+    "ssh_exit_code": 255,
+    "authentication_prompt_seen": false,
+    "tcp_connected": true,
+    "ssh_banner_received": false,
+    "remote_gpu_verified": false,
+    "remote_machine_started": false
+  },
+  "final_real_appworld_scripted_probe": {
+    "status": "PASS",
+    "scope": "Scripted outputs on real AppWorld, not Teacher/Student performance",
+    "real_model_requests": 0,
+    "natural_failures": 0,
+    "training_steps": 0,
+    "environment": {
+      "sqlalchemy": "2.0.52",
+      "sqlmodel": "0.0.48",
+      "uri_roundtrip": true
+    },
+    "real_public_tool_calls": 8,
+    "returned_results": 7,
+    "complete_checkpoints": 6,
+    "state_write_and_restore": true,
+    "independent_process_restores": [
+      {
+        "status": "PASS",
+        "pid": 842420,
+        "checkpoint_id": "a850deb22418ef6568c696b704d345d856c675559d9799ebf4e8ff661b1cdd6c",
+        "database_matches": true,
+        "history_matches": true,
+        "tools_match": true,
+        "runtime_matches": true,
+        "agent_runtime_sha256": "1633503e89406559a042389cb573b5a8ae62d294dc4557666a153ea95fe18d24",
+        "agent_runtime_integrity_verified": true,
+        "task_active_matches": true,
+        "source_unchanged": true,
+        "task_actions_executed": 0
+      },
+      {
+        "status": "PASS",
+        "pid": 842682,
+        "checkpoint_id": "a850deb22418ef6568c696b704d345d856c675559d9799ebf4e8ff661b1cdd6c",
+        "database_matches": true,
+        "history_matches": true,
+        "tools_match": true,
+        "runtime_matches": true,
+        "agent_runtime_sha256": "1633503e89406559a042389cb573b5a8ae62d294dc4557666a153ea95fe18d24",
+        "agent_runtime_integrity_verified": true,
+        "task_active_matches": true,
+        "source_unchanged": true,
+        "task_actions_executed": 0
+      }
+    ],
+    "partial_write_saved_but_not_resumable": true,
+    "mixed_invalid_batch_zero_calls": true,
+    "schema_specific_feedback": true,
+    "official_evaluation_category": "task_failure",
+    "official_success": false,
+    "exception_types": [
+      "IndexError",
+      "UnboundLocalError"
+    ]
+  },
+  "model_collection_preflight": {
+    "format": "p3c_complete_boundaries_20261025",
+    "attempted_tasks": 0,
+    "natural_failures": 0,
+    "successes": 0,
+    "outcomes": [],
+    "checkpoints": 0,
+    "independent_restorations": [],
+    "usage": {},
+    "stop_reason": "blocked:RuntimeError",
+    "status": "BLOCKED",
+    "policy": {
+      "model": "Qwen/Qwen3-4B",
+      "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "thinking": false,
+      "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+      "checkpoint_id": "adapter:aefac6f068361cb5c0fc76c6a26f8b45231953b37d141f1ec9352a29917cf9c0"
+    },
+    "teacher_or_training_started": false
+  },
+  "source_evidence": {
+    "runs/p3c_20261025/probe_c/summary.json": "ff32a6db7e087124dbe24867d44262626408058fb0323a2b2ebae3385b878795",
+    "runs/p3c_20261025/probe_c/restore_0.json": "7c0ea106d76d6b1c5346fb966b1ef28f6bad8ab9ddf6ad4e8a03ded64eb988a7",
+    "runs/p3c_20261025/probe_c/restore_1.json": "54fb9687eff9fa6718be26d40dd140198c92d01405bfcb115bc63b2af3065537",
+    "runs/p3c_20261025/probe_c/isolated_evaluation.json": "e03ae44f8fe638f7824bd287e0c839a8282814f2f9568c5d4945f3742bd7730f",
+    "runs/p3c_20261025/collection_preflight/summary.json": "732585bad896cb83da16c9b35e426f7a98381f018288e10166fea707c643385a",
+    "reports/p3c_dataset_audit_20261025.json": "f654775b5019d16d308aa4e929291423c8f45764ba4cdf3118b1f47b5288cf9d",
+    "reports/p3c_checkpoint_audit_20261025.json": "84fabcf87ab4c24ffec7c6996f7027707bfd808c53cc97a9b828f0dbff7df1d9"
+  },
+  "model_requests": 0,
+  "training_steps": 0,
+  "paid_provider_calls": 0,
+  "historical_evidence_overwritten": false
+}

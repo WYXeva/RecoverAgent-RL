@@ -17,6 +17,7 @@ from .teacher_history import validate_history
 
 PROTOCOL = "public_protocol_correction_v1"
 RUNTIME_REVISION = "review_20261023"
+SCHEMA_REVISION = "schema_feedback_20261025"
 RULES = """PUBLIC HARNESS PROTOCOL v1
 The harness checks complete responses before executing any call in the batch.
 On harness_protocol_error the ENTIRE batch was NOT executed. Raw invalid output
@@ -48,10 +49,11 @@ MESSAGES = {
 
 
 class ProtocolViolation(ValueError):
-    def __init__(self, code, tool_name=None):
+    def __init__(self, code, tool_name=None, schema_error=None):
         if code not in MESSAGES:
             raise ValueError("Unknown public protocol error")
         self.code = code
+        self.schema_error = schema_error
         self.tool_name = (
             tool_name
             if isinstance(tool_name, str)
@@ -76,6 +78,29 @@ def strict_arguments(text):
         raise ValueError("Arguments must be an object")
     canonical(value)
     return value
+
+
+def schema_error_detail(error):
+    """Schema-defined guidance without serializing offending values/tokens."""
+    detail = {"path": list(error.absolute_path), "rule": error.validator}
+    if error.validator == "required":
+        detail["missing_fields"] = [
+            k for k in error.validator_value if k not in error.instance
+        ]
+    elif error.validator == "additionalProperties":
+        import re
+
+        properties = error.schema.get("properties", {})
+        patterns = error.schema.get("patternProperties", {})
+        detail["unknown_fields"] = sorted(
+            k
+            for k in error.instance
+            if k not in properties and not any(re.search(p, k) for p in patterns)
+        )
+        detail["allowed_fields"] = sorted(properties)
+    elif error.validator == "type":
+        detail["expected_type"] = error.validator_value
+    return detail
 
 
 def observed_tokens(messages):
@@ -114,7 +139,11 @@ def check_batch(message, messages, tools, *, require_action=False):
         try:
             args = strict_arguments(f["arguments"])
             call_code(f["name"], args, tools)
-        except (ValueError, TypeError, ValidationError):
+        except ValidationError as exc:
+            raise ProtocolViolation(
+                "invalid_arguments", f["name"], schema_error_detail(exc)
+            ) from None
+        except (ValueError, TypeError):
             raise ProtocolViolation("invalid_arguments", f["name"]) from None
         if f["name"] == "supervisor__complete_task" and offset != len(calls) - 1:
             raise ProtocolViolation("completion_order", f["name"])
@@ -134,14 +163,14 @@ class ProtocolHarness:
         if tool_mode not in {"dynamic_discovery", "api_predictor"}:
             raise ValueError("Unknown tool mode")
         self.tool_mode = tool_mode
-        if revision not in {None, RUNTIME_REVISION}:
+        if revision not in {None, RUNTIME_REVISION, SCHEMA_REVISION}:
             raise ValueError("Unknown harness runtime revision")
         self.revision = revision
         self.rejections = 0
         self.notices = 0
         self.stopped = False
 
-    def reject(self, code, *, answer_pending=False, tool_name=None):
+    def reject(self, code, *, answer_pending=False, tool_name=None, schema_error=None):
         if self.stopped:
             raise ValueError("Protocol correction already exhausted")
         self.rejections += 1
@@ -162,12 +191,19 @@ class ProtocolHarness:
         }
         if tool_name is not None:
             feedback["function"] = tool_name
+        if self.revision == SCHEMA_REVISION and schema_error is not None:
+            feedback["schema_error"] = schema_error
         return {"role": "user", "content": canonical(feedback)}
 
     def rejection_event(self, exc, *, truncated, guard):
         code, function = rejection_details(exc, truncated=truncated)
         pending = bool(guard and guard.pending)
-        feedback = self.reject(code, answer_pending=pending, tool_name=function)
+        feedback = self.reject(
+            code,
+            answer_pending=pending,
+            tool_name=function,
+            schema_error=getattr(exc, "schema_error", None),
+        )
         if pending:
             guard.inspect([])  # Never extend the one-response numeric budget.
         return {

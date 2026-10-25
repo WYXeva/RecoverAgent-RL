@@ -3,14 +3,20 @@
 from pathlib import Path
 
 from .io import digest, files_manifest, read_json, validate_history, write_json
+from .teacher_history import validate_history as validate_batch_history
 
 POSITIONS = {"post_action", "pre_action", "pre_termination", "budget_exhausted"}
 
 
-def capture(adapter, destination, messages, tools, position, metadata):
+def capture(
+    adapter, destination, messages, tools, position, metadata, *, agent_runtime=None
+):
     if position not in POSITIONS:
         raise ValueError("Unknown checkpoint position")
-    validate_history(messages)
+    validator = (
+        validate_batch_history if agent_runtime is not None else validate_history
+    )
+    validator(messages)
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
     state_id = "cp_" + destination.name
@@ -19,8 +25,10 @@ def capture(adapter, destination, messages, tools, position, metadata):
     runtime = adapter.runtime()
     write_json(destination / "context.json", context)
     write_json(destination / "runtime.json", runtime)
+    if agent_runtime is not None:
+        write_json(destination / "agent_runtime.json", agent_runtime)
     manifest = {
-        "format_version": 1,
+        "format_version": 2 if agent_runtime is not None else 1,
         "task_id": adapter.task_id,
         "split": "train",
         "position": position,
@@ -49,7 +57,13 @@ def inspect_snapshot(source):
     if actual != manifest["files"]:
         raise ValueError("Checkpoint files were modified")
     context = read_json(source / "context.json")
-    validate_history(context["messages"])
+    version = manifest.get("format_version")
+    if version not in {1, 2}:
+        raise ValueError("Unsupported checkpoint format")
+    validator = validate_batch_history if version == 2 else validate_history
+    validator(context["messages"])
+    if version == 2 and "agent_runtime.json" not in manifest["files"]:
+        raise ValueError("Batch checkpoint requires agent runtime")
     if (
         digest(context["messages"]) != manifest["history_hash"]
         or digest(context["tools"]) != manifest["tool_schema_hash"]
@@ -57,7 +71,7 @@ def inspect_snapshot(source):
     ):
         raise ValueError("Checkpoint history/schema mismatch")
     if manifest["split"] != "train":
-        raise ValueError("Only train snapshots are supported in P0–P2")
+        raise ValueError("Only train snapshots are supported")
     return manifest, context, read_json(source / "runtime.json")
 
 

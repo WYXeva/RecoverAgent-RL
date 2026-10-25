@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "identity": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "adapter:aefac6f068361cb5c0fc76c6a26f8b45231953b37d141f1ec9352a29917cf9c0"
+  },
+  "verified_files": {
+    "adapter_config.json": "add7bb52284f2fb3f73852393e17c77d6afae76c2c49e9afba483d37577d008a",
+    "adapter_model.safetensors": "14ef88e8d9d460e7806b9decf7ddd73a2fcd926486feefcb77800359e394f2ff",
+    "recoveragent_checkpoint.json": "47276ed81378ff50d1c778e67d62a922b9ac88264c36c7fb4e31960ebee5417e",
+    "run_config.json": "3def80fa5ff8f59cecd18f06afe007eed4239bf7c43f41f740752842d0abb592",
+    "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "tokenizer_config.json": "443bfa629eb16387a12edbf92a76f6a6f10b2af3b53d87ba1550adfcf45f7fa0",
+    "chat_template.jinja": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+  },
+  "release_sha256": "493cfb42fdac98364f13fe47fdfc94c8574108e79dfdfb32f336859fd391038b",
+  "actual_weight_loading_this_round": false
+}

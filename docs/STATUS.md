@@ -1,10 +1,21 @@
 # 项目状态
 
-- 最后更新：2026-10-24（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.13；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**P3-B真实训练与checkpoint交付PASS；官方评价完整性/效果验收PARTIAL，远程已执行关机**。正式集95条/75任务/29家族及历史成绩保持不变；上一阶段Harness审查与充值后Teacher验证已完成。
-- P0–P2 17 项原源码/配置/测试哈希不变，旧自然失败及四分支结果保留。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮P3-B拉取最新基线 `2145a930f94f54bbe2170b677c6f985b48dc9fd8`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- 最后更新：2026-10-25（Asia/Shanghai）
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.14；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**P3-B训练/重载PASS；P3-C实现与真实AppWorld状态探针PASS，真实Student采集BLOCKED**（远程SSH未握手、本机8GB未过门槛）。95条/75任务/29家族和已训练adapter原SHA复验通过；模型自然失败数仍为0。
+- P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮P3-C拉取最新基线 `5aed1fb3090adc3ff5f33729272468006f67faca`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## P3-C评价修复、自然失败采集与多检查点（2026-10-25）
+
+- **完成**：新评价分类保留完整官方结果，区分任务失败、环境故障、未知；新Schema反馈说明缺失/未知字段和类型，Teacher/Student共有实现，仍两次纠正。默认旧Harness行为和所有历史数据不反写。
+- **采集实现**：新增`recoveragent.p3c`、固定清单、资源/模型/源码预检、完整回执、自然失败索引、state v2快照与独立恢复入口。execution_v5+B；正式4B adapter原文件哈希通过，原95条及18个来源包重验通过。P3-C runtime独立锁定，未重训。
+- **预固定计划**：12 train任务/11家族/seed20261025，其中8个未见、4个已见；内部分组validation家族全部排除。真实Student任务0、自然失败0、模型失败检查点0、模型请求/计费/训练步数均0。
+- **真实环境探针PASS**：最终`probe_c`脚本8次公开API（含真实写入及写后丢返回），6个完整快照；两进程恢复DB/历史/Schema/环境runtime一致，Agent runtime SHA一致，源不变。非法混合批次0执行，不完整有副作用批次只作审计，不能进自然失败Buffer。此前`probe_b`11快照/2次恢复保留；两个探针共16实际工具调用，不计模型成绩。
+- **测试**：238项完整软件测试通过；Ruff check与9个改动Python文件格式检查通过。新增评价来源/完整性、具体参数、旧反馈兼容、批次state v1/v2、运行时防篡改、自然失败/基础设施隔离、部分写入、任务分层、controller停止与未知用量保留测试。
+- **阻塞/错误**：SSH退出255；TCP连接后没有SSH banner，远程shell/GPU不可验证。实测本机RTX5050 8151MiB，被90000MiB门槛阻止。初次受限AppWorld探针卡住后终止，保留目录；后续硬超时探针通过。没有自动启动或租用机器，未新增付费调用。
+- **命令/证据**：`reports/p3c_failure_collection_report.md`及`p3c_{validation,dataset_audit,checkpoint_audit}_20261025.json`、`p3c_checks_20261025.txt`。`PYTHONPATH=src:. .venv/bin/python -m pytest -q`；`ruff check src tests scripts`；真实命令`PYTHONPATH=src timeout -k 5 300 .venv-harness/bin/python scripts/probe_p3c.py --namespace p3c_probe_20261025_c --output runs/p3c_20261025/probe_c`。采集入口实际运行到预检BLOCKED：`python -m recoveragent.p3c collect --config configs/p3c_collection_20261025.json --output runs/p3c_20261025/collection_preflight`。完整私有日志`.cache/p3c_*`与`runs/p3c_20261025/`。
+- **下一步**：用户恢复既有远程可访问性后核验GPU与真实Base-SFT后端，按冻结12任务跑模型，分层统计。至少一条可靠自然失败及post-error/late-failure活动完整边界独立恢复通过后，才进入P4-A Teacher接管；本轮未启动Teacher恢复/Recovery-SFT/GRPO。P3-C阶段尚未通过验收。
 
 ## P3-B离线诊断（2026-10-24，完成；未重新训练）
 

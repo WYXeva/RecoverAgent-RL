@@ -1,0 +1,13 @@
+Commands: PYTHONPATH=src:. .venv/bin/python -m pytest -q
+........................................................................ [ 30%]
+........................................................................ [ 60%]
+........................................................................ [ 90%]
+......................                                                   [100%]
+238 passed in 0.59s
+
+Commands: .venv/bin/ruff check src tests scripts; ruff format --check (9 changed Python files)
+All checks passed!
+9 files already formatted
+
+Real AppWorld probe: PASS, 6 complete snapshots, 2 isolated restores, 0 model calls.
+Source lock verified: c9529944c29c3173f6a580f4b77c2281660fa596ef2c4f3de6ef8b65f4379f9e

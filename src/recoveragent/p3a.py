@@ -36,6 +36,7 @@ from .harness import (
     PROTOCOL as HARNESS_PROTOCOL,
     RULES as HARNESS_RULES,
     RUNTIME_REVISION,
+    SCHEMA_REVISION,
     ProtocolHarness,
     capture_interruption,
     record_call_intent,
@@ -50,7 +51,8 @@ def validate_config(config):
     if config.get("harness_protocol") not in {None, HARNESS_PROTOCOL}:
         raise ValueError("Unknown harness protocol")
     if config.get("harness_protocol") and (
-        config.get("harness_runtime_revision") != RUNTIME_REVISION
+        config.get("harness_runtime_revision")
+        not in {RUNTIME_REVISION, SCHEMA_REVISION}
         or config.get("actor_prompt_variant") != "execution_v5"
         or config.get("environment_profile") != "appworld_sqlalchemy20_v1"
         or config["teacher"]["max_new_tokens"] != 4096
@@ -267,7 +269,9 @@ def run_teacher_episode(config, task_id, output, credentials):
     batch_open, event = False, None
     evaluation_started = False
     harness = (
-        ProtocolHarness(trajectory["tool_mode"])
+        ProtocolHarness(
+            trajectory["tool_mode"], revision=config.get("harness_runtime_revision")
+        )
         if config.get("harness_protocol")
         else None
     )

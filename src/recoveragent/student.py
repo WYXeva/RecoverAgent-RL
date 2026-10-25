@@ -24,6 +24,7 @@ from .harness import (
     json_object,
     check_batch,
     RULES as HARNESS_RULES,
+    RUNTIME_REVISION,
 )
 
 
@@ -114,6 +115,7 @@ class StudentSession:
         top_p=0.95,
         answer_guard=False,
         protocol_harness=False,
+        harness_revision=RUNTIME_REVISION,
         clock=None,
     ):
         if (
@@ -144,7 +146,11 @@ class StudentSession:
         ):
             raise ValueError("Non-public or altered initial Student schema")
         self.adapter, self.tokenizer = adapter, tokenizer
-        self.harness = ProtocolHarness(tool_mode) if protocol_harness else None
+        self.harness = (
+            ProtocolHarness(tool_mode, revision=harness_revision)
+            if protocol_harness
+            else None
+        )
         if self.harness and (
             messages[0]["role"] != "system"
             or HARNESS_RULES not in messages[0]["content"]
