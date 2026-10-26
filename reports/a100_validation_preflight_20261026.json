@@ -1,0 +1,51 @@
+{
+  "status": "PREPARATION_PASS_RUNTIME_PENDING",
+  "baseline_commit": "60085420299a82f7deb12cf88441f2d221a7900d",
+  "model": "Qwen/Qwen3-4B",
+  "dataset_audit": {
+    "status": "PASS",
+    "manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+    "dataset_id": "652e035993b97b66711324e1e15304160fe29af847493b57c7802e61bceaf4bb",
+    "counts": {
+      "source_qualified": 104,
+      "selected": 95,
+      "unique_tasks": 75,
+      "families": 29,
+      "deferred": 5,
+      "reserved_by_task_cap": 4,
+      "exact_duplicates": 0,
+      "high_similarity_pairs": 18
+    },
+    "source_packages_reverified": 18,
+    "training_started": false,
+    "official_train_rechecked": true,
+    "public_tasks_reconstructed": 75,
+    "task_schema_sets_checked": 361,
+    "ground_truth_loaded": false,
+    "dynamic_visibility_replayed": true
+  },
+  "software_tests": 262,
+  "ruff_check": "PASS",
+  "ruff_format_files": 103,
+  "training_execute_ast_same_except_hardware_metadata": true,
+  "historical_data_modified": false,
+  "student_training_completed": false,
+  "real_student_evaluation_completed": false,
+  "real_natural_failures_collected": 0,
+  "gpu": {
+    "name": "NVIDIA A100-SXM4-80GB",
+    "memory_mib": 81920,
+    "driver": "580.126.09",
+    "cpu_vcpus": 12,
+    "memory_limit_gib": 120,
+    "persistent_disk_gib_approx": 49
+  },
+  "initial_failures": [
+    "SSH MaxStartups before authentication, resolved",
+    "python3.12-venv missing, installed",
+    "tokenizer archive cache root corrected",
+    "model index downloaded and official hash verified",
+    "retokenization refused incorrect source cwd; rerun under sealed training source",
+    "scripted AppWorld probe 300s timeout with six complete snapshots; evidence retained, retry at 900s"
+  ]
+}

@@ -32,7 +32,11 @@ def main():
     p.add_argument("--output", required=True)
     p.add_argument(
         "--runtime-module",
-        choices=["recoveragent.sft_recipe", "recoveragent.sft_bf16_runtime"],
+        choices=[
+            "recoveragent.sft_recipe",
+            "recoveragent.sft_bf16_runtime",
+            "recoveragent.sft_a100_runtime",
+        ],
         default="recoveragent.sft_recipe",
     )
     a = p.parse_args()

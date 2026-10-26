@@ -4,10 +4,12 @@
 
 > 2026-10-25 P3-C授权更新：先修正评价分类与具体Schema反馈，使用既有4B Base-SFT采集固定train任务自然失败，保存多检查点并独立进程验证。固定12任务中8个未见、4个已见，分开统计且排除内部validation家族。不自动开启付费机器，不重训Base-SFT，不提前启动P4-A/Recovery-SFT/GRPO。新协议独立锁定，旧证据保留。
 
+> 2026-10-26新授权：在用户已提供SSH的A100 80GB上重新执行原95条既定Base-SFT，门槛全部通过后完成固定Raw/SFT对照及P3-C。新Harness使用独立运行锁；保留旧数据/源码/checkpoint，回传SHA校验后关机，不启动P4或GRPO。
+
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
-> 版本：v0.14
+> 版本：v0.15
 > 创建日期：2026-10-19  
-> 状态：P3-B训练/重载PASS；P3-C软件与真实AppWorld检查点探针PASS，真实Student采集BLOCKED（远程SSH未握手）。95条数据、已训练adapter及旧锁不变，详见`reports/p3c_failure_collection_report.md`。
+> 状态：新A100授权重训及补齐测试进行中；原P3-B训练/重载PASS与旧P3-C阻塞记录保留。当前进度见`docs/STATUS.md`。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 
@@ -853,3 +855,7 @@ P0–P2 已有代码和真实最低验收，不得因新方案重建或覆盖历
 ### v0.14 变更记录 · 2026-10-25
 
 按本轮授权进入P3-C工程实现与资源预检。评价官方原始结果与可靠性分列；精确Schema反馈不代做参数；state v2只接受完整批次，基础设施故障和部分执行不作为自然失败。真实采集仍需可用远程GPU，详细验收与剩余条件见P3-C报告及D041–D043。
+
+### v0.15 变更记录 · 2026-10-26
+
+按用户新授权在已运行A100重训既定Base-SFT并补齐测试；训练封存源码与当前Harness分离，原任务清单不择优更换。硬件更换与Harness变化均记录，重跑不能单独归因于SFT效果提升。

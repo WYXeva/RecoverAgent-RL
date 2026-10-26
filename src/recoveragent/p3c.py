@@ -22,22 +22,25 @@ from .adapter import AppWorldAdapter
 from .base_sft import MODEL, REVISION, TEMPLATE_SHA256, load_tokenizer
 from .demonstrations import sha256
 from .evaluation import environment_check, evaluate_isolated
-from .harness import SCHEMA_REVISION
+from .harness import REFACTOR_REVISION
 from .io import canonical, digest, files_manifest, read_json, write_json
 from .sampling import make_plan, official_pool
 from .state import capture, inspect_snapshot, restore
 from .student import StudentSession
 from .student_evaluation import evaluation_prompt, execution_clock, request_json
 
-RUNTIME = "p3c_complete_boundaries_20261025"
+RUNTIME = "p3c_shared_execution_20261026"
 BUDGET_STOPS = {"budget_exhausted", "context_budget_exhausted", "completion_claim"}
 
 
 def verify_source():
     root = Path(__file__).resolve().parents[2]
-    path = root / "configs/p3c_runtime_lock.json"
+    path = root / "configs/p3c_runtime_20261026_lock.json"
     lock = read_json(path)
-    if lock["runtime_revision"] != RUNTIME:
+    if (
+        lock["runtime_revision"] != RUNTIME
+        or lock["harness_revision"] != REFACTOR_REVISION
+    ):
         raise ValueError("Wrong P3-C runtime lock")
     for name, expected in lock["files"].items():
         if Path(name).is_absolute() or ".." in Path(name).parts:
@@ -167,7 +170,7 @@ def validate_config(config):
         or config["model"] != MODEL
         or config["tool_mode"] != "dynamic_discovery"
         or config["actor_prompt_variant"] != "execution_v5"
-        or config["harness_runtime_revision"] != SCHEMA_REVISION
+        or config["harness_runtime_revision"] != REFACTOR_REVISION
     ):
         raise ValueError("P3-C requires fixed Base-SFT/execution_v5/B protocol")
     endpoint = urlparse(config["inference_url"])
@@ -441,7 +444,7 @@ def run_episode(config, row, directory, provenance, identity):
             checkpoint_id=identity["checkpoint_id"],
             answer_guard=True,
             protocol_harness=True,
-            harness_revision=SCHEMA_REVISION,
+            harness_revision=REFACTOR_REVISION,
             clock=execution_clock,
             **config["student_limits"],
         )

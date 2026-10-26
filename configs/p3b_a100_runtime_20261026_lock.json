@@ -1,0 +1,11 @@
+{
+  "runtime_contract": "bf16_autocast_a100_20261026",
+  "parent_training_source_commit": "473693c3b768940679a2367d149fd54293e27496",
+  "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "all_original_50_source_files_still_required": true,
+  "change": "Explicit A100 80GB hardware gate only; BF16 loss, gradients, optimizer and reload unchanged",
+  "files": {
+    "src/recoveragent/sft_recipe.py": "12304cb55e8197d2d1509ee2c87219bcc7974b7b37570972577d6a9d86d4c132",
+    "src/recoveragent/sft_a100_runtime.py": "3ebbcd3da813db3d877091b942ecd5627e0da5030a6375ae9dbda7d79be10253"
+  }
+}

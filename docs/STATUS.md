@@ -1,10 +1,19 @@
 # 项目状态
 
-- 最后更新：2026-10-25（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.14；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Harness重构工程PASS、真实模型效果未测；P3-B训练/重载PASS；P3-C真实Student采集仍BLOCKED**（远程SSH未握手、本机8GB未过门槛）。95条/75任务/29家族和已训练adapter原SHA复验通过；模型自然失败数仍为0。
+- 最后更新：2026-10-26（Asia/Shanghai）
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.15；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**新A100授权Base-SFT重训与补齐测试进行中**。远程模型哈希、数据导入、BF16运算与重新分词通过；真实AppWorld探针复验中，尚无本轮新训练或模型成绩。旧P3-B/Harness/P3-C记录按下文保留。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮P3-C拉取最新基线 `5aed1fb3090adc3ff5f33729272468006f67faca`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## 新A100授权重训与测试（2026-10-26，进行中）
+
+- **授权/机器**：用户新SSH、明确重训SFT并结束关机。已连通A100-SXM4-80GB 81920MiB、驱动580.126.09、Ubuntu24.04/Python3.12.3、12vCPU/120GiB容器配额、49GiB持久盘；非自动租机。SSH MaxStartups初始故障经重试/连接复用恢复。
+- **数据/模型**：本机重验95/75/29及18来源包通过；私有迁移归档SHA通过。远程权重逐文件对官方固定revision元数据验证通过；原数据manifest与历史checkpoint不改。
+- **软件**：新增A100专用训练硬件补充锁；保留原50文件训练源码与旧BF16锁，训练参数/loss/reload不变。新P3-C/paired evaluation绑定shared_execution_20261025。新checkpoint配置生成器必须先检查短/长/正式三阶段通过。262软件测试、Ruff check/format通过。
+- **当前执行**：原单epoch正式训练前必须通过远程重新分词、真实AppWorld状态/恢复及短长样本烟测。随后执行原六任务Raw/SFT对照、原12任务P3-C及独立进程恢复；尚不报告新训练或模型成功。
+- **保留错误**：缺venv组件、tokenizer缓存层级和遗漏索引已修正；旧包分词在错误目录被源码锁拦截，改为封存源码cwd。原日志保留`.cache/remote_20261026_*`及远程`/root/gpufree-data/recoveragent_20261026/logs/`。一次自动审批403故障后通过相同审批流程恢复。
+- **预算/边界**：无Teacher调用；固定训练1epoch、每任务40请求/16384输出/600秒、4096单回复、32768总上下文；不启动Recovery-SFT/GRPO。GPU账单尚未核实。必须回传校验后关机。
 
 ## Harness小范围重构（2026-10-25，工程PASS；模型效果未测）
 

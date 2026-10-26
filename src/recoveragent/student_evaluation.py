@@ -17,9 +17,11 @@ from .adapter import AppWorldAdapter
 from .base_sft import load_tokenizer
 from .evaluation import environment_check, evaluate_here
 from .execution_v5 import actor_system
-from .harness import RULES
+from .harness import REFACTOR_REVISION, RULES
 from .io import digest, files_manifest, read_json, write_json
 from .student import StudentSession
+
+RUNTIME = "p3b_shared_execution_20261026"
 
 
 def execution_clock():
@@ -29,8 +31,13 @@ def execution_clock():
 
 def verify_execution_runtime():
     root = Path(__file__).resolve().parents[2]
-    path = root / "configs/p3b_evaluation_runtime_v2_lock.json"
+    path = root / "configs/p3b_evaluation_runtime_20261026_lock.json"
     lock = read_json(path)
+    if (
+        lock["runtime_revision"] != RUNTIME
+        or lock["harness_revision"] != REFACTOR_REVISION
+    ):
+        raise ValueError("Wrong evaluation runtime lock")
     for name, expected in lock["files"].items():
         if Path(name).is_absolute() or ".." in Path(name).parts:
             raise ValueError("Invalid evaluation source path")
@@ -209,6 +216,7 @@ def run_episode(config, case, arm, output):
             checkpoint_id=identity["checkpoint_id"],
             answer_guard=True,
             protocol_harness=True,
+            harness_revision=REFACTOR_REVISION,
             clock=execution_clock,
             **config["student_limits"],
         )
