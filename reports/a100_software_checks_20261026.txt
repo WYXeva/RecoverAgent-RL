@@ -10,4 +10,3 @@ All checks passed!
 
 $ .venv/bin/ruff format --check src tests scripts
 107 files already formatted
-
