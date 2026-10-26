@@ -1,0 +1,9 @@
+{
+  "revision": "p3c_unattempted_continuation_20261026",
+  "parent_commit": "b543c35",
+  "actor_runtime_changed": false,
+  "files": {
+    "scripts/continue_p3c.py": "c78c0edd6d64fdfaec03eeb4dd94eec535223b94779d3eee06e7fc3457df95b4",
+    "configs/p3c_runtime_20261026_lock.json": "ae7d1e109554b59bb7d412b75a84f526cb1c76a6d85ea4bdef106aca3da32f48"
+  }
+}
