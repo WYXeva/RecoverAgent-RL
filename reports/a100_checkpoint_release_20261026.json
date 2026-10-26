@@ -1,0 +1,21 @@
+{
+  "status": "TRAINING_AND_RELOAD_PASS",
+  "model": "Qwen/Qwen3-4B",
+  "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "thinking": false,
+  "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "optimizer_steps": 116,
+  "adapter_tensor_sha256": "34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd",
+  "files": {
+    "adapter_config.json": "9d78b83156f7a3839f767a0a9aedf7d3f3b507d6f4bd6e72447d10e4dfb04fca",
+    "adapter_model.safetensors": "7ff116bb81a7cf8e878b8ae7d122a2b5e4839cd5c2567b29279095c0bf39376f",
+    "recoveragent_checkpoint.json": "46e2c120c06b2421a84c7b026dbb4b17971f1d0809bddb20dd92358197a9839c",
+    "run_config.json": "3def80fa5ff8f59cecd18f06afe007eed4239bf7c43f41f740752842d0abb592",
+    "tokenizer.json": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "tokenizer_config.json": "443bfa629eb16387a12edbf92a76f6a6f10b2af3b53d87ba1550adfcf45f7fa0",
+    "chat_template.jinja": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+  },
+  "pipeline_summary_sha256": "8d055c40416afb942ffbe3effee96932c0d8e77685d6e253bb7e8979c4edfa8c",
+  "public_weights_uploaded": false
+}

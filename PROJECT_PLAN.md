@@ -9,7 +9,7 @@
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
 > 版本：v0.15
 > 创建日期：2026-10-19  
-> 状态：新A100授权重训及补齐测试进行中；原P3-B训练/重载PASS与旧P3-C阻塞记录保留。当前进度见`docs/STATUS.md`。
+> 状态：新A100重训/重载与P3-C基础验收PASS；固定六任务Raw0/6、SFT4/6，P3-C7有效自然失败、5预算中断隔离。备份通过，用户报告手动关机；P4-A未开始。历史记录保留，详见`docs/STATUS.md`。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 

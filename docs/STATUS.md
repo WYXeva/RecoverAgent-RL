@@ -2,18 +2,20 @@
 
 - 最后更新：2026-10-26（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.15；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**新A100授权Base-SFT重训与补齐测试进行中**。远程模型哈希、数据导入、BF16运算与重新分词通过；真实AppWorld探针复验中，尚无本轮新训练或模型成绩。旧P3-B/Harness/P3-C记录按下文保留。
+- 当前状态：**A100 Base-SFT训练与P3-C基础验收PASS**。短/最长烟测2/1步、正式116步更新/重载通过；固定6任务Raw0/6、SFT4/6（train2/2、内部validation1/2、dev1/2）。P3-C12任务/11家族、7有效自然失败、5预算中断隔离、225完整边界、11独立恢复通过。私有1.74GB包已回传并逐文件校验；自动关机缺平台密钥失败，用户已报告手动关机。泛化与P4-A未验收。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮P3-C拉取最新基线 `5aed1fb3090adc3ff5f33729272468006f67faca`。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮A100拉取基线 `60085420299a82f7deb12cf88441f2d221a7900d`（历史P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
 
-## 新A100授权重训与测试（2026-10-26，进行中）
+## 新A100重训与P3-C（2026-10-26，完成）
 
-- **授权/机器**：用户新SSH、明确重训SFT并结束关机。已连通A100-SXM4-80GB 81920MiB、驱动580.126.09、Ubuntu24.04/Python3.12.3、12vCPU/120GiB容器配额、49GiB持久盘；非自动租机。SSH MaxStartups初始故障经重试/连接复用恢复。
-- **数据/模型**：本机重验95/75/29及18来源包通过；私有迁移归档SHA通过。远程权重逐文件对官方固定revision元数据验证通过；原数据manifest与历史checkpoint不改。
-- **软件**：新增A100专用训练硬件补充锁；保留原50文件训练源码与旧BF16锁，训练参数/loss/reload不变。新P3-C/paired evaluation绑定shared_execution_20261025。新checkpoint配置生成器必须先检查短/长/正式三阶段通过。262软件测试、Ruff check/format通过。
-- **当前执行**：原单epoch正式训练前必须通过远程重新分词、真实AppWorld状态/恢复及短长样本烟测。随后执行原六任务Raw/SFT对照、原12任务P3-C及独立进程恢复；尚不报告新训练或模型成功。
-- **保留错误**：缺venv组件、tokenizer缓存层级和遗漏索引已修正；旧包分词在错误目录被源码锁拦截，改为封存源码cwd。原日志保留`.cache/remote_20261026_*`及远程`/root/gpufree-data/recoveragent_20261026/logs/`。一次自动审批403故障后通过相同审批流程恢复。
-- **预算/边界**：无Teacher调用；固定训练1epoch、每任务40请求/16384输出/600秒、4096单回复、32768总上下文；不启动Recovery-SFT/GRPO。GPU账单尚未核实。必须回传校验后关机。
+- **训练/数据PASS**：95/75/29和18来源重验、固定模型revision权重、925/147重新分词逐字节一致；原manifest不改。A100 81920MiB、12vCPU/120GiB、49GiB盘，BF16+LoRA正式116步/3775.971秒，train loss0.228531、内部eval0.165857、重载logits差0，GPU采样峰值39853MiB。
+- **固定开发效果**：Raw0/6、SFT4/6，全部12个官方结果有效，6对初始状态/首次输入一致。清单曾被诊断查看，不能外推完整benchmark。SFT两失败为歌曲发行日期证据缺失/业务判断与上下文耗尽；详细任务及用量见报告。
+- **P3-C PASS，有隔离项**：12任务/11家族（8未见task、4已见），7自然失败/6家族，0成功，5零派发预算中断隔离。225完整边界，7 late-failure/2 post-error/2 pre-error共11候选独立进程恢复通过；post-error真实错误见证通过，源不变。未Teacher接管。
+- **必要控制修复**：原第二任务预算在生成后、第一工具前耗尽，被旧Runner归为基础设施故障并停止整批。原结果/奖励/不完整历史不变；`f9bfbf4`新独立控制锁只续跑剩余10项，严格核验零派发/无未知用量/状态一致，其他故障仍停，不重试旧请求。5条全部排除训练池；旧宽泛分类保留，详见D046。
+- **验证/交付PASS**：272测试、Ruff check及107文件format；原数据/旧checkpoint7文件与263历史报告/锁字节不变。四片/整包/12163内容文件SHA通过。新checkpoint私有`runs/a100_remote_20261026/checkpoints/run_001/formal/`，归档`runs/a100_remote_20261026_verified.tar.gz`。
+- **成本/关机**：422模型请求、4772713输入/38083输出token、502工具调用；0Teacher/付费API请求，GPU账单未知。后台16:21完成至21:53首次关机请求约5小时32分，包含空闲和回传，不计作训练。平台shutdown缺关机密钥返回255，用户随后报告手动关机，未冒称自动成功，未释放实例。
+- **证据/命令**：`reports/a100_sft_p3c_20261026_report.md/json`、`a100_checkpoint_release`、`a100_backup_verification`、`a100_historical_integrity`、`a100_shutdown`、`a100_software_checks_20261026.txt`。本地重算`PYTHONPATH=src:. .venv/bin/python scripts/summarize_remote_validation.py --input runs/a100_remote_20261026 --output <新JSON>`；训练/评价/续跑完整argv在私有归档及报告。
+- **剩余事项**：保存快照约20秒/次，影响600秒预算，预算失败单列；跨主机实际恢复、Teacher接管/后缀过滤、精确optimizer续训未验收。P4-A尚未实现，本轮无Recovery-SFT/GRPO。后续使用7条有效失败/9个核心候选，2个pre-error仅消融，不使用5条不完整批次。
 
 ## Harness小范围重构（2026-10-25，工程PASS；模型效果未测）
 

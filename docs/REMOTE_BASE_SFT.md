@@ -102,3 +102,13 @@ Trainer 的周期 checkpoint 包括 adapter/optimizer/scheduler/RNG/trainer 状�
 实际run_003两项烟测和正式训练均PASS，最终checkpoint私有本机位置为`runs/p3b_remote_20261023/checkpoints/run_003/formal/`。可信adapter文件SHA为`14ef88e8d9d460e7806b9decf7ddd73a2fcd926486feefcb77800359e394f2ff`，tensor哈希为`aefac6f068361cb5c0fc76c6a26f8b45231953b37d141f1ec9352a29917cf9c0`。新机器须核验公开交接摘要及归档、加载同revision基座、固定tokenizer/template，再用同一BF16上下文加载adapter；不能仅凭目录名认定身份。
 
 实际评价使用`configs/p3b_evaluation_runtime_v2_lock.json`（p3b_real_clock_transformers_v2）。它保留冻结公开任务时钟，对Student预算注入Linux真实CLOCK_MONOTONIC，并使用官方Freezegun configure API排除控制侧Transformers延迟模块；旧v1失败目录/源码锁保留。新后端已用真实4B权重验收，完整模型请求和工具调用记录已回传。未验证精确optimizer续训，未启动P3-C/Recovery-SFT/GRPO；不要把保存optimizer状态等同续训验证通过。
+
+
+## 2026-10-26 A100独立运行
+
+用户明确授权在新A100-SXM4-80GB上重新训练及补齐Student测试。新的硬件契约为`a100_80gb_20261026`，`sft_a100_runtime.py`与`configs/p3b_a100_runtime_20261026_lock.json`只新增硬件预检及记录；原50文件数据锁、473693c训练源码、旧BF16补充锁仍保留。除硬件元数据外，execute函数AST与已验收BF16版本一致。原三个训练配置不改；编排器显式传`--runtime-module recoveragent.sft_a100_runtime`。重新分词必须在封存训练源码cwd及PYTHONPATH下执行，不能从当前worker源码绕过旧数据锁。
+
+当前worker使用`p3c_shared_execution_20261026`和`p3b_shared_execution_20261026`，绑定shared_execution_20261025。训练全部通过后，用`scripts/prepare_student_validation.py --training <新三阶段目录> --dataset <原95条目录> --appworld-root <官方数据根目录> --output <不存在的新配置目录>`生成独立checkpoint交接摘要、paired和P3-C配置；默认A100容量门槛75000MiB，固定任务清单/单任务预算不改，不能把旧checkpoint目录充当本轮训练结果。运行证据见`docs/STATUS.md`及本轮报告。
+
+
+本次已完成短/最长/正式2/1/116步及Raw/SFT固定对照。新adapter位置`runs/a100_remote_20261026/checkpoints/run_001/formal/`，可信摘要`reports/a100_checkpoint_release_20261026.json`。A100新运行与旧PRO6000的报告和checkpoint分别保留；详细结果和命令见`reports/a100_sft_p3c_20261026_report.md`。P3-C有5条预算中断隔离，不可作为恢复训练样本。此次平台命令因未设置关机密钥失败，用户报告手动关机；不将AutoDL旧平台关机方式/结果套用于当前平台。

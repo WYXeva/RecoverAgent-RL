@@ -1,0 +1,22 @@
+{
+  "status": "USER_REPORTED_MANUAL_SHUTDOWN",
+  "automatic_shutdown_succeeded": false,
+  "automatic_attempt": {
+    "shutdown_requested_unix": 1793022803.4369113,
+    "provider_command": "/usr/local/sbin/shutdown",
+    "gpu_before": "0, 0",
+    "local_backup_verified_archive_sha256": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752",
+    "local_payload_files_verified": 12163,
+    "checkpoint_and_task_evidence_verified": true,
+    "release_or_delete_requested": false
+  },
+  "automatic_command_exit_code": 255,
+  "automatic_failure_reason": "Platform reported shutdown key is not set; login and interactive shell checks found no configured key",
+  "manual_shutdown_user_reported": true,
+  "manual_shutdown_report_recorded_unix": 1793023634.1911223,
+  "independent_platform_confirmation": false,
+  "validation_finished_unix": 1793002877.6367598,
+  "seconds_validation_finish_to_first_shutdown_attempt": 19925.800151586533,
+  "billed_gpu_cost": null,
+  "new_remote_connections_after_user_manual_shutdown_report": 0
+}

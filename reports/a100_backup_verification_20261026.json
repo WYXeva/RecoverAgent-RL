@@ -1,0 +1,19 @@
+{
+  "archive_sha256": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752",
+  "bytes": 1742556493,
+  "files": 12164,
+  "files_manifest_sha256": "efb10e850cb69273d6c53bd5deaa6bd44aef494889785913e4aeab93506b0887",
+  "archive_name": "backup_20261026.tar.gz",
+  "seconds": 64.40909150242805,
+  "weights_are_lora_only": true,
+  "private_only": true,
+  "status": "PASS",
+  "parts_verified": 4,
+  "payload_files_verified": 12163,
+  "archive_members_verified": 12164,
+  "local_directory": "runs/a100_remote_20261026",
+  "local_archive": "runs/a100_remote_20261026_verified.tar.gz",
+  "verification_seconds": 28.74587845802307,
+  "verified_unix": 1793022647.67455,
+  "public_weights_uploaded": false
+}
