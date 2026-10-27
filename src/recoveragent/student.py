@@ -292,13 +292,40 @@ class StudentSession:
                         self.answer_guard and self.answer_guard.expected is not None
                     )
                 ):
-                    reason = self.memory.update_reason(len(ids))
+                    pressure = len(ids)
+                    update_preview = None
+                    if (
+                        self.memory.improved
+                        and self.memory.batches
+                        and self.memory.batches[-1]["end"]
+                        > (
+                            self.memory.updates[-1]["history_end"]
+                            if self.memory.updates
+                            else 0
+                        )
+                    ):
+                        from .context_compiler import encode
+
+                        preview_messages = self.memory.update_messages(self.messages)
+                        preview_ids = encode(self.tokenizer, preview_messages, [])
+                        # Trigger on actual incremental-update size too, before that
+                        # request becomes larger than the model's available window.
+                        pressure = max(
+                            pressure,
+                            len(preview_ids)
+                            + self.memory.config["update_max_new_tokens"],
+                        )
+                        update_preview = (preview_messages, preview_ids)
+                    reason = self.memory.update_reason(pressure)
                 if reason:
                     from .context_compiler import encode
 
                     purpose, request_tools, compilation = "memory_update", [], None
-                    compiled_messages = self.memory.update_messages(self.messages)
-                    ids = encode(self.tokenizer, compiled_messages, request_tools)
+                    if self.memory.improved and update_preview is not None:
+                        compiled_messages, ids = update_preview
+                    else:
+                        compiled_messages = self.memory.update_messages(self.messages)
+                        ids = encode(self.tokenizer, compiled_messages, request_tools)
                     reserve = min(
                         self.memory.config["update_max_new_tokens"],
                         self.max_new_tokens,

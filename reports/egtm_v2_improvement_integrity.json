@@ -1,0 +1,58 @@
+{
+  "status": "PASS_LOCAL_OFFLINE",
+  "baseline": "a2dbcb298a6fa4c74c2d858385e6c3b70ee4bd90",
+  "dataset": {
+    "status": "PASS",
+    "manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+    "dataset_id": "652e035993b97b66711324e1e15304160fe29af847493b57c7802e61bceaf4bb",
+    "counts": {
+      "source_qualified": 104,
+      "selected": 95,
+      "unique_tasks": 75,
+      "families": 29,
+      "deferred": 5,
+      "reserved_by_task_cap": 4,
+      "exact_duplicates": 0,
+      "high_similarity_pairs": 18
+    },
+    "source_packages_reverified": 18,
+    "training_started": false,
+    "official_train_rechecked": false
+  },
+  "unchanged_historical_reports_configs": 337,
+  "snapshots": {
+    "runs/p0_state_20261019_b/source": {
+      "version": 1,
+      "id": "2195cc296f4be9c9c7164eb9da1f90dcaec77dfe0994df63d27f4a6f56190326"
+    },
+    "runs/a100_remote_20261026/runs/p3c_001/287e338_3/checkpoints/001_pre": {
+      "version": 2,
+      "id": "e22cbd86bcea5b73db23391234dee26d73d315ce06924b937aad61778a902bb1"
+    },
+    "runs/egtm_probe_20261027_f/late": {
+      "version": 3,
+      "id": "aa74cbedab0e336e8e5402050a1ee7ddda1229f99d4afffd79a928df64a5bf8d"
+    },
+    "runs/egtm_v2_probe_20261027_c/late": {
+      "version": 4,
+      "id": "db6918d8a136ecc5c12f8720f472bb352f945397589f6b0fe9e30e9f1ae873ec"
+    }
+  },
+  "policy": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "adapter:34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd"
+  },
+  "both_checkpoint_releases_verified": true,
+  "runtime_lock_sha256": "ddc3bb9c4bcb3a66bb422ccba583993eb595e74cb6300e89cacd6c0c55b25c1f",
+  "formal_plan_tasks": 12,
+  "pilot_tasks": [
+    "287e338_3",
+    "3c13f5a_1",
+    "229360a_2"
+  ],
+  "remote_environment_verified": true,
+  "remote_reference": "reports/egtm_v2_improvement_remote.json"
+}

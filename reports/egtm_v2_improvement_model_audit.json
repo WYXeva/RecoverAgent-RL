@@ -1,0 +1,354 @@
+{
+  "status": "PASS_RECEIPT_INTEGRITY_ONLY",
+  "real_model_requests": 18,
+  "rows": [
+    {
+      "arm": "A",
+      "request_id": "001",
+      "internal": false,
+      "input_tokens": 3161,
+      "output_tokens": 21,
+      "finish_reason": "eos",
+      "generation_seconds": 2.4741091132164,
+      "peak_allocated_bytes": 9057378816,
+      "request_sha256": "029bf775c65d97101f23594ab99f755e31d7d0d50f50d71a0932d2da71e4f5e8",
+      "response_sha256": "010db3a3a2471af0215c7f11ebea272fe4b631e79c163c65feec3a37d5a5919c"
+    },
+    {
+      "arm": "A",
+      "request_id": "002",
+      "internal": false,
+      "input_tokens": 3268,
+      "output_tokens": 39,
+      "finish_reason": "eos",
+      "generation_seconds": 2.8899783864617348,
+      "peak_allocated_bytes": 9082154496,
+      "request_sha256": "728b932e08c96a96b9f9e4d32d6563c2378ccc4d0bb72abf1f1b62236269346c",
+      "response_sha256": "2f3ff6c246ab289cdb54942a907eb0cbb79ef1c5a603e322a059ac099b5813bb"
+    },
+    {
+      "arm": "A",
+      "request_id": "003",
+      "internal": false,
+      "input_tokens": 5648,
+      "output_tokens": 35,
+      "finish_reason": "eos",
+      "generation_seconds": 3.0441884249448776,
+      "peak_allocated_bytes": 9693276160,
+      "request_sha256": "b9a55ee33789b970ff9a5614c51b7ccf8d4fb6a5223cdd3613eebc33ec774e58",
+      "response_sha256": "5a528d57f16cbb40010b9622afbdd660f96f4901df7e23ae7d92c9d4e213e705"
+    },
+    {
+      "arm": "A",
+      "request_id": "004",
+      "internal": false,
+      "input_tokens": 5894,
+      "output_tokens": 66,
+      "finish_reason": "eos",
+      "generation_seconds": 4.948474325239658,
+      "peak_allocated_bytes": 9754830848,
+      "request_sha256": "59a9f3112ab888d7368067520fba6cf6297909194ece726589e0e409ef4407db",
+      "response_sha256": "852a0d4a3f71c5a307dad587e13a77012bc7bf7d51d5e6d5de63298ecb2c4f1a"
+    },
+    {
+      "arm": "A",
+      "request_id": "005",
+      "internal": false,
+      "input_tokens": 6702,
+      "output_tokens": 35,
+      "finish_reason": "eos",
+      "generation_seconds": 2.9121962003409863,
+      "peak_allocated_bytes": 9961763840,
+      "request_sha256": "0b0fe722d98f54d005b068f241cf51c9f9430b91910ca5052d8aef6104e867ec",
+      "response_sha256": "02adb571d51e16551e567cf85bdce586440bb1fdb4e2740df8ba8a1a762da3c0"
+    },
+    {
+      "arm": "A",
+      "request_id": "006",
+      "internal": false,
+      "input_tokens": 6866,
+      "output_tokens": 133,
+      "finish_reason": "eos",
+      "generation_seconds": 10.105047944933176,
+      "peak_allocated_bytes": 10003839488,
+      "request_sha256": "8e8ebf55938bdbf15ba1fc5c20e2d0fb3dbf5f11195885353a7d92deda2526f7",
+      "response_sha256": "f1445947874a2e07682565dc9b1414dd44f9fa398e19bf8b964e742bae87a46d"
+    },
+    {
+      "arm": "A",
+      "request_id": "007",
+      "internal": false,
+      "input_tokens": 8830,
+      "output_tokens": 124,
+      "finish_reason": "eos",
+      "generation_seconds": 9.18793623894453,
+      "peak_allocated_bytes": 10507705856,
+      "request_sha256": "ed882df29e5e4962fc7d405f42e87ec0475e56fed352425dede43ad1f921e747",
+      "response_sha256": "43ead68f7f29be9259231ed593ffa869fb84fae12900db401b651f1143b9a6ba"
+    },
+    {
+      "arm": "A",
+      "request_id": "008",
+      "internal": false,
+      "input_tokens": 12841,
+      "output_tokens": 30,
+      "finish_reason": "eos",
+      "generation_seconds": 3.4021876119077206,
+      "peak_allocated_bytes": 11539006976,
+      "request_sha256": "b3ef95d4600481a1115d80ceb9af4c08543b4080c46af8fa10b6e3352fb0b25d",
+      "response_sha256": "825f44d003e24eee77b38782ea754e44ef5c2af2c42baee2ebfbd4d98e76b6ac"
+    },
+    {
+      "arm": "A",
+      "request_id": "009",
+      "internal": false,
+      "input_tokens": 13135,
+      "output_tokens": 83,
+      "finish_reason": "eos",
+      "generation_seconds": 6.838245160877705,
+      "peak_allocated_bytes": 11613123072,
+      "request_sha256": "880a66e45af34caa15fc230f50479a1e4d7668779e58574c99e1559fd05eff60",
+      "response_sha256": "15104bb9e6d672636832eb1116f4b773523b51f48f29f68ba88ebf315e99176f"
+    },
+    {
+      "arm": "A",
+      "request_id": "010",
+      "internal": false,
+      "input_tokens": 13412,
+      "output_tokens": 75,
+      "finish_reason": "eos",
+      "generation_seconds": 6.654935743659735,
+      "peak_allocated_bytes": 11684067840,
+      "request_sha256": "b5905134d0fa59e276f3442ec385c2575eb2829a414eafeebb499b887c796a78",
+      "response_sha256": "8277599245923debdc7f8a190c9f595db96e24b3dc5d7f48905dfbba469f84e2"
+    },
+    {
+      "arm": "B",
+      "request_id": "001",
+      "internal": false,
+      "input_tokens": 3161,
+      "output_tokens": 21,
+      "finish_reason": "eos",
+      "generation_seconds": 1.6301526427268982,
+      "peak_allocated_bytes": 9056922112,
+      "request_sha256": "cda6e176457664e67b03f2a385aef07cc9fc0e196b490431cecca63a9038242e",
+      "response_sha256": "cd4b766ea277c1ae8c53f647f7342df58cfbf7f12e4b47d25f77e159e8cfd06b"
+    },
+    {
+      "arm": "B",
+      "request_id": "002",
+      "internal": false,
+      "input_tokens": 3268,
+      "output_tokens": 39,
+      "finish_reason": "eos",
+      "generation_seconds": 2.8146887496113777,
+      "peak_allocated_bytes": 9082154496,
+      "request_sha256": "1ad4b13410c560e3db52ac5021bbda2182d6d20dde3ca7cd636f6167c834ea52",
+      "response_sha256": "63976864924f3dc998c2ba13ac075b71ef318df07c0a1b088efe6f4045fd19ef"
+    },
+    {
+      "arm": "B",
+      "request_id": "003",
+      "internal": false,
+      "input_tokens": 5648,
+      "output_tokens": 35,
+      "finish_reason": "eos",
+      "generation_seconds": 2.7622632943093777,
+      "peak_allocated_bytes": 9693276160,
+      "request_sha256": "964b727fd8cef7688e1ca430a559dc9ee7476f3924ae03c86682d54c3654f6ba",
+      "response_sha256": "175292c60352c4b3ab20fa90060e12d2421bce265f7f5648b897a9d068a922a0"
+    },
+    {
+      "arm": "B",
+      "request_id": "004",
+      "internal": false,
+      "input_tokens": 5894,
+      "output_tokens": 66,
+      "finish_reason": "eos",
+      "generation_seconds": 4.86551646515727,
+      "peak_allocated_bytes": 9754830848,
+      "request_sha256": "56836492e9411bdfc79cc77ff0b7ffdc6b095d9d2179eb11bf5f37f65a29a7d4",
+      "response_sha256": "812014af537d7c899709a34d9c9e7f57aab85053b3a03b100943a8957438c645"
+    },
+    {
+      "arm": "B",
+      "request_id": "005",
+      "internal": false,
+      "input_tokens": 6702,
+      "output_tokens": 35,
+      "finish_reason": "eos",
+      "generation_seconds": 2.857333581894636,
+      "peak_allocated_bytes": 9961763840,
+      "request_sha256": "3997ddbb3d73cca03c4d6df76998c69b89e768eb9ca08eb07702342042d18069",
+      "response_sha256": "469e11d3d299398e876b320f716e11ccacccedc09c363bdfc819197760ac9066"
+    },
+    {
+      "arm": "B",
+      "request_id": "006",
+      "internal": true,
+      "input_tokens": 7843,
+      "output_tokens": 461,
+      "finish_reason": "eos",
+      "generation_seconds": 32.02110468968749,
+      "peak_allocated_bytes": 10255609856,
+      "request_sha256": "586d33fdeb7d6292843300ce47ac6874fc9d37bab0db70d1453b276677897ddb",
+      "response_sha256": "67b1c9e81fa5183d08fb645c61b3577d87938297433169d3619aaf2a8c10ad3d"
+    },
+    {
+      "arm": "B",
+      "request_id": "007",
+      "internal": false,
+      "input_tokens": 6866,
+      "output_tokens": 133,
+      "finish_reason": "eos",
+      "generation_seconds": 9.600972346961498,
+      "peak_allocated_bytes": 10003839488,
+      "request_sha256": "ebdf23c9f5ead1930bd850eb37acf8fe76dd986b60532385b37090c9bad4bac3",
+      "response_sha256": "fec1b2abe971bd40dc98e434dc46757e8b9eb116818ab29523cf888cd2190a71"
+    },
+    {
+      "arm": "B",
+      "request_id": "008",
+      "internal": false,
+      "input_tokens": 8830,
+      "output_tokens": 125,
+      "finish_reason": "eos",
+      "generation_seconds": 9.173257812857628,
+      "peak_allocated_bytes": 10507705856,
+      "request_sha256": "0d536844e282204b3b006adf3f5f831179280ab54d39ab0f3cb4ca8ebf735384",
+      "response_sha256": "98f5483d55045dce7ab839bea159df95b8ef93bb77bfe746ea3872e8c763e8bb"
+    }
+  ],
+  "memory_diagnosis": {
+    "json_parseable": true,
+    "eos_complete": true,
+    "accepted": false,
+    "terminal_l1_is_none": true,
+    "terminal_replay_verified": true,
+    "schema_errors": [
+      {
+        "path": [
+          "progress",
+          "evidence_ids"
+        ],
+        "validator": "maxItems",
+        "limit": 4,
+        "actual_count": 5
+      },
+      {
+        "path": [
+          "important_facts",
+          0,
+          "evidence_ids"
+        ],
+        "validator": "maxItems",
+        "limit": 1,
+        "actual_count": 2
+      },
+      {
+        "path": [
+          "important_facts",
+          1,
+          "evidence_ids"
+        ],
+        "validator": "maxItems",
+        "limit": 1,
+        "actual_count": 2
+      },
+      {
+        "path": [
+          "important_facts",
+          2,
+          "evidence_ids"
+        ],
+        "validator": "maxItems",
+        "limit": 1,
+        "actual_count": 2
+      }
+    ],
+    "missing_evidence_ids": [
+      "api_docs__show_api_doc",
+      "spotify__login"
+    ],
+    "fact_paths": [
+      {
+        "source_id": "student_005_0",
+        "path": [
+          "access_token"
+        ],
+        "path_exists": true,
+        "exact_value_matches": true
+      },
+      {
+        "source_id": "student_004_1",
+        "path": [
+          "parameters",
+          "0",
+          "name"
+        ],
+        "path_exists": false,
+        "exact_value_matches": false
+      },
+      {
+        "source_id": "student_004_1",
+        "path": [
+          "response_schemas",
+          "success",
+          "0",
+          "artists",
+          "0",
+          "name"
+        ],
+        "path_exists": false,
+        "exact_value_matches": false
+      }
+    ],
+    "l1_used_in_business": false,
+    "l1_semantic_review": "Original goal kept; constraints underspecified; pending empty although recommendation aggregation remains. No completed or official success assertion. Claimed fields confuse API documentation with runtime values; request path addresses call arguments absent from tool result. Rejected output remains audit only."
+  },
+  "matched_business_prefix": [
+    {
+      "request": 1,
+      "input_ids_equal": true,
+      "output_ids_equal": true,
+      "seed_equal": true
+    },
+    {
+      "request": 2,
+      "input_ids_equal": true,
+      "output_ids_equal": true,
+      "seed_equal": true
+    },
+    {
+      "request": 3,
+      "input_ids_equal": true,
+      "output_ids_equal": true,
+      "seed_equal": true
+    },
+    {
+      "request": 4,
+      "input_ids_equal": true,
+      "output_ids_equal": true,
+      "seed_equal": true
+    },
+    {
+      "request": 5,
+      "input_ids_equal": true,
+      "output_ids_equal": true,
+      "seed_equal": true
+    }
+  ],
+  "seed_note": "Existing seed = configured seed + total model_requests. Internal request consumes one counter, shifting subsequent business random seed; no accepted L1 means subsequent differences cannot be attributed to L1.",
+  "generation_seconds": 118.1825887337327,
+  "peak_allocated_bytes": 11684067840,
+  "actor_failure_review": {
+    "first_business_rejection_both_arms": "api_docs__show_api_descriptions missing required app_name; explicit schema_error supplied; next response corrected",
+    "official_outcomes": {
+      "A": "valid task_failure",
+      "B": "valid task_failure"
+    },
+    "visible_evidence_issue": "Both request only recommendation page 0, limit20; 20 rows returned, no page1 or exhaustive coverage confirmation. A additionally reads 3 artist profiles; B completes immediately after first page. This is an observed coverage gap, not a reconstruction of hidden correct answer.",
+    "causal_limit": "No accepted L1; different post-update business seeds and behavior cannot establish a Memory benefit/harm.",
+    "wrong_side_effects": "NOT_ASSESSED; no partial execution or unknown returns, business errors0. Does not certify all business decisions correct."
+  }
+}

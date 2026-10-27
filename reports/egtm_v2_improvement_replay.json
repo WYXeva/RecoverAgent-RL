@@ -1,0 +1,211 @@
+{
+  "status": "PASS",
+  "scope": "offline re-render of real AppWorld script receipts, synthetic completions; no model inference",
+  "real_model_requests": 0,
+  "requests": 28,
+  "policy": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "SCRIPTED_NOT_A_MODEL"
+  },
+  "rows": [
+    {
+      "request_id": "001",
+      "memory_update": false,
+      "input_tokens": 3142,
+      "output_tokens": 121,
+      "request_sha256": "350775fabbb7d5f8e235060bf9161b6836f5e6335fc2f5b3d9e8d0b74dd366b3"
+    },
+    {
+      "request_id": "002",
+      "memory_update": false,
+      "input_tokens": 5283,
+      "output_tokens": 31,
+      "request_sha256": "4a4cdd0600e32b08bd5535731c4b7d6d64624029607b8cc7aad78668b3bb4c10"
+    },
+    {
+      "request_id": "003",
+      "memory_update": false,
+      "input_tokens": 5453,
+      "output_tokens": 139,
+      "request_sha256": "3249fca898dd371029081dd57f0249c1382dd4de84cda9d0ceac2ab1bab3fe1c"
+    },
+    {
+      "request_id": "004",
+      "memory_update": true,
+      "input_tokens": 5925,
+      "output_tokens": 4,
+      "request_sha256": "db2e19ff798c51bd6bbc3be53210a80b7eed5f633ac1f7d0c5bb366f3701802c"
+    },
+    {
+      "request_id": "005",
+      "memory_update": false,
+      "input_tokens": 5625,
+      "output_tokens": 134,
+      "request_sha256": "e08f14def7877d68105c00bd08d080f2d15225d5f77d3b13b77ddadd21fbe2c3"
+    },
+    {
+      "request_id": "006",
+      "memory_update": false,
+      "input_tokens": 5864,
+      "output_tokens": 131,
+      "request_sha256": "2076cef8e0deabba56f6eb99f000933ad8b0f8fc2bfa50c8564387b865969baf"
+    },
+    {
+      "request_id": "007",
+      "memory_update": false,
+      "input_tokens": 6242,
+      "output_tokens": 139,
+      "request_sha256": "6145691d85e90aded7bd4a1463dbbe92d0deaba34ef8b6c00a4e258bdfe6b7ac"
+    },
+    {
+      "request_id": "008",
+      "memory_update": true,
+      "input_tokens": 6847,
+      "output_tokens": 159,
+      "request_sha256": "9fe1686208aeae9dc599850076269d0df7a9eee545e25d600cc8995ee4c5e95c"
+    },
+    {
+      "request_id": "009",
+      "memory_update": false,
+      "input_tokens": 6724,
+      "output_tokens": 134,
+      "request_sha256": "fd5278089a640f06990605b19ad5d552a1b89a48e80e6a79bb84a3108b379c79"
+    },
+    {
+      "request_id": "010",
+      "memory_update": false,
+      "input_tokens": 6963,
+      "output_tokens": 21,
+      "request_sha256": "53f395132bcb8f7a695d54278f3546df21d8a6b5483e30a93b9e624726e43fbc"
+    },
+    {
+      "request_id": "011",
+      "memory_update": false,
+      "input_tokens": 8888,
+      "output_tokens": 21,
+      "request_sha256": "e09468ae7820039809adfa7ae6fc16ec52f058ff659ccc99979887421786167e"
+    },
+    {
+      "request_id": "012",
+      "memory_update": false,
+      "input_tokens": 10884,
+      "output_tokens": 21,
+      "request_sha256": "2317be90339559b01bfa9a27c066d9ad153922aaf505b15ae003d0d4ca2f7002"
+    },
+    {
+      "request_id": "013",
+      "memory_update": false,
+      "input_tokens": 12880,
+      "output_tokens": 21,
+      "request_sha256": "6f216c7213b17439f8761a7a17fc470191203b480c75a31749a93cb8bc68896d"
+    },
+    {
+      "request_id": "014",
+      "memory_update": false,
+      "input_tokens": 14813,
+      "output_tokens": 21,
+      "request_sha256": "ac09e8c47b34049bc8a42bca04c9989346ce8c5aba63a52a4583a2fce21175b7"
+    },
+    {
+      "request_id": "015",
+      "memory_update": false,
+      "input_tokens": 16746,
+      "output_tokens": 21,
+      "request_sha256": "6396cbde31eeea4ee26e0598459a6106d489caf6ecf29ac941a66b9786f95b90"
+    },
+    {
+      "request_id": "016",
+      "memory_update": true,
+      "input_tokens": 18838,
+      "output_tokens": 159,
+      "request_sha256": "f7410de85a3172ba36cf13dc12894cd7a456c93d5420f16ba2726acb00c840bf"
+    },
+    {
+      "request_id": "017",
+      "memory_update": false,
+      "input_tokens": 18679,
+      "output_tokens": 21,
+      "request_sha256": "1983746421b1f6a5a00c58175ae79586a70575c3759d9522589b9c8c39b74e0f"
+    },
+    {
+      "request_id": "018",
+      "memory_update": false,
+      "input_tokens": 8788,
+      "output_tokens": 21,
+      "request_sha256": "cb5e2a04d5d820eea25aa84e20693eeaf37250c79731e85162b8f477336e0626"
+    },
+    {
+      "request_id": "019",
+      "memory_update": false,
+      "input_tokens": 8796,
+      "output_tokens": 21,
+      "request_sha256": "ae10b8285e41696b3b3065c52cd42631b7795e1dfb40667d5d260beb849aca47"
+    },
+    {
+      "request_id": "020",
+      "memory_update": false,
+      "input_tokens": 10729,
+      "output_tokens": 21,
+      "request_sha256": "8cf7194010962b45360f6f67b15fde82c1cf9718e6067c1501208f233ee8d665"
+    },
+    {
+      "request_id": "021",
+      "memory_update": false,
+      "input_tokens": 12662,
+      "output_tokens": 21,
+      "request_sha256": "31ac665a2a3f82965fdb647574e549c677bef319fd04873cb3fe551e9efa3920"
+    },
+    {
+      "request_id": "022",
+      "memory_update": false,
+      "input_tokens": 14595,
+      "output_tokens": 21,
+      "request_sha256": "3ddbff4b8f2b958bfb0aeb3bf4609c1bb18dd442888aaf93b76cd5063462d6d2"
+    },
+    {
+      "request_id": "023",
+      "memory_update": true,
+      "input_tokens": 18469,
+      "output_tokens": 159,
+      "request_sha256": "3fe3175e94ed97005ebd7e8c83c6c3b398526d521b07eb4985d38ebe134e99fc"
+    },
+    {
+      "request_id": "024",
+      "memory_update": false,
+      "input_tokens": 8828,
+      "output_tokens": 21,
+      "request_sha256": "2eaf044fd2a65b0e481d8b35ef2d83f1e20fcb63859a8fed7dbb50fa405ab780"
+    },
+    {
+      "request_id": "025",
+      "memory_update": false,
+      "input_tokens": 8836,
+      "output_tokens": 21,
+      "request_sha256": "c5c4da3b0a5e3191ed169982d33b4113af8a4acb1af4591938d6fedcc848a09d"
+    },
+    {
+      "request_id": "026",
+      "memory_update": false,
+      "input_tokens": 8844,
+      "output_tokens": 21,
+      "request_sha256": "61ccf334e6625f18a89fc0aacaf522e9cc8fb31999eed5a8c31a04d2474a3230"
+    },
+    {
+      "request_id": "027",
+      "memory_update": false,
+      "input_tokens": 10777,
+      "output_tokens": 21,
+      "request_sha256": "8461ba28686665924cdc89d3aca29e49688b0e42b4a05bf9f7c7b1d2486223ae"
+    },
+    {
+      "request_id": "028",
+      "memory_update": false,
+      "input_tokens": 12710,
+      "output_tokens": 268,
+      "request_sha256": "6493254ab20c4a763035754a1a630d539d1bdcbf510245356a53cf9f8f69805d"
+    }
+  ]
+}

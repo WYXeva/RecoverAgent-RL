@@ -1,10 +1,22 @@
 # 项目状态
 
 - 最后更新：2026-10-27（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.17；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**EGTM v2工程/软件/无真实模型AppWorld探针PASS；真实Qwen Memory效果NOT_RUN**。同Student内部请求生成L1，共享原预算，v4回执快照兼容1/2/3。v1及原A100/P3-C全部证据保留；本轮无模型推理、训练、Teacher Recovery、GRPO或远程GPU操作。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.18；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**EGTM v2.1工程/341测试/真实AppWorld脚本PASS；真实Qwen小样本PARTIAL，正式A/B NOT_RUN**。授权现有A100运行首任务A/B均官方失败，B更新0/1接受；按协议停止余下2任务（执行2/计划6）。模型进程停止并回传158文件；自动关机缺平台密钥失败，用户确认手动关机。未训练/P4-A/GRPO。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮EGTM v2基线 `091b8f18cfee384e9fb8c3406638ab6a71c78d4b`（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮EGTM v2完善基线 `a2dbcb298a6fa4c74c2d858385e6c3b70ee4bd90`（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## EGTM v2.1完善与授权真实小样本（2026-10-27）
+
+- **实现PASS**：有效模型L1始终以Memory数据进入业务输入；显示与压缩独立；need_evidence优先去重和精确JSON路径投影，附source/path/value/hash/stale。实际增量更新输入也参与提前触发，失败原子保留、不加重试。旧1/2/3/4快照及v1/v2锁不改，新增`egtm_visible_memory_20261027`锁SHA `ddc3bb9c4bcb3a66bb422ccba583993eb595e74cb6300e89cacd6c0c55b25c1f`。
+- **软件PASS**：341 pytest、Ruff check、118文件format。最终真实AppWorld脚本29工具意图、3独立恢复、28请求直接tokenizer回放；18后续请求可见L1，10请求字段投影/压缩，扣除Memory输入净省130759token（31.54%，脚本而非真实模型收益）。开发中发现并修复探针RPC排序schema键导致的token差异，开发证据和旧报告不改。
+- **真实Qwen小样本PARTIAL**：原A100 checkpoint真实重载/参数SHA通过，固定3任务A/B计划。`287e338_3`两组有效官方失败，各0/1；两组首轮缺app_name被准确反馈并纠正，B唯一Memory JSON因引用数量/不存在ID/错误path拒绝，0有效L1使用、0压缩。当前对完成后停止，不执行`3c13f5a_1`、`229360a_2`，无替换重试。全清单未完成，不能PASS。可见操作均仅查第0页20条推荐，没有完整覆盖证明。
+- **成本**：18模型请求、127969输入/1556输出、19实际工具调用；Memory7843输入/461输出/32.06秒，B固定自身行为净节省−7843。控制器225.13秒；GPU峰值allocated10.88GiB；货币成本未知。前5个业务输入/输出/seed相同；内部请求改变后续seed位置，L1未接受，后续行为差异不归因于记忆收益。
+- **历史核验PASS**：95轨迹/75任务/29家族、18包/6616文件、两个checkpoint、337旧报告/配置和真实1/2/3/4快照不变。manifest保持`5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c`。
+- **证据**：`reports/egtm_v2_improvement_report.md`，同前缀`checks.txt`、`world_probe.json`、`replay.json`、`integrity.json`、`remote.json`、`pilot.json`、`model_audit.json`、`shutdown.json`。私有`runs/egtm_v2_improvement_final_20261027/`和`runs/egtm_v2_improvement_remote_20261027/`，原始数据/凭据/权重不公开。808403字节归档及158文件SHA已本地核验。
+- **关机**：停止backend后0MiB；实验结束451.58秒后平台关机返回255“未设置关机密钥”，及时请求用户操作。用户确认“已关机”，之后不再SSH；不冒称自动成功或账单已独立核验。
+- **命令**：pytest/Ruff、`probe_egtm_v2.py`使用`egtm_v2_improvement_eval_a.json`（initial-only）及`egtm_v2_improvement_p3c.json`、远程`student_backend`及两次`student_evaluation worker --case-index 0`、本地`summarize_egtm.py --version v2_improvement --stage pilot`。完整路径与验证命令见报告。
+- **下一步**：针对真实JSON引用/path错误设计独立候选协议并先离线验收，再获授权做固定小样本；不放宽校验、按结果换任务或扩大正式A/B。真实模型L1可用性与效果仍未通过；本轮无训练、Teacher Recovery或GRPO。
 
 ## EGTM v2 模型驱动 L1（2026-10-27）
 

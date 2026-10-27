@@ -60,7 +60,12 @@ class TokenizerPipe:
 
     def rpc(self, method, *args, **kwargs):
         self.process.stdin.write(
-            canonical({"method": method, "args": args, "kwargs": kwargs}) + "\n"
+            json.dumps(
+                {"method": method, "args": args, "kwargs": kwargs},
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+            + "\n"
         )
         self.process.stdin.flush()
         return self.read()

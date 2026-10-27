@@ -29,6 +29,9 @@ DEFAULT_CONFIG = {
 
 MODEL_VERSION = "egtm-model-working-memory-v2"
 MODEL_RUNTIME = "egtm_model_memory_20261027"
+VISIBLE_VERSION = "egtm-model-working-memory-v2.1"
+VISIBLE_RUNTIME = "egtm_visible_memory_20261027"
+MODEL_RUNTIMES = {MODEL_RUNTIME, VISIBLE_RUNTIME}
 MODEL_DEFAULT_CONFIG = {
     "enabled": False,
     "version": MODEL_VERSION,
@@ -127,9 +130,11 @@ def _strict_object(pairs):
 def memory_config(config=None):
     defaults = (
         MODEL_DEFAULT_CONFIG
-        if (config or {}).get("version") == MODEL_VERSION
+        if (config or {}).get("version") in {MODEL_VERSION, VISIBLE_VERSION}
         else DEFAULT_CONFIG
     )
+    if (config or {}).get("version") == VISIBLE_VERSION:
+        defaults = {**defaults, "version": VISIBLE_VERSION}
     value = {**defaults, **(config or {})}
     if set(value) != set(defaults) or value["version"] != defaults["version"]:
         raise ValueError("Unsupported EGTM configuration")
@@ -139,7 +144,7 @@ def memory_config(config=None):
         if k not in {"enabled", "version"}
     ):
         raise ValueError("Invalid EGTM bounds")
-    if value["version"] == MODEL_VERSION and (
+    if value["version"] in {MODEL_VERSION, VISIBLE_VERSION} and (
         value["update_max_new_tokens"] > 4096 or value["trigger_tokens"] > 24576
     ):
         raise ValueError("Memory must trigger before the Qwen context is exhausted")
@@ -357,7 +362,7 @@ class TaskMemory:
         """Bounded view, explicitly incomplete. No automatic business planning."""
         if self.model_driven:
             return {
-                "version": MODEL_VERSION,
+                "version": self.config["version"],
                 "l1": copy.deepcopy(self.l1),
                 "source_update": next(
                     (
@@ -452,7 +457,7 @@ class TaskMemory:
         """Recompute everything from the same-time history; hashes alone are not proof."""
         source = Path(source)
         state = read_json(source / "state.json")
-        if state["version"] not in {VERSION, MODEL_VERSION}:
+        if state["version"] not in {VERSION, MODEL_VERSION, VISIBLE_VERSION}:
             raise ValueError("Unknown Memory version")
         memory = cls(state["task_id"], state["initial_messages"], state["config"])
         updates = []
@@ -506,11 +511,29 @@ class TaskMemory:
 
     @property
     def model_driven(self):
-        return self.config["version"] == MODEL_VERSION
+        return self.config["version"] in {MODEL_VERSION, VISIBLE_VERSION}
 
     @property
     def runtime(self):
+        if self.improved:
+            return VISIBLE_RUNTIME
         return MODEL_RUNTIME if self.model_driven else RUNTIME
+
+    @property
+    def improved(self):
+        return self.config["version"] == VISIBLE_VERSION
+
+    @property
+    def l1_schema(self):
+        if not self.improved:
+            return L1_SCHEMA
+        schema = copy.deepcopy(L1_SCHEMA)
+        schema["properties"]["need_evidence"]["items"]["properties"]["path"] = {
+            "type": "array",
+            "maxItems": 16,
+            "items": {"type": ["string", "integer"]},
+        }
+        return schema
 
     @property
     def covered_end(self):
@@ -530,7 +553,7 @@ class TaskMemory:
                 task_id=self.task_id,
                 as_of=as_of,
                 limit=self.config["retrieval_limit"],
-                **query,
+                **{k: v for k, v in query.items() if k != "path"},
             ):
                 selected[row["source_id"]] = row
         return list(selected.values())
@@ -542,13 +565,44 @@ class TaskMemory:
         # prioritizing explicit L1 requests; one fallback prevents redundant expansion.
         requested = self.requested_evidence(self.covered_end)
         evidence = requested or relevant_evidence(self, messages, self.covered_end)[:1]
+        if self.improved:
+            queries = (self.l1 or {}).get("need_evidence", []) or [
+                {"source_id": r["source_id"]} for r in evidence
+            ]
+            evidence = self.index.retrieve(
+                task_id=self.task_id,
+                as_of=len(messages),
+                queries=queries,
+                present_ids=[
+                    m["tool_call_id"]
+                    for m in messages[self.covered_end :]
+                    if m["role"] == "tool"
+                ],
+                limit=self.config["retrieval_limit"],
+            )
+            for row in evidence:
+                row["validity"] = (
+                    "stale"
+                    if row["source_id"] in self.stale_sources
+                    else "observed_at_source_time"
+                )
         # Source IDs are explicit even though NewHistory includes raw tool messages.
         return [
             {
                 "role": "system",
                 "content": MEMORY_INSTRUCTION
+                + (
+                    "Use double-quoted JSON keys/strings, no Markdown or <tool_call>. Include every required key. "
+                    "Use [] for empty lists. progress is an object {text,status,evidence_ids}; status is unverified. "
+                    "Keep claims brief; never fill the space with speculative steps. "
+                    "For a specific object request need_evidence with source_id and exact JSON path, e.g. "
+                    'path=["items",0,"release_date"]; field alone selects ALL matching paths, not one entity. '
+                    "An empty evidence_ids list is legal only for unverified judgments, not important_facts. "
+                    if self.improved
+                    else ""
+                )
                 + f"Maximum JSON length: {self.config['max_l1_chars']} characters. Schema: "
-                + canonical(L1_SCHEMA),
+                + canonical(self.l1_schema),
             },
             {
                 "role": "user",
@@ -575,6 +629,12 @@ class TaskMemory:
             else len(self.initial_messages)
         )
         new_batches = [b for b in self.batches if b["end"] > last]
+        if (
+            self.improved
+            and new_batches
+            and input_tokens >= self.config["trigger_tokens"]
+        ):
+            return "context_threshold"
         if len(new_batches) < self.config["min_update_batches"]:
             return None
         if input_tokens >= self.config["trigger_tokens"]:
@@ -594,7 +654,7 @@ class TaskMemory:
         value = json.loads(text, object_pairs_hook=_strict_object)
         if len(canonical(value)) > self.config["max_l1_chars"]:
             raise ValueError("Memory JSON exceeds bounded length")
-        errors = list(Draft202012Validator(L1_SCHEMA).iter_errors(value))
+        errors = list(Draft202012Validator(self.l1_schema).iter_errors(value))
         if errors:
             error = errors[0]
             raise ValueError(

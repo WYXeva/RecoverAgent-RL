@@ -1,0 +1,249 @@
+{
+  "status": "PASS",
+  "source_lock_sha256": "ddc3bb9c4bcb3a66bb422ccba583993eb595e74cb6300e89cacd6c0c55b25c1f",
+  "environment": {
+    "sqlalchemy": "2.0.52",
+    "sqlmodel": "0.0.48",
+    "uri_roundtrip": true
+  },
+  "scope": "Real AppWorld + pinned tokenizer; synthetic L1 and actions ONLY",
+  "real_model_requests": 0,
+  "weights_loaded": false,
+  "training_started": false,
+  "task_id": "e3d6c94_3",
+  "usage": {
+    "model_requests": 28,
+    "generated_tokens": 1914,
+    "prompt_tokens": 283830,
+    "tool_calls": 29,
+    "unknown_generation_reservation": 0,
+    "tool_requests": 29,
+    "harness_rejections": 0,
+    "protocol_rejections": 0,
+    "harness_notices": 2,
+    "memory_update_seconds": 0.16231700096977875,
+    "context_compile_seconds": 2.901056820177473,
+    "uncompressed_prompt_tokens": 414589,
+    "compressed_requests": 10,
+    "memory_update_requests": 4,
+    "memory_update_input_tokens": 50079,
+    "memory_update_output_tokens": 481,
+    "memory_validation_failures": 1,
+    "saved_input_tokens": 180838,
+    "evidence_index_seconds": 0.036611300136428326
+  },
+  "checkpoints": 3,
+  "l1_visible_requests": 18,
+  "projected_requests": 10,
+  "restorations": [
+    {
+      "status": "PASS",
+      "pid": 1556288,
+      "checkpoint_id": "a4699d3545ed3699263182524c32cb7e65536a4c0d88882623f92afc3688c9cc",
+      "database_matches": true,
+      "history_matches": true,
+      "tools_match": true,
+      "runtime_matches": true,
+      "agent_runtime_sha256": "508d03fdb78a341c3ee6716f920ad106442c83ba442d6d72a26004426c1e792d",
+      "agent_runtime_integrity_verified": true,
+      "task_active_matches": true,
+      "source_unchanged": true,
+      "task_actions_executed": 0,
+      "memory_matches": true,
+      "memory_identity": {
+        "version": "egtm-model-working-memory-v2.1",
+        "config_sha256": "5d584c7e26bf28e1cf260ec275ef632693b25b77e61d6d50936a387481af3fb5",
+        "index": {
+          "version": "egtm-evidence-jsonl-v1",
+          "rows": 8,
+          "sha256": "fd666b3baa5eaedea05b0c97243514733e1ccf04dd4b7184ece335507551ec46"
+        },
+        "state_sha256": "b98e01d8197866b61c3591a98d29caa84fc05d311b5747a13bbf8d350e9a2b22"
+      }
+    },
+    {
+      "status": "PASS",
+      "pid": 1556453,
+      "checkpoint_id": "5f5a7f2bd8ace2d04564615f079fa15593dd7432656cb0040b201b584b7dcb37",
+      "database_matches": true,
+      "history_matches": true,
+      "tools_match": true,
+      "runtime_matches": true,
+      "agent_runtime_sha256": "7e12862c97241eb3620aec705b137f5557a2d1bb99267576933e79a69e055111",
+      "agent_runtime_integrity_verified": true,
+      "task_active_matches": true,
+      "source_unchanged": true,
+      "task_actions_executed": 0,
+      "memory_matches": true,
+      "memory_identity": {
+        "version": "egtm-model-working-memory-v2.1",
+        "config_sha256": "5d584c7e26bf28e1cf260ec275ef632693b25b77e61d6d50936a387481af3fb5",
+        "index": {
+          "version": "egtm-evidence-jsonl-v1",
+          "rows": 11,
+          "sha256": "01d5c75bf1f39435fea306c7b2e9c04a54523e5fdc8fc795c0c1605e0b86b9d0"
+        },
+        "state_sha256": "9c76e4ca052a6b8c84fbb39a7d66070a11be6c308d3b125821ebfaa4a3400d38"
+      }
+    },
+    {
+      "status": "PASS",
+      "pid": 1556622,
+      "checkpoint_id": "2f864c0a835a95c8fc99a1cc15996883ea52396e8d2d13422fde95962ec2e775",
+      "database_matches": true,
+      "history_matches": true,
+      "tools_match": true,
+      "runtime_matches": true,
+      "agent_runtime_sha256": "b65185c1bc072fc5ecb5caaafa82ca16a2da037efa328516ab323255f56ec2ff",
+      "agent_runtime_integrity_verified": true,
+      "task_active_matches": true,
+      "source_unchanged": true,
+      "task_actions_executed": 0,
+      "memory_matches": true,
+      "memory_identity": {
+        "version": "egtm-model-working-memory-v2.1",
+        "config_sha256": "5d584c7e26bf28e1cf260ec275ef632693b25b77e61d6d50936a387481af3fb5",
+        "index": {
+          "version": "egtm-evidence-jsonl-v1",
+          "rows": 27,
+          "sha256": "3e54642372b48e4494d6de91d33baeff42edb43a029a7dd8373776b1c9de53b3"
+        },
+        "state_sha256": "10018af0d3d87bddddc4c6c125b34ed8c25acd472b0c3dff63c4e0e0a0bca358"
+      }
+    }
+  ],
+  "partial_batch_rejected": true,
+  "token_measurements": [
+    {
+      "original_tokens": 3142,
+      "compiled_tokens": 3142,
+      "compressed": false
+    },
+    {
+      "original_tokens": 5283,
+      "compiled_tokens": 5283,
+      "compressed": false
+    },
+    {
+      "original_tokens": 5453,
+      "compiled_tokens": 5453,
+      "compressed": false
+    },
+    {
+      "original_tokens": 5625,
+      "compiled_tokens": 5625,
+      "compressed": false
+    },
+    {
+      "original_tokens": 5864,
+      "compiled_tokens": 5864,
+      "compressed": false
+    },
+    {
+      "original_tokens": 6242,
+      "compiled_tokens": 6242,
+      "compressed": false
+    },
+    {
+      "original_tokens": 6405,
+      "compiled_tokens": 6724,
+      "compressed": false
+    },
+    {
+      "original_tokens": 6644,
+      "compiled_tokens": 6963,
+      "compressed": false
+    },
+    {
+      "original_tokens": 8569,
+      "compiled_tokens": 8888,
+      "compressed": false
+    },
+    {
+      "original_tokens": 10557,
+      "compiled_tokens": 10884,
+      "compressed": false
+    },
+    {
+      "original_tokens": 12545,
+      "compiled_tokens": 12880,
+      "compressed": false
+    },
+    {
+      "original_tokens": 14470,
+      "compiled_tokens": 14813,
+      "compressed": false
+    },
+    {
+      "original_tokens": 16395,
+      "compiled_tokens": 16746,
+      "compressed": false
+    },
+    {
+      "original_tokens": 18320,
+      "compiled_tokens": 18679,
+      "compressed": false
+    },
+    {
+      "original_tokens": 20245,
+      "compiled_tokens": 8788,
+      "compressed": true
+    },
+    {
+      "original_tokens": 22170,
+      "compiled_tokens": 8796,
+      "compressed": true
+    },
+    {
+      "original_tokens": 24095,
+      "compiled_tokens": 10729,
+      "compressed": true
+    },
+    {
+      "original_tokens": 26020,
+      "compiled_tokens": 12662,
+      "compressed": true
+    },
+    {
+      "original_tokens": 27945,
+      "compiled_tokens": 14595,
+      "compressed": true
+    },
+    {
+      "original_tokens": 29870,
+      "compiled_tokens": 8828,
+      "compressed": true
+    },
+    {
+      "original_tokens": 31795,
+      "compiled_tokens": 8836,
+      "compressed": true
+    },
+    {
+      "original_tokens": 33720,
+      "compiled_tokens": 8844,
+      "compressed": true
+    },
+    {
+      "original_tokens": 35645,
+      "compiled_tokens": 10777,
+      "compressed": true
+    },
+    {
+      "original_tokens": 37570,
+      "compiled_tokens": 12710,
+      "compressed": true
+    }
+  ],
+  "wall_seconds": 149.59550813800888,
+  "initial_pair_checks": {
+    "task_id": true,
+    "initial_state_hash": true,
+    "first_input_token_ids": true,
+    "first_messages_sha256": true,
+    "first_tools_sha256": true,
+    "real_model_requests": true
+  },
+  "initial_input_ids_sha256": "af97433ed1db92738182805d905a1dab896a1fb984b470f78e56538e47877904",
+  "evidence_root": "runs/egtm_v2_improvement_final_20261027"
+}

@@ -20,7 +20,14 @@ from .execution_v5 import actor_system
 from .harness import REFACTOR_REVISION, RULES
 from .io import digest, files_manifest, read_json, write_json
 from .student import StudentSession
-from .task_memory import MODEL_RUNTIME, MODEL_VERSION, RUNTIME as MEMORY_RUNTIME
+from .task_memory import (
+    MODEL_RUNTIME,
+    MODEL_VERSION,
+    MODEL_RUNTIMES,
+    VISIBLE_RUNTIME,
+    VISIBLE_VERSION,
+    RUNTIME as MEMORY_RUNTIME,
+)
 
 RUNTIME = "p3b_shared_execution_20261026"
 
@@ -33,7 +40,9 @@ def execution_clock():
 def verify_execution_runtime(runtime=RUNTIME):
     root = Path(__file__).resolve().parents[2]
     path = root / (
-        "configs/egtm_v2_runtime_lock.json"
+        "configs/egtm_v2_improvement_runtime_lock.json"
+        if runtime == VISIBLE_RUNTIME
+        else "configs/egtm_v2_runtime_lock.json"
         if runtime == MODEL_RUNTIME
         else "configs/egtm_v1_runtime_lock.json"
         if runtime == MEMORY_RUNTIME
@@ -190,13 +199,15 @@ def run_episode(config, case, arm, output):
     try:
         record["evaluation_runtime"] = (
             verify_execution_runtime(config["runtime_revision"])
-            if config.get("runtime_revision") in {MEMORY_RUNTIME, MODEL_RUNTIME}
+            if config.get("runtime_revision") in {MEMORY_RUNTIME, *MODEL_RUNTIMES}
             else verify_execution_runtime()
         )
         if config.get("memory", {}).get("enabled") and config.get(
             "runtime_revision"
         ) != (
-            MODEL_RUNTIME
+            VISIBLE_RUNTIME
+            if config["memory"].get("version") == VISIBLE_VERSION
+            else MODEL_RUNTIME
             if config["memory"].get("version") == MODEL_VERSION
             else MEMORY_RUNTIME
         ):
@@ -394,6 +405,12 @@ def main():
         # Preserve an unknown outcome, and keep the precommitted evaluation list.
         # A worker/backend failure still stops the arm to avoid repeated outages.
         if row["status"] == "infrastructure_error":
+            break
+        if config.get("experiment_stage") == "pilot" and (
+            row.get("protocol_rejections", 0)
+            or row.get("usage", {}).get("memory_validation_failures", 0)
+        ):
+            # Finish preserving the current episode, then stop expansion; no task substitution.
             break
     write_json(
         output / "summary.json",

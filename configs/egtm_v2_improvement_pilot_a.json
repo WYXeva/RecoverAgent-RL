@@ -1,0 +1,62 @@
+{
+  "runtime_revision": "egtm_visible_memory_20261027",
+  "model": "Qwen/Qwen3-4B",
+  "actor_prompt_variant": "execution_v5",
+  "tool_mode": "dynamic_discovery",
+  "harness_runtime_revision": "shared_execution_20261025",
+  "appworld_root": "data/appworld",
+  "inference_url": "http://127.0.0.1:8766",
+  "expected_policy": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "adapter:34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd"
+  },
+  "checkpoint_release": "reports/a100_checkpoint_release_20261026.json",
+  "checkpoint_release_sha256": "9015ae54bc5b910ed51ac0901ef367b4ecee693b2b25df0e6d1cd71ff9a48a06",
+  "task_manifest": "configs/p3c_train_plan_20261025.json",
+  "task_manifest_hash": "8fff4ffa9b7a64d89ada10d6906d7e0cca1a538eb701ecb50008f67a69c8e0f3",
+  "student_limits": {
+    "max_input_tokens": 32768,
+    "max_new_tokens": 4096,
+    "max_requests": 40,
+    "max_generated_tokens": 16384,
+    "wall_seconds": 600,
+    "seed": 42,
+    "temperature": 0.8,
+    "top_p": 0.95
+  },
+  "cases": [
+    {
+      "task_id": "287e338_3",
+      "scenario_id": "287e338",
+      "split": "train",
+      "partition": "base_sft_unseen_task"
+    },
+    {
+      "task_id": "3c13f5a_1",
+      "scenario_id": "3c13f5a",
+      "split": "train",
+      "partition": "base_sft_unseen_task"
+    },
+    {
+      "task_id": "229360a_2",
+      "scenario_id": "229360a",
+      "split": "train",
+      "partition": "base_sft_unseen_task"
+    }
+  ],
+  "memory": {
+    "enabled": false,
+    "version": "egtm-model-working-memory-v2.1",
+    "trigger_tokens": 20000,
+    "recent_batches": 2,
+    "retrieval_limit": 3,
+    "update_max_new_tokens": 2048,
+    "min_update_batches": 3,
+    "max_l1_chars": 6000
+  },
+  "experiment_stage": "pilot",
+  "selection_note": "First three distinct families in the pre-existing fixed plan, before new outcomes; no replacements."
+}

@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 from probe_egtm import TokenizerPipe
-from recoveragent.io import canonical, read_json, write_json
+from recoveragent.io import canonical, digest, read_json, write_json
 from recoveragent.memory_store import json_value
 
 
@@ -20,12 +20,11 @@ def probe(args):
     from recoveragent.student import StudentSession
     from recoveragent.student_backend import validate_request
     from recoveragent.student_evaluation import evaluation_prompt, execution_clock
-    from recoveragent.task_memory import MODEL_RUNTIME
 
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=False)
-    config = read_json("configs/egtm_v2_p3c.json")
-    source_lock = verify_source(MODEL_RUNTIME)
+    config = read_json(args.config)
+    source_lock = verify_source(config["runtime_revision"])
     started = execution_clock()
     with (output / "tokenizer.log").open("x") as log:
         tokenizer = TokenizerPipe(args.tokenizer_python, log)
@@ -51,6 +50,20 @@ def probe(args):
                 checkpoint_id="SCRIPTED_NOT_A_MODEL",
                 memory_config=config["memory"],
             )
+            initial_request = session.build_request()
+            initial = {
+                "task_id": adapter.task_id,
+                "initial_state_hash": adapter.fingerprint(),
+                "first_input_token_ids": initial_request["input_token_ids"],
+                "first_messages_sha256": digest(initial_request["messages"]),
+                "first_tools_sha256": digest(initial_request["tools"]),
+                "memory_enabled": session.memory is not None,
+                "real_model_requests": 0,
+            }
+            write_json(output / "initial.json", initial)
+            write_json(output / "config.json", config)
+            if args.initial_only:
+                return
             snapshots, token_rows = [], []
 
             def step(calls):
@@ -93,7 +106,16 @@ def probe(args):
                                     else "observed",
                                 }
                             ]
-                            value["need_evidence"] = [{"source_id": row["source_id"]}]
+                            value["need_evidence"] = [
+                                {
+                                    "source_id": row["source_id"],
+                                    **(
+                                        {"path": ["content"]}
+                                        if session.memory.improved
+                                        else {}
+                                    ),
+                                }
+                            ]
                         text = (
                             "{bad json"
                             if not session.memory.updates
@@ -101,6 +123,28 @@ def probe(args):
                         )
                     else:
                         token_rows.append(request["memory_compilation"])
+                        if session.memory.improved and session.memory.l1 is not None:
+                            assert request["memory_compilation"]["l1_visible"]
+                            views = [
+                                json.loads(m["content"])
+                                for m in request["messages"]
+                                if '"kind":"internal_model_memory_data"'
+                                in m.get("content", "")
+                            ]
+                            assert (
+                                len(views) == 1
+                                and views[0]["working_memory"]["l1"]
+                                == session.memory.l1
+                            )
+                            present = {
+                                m["tool_call_id"]
+                                for m in request["messages"]
+                                if m["role"] == "tool"
+                            }
+                            assert not any(
+                                p["source_id"] in present
+                                for p in views[0]["historical_evidence"]
+                            )
                         text = "".join(
                             "<tool_call>"
                             + canonical({"name": name, "arguments": arguments})
@@ -310,6 +354,10 @@ def probe(args):
         "task_id": "e3d6c94_3",
         "usage": usage,
         "checkpoints": len(snapshots),
+        "l1_visible_requests": sum(r.get("l1_visible", False) for r in token_rows),
+        "projected_requests": sum(
+            bool(r.get("retrieved_projections")) for r in token_rows
+        ),
         "restorations": restorations,
         "partial_batch_rejected": True,
         "token_measurements": [
@@ -327,6 +375,8 @@ def probe(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", default="data/appworld")
+    parser.add_argument("--config", default="configs/egtm_v2_p3c.json")
+    parser.add_argument("--initial-only", action="store_true")
     parser.add_argument("--output", required=True)
     parser.add_argument("--namespace", required=True)
     parser.add_argument("--tokenizer-python", default=".venv-inference/bin/python")

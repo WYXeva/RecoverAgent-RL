@@ -1,0 +1,44 @@
+{
+  "source_sha": "ddc3bb9c4bcb3a66bb422ccba583993eb595e74cb6300e89cacd6c0c55b25c1f",
+  "policy": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "adapter:34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd"
+  },
+  "environment": {
+    "sqlalchemy": "2.0.52",
+    "sqlmodel": "0.0.48",
+    "uri_roundtrip": true
+  },
+  "tokenizer_class": "Qwen2TokenizerFast",
+  "tasks": [
+    "287e338_3",
+    "3c13f5a_1",
+    "229360a_2"
+  ],
+  "gpu": "NVIDIA A100-SXM4-80GB",
+  "source_archive_sha256": "30026a2f1515e048877e015c5e51a1cbbab85668cb2236751d5375a67ce887b5",
+  "evidence_archive_sha256": "b950d35c9fb54136a50ab4682e5f35b7eeee91e2fc7c23b27e98932b6b4215ce",
+  "evidence_files_verified": 158,
+  "training_started": false,
+  "existing_gpu_authorized": true,
+  "driver": "580.126.09",
+  "torch": "2.10.0+cu128",
+  "transformers": "4.57.6",
+  "peft": "0.18.0",
+  "checkpoint_reloaded": true,
+  "controller": {
+    "stop_reason": "protocol_or_memory_validation_error",
+    "executions": 2,
+    "wall_seconds": 225.13171124458313,
+    "ended_unix": 1793084673.1036835,
+    "training_started": false
+  },
+  "backend_process_seconds": 697.5127379894257,
+  "evidence_archive_bytes": 808403,
+  "billing_cost": "UNKNOWN; no platform billing API or hourly price verified",
+  "gpu_peak_allocated_bytes": 11684067840,
+  "shutdown_evidence": "reports/egtm_v2_improvement_shutdown.json"
+}

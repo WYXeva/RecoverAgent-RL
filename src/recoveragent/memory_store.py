@@ -76,6 +76,50 @@ class EvidenceIndex:
             if self.rows[i]["boundary_end"] <= as_of and self.rows[i]["executed"]
         ][:limit]
 
+    def retrieve(self, *, task_id, as_of, queries, present_ids=(), limit=3):
+        """Select exact observed evidence; do not reinsert results already in input.
+
+        `field` selects every matching JSON path. Use `path` to select one object;
+        entity_id remains a row filter, not an inferred join across nested objects.
+        """
+        present = {
+            r["source_id"]: r
+            for r in self.rows
+            if r["source_id"] in present_ids
+            and r["boundary_end"] <= as_of
+            and r["executed"]
+        }
+        equivalents = {
+            digest([r["tool_name"], r["arguments"], r["content"]]): r["source_id"]
+            for r in present.values()
+        }
+        output, seen = [], set()
+        for query in queries:
+            filters = {k: v for k, v in query.items() if k != "path"}
+            if "source_id" in filters:
+                # A known opaque result still has a source; inability to index a
+                # field must not erase its reference or prevent verbatim fallback.
+                filters.pop("field", None)
+            for row in self.search(
+                task_id=task_id, as_of=as_of, limit=limit, **filters
+            ):
+                if row["source_id"] in present:
+                    continue
+                packet = project(row, query)
+                duplicate = equivalents.get(
+                    digest([row["tool_name"], row["arguments"], row["content"]])
+                )
+                if duplicate and packet["representation"] == "raw":
+                    packet.pop("content")
+                    packet.update(
+                        representation="reference", content_in_history=duplicate
+                    )
+                signature = digest({k: v for k, v in packet.items() if k != "query"})
+                if signature not in seen:
+                    seen.add(signature)
+                    output.append(packet)
+        return output
+
     def save(self, path):
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -90,3 +134,78 @@ class EvidenceIndex:
             "rows": len(self.rows),
             "sha256": digest(self.rows),
         }
+
+
+def _unique_object(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError("Ambiguous JSON key")
+        value[key] = item
+    return value
+
+
+def field_values(value, field, path=()):
+    """Exact named fields, with full paths; no inferred entity-to-field binding."""
+    if isinstance(value, dict):
+        for key, child in value.items():
+            if key == field:
+                yield list((*path, key)), child
+            yield from field_values(child, field, (*path, key))
+    elif isinstance(value, list):
+        for i, child in enumerate(value):
+            yield from field_values(child, field, (*path, i))
+
+
+def project(row, query):
+    """Projection retains source identity. Opaque/ambiguous data stays verbatim."""
+    import hashlib
+
+    evidence = {
+        "source_id": row["source_id"],
+        "tool_name": row["tool_name"],
+        "reference": {
+            "tool_call_id": row["source_id"],
+            "message_index": row["result_index"],
+            "sha256": row["result_sha256"],
+        },
+        "content_sha256": hashlib.sha256(row["content"].encode()).hexdigest(),
+        "query": copy.deepcopy(query),
+    }
+    if "path" in query or "field" in query:
+        try:
+            value = json.loads(row["content"], object_pairs_hook=_unique_object)
+            canonical(value)
+        except (ValueError, TypeError):
+            evidence["projection_unavailable"] = "opaque_or_ambiguous_json"
+        else:
+            if "path" in query:
+                child = value
+                try:
+                    for part in query["path"]:
+                        if type(part) is str and isinstance(child, dict):
+                            child = child[part]
+                        elif (
+                            type(part) is int and isinstance(child, list) and part >= 0
+                        ):
+                            child = child[part]
+                        else:
+                            raise KeyError("Invalid JSON path")
+                except (KeyError, IndexError):
+                    pairs = []
+                else:
+                    pairs = [(query["path"], child)]
+            else:
+                pairs = list(field_values(value, query["field"]))
+            evidence.update(
+                representation="projection",
+                fields=[
+                    {"path": path, "value": child, "value_sha256": digest(child)}
+                    for path, child in pairs
+                ],
+            )
+            return evidence
+    evidence.update(
+        representation="raw", content=row["content"], arguments=row["arguments"]
+    )
+    return evidence
