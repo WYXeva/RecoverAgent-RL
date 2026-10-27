@@ -1,0 +1,98 @@
+{
+  "method": "Deterministic public train instruction keyword annotations; heuristic mentions may under/overcount; not verified required tools or difficulty.",
+  "partitions": {
+    "base_sft": {
+      "tasks": 30,
+      "scenarios": 30,
+      "app_mentions": {
+        "spotify": 16,
+        "simple_note": 4,
+        "venmo": 7,
+        "phone": 3,
+        "file_system": 5
+      },
+      "text_labels": {
+        "statistics": 7,
+        "delete": 4,
+        "create": 6,
+        "query": 8,
+        "modify": 5,
+        "multi_step_explicit": 4
+      },
+      "app_scope": {
+        "one_app_mention": 25,
+        "multiple_app_mentions": 5
+      }
+    },
+    "recovery_grpo": {
+      "tasks": 30,
+      "scenarios": 30,
+      "app_mentions": {
+        "spotify": 16,
+        "simple_note": 4,
+        "venmo": 7,
+        "phone": 3,
+        "file_system": 5
+      },
+      "text_labels": {
+        "statistics": 7,
+        "delete": 4,
+        "create": 6,
+        "query": 8,
+        "modify": 5,
+        "multi_step_explicit": 4
+      },
+      "app_scope": {
+        "one_app_mention": 25,
+        "multiple_app_mentions": 5
+      }
+    },
+    "shared_validation": {
+      "tasks": 30,
+      "scenarios": 30,
+      "app_mentions": {
+        "spotify": 16,
+        "simple_note": 4,
+        "venmo": 7,
+        "phone": 3,
+        "file_system": 5
+      },
+      "text_labels": {
+        "statistics": 7,
+        "delete": 4,
+        "create": 6,
+        "query": 8,
+        "modify": 4,
+        "multi_step_explicit": 4
+      },
+      "app_scope": {
+        "one_app_mention": 25,
+        "multiple_app_mentions": 5
+      }
+    },
+    "all_train": {
+      "tasks": 90,
+      "scenarios": 30,
+      "app_mentions": {
+        "spotify": 48,
+        "simple_note": 12,
+        "venmo": 21,
+        "phone": 9,
+        "file_system": 15
+      },
+      "text_labels": {
+        "statistics": 21,
+        "delete": 12,
+        "create": 18,
+        "query": 24,
+        "modify": 14,
+        "multi_step_explicit": 12
+      },
+      "app_scope": {
+        "one_app_mention": 75,
+        "multiple_app_mentions": 15
+      }
+    }
+  },
+  "rules_sha256": "696c4d170e6fd78e6abd8922cb7ba696804d5e68126b9fbcca1afb5d21f62997"
+}

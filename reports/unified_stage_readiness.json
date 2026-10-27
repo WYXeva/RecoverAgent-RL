@@ -1,0 +1,16 @@
+{
+  "phase_0_metadata": "PASS",
+  "phase_0_environment": "PASS",
+  "phase_0_scoring": "PARTIAL",
+  "phase_1_split_freeze": "PASS",
+  "full_pool_custom_training": "BLOCKED",
+  "new_stages_executed": [],
+  "training_authorized": false,
+  "actual_new_split_task_input_hashes_verified": true,
+  "source_lock_sha256": "06a0e03e18884d60ecb551d7e50b8716bc6944775c058c2bf2b2a39b03e7a185",
+  "expected_refusals": {
+    "scoring_gate": "Phase 0 scoring boundary remains unresolved; do not start later stages",
+    "historical_checkpoint": "New-stage checkpoint release required; historical release is ineligible"
+  },
+  "real_model_effects": "NOT_RUN"
+}

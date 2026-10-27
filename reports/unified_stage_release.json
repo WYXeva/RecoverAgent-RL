@@ -1,0 +1,33 @@
+{
+  "format": "unified-stage-protocol-release-v1",
+  "baseline_commit": "fe4d4b916b524697ec8fff5090662904ff7e9508",
+  "operational_canonical_manifest_sha256": "15760679a4cf338b281d3b893b980a539dea3a1c81e2fc676f4408926e2d24bf",
+  "full_candidate_canonical_manifest_sha256": "086c0e2a1ac1143967d7ea8af06e0cc434aecdb39a51e1fe6c5fd42585ae2cab",
+  "files": {
+    "configs/unified_task_split.json": "d320ecde758d0aa482e6995971c5fb39f627c5183e906418e5391d24bcf14329",
+    "configs/unified_task_split_full_pool_candidate.json": "0466cec29d9ad770a1cfeacb4c93945e5fcbcad68b9e980c5264d447418121a2",
+    "configs/shared_stage_validation.json": "4d81a17fcd54a602a2034604d001497e9bdacf0c59b9f8a9a42bc61d438f1b12",
+    "configs/unified_training_stages.json": "20671c57c338d2ecc729ca3c4fa66460d7eb9527c9e477c3ec258b2941266a02",
+    "configs/unified_stage_runtime_lock.json": "06a0e03e18884d60ecb551d7e50b8716bc6944775c058c2bf2b2a39b03e7a185",
+    "reports/full_task_pool_audit.json": "31114871571334e1991eb447cb5406f6a23e13e7f52038a2e5ad51bca1b09c3c",
+    "reports/full_candidate_exposure_audit.json": "7aa1c8f66fddb102bd6f9fb9ce20aa44034acd7e6fe489e5f53356f189f754e3",
+    "reports/stage_data_leakage_audit.json": "e883f878c5eb69c28153a151153fc40e9224c38e4beebb4b8770d0492ade5cbf",
+    "reports/task_type_coverage.json": "442d777d5f3d08ece9787a51b5a8c68ce2becb5fa3c98c46e43e004d4384fcee",
+    "reports/task_type_coverage.md": "6422b51ac5ed0d2ad002a99a66ee9d25283beae6f8e2cd69286ba145bfa075e0",
+    "reports/unified_training_plan.md": "c55835e81ad721753018d0734279b9c6856c4f50e7c473b53bcd760b2d85cb76",
+    "reports/unified_base_sft_source_inventory.json": "250872e1307cf03d7d2d310c2b36da2e9492ea805c8d0de1db992d6ce60b841c",
+    "reports/unified_task_runtime_probe.json": "1084b196bb7bca92ce3f0d08dd3dcbea072220c9d38d0bf827e8272ab0468b3c",
+    "reports/unified_stage_integrity.json": "4d695a0a23fc2dd3d896d5dba1ffd233f54d69608e8d85b5202d2ea9c82beb12",
+    "reports/unified_stage_checks.txt": "4e1306df3b9747549bbc69bbaf976ca2463c412a82cec32013f5a8bb06ffa67b",
+    "reports/shared_stage_validation_not_run.json": "caf857ec9a70e910fbd098f9a34d784415efc75058ee383197899bcd1157f58d",
+    "reports/unified_stage_readiness.json": "c58dd2b37ea6744953fada4e892bff380beaf5068a5b8172d9aea2d07349a616",
+    "src/recoveragent/unified_split.py": "0b4e0b32316f4e872d57d8b8a096d6c0cdb7e08b9efca31ca10654e8f4b1678f",
+    "src/recoveragent/shared_stage.py": "b74ca5c3c40ce5e3a85eaf4583580896bdbb63ca7856b2601a65c0edf90b7b09",
+    "scripts/audit_unified_pool.py": "44b0042d6c8f3e56e00a0b014160d294189250be81235b691d17898841f812b3",
+    "scripts/evaluate_shared_stage.py": "e57279f2e3033c6ef830b8406d0e74f608ed6d1c85a80fd9e028e28ceadf53af",
+    "tests/test_unified_stage.py": "56a7a090ecd21b13b3830360ec4b862871e8b54ec59fcbb0bd53aee50450ef69"
+  },
+  "private_raw_data_published": false,
+  "model_training_or_inference_executed": false,
+  "scoring_readiness": "PARTIAL"
+}

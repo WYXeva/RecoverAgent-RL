@@ -1,10 +1,21 @@
 # 项目状态
 
 - 最后更新：2026-10-27（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.19；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Harness29k真实小样本PARTIAL / INCOMPLETE：执行3/6，A两任务0/2、B一任务0/1，0压缩事件**。首任务A/B全10轮输入/输出IDs一致；第二任务A协议纠错耗尽，按冻结规则停止。31请求回放、350测试/Ruff通过。模型已退出、证据已回传；自动关机因平台缺密钥失败，用户已确认手动关机，未独立核验平台账单。未训练/P4-A/GRPO。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.20；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**Phase0–1审计/清单/接口完成；完整732自定义训练BLOCKED；train替代方案运行评分PARTIAL**。真实732任务/244场景、全部三变体；仅train的A/B/C各30冻结。90/90初态及只读API通过，84个有效初态评价、6个未知，未改奖励/换题。389软件测试及Ruff通过；新M1/M2/M3均未训练或授权，本轮0模型/Teacher/GPU/SSH。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Harness 29k基线 `23a7d41beb35f950196a99ebe49b1a0ed21b8fca`（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## 全任务池划分与Shared Stage Validation（2026-10-27）
+
+- **真实池/权限**：train90/30场景、dev57/19、test_normal168/56、test_challenge417/139，共732/244，场景均3变体、无重复/缺失必需文件；`_base_`不计任务。test只有元数据/文件存在性审计，未读内容/逐题评分；可访问评价资料不授权自定义训练。全池244/244/244候选BLOCKED。
+- **冻结操作清单**：官方train A30正常Teacher/Base-SFT、B30自然失败/Recovery-SFT/GRPO、C30共享端到端开发验证；种子20261028，按任务ID/场景确定性哈希；不以成绩/曝光选题。同task后缀继承角色，B复用。canonical manifest `15760679a4cf338b281d3b893b980a539dea3a1c81e2fc676f4408926e2d24bf`。
+- **污染与数据**：原95条包SHA及全文件重验，实际旧参数训练64任务、内部验证11任务。新C有21旧训练、1旧验证loss、7已知Student开发、30Teacher尝试曝光；类别重叠。旧adapter不能作新M1。旧A侧32示范/25任务只作后续审核候选，未建新包；B正常示范不是恢复后缀，C的26示范排除训练。
+- **真实无模型探针**：90任务各干净初态/公开只读API/数据库不变性通过，共90工具调用；84官方完整可用评价，`76f2c72`、`d0b1f43`共6变体在无完成答案初态触发ValueError，保守unknown，每角色2题。原tracker和score不改，第一轮44题停后只继续未执行46题。worker合计2256.25秒（约37.60分钟），非模型任务成绩。评分门槛仍PARTIAL，未来prepare/run明确拒绝越过该门槛。
+- **共享评估接口**：固定C、Qwen3-4B/non-thinking、execution_v5/dynamic_discovery/现有Harness、Memory关闭、seed42、40请求/16384生成/600秒/32768上下文/4096回复。逐题干净初态，不加载恢复前缀；检验原任务输入/工具/数据哈希、权重谱系、同初态/首次IDs、完整分母，输出M1/M2/M3矩阵及类型统计。未知不记0，缺项不产完整TGC/提升。
+- **验证/兼容**：389 pytest、Ruff check/format通过；两次独立清单重建一致；489旧源码/配置/报告/测试文件逐字节不变；原95条包及两份adapter SHA通过，旧Harness锁仍ff37168b。没有更改AppWorld、评价分类、历史mask或实验奖励。
+- **证据/命令**：`reports/unified_training_plan.md`、`full_task_pool_audit.json`、`task_type_coverage.md/json`、`stage_data_leakage_audit.json`、`full_candidate_exposure_audit.json`、`unified_task_runtime_probe.json`、`unified_base_sft_source_inventory.json`、`unified_stage_integrity.json`、`unified_stage_checks.txt`。私有`runs/unified_split_20261027/`保留初轮/续跑/官方原件；生成和验收命令见主报告。新源码/数据接口锁`configs/unified_stage_runtime_lock.json`。
+- **下一步/授权**：先解决无答案数值终态的评价边界并独立版本化，保持C不换题；随后在新A数据、mask、训练烟测与明确预算授权全部满足后从raw训练新M1。Phase2–7尚未授权/执行，无SSH/GPU/Teacher采集、Recovery或GRPO。
 
 ## Harness29k现有A100真实重实验（2026-10-27）
 

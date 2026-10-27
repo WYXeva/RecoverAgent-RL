@@ -1,0 +1,719 @@
+{
+  "format": "shared-stage-comparison-v1",
+  "protocol_sha256": "139279fd69f37cea6a949a9b1655762a6a729346502844135e28921d1f6c8339",
+  "split_manifest_sha256": "15760679a4cf338b281d3b893b980a539dea3a1c81e2fc676f4408926e2d24bf",
+  "status": "INCOMPLETE",
+  "totals": {
+    "M1": {
+      "planned": 30,
+      "attempted": 0,
+      "successes": 0,
+      "failures": 0,
+      "evaluation_unknown": 0,
+      "infrastructure_errors": 0,
+      "not_run": 30,
+      "complete": false,
+      "TGC": null,
+      "success_fraction_lower_bound": 0.0,
+      "unknown_usage_tasks": 0,
+      "unknown_generation_reservation": 0,
+      "cost_note": "Receipt-based counts; incomplete/unknown execution is not zero consumption. GPU billing not available here.",
+      "costs": {
+        "model_requests": 0,
+        "tool_call_intents": 0,
+        "input_tokens": 0,
+        "generated_tokens": 0,
+        "wall_seconds": 0,
+        "business_errors": 0,
+        "schema_errors": 0,
+        "context_exhausted": 0,
+        "budget_exhausted": 0
+      },
+      "schema_error_rate_per_model_request": null
+    },
+    "M2": {
+      "planned": 30,
+      "attempted": 0,
+      "successes": 0,
+      "failures": 0,
+      "evaluation_unknown": 0,
+      "infrastructure_errors": 0,
+      "not_run": 30,
+      "complete": false,
+      "TGC": null,
+      "success_fraction_lower_bound": 0.0,
+      "unknown_usage_tasks": 0,
+      "unknown_generation_reservation": 0,
+      "cost_note": "Receipt-based counts; incomplete/unknown execution is not zero consumption. GPU billing not available here.",
+      "costs": {
+        "model_requests": 0,
+        "tool_call_intents": 0,
+        "input_tokens": 0,
+        "generated_tokens": 0,
+        "wall_seconds": 0,
+        "business_errors": 0,
+        "schema_errors": 0,
+        "context_exhausted": 0,
+        "budget_exhausted": 0
+      },
+      "schema_error_rate_per_model_request": null
+    },
+    "M3": {
+      "planned": 30,
+      "attempted": 0,
+      "successes": 0,
+      "failures": 0,
+      "evaluation_unknown": 0,
+      "infrastructure_errors": 0,
+      "not_run": 30,
+      "complete": false,
+      "TGC": null,
+      "success_fraction_lower_bound": 0.0,
+      "unknown_usage_tasks": 0,
+      "unknown_generation_reservation": 0,
+      "cost_note": "Receipt-based counts; incomplete/unknown execution is not zero consumption. GPU billing not available here.",
+      "costs": {
+        "model_requests": 0,
+        "tool_call_intents": 0,
+        "input_tokens": 0,
+        "generated_tokens": 0,
+        "wall_seconds": 0,
+        "business_errors": 0,
+        "schema_errors": 0,
+        "context_exhausted": 0,
+        "budget_exhausted": 0
+      },
+      "schema_error_rate_per_model_request": null
+    }
+  },
+  "by_public_text_type": {
+    "create": {
+      "M1": {
+        "planned": 6,
+        "outcomes": {
+          "not_run": 6
+        },
+        "TGC": null
+      },
+      "M2": {
+        "planned": 6,
+        "outcomes": {
+          "not_run": 6
+        },
+        "TGC": null
+      },
+      "M3": {
+        "planned": 6,
+        "outcomes": {
+          "not_run": 6
+        },
+        "TGC": null
+      }
+    },
+    "delete": {
+      "M1": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      },
+      "M2": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      },
+      "M3": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      }
+    },
+    "modify": {
+      "M1": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      },
+      "M2": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      },
+      "M3": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      }
+    },
+    "multi_step_explicit": {
+      "M1": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      },
+      "M2": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      },
+      "M3": {
+        "planned": 4,
+        "outcomes": {
+          "not_run": 4
+        },
+        "TGC": null
+      }
+    },
+    "query": {
+      "M1": {
+        "planned": 8,
+        "outcomes": {
+          "not_run": 8
+        },
+        "TGC": null
+      },
+      "M2": {
+        "planned": 8,
+        "outcomes": {
+          "not_run": 8
+        },
+        "TGC": null
+      },
+      "M3": {
+        "planned": 8,
+        "outcomes": {
+          "not_run": 8
+        },
+        "TGC": null
+      }
+    },
+    "statistics": {
+      "M1": {
+        "planned": 7,
+        "outcomes": {
+          "not_run": 7
+        },
+        "TGC": null
+      },
+      "M2": {
+        "planned": 7,
+        "outcomes": {
+          "not_run": 7
+        },
+        "TGC": null
+      },
+      "M3": {
+        "planned": 7,
+        "outcomes": {
+          "not_run": 7
+        },
+        "TGC": null
+      }
+    }
+  },
+  "coverage_annotation_available": true,
+  "deltas": {
+    "M2_minus_M1": null,
+    "M3_minus_M2": null,
+    "M3_minus_M1": null
+  },
+  "matrix": [
+    {
+      "task_id": "07b42fd_3",
+      "scenario_id": "07b42fd",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "229360a_2",
+      "scenario_id": "229360a",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "22cc237_3",
+      "scenario_id": "22cc237",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "27e1026_1",
+      "scenario_id": "27e1026",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "287e338_3",
+      "scenario_id": "287e338",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "29caf6f_2",
+      "scenario_id": "29caf6f",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "2a163ab_1",
+      "scenario_id": "2a163ab",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "302c169_2",
+      "scenario_id": "302c169",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "34d9492_2",
+      "scenario_id": "34d9492",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "3c13f5a_2",
+      "scenario_id": "3c13f5a",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "60d0b5b_2",
+      "scenario_id": "60d0b5b",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "6104387_1",
+      "scenario_id": "6104387",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "692c77d_1",
+      "scenario_id": "692c77d",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "6ea6792_2",
+      "scenario_id": "6ea6792",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "76f2c72_2",
+      "scenario_id": "76f2c72",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "771d8fc_1",
+      "scenario_id": "771d8fc",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "7d7fbf6_2",
+      "scenario_id": "7d7fbf6",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "82e2fac_3",
+      "scenario_id": "82e2fac",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "aa8502b_1",
+      "scenario_id": "aa8502b",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "afc0fce_3",
+      "scenario_id": "afc0fce",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "b0a8eae_2",
+      "scenario_id": "b0a8eae",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "b7a9ee9_3",
+      "scenario_id": "b7a9ee9",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "c901732_3",
+      "scenario_id": "c901732",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "ccb4494_3",
+      "scenario_id": "ccb4494",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "ce359b5_2",
+      "scenario_id": "ce359b5",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "cf6abd2_1",
+      "scenario_id": "cf6abd2",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "d0b1f43_2",
+      "scenario_id": "d0b1f43",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "e3d6c94_3",
+      "scenario_id": "e3d6c94",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "e7a10f8_2",
+      "scenario_id": "e7a10f8",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    },
+    {
+      "task_id": "e85d92a_3",
+      "scenario_id": "e85d92a",
+      "paired_initial_state_and_input": false,
+      "stages": {
+        "M1": {
+          "outcome": "not_run"
+        },
+        "M2": {
+          "outcome": "not_run"
+        },
+        "M3": {
+          "outcome": "not_run"
+        }
+      }
+    }
+  ],
+  "pairing_errors": [],
+  "interpretation": "Development validation of known scenarios, not official SGC or unseen-scenario generalization. No CI estimated."
+}

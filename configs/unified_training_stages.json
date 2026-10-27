@@ -1,0 +1,75 @@
+{
+  "format": "unified-stage-training-contract-v1",
+  "split_manifest_sha256": "15760679a4cf338b281d3b893b980a539dea3a1c81e2fc676f4408926e2d24bf",
+  "authorized": false,
+  "dataset_manifests": {
+    "base_sft": null,
+    "recovery_sft": null
+  },
+  "base_sft_reference_config": {
+    "path": "configs/base_sft_qwen3_4b_lora.json",
+    "sha256": "f8ab064dc736f0783b16755591ee995593edde7e45a62930f19544f06d1f817f"
+  },
+  "stages": {
+    "base_sft": {
+      "task_role": "base_sft",
+      "initialize": "raw_Qwen3-4B",
+      "teacher_start": "clean_original_task",
+      "loss": "current_accepted_Teacher_Assistant_only",
+      "strict_official_success_required": true,
+      "historical_adapter_allowed": false
+    },
+    "recovery_sft": {
+      "task_role": "recovery_grpo",
+      "initialize": "new_M1",
+      "failure_policy": "new_M1",
+      "teacher_start": [
+        "post_error",
+        "late_failure"
+      ],
+      "pre_error": "auxiliary_prevention_only",
+      "loss": "Teacher_recovery_suffix_Assistant_only",
+      "student_prefix_loss": false,
+      "natural_failures_only": true
+    },
+    "grpo": {
+      "task_role": "recovery_grpo",
+      "initialize": "new_M2",
+      "group_size": 4,
+      "online_current_policy_only": true,
+      "unknown_reward": null,
+      "zero_variance": "skip_advantage_update_and_report",
+      "loss": "generated_current_Student_suffix_only",
+      "same_group": [
+        "task",
+        "database",
+        "prefix",
+        "schema",
+        "budget"
+      ],
+      "independent_processes": true
+    }
+  },
+  "shared_C_prohibited_from": [
+    "SFT_examples",
+    "RL_rollouts",
+    "Teacher_demos",
+    "failure_buffer",
+    "checkpoint_selection",
+    "training_validation_loss"
+  ],
+  "optimizer_internal_validation": "If needed, split A-only training examples before training; C remains end-to-end stage comparison only.",
+  "gates": [
+    "user_authorization_and_budget",
+    "new_data_manifest_and_masks",
+    "short_and_long_real_training_smokes",
+    "finite_loss_gradients_actual_parameter_update",
+    "checkpoint_save_reload",
+    "fixed_shared_C_complete_evaluation"
+  ],
+  "future_modules_not_implemented_here": [
+    "Teacher_recovery_runner",
+    "Recovery_SFT_dataset_builder",
+    "online_GRPO_trainer"
+  ]
+}

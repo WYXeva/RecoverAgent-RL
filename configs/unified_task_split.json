@@ -1,0 +1,779 @@
+{
+  "format": "unified-scenario-split-v1",
+  "seed": 20261028,
+  "scope": "official_train",
+  "status": "FROZEN_DATA_PROTOCOL",
+  "audit_sha256": "45e18ca721c3f3e1fa25a89b80ad49b5f2b8faacc3b32c203fb1d836a6898f1e",
+  "source": {
+    "appworld_revision": "42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+    "data_version": "0.2.0",
+    "split_files": {
+      "train": "93d9fe71e7a2e3b7529803d4a20b604f4ebf5ae806f321081140238068189d37",
+      "dev": "9fa976589300ea8905708257144d801d1604b06d85fb0181e381df8a3ba85001",
+      "test_normal": "c3af41497b6f2f0860a2ff8c09b335dca527e2cf48e59b4aabdb301b6b68db8f",
+      "test_challenge": "3c32b481042ac97f7d3477d53f5d196245c885c438d652944edc8a9a28e0f028"
+    },
+    "base_db_files": {
+      "admin.db": "2a54320b5c0f3e15ec42a91ff6d48a35c1b9402a439676fd83abe9cba6907ac9",
+      "amazon.db": "0f8c234176a2ee5c5ed76c88f433fee28d54c77053318a2cda4d8f3fc213a48d",
+      "api_docs.db": "f5c8cb85fce35ea0eab41833bea12b261f1dae637a0011a095026f08f98b6045",
+      "file_system.db": "6073413135b14fff3ea3a289574d04d9815ea257ebbc3083db25eb97b634846a",
+      "gmail.db": "069221ea55688e2e454840ac4915b7920848be1958ec2a8d45e0743f7bc48cef",
+      "phone.db": "cc4b9469902a874adae83ba73f88d3b96e650fbabb34119409f13710abe0a143",
+      "simple_note.db": "58bfe70a5272be257a07bac3508d17c1d657c431c9628038c21a7e955e9827ed",
+      "splitwise.db": "36c88eb0b56b9663a74cc8696b520175afe2dedad5c9c9b7fcbbc3135e7ca8a3",
+      "spotify.db": "75d993b87a603145eff54e8a399848ad3e91c5460082fc9225ce13770f8424a3",
+      "supervisor.db": "410f9388a56d356d50a91e3b42b47777cf8bf0fed86a8c2461f598d91c562072",
+      "todoist.db": "5470d42bbc9ba39467b279ac2eab62b1978efa3b48d116274438d7031f54fdbb",
+      "venmo.db": "a1198cedc5e87f44025f4af4a19ce8ec76ebdb6d0270daa776cc1b67811069f9",
+      "version.txt": "911fc0c48cb0c70601db5775a9bef1b740dc4cc9f9b46389b9f0563fe7eb94d7"
+    },
+    "license_sha256": "3786bdb398d95201c067c3b59a3943659a36783579f70ad0fab99f915b499609",
+    "tool_schema_files": {
+      "amazon.json": "c237e0f8d26420b4de494581f0759112018f624dc9ec2744a68c37696da5a715",
+      "api_docs.json": "ddaf60c331c3f7a562cd70c653e0b80d44c14c23823eca6b33fed8185936c91f",
+      "file_system.json": "3d7f0ac5981d609ba8a0fcc3b3e5ce57e8c196c7c773b46e64851cc26c1c64e4",
+      "gmail.json": "5a89dba6f93f7eb7d4b99420b56d5570b37385ffdf2c7187ffaf45b5eb35e570",
+      "phone.json": "51d475fc24de716cb5ef16122c2bce1bd0e15b91f94a17531ce82eeb96fe7239",
+      "simple_note.json": "67e522466d09ed4616b4dedbb67fea77c851ebf0e6a4c9e71879b5b7bcdaee1b",
+      "splitwise.json": "d823a9322a149858482538394d7b2370e17d5adbf8079db04f10c22466cd29e6",
+      "spotify.json": "95b36bbd4743703f7ecfc1f8da9893ea3581b74e213374f1cbc87ce8cb79bdd7",
+      "supervisor.json": "88ad747838bd344696af89f3d8d5195b3cecbb0d3f31e98c2282013be68461a2",
+      "todoist.json": "c31dd8fd73c427b8d6a3276e5be8d8a8c186c11a7aeb038eb9bba3d7a94d2a26",
+      "venmo.json": "42672e78af295bcdb3680ab49fe398e82b8c1eebc6d70fb959b0fef7a1dbe775"
+    }
+  },
+  "assignment_rule": "sort SHA256(canonical([version,seed,scenario_id,task_id])); assign A,B,C",
+  "uses_outcomes_or_exposure_for_assignment": false,
+  "rows": [
+    {
+      "task_id": "07b42fd_2",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "484744e455c19228393eb8f33010fbcb64dd72a85ced0160ca5dc5a3fa13c312",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "07b42fd_1",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "6a0c70ff42783d9fb3b63eb3e0a8bc0533d97d2ea13561855594f0f5aec9ebb5",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "07b42fd_3",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "2345abcf3f8e686b285c1cc708cf14296f0dd93390eeeb7f517cd661e799b325",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "229360a_3",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "f0c1f4af391670ce83a4c8663dea1fac696eb80bad57bff929ff41a31fa5c26a",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "229360a_1",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "b830dc602a1b17a0ccb73c0a6cc6cc94bd58fbfddd04a299c6167d79630bccb2",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "229360a_2",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "70ab99e9a020e94414dd75ee32ee1a69a43b85e89412d4a1fd67ba8c114705c2",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "22cc237_1",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "aae394deaa319c9e999d3b2f783ab1efa8890c50176b13c3a5f7fbefa0138afb",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "22cc237_2",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "27bae5b4b4385f71a91e82c130195e7f57e083235c5de21a2472f78a9476b014",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "22cc237_3",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "cab067a515a202fdf5775df54c39cb3b9ce60d6e03b95810fe4f99ff34047c00",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "27e1026_2",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "ea8d0298e35ad2898f81086657bd901e10de413d540be2d3a6c025b2e0fad796",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "27e1026_3",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "cec36a7267299bf96281363360abb4fc2e744f0757008fe846ca2616a9030d7c",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "27e1026_1",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "f66f40f666efc18c2a82db3fe41a74f7ebe9bdf4c4e11ce326ce668999f741f9",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "287e338_1",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "a48d5c5824628133ea16161e9161b14fbb6165a1d85e05dc5120a16ea84e8b50",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "287e338_2",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "41ad70fb4f6ae7fbb1d8d7f6e5bb222154910a01e1e1937df0ab2f5903110e01",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "287e338_3",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "af7b66742ea838784e9cf66aab6cecfd44826d2fb47d0f25375f232d9420b648",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "29caf6f_3",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "80c2751c53b01685b385cc7e35f51f5d266683732f33417ed532445635affefd",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "29caf6f_1",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "96eb161ddbecaf9b0323ad1273dadeee2fdb00fac9bdbf3ffcb9fe43738fd68d",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "29caf6f_2",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "9a2d0461779e635ada99f91bdab0bb32e280299856d41a6150f72319a5307377",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "2a163ab_3",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "435a787820ae399c66db74208fb658a52c02ed23e46aa77007a694a7bece7700",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "2a163ab_2",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "91e994a244c8dbaa4644353647817f64ae76564ed8facfebd5d392744d826b1b",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "2a163ab_1",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "114ed53ba52c5a171bcaa2fb78ff470de7c90974adaca3a52a612d5cd2cc0e16",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "302c169_3",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "37fb888e75841544fc5e44652678b681cdbd1224f778a267f37cd7c1584b0651",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "302c169_1",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "4421626fbb707623ebb6981bc290f2a5ade9822bb32afcc8718175e9b840854f",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "302c169_2",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "5dada33000d52de63060b3442d67198f742c42ccaa7210ecab997a6c47b1fdd5",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "34d9492_1",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "47d05860bebdde32de613c139c80d2b5f4a44521953cdb29246796dbf9b97e81",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "34d9492_3",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "70458af0474cacb55850ad1c0c9b74f2303a4ec076f718d1ba9562cd874c0887",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "34d9492_2",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "e515855e88ec8ed81c0c1fa67d228fa48b1b59716fbb575a6e10602053c59b10",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "3c13f5a_1",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "253b3621261fce78c3aa9a1bcb7aaa670e51e0e680c9ef6ef045bb367c542e98",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "3c13f5a_3",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "7727966489d8d25da9892da7c8c0c74551db101c9b1588740c43ecb4b9dc74fb",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "3c13f5a_2",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "80edcdf2b7f44bfdf2548c06e3b68b238d630282b484e10aa89c7dab8065a87b",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "60d0b5b_3",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "edce5d15dcd7e5e11a22f90d57abb91a7da6b87a5a1aae191e70fb851d33e2ac",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "60d0b5b_1",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "2a6d92caebd83c4071e5fbf1bb6b7014eb74053b2afab3b1d595880a242c7d99",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "60d0b5b_2",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "fa72f7f9be636ccf7c4421cc3d27f6722e446f5f3551be4302c2b011469ac027",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "6104387_2",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "d6a5474022b98e040cc74a627fd9c9589314b497b8e7435003411694672b1d4f",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "6104387_3",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "6c74687bcbc39eb2cefb5f9e13fc83536d13e41b2ef96231af9bb603fe900c6f",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "6104387_1",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "9ed392982b96f3e3e961dc60ed84ce0c54b2fe987b01f658f6ce35e681acf7ec",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "692c77d_2",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "ac0b5d138b59d08def7666ad2d46147a9e7c1f1b36b67718062ac194a95bc3ea",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "692c77d_3",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "c055785c744e9650b09c5495730e66a8dcfcf9b7b068ed0da8e503f6ac298e90",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "692c77d_1",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "902dc320cad404a6713b2ec1ef2c9bbfe6ff1f6b7c34204ca60fe9b15de791f5",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "6ea6792_1",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "f551910d47cbfb66edb498ca8a06121e0959a7bcd067e1e9590421df938b527d",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "6ea6792_3",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "b9b0765c1a2a70b4c85ba94a16f403f16cfe1b390671bd59af6e9bdb307dcf16",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "6ea6792_2",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "8bf26e571760e33c593204219fbee2ba1d82e2bddd5c3233044c09a99b8df228",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "76f2c72_1",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "1d74088269762776958300ae734e9832168b320dd86d4fb1396bc81d8f7bc319",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "76f2c72_3",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "2c5f9f30b71be839a96ba4e7b675d354f87def034b5c44652415af83325b36ff",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "76f2c72_2",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "1b48cf1d71c52f51c33a47e7fa7b5c4574f0b2a0f3bdf487decce964957c72be",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "771d8fc_2",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "e12c5bac8b69759626625a42198c37a8a473226f9bd9af62c9c486f559f35752",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "771d8fc_3",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "7e25a9f5c288d35252fe740019bebd9c6e375b43974734bed2a50182f526be6a",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "771d8fc_1",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "68e5f3808269b46083d54b9d773ef19f3e52e291131a843217c6fd472f5754ef",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "7d7fbf6_1",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "0201aa87a208e0236f3ab1f9c00c8161fe9bc5d6a0a470b8be1eeeda7be0471c",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "7d7fbf6_3",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "dfd4d451fddd2134a6fb93c82c4ea03a5180cc7fe737e64d4249316002a8051e",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "7d7fbf6_2",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "8cf0e8458ab99ab1b2727d68285b379c5dd9e40edad427e3e4e7802c63565588",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "82e2fac_2",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "4fd12515b49ea9739292bfc2dd67f0d2f3660f50d049782d758cf17f9de3a8f4",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "82e2fac_1",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "484cdda4995903ac0c5d2d26e11910305618bdbb9d04563ece05e435f4ea914b",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "82e2fac_3",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "d143aa6aaf6813dffeccad1ad9a07c64c26b32293964d261393631b10e028849",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "aa8502b_3",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "46e71fef639e020262ba007d8f729da2a117d68ac4335e2779f2fbc646a151f0",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "aa8502b_2",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "c80def7c46fc5dc3bc3cdc624f9907b20bc242300d99fd3208d1d560b30dcef0",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "aa8502b_1",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "9dc458949b8a0cdca4748c2fc53c9ede4b440b14848197d89f77ed27be97bf2a",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "afc0fce_2",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "68ecbfdeb05f8f60a5c3e5254e7a0d8ffa8eb641e91b484a310b57814218ed41",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "afc0fce_1",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "5e55d8238a97c74d6f893c265ca93622c77675352cbc6bad201199b6d3c15ad2",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "afc0fce_3",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "32196e216cef2fa601a5c666689b56040efed90dff8719129e175efb0910c4e1",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "b0a8eae_1",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "a22f07d0a14811fdbef35e5864f61da60243fd969f56732b1f4ad5f520ed4d95",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "b0a8eae_3",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "b042be6b72feac96794b9eba26fd737c4df183ceed905984b70b7e15993ba25b",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "b0a8eae_2",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "86db14b8398176c3d893aaadad4504ced9994ce259a9fbe6b5fe3f8bfe1b5ee2",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "b7a9ee9_2",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "1f1a983c5a33c06df2714a5847ec810c4da066d4bb66cc42193d1007d10b26a4",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "b7a9ee9_1",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "d7e030a0860290bfef2e9861724a96b3319f13c32f4f7db8af893dfe1d904cfd",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "b7a9ee9_3",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "3991bc725a617f44ce8b5604ef39ab6e000ebdb3ad19957b5593e1a025eca645",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "c901732_2",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "0fd067672f6c675d87fda9541d4e585157331bfb08f47eb24a93e000bece58ac",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "c901732_1",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "0c6489e237cf50e0b1e89df6cfbae1f145e46bb6a726e2768dee280b516a9d5c",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "c901732_3",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "55b4548e0cef205644c8375c6b6d4fa8f7bc02e14a6d04091b1f6bc63fcf22fc",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "ccb4494_1",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "9f944ee607ffa2777dcbf774db3b79ca3133da9b1b90fa12810311ef42d51a56",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "ccb4494_2",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "9ecee69020381c18f533dd084999807d955b60ba1539055ec12e924712816e78",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "ccb4494_3",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "96907eaca695ad7955e90559370fa247173dc5ebded1a6348cce19846cc4f779",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "ce359b5_3",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "6b81716c0d1ee196b62fe7379a0eea9cd794e4fcf8754135ee59197374b42913",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "ce359b5_1",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "6f7717c9c8d04a78913baf96fd12c765c0674b565e875bfe90725353564a02d6",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "ce359b5_2",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "7b3900193cc822f0b0bfb72ef603078fbe5f9843d1073fd465bc6e9906f9703b",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "cf6abd2_2",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "9e73896a16283aca3d5d84cd032e21677333064b5aa11ee269d68ace622c6a15",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "cf6abd2_3",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "051fb9b12177c5b22ed2ddbc09f4d2f789a6d170f1c2f10af5975e1d079b73e0",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "cf6abd2_1",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "9d2a2b3227fe9caa76c0cd0e1eeed1c349c8cf7f675f07d87d6d17ad25938fff",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "d0b1f43_3",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "291fcbf98f38f0037513f33095f62a6aab3f7315fea11d51b1d1e5a55305a8af",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "d0b1f43_1",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "e89e70148fca501f589bdb4059f7148ae2749f373c5c379466d011efc419e5f2",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "d0b1f43_2",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "f27e716a072db7fdcf0c073c3fb9f1457edeb1726c3a3792efaaa4574c754d4a",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e3d6c94_1",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "c1c31aaaf63dde4ede07d8dea11788238e42b220580e132ceb46e81cc65a4bda",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e3d6c94_2",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "5ac31c592f8cb406aea02688576dacaad7886868bdde12eb53c071ac1695f16e",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e3d6c94_3",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "3dea198eb7173fdc45b78296b25267524cc5d86ab5238beb17621826428c0d0a",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e7a10f8_3",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "b2d9d230d7f287c27750d9e730e3f48f5bd36b55944e1f81f68610d48ff994d0",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e7a10f8_1",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "54a7106a152604a4443982cf7353a02749fe925937ee7ab5b083f2abf76c3f1b",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e7a10f8_2",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "8a492a20519fd5f178c03bcd87d4422a3dab280de69cd9e63883dfef1fc4f5a5",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e85d92a_1",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "195b9570834ed33fa86903e3b596542be71e9464b7528fcdede81cb05254f44f",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e85d92a_2",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "ac514f8da0af856e350fd94075de60f37cb9184762811341073388121cd51727",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "e85d92a_3",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "4ecdefdb1f4545aacf1bbfcc46514979adf43da1383ba12ed8f17224b4a206f2",
+      "permission_status": "READY"
+    }
+  ],
+  "excluded": [],
+  "counts": {
+    "base_sft": 30,
+    "recovery_grpo": 30,
+    "shared_validation": 30
+  },
+  "grpo_reuses": "recovery_grpo",
+  "training_authorized": false,
+  "manifest_sha256": "15760679a4cf338b281d3b893b980a539dea3a1c81e2fc676f4408926e2d24bf"
+}

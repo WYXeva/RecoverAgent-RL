@@ -1,0 +1,1435 @@
+{
+  "format": "stage-exposure-audit-v1",
+  "split_manifest_sha256": "15760679a4cf338b281d3b893b980a539dea3a1c81e2fc676f4408926e2d24bf",
+  "historical_dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+  "sources": [
+    {
+      "path": "data/base_sft_v1/model_input/train.jsonl",
+      "sha256": "d941bba0137f53f4c5e1a0b9ba73be14b74511da367edc0e0b8fc9c554043e75",
+      "category": "parameter_training",
+      "task_ids": [
+        "07b42fd_1",
+        "07b42fd_2",
+        "07b42fd_3",
+        "229360a_1",
+        "229360a_3",
+        "22cc237_1",
+        "22cc237_2",
+        "22cc237_3",
+        "27e1026_1",
+        "27e1026_3",
+        "287e338_1",
+        "287e338_2",
+        "29caf6f_1",
+        "29caf6f_2",
+        "29caf6f_3",
+        "2a163ab_1",
+        "2a163ab_2",
+        "2a163ab_3",
+        "302c169_1",
+        "302c169_2",
+        "302c169_3",
+        "34d9492_2",
+        "34d9492_3",
+        "3c13f5a_2",
+        "3c13f5a_3",
+        "60d0b5b_3",
+        "6104387_1",
+        "6104387_2",
+        "6104387_3",
+        "692c77d_1",
+        "692c77d_2",
+        "692c77d_3",
+        "76f2c72_1",
+        "76f2c72_2",
+        "76f2c72_3",
+        "771d8fc_1",
+        "771d8fc_2",
+        "771d8fc_3",
+        "aa8502b_1",
+        "aa8502b_2",
+        "aa8502b_3",
+        "afc0fce_1",
+        "afc0fce_3",
+        "b0a8eae_1",
+        "b0a8eae_2",
+        "b0a8eae_3",
+        "b7a9ee9_1",
+        "b7a9ee9_2",
+        "b7a9ee9_3",
+        "ccb4494_1",
+        "ccb4494_2",
+        "ccb4494_3",
+        "cf6abd2_1",
+        "cf6abd2_2",
+        "cf6abd2_3",
+        "e3d6c94_1",
+        "e3d6c94_2",
+        "e3d6c94_3",
+        "e7a10f8_1",
+        "e7a10f8_2",
+        "e7a10f8_3",
+        "e85d92a_1",
+        "e85d92a_2",
+        "e85d92a_3"
+      ],
+      "trajectories": 82
+    },
+    {
+      "path": "data/base_sft_v1/model_input/validation.jsonl",
+      "sha256": "914a010fa87f3dadd4ec9fd7a3f2ad21c49f112f779f8a6339b3265f49da1175",
+      "category": "training_validation_loss",
+      "task_ids": [
+        "6ea6792_1",
+        "6ea6792_3",
+        "7d7fbf6_1",
+        "7d7fbf6_2",
+        "7d7fbf6_3",
+        "82e2fac_1",
+        "82e2fac_2",
+        "ce359b5_1",
+        "ce359b5_3",
+        "d0b1f43_1",
+        "d0b1f43_3"
+      ],
+      "trajectories": 13
+    },
+    {
+      "path": "data/base_sft_v1/control/attempts.json",
+      "sha256": "d77d3155fa7d65991a7551fd423fb7eb02377c281f1574108d7d7a9f2d900d31",
+      "category": "teacher_attempt_or_collection_selection",
+      "task_ids": [
+        "07b42fd_1",
+        "07b42fd_2",
+        "07b42fd_3",
+        "229360a_1",
+        "229360a_2",
+        "229360a_3",
+        "22cc237_1",
+        "22cc237_2",
+        "22cc237_3",
+        "27e1026_1",
+        "27e1026_2",
+        "27e1026_3",
+        "287e338_1",
+        "287e338_2",
+        "287e338_3",
+        "29caf6f_1",
+        "29caf6f_2",
+        "29caf6f_3",
+        "2a163ab_1",
+        "2a163ab_2",
+        "2a163ab_3",
+        "302c169_1",
+        "302c169_2",
+        "302c169_3",
+        "34d9492_1",
+        "34d9492_2",
+        "34d9492_3",
+        "3c13f5a_1",
+        "3c13f5a_2",
+        "3c13f5a_3",
+        "60d0b5b_1",
+        "60d0b5b_2",
+        "60d0b5b_3",
+        "6104387_1",
+        "6104387_2",
+        "6104387_3",
+        "692c77d_1",
+        "692c77d_2",
+        "692c77d_3",
+        "6ea6792_1",
+        "6ea6792_2",
+        "6ea6792_3",
+        "76f2c72_1",
+        "76f2c72_2",
+        "76f2c72_3",
+        "771d8fc_1",
+        "771d8fc_2",
+        "771d8fc_3",
+        "7d7fbf6_1",
+        "7d7fbf6_2",
+        "7d7fbf6_3",
+        "82e2fac_1",
+        "82e2fac_2",
+        "82e2fac_3",
+        "aa8502b_1",
+        "aa8502b_2",
+        "aa8502b_3",
+        "afc0fce_1",
+        "afc0fce_2",
+        "afc0fce_3",
+        "b0a8eae_1",
+        "b0a8eae_2",
+        "b0a8eae_3",
+        "b7a9ee9_1",
+        "b7a9ee9_2",
+        "b7a9ee9_3",
+        "c901732_1",
+        "c901732_2",
+        "c901732_3",
+        "ccb4494_1",
+        "ccb4494_2",
+        "ccb4494_3",
+        "ce359b5_1",
+        "ce359b5_2",
+        "ce359b5_3",
+        "cf6abd2_1",
+        "cf6abd2_2",
+        "cf6abd2_3",
+        "d0b1f43_1",
+        "d0b1f43_2",
+        "d0b1f43_3",
+        "e3d6c94_1",
+        "e3d6c94_2",
+        "e3d6c94_3",
+        "e7a10f8_1",
+        "e7a10f8_2",
+        "e7a10f8_3",
+        "e85d92a_1",
+        "e85d92a_2",
+        "e85d92a_3"
+      ]
+    },
+    {
+      "path": "reports/a100_sft_p3c_20261026.json",
+      "sha256": "47ecb257db5bdc58491654fdc9e0f77944d8e4daded5969923973ad43da7532d",
+      "category": "student_execution_or_development_analysis",
+      "task_ids": [
+        "229360a_2",
+        "27e1026_2",
+        "287e338_3",
+        "2a163ab_1",
+        "302c169_3",
+        "34d9492_1",
+        "3c13f5a_1",
+        "60d0b5b_1",
+        "60d0b5b_2",
+        "68ee2c9_3",
+        "6bdbc26_1",
+        "76f2c72_3",
+        "7d7fbf6_2",
+        "afc0fce_2",
+        "ce359b5_1",
+        "e3d6c94_3",
+        "e85d92a_2",
+        "e85d92a_3"
+      ]
+    },
+    {
+      "path": "reports/p3b_results_20261023.json",
+      "sha256": "d1ae7d413e478da39ed94a9f3f23416345fa2ae4deb4e3ff8abc33489ff17387",
+      "category": "student_execution_or_development_analysis",
+      "task_ids": [
+        "68ee2c9_3",
+        "6bdbc26_1",
+        "7d7fbf6_2",
+        "ce359b5_1",
+        "e3d6c94_3",
+        "e85d92a_3"
+      ]
+    },
+    {
+      "path": "reports/egtm_v2_improvement_pilot.json",
+      "sha256": "fc8fbba95e2a887d4dbe182a290a182e8ebe634f58762c3b8bec8be5b5b5e2ad",
+      "category": "student_execution_or_development_analysis",
+      "task_ids": [
+        "229360a_2",
+        "287e338_3",
+        "3c13f5a_1"
+      ]
+    },
+    {
+      "path": "reports/egtm_harness_29k_live_results.json",
+      "sha256": "da73b35aa43fe3a1ffdb8ddaa3b62d8ee68855637b3dbf7e46a02f35eedd7ffc",
+      "category": "student_execution_or_development_analysis",
+      "task_ids": [
+        "229360a_2",
+        "287e338_3",
+        "3c13f5a_1"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "task_id": "07b42fd_2",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "484744e455c19228393eb8f33010fbcb64dd72a85ced0160ca5dc5a3fa13c312",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "07b42fd_1",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "6a0c70ff42783d9fb3b63eb3e0a8bc0533d97d2ea13561855594f0f5aec9ebb5",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "07b42fd_3",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "2345abcf3f8e686b285c1cc708cf14296f0dd93390eeeb7f517cd661e799b325",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "229360a_3",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "f0c1f4af391670ce83a4c8663dea1fac696eb80bad57bff929ff41a31fa5c26a",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "229360a_1",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "b830dc602a1b17a0ccb73c0a6cc6cc94bd58fbfddd04a299c6167d79630bccb2",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "229360a_2",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "70ab99e9a020e94414dd75ee32ee1a69a43b85e89412d4a1fd67ba8c114705c2",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "22cc237_1",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "aae394deaa319c9e999d3b2f783ab1efa8890c50176b13c3a5f7fbefa0138afb",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "22cc237_2",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "27bae5b4b4385f71a91e82c130195e7f57e083235c5de21a2472f78a9476b014",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "22cc237_3",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "cab067a515a202fdf5775df54c39cb3b9ce60d6e03b95810fe4f99ff34047c00",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "27e1026_2",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "ea8d0298e35ad2898f81086657bd901e10de413d540be2d3a6c025b2e0fad796",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "27e1026_3",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "cec36a7267299bf96281363360abb4fc2e744f0757008fe846ca2616a9030d7c",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "27e1026_1",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "f66f40f666efc18c2a82db3fe41a74f7ebe9bdf4c4e11ce326ce668999f741f9",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "287e338_1",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "a48d5c5824628133ea16161e9161b14fbb6165a1d85e05dc5120a16ea84e8b50",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "287e338_2",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "41ad70fb4f6ae7fbb1d8d7f6e5bb222154910a01e1e1937df0ab2f5903110e01",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "287e338_3",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "af7b66742ea838784e9cf66aab6cecfd44826d2fb47d0f25375f232d9420b648",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "29caf6f_3",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "80c2751c53b01685b385cc7e35f51f5d266683732f33417ed532445635affefd",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "29caf6f_1",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "96eb161ddbecaf9b0323ad1273dadeee2fdb00fac9bdbf3ffcb9fe43738fd68d",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "29caf6f_2",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "9a2d0461779e635ada99f91bdab0bb32e280299856d41a6150f72319a5307377",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "2a163ab_3",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "435a787820ae399c66db74208fb658a52c02ed23e46aa77007a694a7bece7700",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "2a163ab_2",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "91e994a244c8dbaa4644353647817f64ae76564ed8facfebd5d392744d826b1b",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "2a163ab_1",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "114ed53ba52c5a171bcaa2fb78ff470de7c90974adaca3a52a612d5cd2cc0e16",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "302c169_3",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "37fb888e75841544fc5e44652678b681cdbd1224f778a267f37cd7c1584b0651",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "302c169_1",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "4421626fbb707623ebb6981bc290f2a5ade9822bb32afcc8718175e9b840854f",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "302c169_2",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "5dada33000d52de63060b3442d67198f742c42ccaa7210ecab997a6c47b1fdd5",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "34d9492_1",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "47d05860bebdde32de613c139c80d2b5f4a44521953cdb29246796dbf9b97e81",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "34d9492_3",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "70458af0474cacb55850ad1c0c9b74f2303a4ec076f718d1ba9562cd874c0887",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "34d9492_2",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "e515855e88ec8ed81c0c1fa67d228fa48b1b59716fbb575a6e10602053c59b10",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "3c13f5a_1",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "253b3621261fce78c3aa9a1bcb7aaa670e51e0e680c9ef6ef045bb367c542e98",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "3c13f5a_3",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "7727966489d8d25da9892da7c8c0c74551db101c9b1588740c43ecb4b9dc74fb",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "3c13f5a_2",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "80edcdf2b7f44bfdf2548c06e3b68b238d630282b484e10aa89c7dab8065a87b",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "60d0b5b_3",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "edce5d15dcd7e5e11a22f90d57abb91a7da6b87a5a1aae191e70fb851d33e2ac",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "60d0b5b_1",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "2a6d92caebd83c4071e5fbf1bb6b7014eb74053b2afab3b1d595880a242c7d99",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "60d0b5b_2",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "fa72f7f9be636ccf7c4421cc3d27f6722e446f5f3551be4302c2b011469ac027",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "6104387_2",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "d6a5474022b98e040cc74a627fd9c9589314b497b8e7435003411694672b1d4f",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "6104387_3",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "6c74687bcbc39eb2cefb5f9e13fc83536d13e41b2ef96231af9bb603fe900c6f",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "6104387_1",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "9ed392982b96f3e3e961dc60ed84ce0c54b2fe987b01f658f6ce35e681acf7ec",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "692c77d_2",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "ac0b5d138b59d08def7666ad2d46147a9e7c1f1b36b67718062ac194a95bc3ea",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "692c77d_3",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "c055785c744e9650b09c5495730e66a8dcfcf9b7b068ed0da8e503f6ac298e90",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "692c77d_1",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "902dc320cad404a6713b2ec1ef2c9bbfe6ff1f6b7c34204ca60fe9b15de791f5",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "6ea6792_1",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "f551910d47cbfb66edb498ca8a06121e0959a7bcd067e1e9590421df938b527d",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "6ea6792_3",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "b9b0765c1a2a70b4c85ba94a16f403f16cfe1b390671bd59af6e9bdb307dcf16",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "6ea6792_2",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "8bf26e571760e33c593204219fbee2ba1d82e2bddd5c3233044c09a99b8df228",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "76f2c72_1",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "1d74088269762776958300ae734e9832168b320dd86d4fb1396bc81d8f7bc319",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "76f2c72_3",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "2c5f9f30b71be839a96ba4e7b675d354f87def034b5c44652415af83325b36ff",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "76f2c72_2",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "1b48cf1d71c52f51c33a47e7fa7b5c4574f0b2a0f3bdf487decce964957c72be",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "771d8fc_2",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "e12c5bac8b69759626625a42198c37a8a473226f9bd9af62c9c486f559f35752",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "771d8fc_3",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "7e25a9f5c288d35252fe740019bebd9c6e375b43974734bed2a50182f526be6a",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "771d8fc_1",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "68e5f3808269b46083d54b9d773ef19f3e52e291131a843217c6fd472f5754ef",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "7d7fbf6_1",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "0201aa87a208e0236f3ab1f9c00c8161fe9bc5d6a0a470b8be1eeeda7be0471c",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "7d7fbf6_3",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "dfd4d451fddd2134a6fb93c82c4ea03a5180cc7fe737e64d4249316002a8051e",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "7d7fbf6_2",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "8cf0e8458ab99ab1b2727d68285b379c5dd9e40edad427e3e4e7802c63565588",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "82e2fac_2",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "4fd12515b49ea9739292bfc2dd67f0d2f3660f50d049782d758cf17f9de3a8f4",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "82e2fac_1",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "484cdda4995903ac0c5d2d26e11910305618bdbb9d04563ece05e435f4ea914b",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "82e2fac_3",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "d143aa6aaf6813dffeccad1ad9a07c64c26b32293964d261393631b10e028849",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "aa8502b_3",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "46e71fef639e020262ba007d8f729da2a117d68ac4335e2779f2fbc646a151f0",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "aa8502b_2",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "c80def7c46fc5dc3bc3cdc624f9907b20bc242300d99fd3208d1d560b30dcef0",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "aa8502b_1",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "9dc458949b8a0cdca4748c2fc53c9ede4b440b14848197d89f77ed27be97bf2a",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "afc0fce_2",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "68ecbfdeb05f8f60a5c3e5254e7a0d8ffa8eb641e91b484a310b57814218ed41",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "afc0fce_1",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "5e55d8238a97c74d6f893c265ca93622c77675352cbc6bad201199b6d3c15ad2",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "afc0fce_3",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "32196e216cef2fa601a5c666689b56040efed90dff8719129e175efb0910c4e1",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "b0a8eae_1",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "a22f07d0a14811fdbef35e5864f61da60243fd969f56732b1f4ad5f520ed4d95",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "b0a8eae_3",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "b042be6b72feac96794b9eba26fd737c4df183ceed905984b70b7e15993ba25b",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "b0a8eae_2",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "86db14b8398176c3d893aaadad4504ced9994ce259a9fbe6b5fe3f8bfe1b5ee2",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "b7a9ee9_2",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "1f1a983c5a33c06df2714a5847ec810c4da066d4bb66cc42193d1007d10b26a4",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "b7a9ee9_1",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "d7e030a0860290bfef2e9861724a96b3319f13c32f4f7db8af893dfe1d904cfd",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "b7a9ee9_3",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "3991bc725a617f44ce8b5604ef39ab6e000ebdb3ad19957b5593e1a025eca645",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "c901732_2",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "0fd067672f6c675d87fda9541d4e585157331bfb08f47eb24a93e000bece58ac",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "c901732_1",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "0c6489e237cf50e0b1e89df6cfbae1f145e46bb6a726e2768dee280b516a9d5c",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "c901732_3",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "55b4548e0cef205644c8375c6b6d4fa8f7bc02e14a6d04091b1f6bc63fcf22fc",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "ccb4494_1",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "9f944ee607ffa2777dcbf774db3b79ca3133da9b1b90fa12810311ef42d51a56",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "ccb4494_2",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "9ecee69020381c18f533dd084999807d955b60ba1539055ec12e924712816e78",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "ccb4494_3",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "96907eaca695ad7955e90559370fa247173dc5ebded1a6348cce19846cc4f779",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "ce359b5_3",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "6b81716c0d1ee196b62fe7379a0eea9cd794e4fcf8754135ee59197374b42913",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "ce359b5_1",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "6f7717c9c8d04a78913baf96fd12c765c0674b565e875bfe90725353564a02d6",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "ce359b5_2",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "7b3900193cc822f0b0bfb72ef603078fbe5f9843d1073fd465bc6e9906f9703b",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "cf6abd2_2",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "9e73896a16283aca3d5d84cd032e21677333064b5aa11ee269d68ace622c6a15",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "cf6abd2_3",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "051fb9b12177c5b22ed2ddbc09f4d2f789a6d170f1c2f10af5975e1d079b73e0",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "cf6abd2_1",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "9d2a2b3227fe9caa76c0cd0e1eeed1c349c8cf7f675f07d87d6d17ad25938fff",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "d0b1f43_3",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "291fcbf98f38f0037513f33095f62a6aab3f7315fea11d51b1d1e5a55305a8af",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "d0b1f43_1",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "e89e70148fca501f589bdb4059f7148ae2749f373c5c379466d011efc419e5f2",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection",
+        "training_validation_loss"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "d0b1f43_2",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "f27e716a072db7fdcf0c073c3fb9f1457edeb1726c3a3792efaaa4574c754d4a",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e3d6c94_1",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "c1c31aaaf63dde4ede07d8dea11788238e42b220580e132ceb46e81cc65a4bda",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e3d6c94_2",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "5ac31c592f8cb406aea02688576dacaad7886868bdde12eb53c071ac1695f16e",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e3d6c94_3",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "3dea198eb7173fdc45b78296b25267524cc5d86ab5238beb17621826428c0d0a",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e7a10f8_3",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "b2d9d230d7f287c27750d9e730e3f48f5bd36b55944e1f81f68610d48ff994d0",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e7a10f8_1",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "54a7106a152604a4443982cf7353a02749fe925937ee7ab5b083f2abf76c3f1b",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e7a10f8_2",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "8a492a20519fd5f178c03bcd87d4422a3dab280de69cd9e63883dfef1fc4f5a5",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e85d92a_1",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "base_sft",
+      "initial_input_sha256": "195b9570834ed33fa86903e3b596542be71e9464b7528fcdede81cb05254f44f",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e85d92a_2",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "ac514f8da0af856e350fd94075de60f37cb9184762811341073388121cd51727",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    },
+    {
+      "task_id": "e85d92a_3",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "shared_validation",
+      "initial_input_sha256": "4ecdefdb1f4545aacf1bbfcc46514979adf43da1383ba12ed8f17224b4a206f2",
+      "permission_status": "READY",
+      "historical_exposure": [
+        "parameter_training",
+        "student_execution_or_development_analysis",
+        "teacher_attempt_or_collection_selection"
+      ],
+      "unobserved_history_is_not_proof_of_no_exposure": true
+    }
+  ],
+  "validation_overlap_counts": {
+    "parameter_training": 21,
+    "teacher_attempt_or_collection_selection": 30,
+    "student_execution_or_development_analysis": 7,
+    "training_validation_loss": 1
+  },
+  "old_checkpoint_eligible_as_new_M1": false,
+  "new_training_must_start_from": "Pinned raw Qwen3-4B, not historical adapter",
+  "interpretation": "Known developer exposure remains; new C is shared development validation, not unseen test."
+}
