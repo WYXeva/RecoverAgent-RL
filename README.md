@@ -4,20 +4,21 @@
 
 训练路线：Teacher 正常示范 → Base-SFT → Student 自然失败 → Teacher 多检查点恢复 → Recovery-SFT → 在线 GRPO。
 
-先读 [当前状态](docs/STATUS.md)，需求见 [PROJECT_PLAN.md](PROJECT_PLAN.md)，开发约定见 [AGENTS.md](AGENTS.md)。
+先读 [当前阶段门禁](docs/P4_STAGE_GATES.md)与[实际状态](docs/STATUS.md)，需求见 [PROJECT_PLAN.md](PROJECT_PLAN.md)，开发约定见 [AGENTS.md](AGENTS.md)。
 
 ## 当前工作入口
 
 | 工作 | 入口 |
 | --- | --- |
-| 全任务池审计、阶段门槛 | [统一训练计划](reports/unified_training_plan.md) |
-| 冻结任务划分 | [unified_task_split.json](configs/unified_task_split.json) |
-| 三阶段共享评估 | [evaluate_shared_stage.py](scripts/evaluate_shared_stage.py)、[当前配置](configs/shared_stage_validation_v2.json) |
+| Full732 当前工作范围 | [Stage 1 门禁](docs/P4_STAGE_GATES.md)，Stage 2–6 须逐阶段授权 |
+| 冻结 Full732 候选划分 | [A244/B244/C244](configs/unified_task_split_full_pool_candidate.json) |
+| 既有审计与 train 替代方案 | [审计报告](reports/unified_training_plan.md)、[A30/B30/C30](configs/unified_task_split.json) |
+| 既有共享评估接口 | [evaluate_shared_stage.py](scripts/evaluate_shared_stage.py)、[train 替代方案配置](configs/shared_stage_validation_v2.json) |
 | 当前 System Prompt | [execution_v6.py](src/recoveragent/execution_v6.py)、[协议说明](docs/PROMPTS.md) |
 | Teacher/Student 工具执行 | [Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
 | 排查模型实际输入/输出 | [LLM 请求视图](docs/LLM_VIEW.md) |
 
-当前完成全池审计及 train 内 A/B/C 各 30 题的固定划分。完整 732 题自定义训练受官方用途限制；train 替代方案仍有 6 个未知评价，评分门槛为 **PARTIAL**。旧 checkpoint 有新验证集训练暴露，不能作为新实验的无泄漏 M1。新三阶段训练和评估尚未执行。
+已完成全池元数据审计，Full732 候选 A/B/C 各 244 题；涉及受限来源的执行仍 **BLOCKED**。最新门禁要求先实施 Stage 1 独立准入入口，本轮清理未执行该阶段。既有 train 替代方案各 30 题，仍有 6 个未知评价、评分预检 **PARTIAL**，不能当作 Full732 主设计。旧 checkpoint 有新验证集训练暴露，不能作为新实验的无泄漏 M1。新三阶段训练和评估尚未执行。
 
 ## 目录与本地验证
 

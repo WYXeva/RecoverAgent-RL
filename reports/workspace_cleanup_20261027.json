@@ -238,11 +238,11 @@
       "lock_sha256": "56c63b44619d9180514fc2298a345318154856630419e19c428580d942f8ba26"
     },
     "p3c_runtime_lock_sha256": "56c63b44619d9180514fc2298a345318154856630419e19c428580d942f8ba26",
-    "readme_local_links_verified": 26
+    "readme_local_links_verified": 29
   },
   "structure_cleanup": {
     "readme_bytes_before": 9765,
-    "readme_bytes_after": 3883,
+    "readme_bytes_after": 4244,
     "changes": [
       "Current workflow navigation replaces repeated historical status summaries.",
       "Historical reports remain linked under a collapsed section.",
@@ -258,7 +258,17 @@
     "runtime_source_or_config_changes": false,
     "tracked_scripts_examined": 47,
     "unused_runtime_scripts_removed": 0,
-    "reason": "All 47 scripts have references in configuration, tests, reports or source manifests. Historical reference alone is not proof of current use, but deleting them here would break evidence paths. No runtime dead code was established."
+    "reason": "All 47 scripts have references in configuration, tests, reports or source manifests. Historical reference alone is not proof of current use, but deleting them here would break evidence paths. No runtime dead code was established.",
+    "comparison_timing": "Baseline comparison before merging the three upstream documentation commits; runtime/config files remain unchanged after merge."
   },
-  "deleted_file_count": 883
+  "deleted_file_count": 883,
+  "upstream_merge": {
+    "commit": "8e4b9ddaa875a68abbc6ed7228e2ff10528ae71b",
+    "preserved_files": [
+      "AGENTS.md",
+      "PROJECT_PLAN.md",
+      "docs/P4_STAGE_GATES.md"
+    ],
+    "reason": "Remote advanced during cleanup; merged without force push and retained all upstream stage-gate changes. Stage 1 was not executed as part of cleanup."
+  }
 }
