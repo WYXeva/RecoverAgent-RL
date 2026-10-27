@@ -8,8 +8,10 @@
   "stdout": "关机中...\n未设置关机密钥\n",
   "stderr": "",
   "automatic_shutdown_succeeded": false,
-  "manual_shutdown_user_reported": false,
-  "manual_confirmation_pending": true,
+  "manual_shutdown_user_reported": true,
+  "manual_confirmation_pending": false,
   "platform_state_independently_verified": false,
-  "seconds_experiment_finish_to_first_shutdown_request": 147.49866437911987
+  "seconds_experiment_finish_to_first_shutdown_request": 147.49866437911987,
+  "manual_confirmation_message": "已关机",
+  "manual_confirmation_recorded_at_utc": "2026-10-27T10:31:14Z"
 }
