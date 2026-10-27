@@ -60,7 +60,7 @@ def setup_module_fixture(tmp_path, monkeypatch):
 
 def test_new_source_locks_and_original_locks_coexist():
     from recoveragent.task_memory import (
-        VISIBLE_RUNTIME as MEMORY_RUNTIME,
+        HARNESS_RUNTIME as MEMORY_RUNTIME,
         RUNTIME as OLD_MEMORY_RUNTIME,
     )
 

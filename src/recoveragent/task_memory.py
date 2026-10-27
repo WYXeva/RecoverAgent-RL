@@ -31,6 +31,8 @@ MODEL_VERSION = "egtm-model-working-memory-v2"
 MODEL_RUNTIME = "egtm_model_memory_20261027"
 VISIBLE_VERSION = "egtm-model-working-memory-v2.1"
 VISIBLE_RUNTIME = "egtm_visible_memory_20261027"
+HARNESS_VERSION = "egtm-harness-memory-29k-v1"
+HARNESS_RUNTIME = "egtm_harness_29k_20261027"
 MODEL_RUNTIMES = {MODEL_RUNTIME, VISIBLE_RUNTIME}
 MODEL_DEFAULT_CONFIG = {
     "enabled": False,
@@ -135,6 +137,12 @@ def memory_config(config=None):
     )
     if (config or {}).get("version") == VISIBLE_VERSION:
         defaults = {**defaults, "version": VISIBLE_VERSION}
+    if (config or {}).get("version") == HARNESS_VERSION:
+        defaults = {
+            **DEFAULT_CONFIG,
+            "version": HARNESS_VERSION,
+            "trigger_tokens": 29000,
+        }
     value = {**defaults, **(config or {})}
     if set(value) != set(defaults) or value["version"] != defaults["version"]:
         raise ValueError("Unsupported EGTM configuration")
@@ -148,6 +156,8 @@ def memory_config(config=None):
         value["update_max_new_tokens"] > 4096 or value["trigger_tokens"] > 24576
     ):
         raise ValueError("Memory must trigger before the Qwen context is exhausted")
+    if value["version"] == HARNESS_VERSION and value["trigger_tokens"] != 29000:
+        raise ValueError("The harness 29k protocol fixes its input threshold at 29000")
     return value
 
 
@@ -165,6 +175,7 @@ class TaskMemory:
         self.methods = {}
         self.stale_sources = {}
         self.l1, self.updates = None, []
+        self.compaction = None
 
     def observe(self, messages, event):
         """Validate the entire boundary before committing any derived fact."""
@@ -338,6 +349,18 @@ class TaskMemory:
         calls = {c["id"] for m in messages for c in m.get("tool_calls", [])}
         if calls != covered:
             raise ValueError("History and Memory evidence boundaries differ")
+        if self.compaction is not None:
+            c = self.compaction
+            if (
+                not self.harness_managed
+                or set(c) != {"through", "history_end", "history_sha256"}
+                or type(c["through"]) is not int
+                or type(c["history_end"]) is not int
+                or not c["through"] <= c["history_end"] <= len(messages)
+                or c["through"] not in {b["end"] for b in self.batches}
+                or digest(messages[: c["history_end"]]) != c["history_sha256"]
+            ):
+                raise ValueError("Invalid or future harness compaction boundary")
         public = {t["function"]["name"]: t for t in tools}
         for batch in self.batches:
             if (
@@ -389,7 +412,7 @@ class TaskMemory:
         )
         chosen = [f for _, f in ranked[:limit]]
         return {
-            "version": VERSION,
+            "version": self.config["version"],
             "task_constraints": "Original system/user messages retained verbatim.",
             "facts": chosen,
             "facts_omitted": len(facts) - len(chosen),
@@ -431,6 +454,7 @@ class TaskMemory:
             "methods": self.methods,
             "stale_sources": self.stale_sources,
             "index": self.index.identity,
+            **({"compaction": self.compaction} if self.harness_managed else {}),
             **(
                 {
                     "l1": self.l1,
@@ -457,7 +481,12 @@ class TaskMemory:
         """Recompute everything from the same-time history; hashes alone are not proof."""
         source = Path(source)
         state = read_json(source / "state.json")
-        if state["version"] not in {VERSION, MODEL_VERSION, VISIBLE_VERSION}:
+        if state["version"] not in {
+            VERSION,
+            MODEL_VERSION,
+            VISIBLE_VERSION,
+            HARNESS_VERSION,
+        }:
             raise ValueError("Unknown Memory version")
         memory = cls(state["task_id"], state["initial_messages"], state["config"])
         updates = []
@@ -500,6 +529,8 @@ class TaskMemory:
         replay_updates(len(messages))
         if updates:
             raise ValueError("Future Memory receipt")
+        if memory.harness_managed:
+            memory.compaction = copy.deepcopy(state["compaction"])
         memory.validate_boundary(messages, tools)
         rows = [
             json.loads(line)
@@ -515,6 +546,8 @@ class TaskMemory:
 
     @property
     def runtime(self):
+        if self.harness_managed:
+            return HARNESS_RUNTIME
         if self.improved:
             return VISIBLE_RUNTIME
         return MODEL_RUNTIME if self.model_driven else RUNTIME
@@ -522,6 +555,10 @@ class TaskMemory:
     @property
     def improved(self):
         return self.config["version"] == VISIBLE_VERSION
+
+    @property
+    def harness_managed(self):
+        return self.config["version"] == HARNESS_VERSION
 
     @property
     def l1_schema(self):

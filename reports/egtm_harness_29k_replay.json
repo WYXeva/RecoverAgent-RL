@@ -1,0 +1,295 @@
+{
+  "status": "PASS_OFFLINE",
+  "actual_new_model_requests": 0,
+  "script_requests": [
+    {
+      "request_id": "001",
+      "input_tokens": 3142,
+      "original_tokens": 3142,
+      "before_compaction": 3142,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "dbccf4988c12a3097c6a7d3a3029604f09f8acda06cb5a02ce6a34320b89419d"
+    },
+    {
+      "request_id": "002",
+      "input_tokens": 3249,
+      "original_tokens": 3249,
+      "before_compaction": 3249,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "499c0bf848cee75f2868d2204fe952f3f33b6085b852973c5c0a73e1d37b8e42"
+    },
+    {
+      "request_id": "003",
+      "input_tokens": 5390,
+      "original_tokens": 5390,
+      "before_compaction": 5390,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "fdcb5dfb0f76c284086cdc74108eb3dc5ae16ba335a9d5e3682c88e771879e73"
+    },
+    {
+      "request_id": "004",
+      "input_tokens": 5560,
+      "original_tokens": 5560,
+      "before_compaction": 5560,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "48f9c8458ca85e9ad1bb1e3273ce5d8478084652150046fbd27cea157706d2c3"
+    },
+    {
+      "request_id": "005",
+      "input_tokens": 5732,
+      "original_tokens": 5732,
+      "before_compaction": 5732,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "dec0363c2a7bf7300c81efc3d9b3f1194c263b077d88e1d5c05f38034a15b3ae"
+    },
+    {
+      "request_id": "006",
+      "input_tokens": 5971,
+      "original_tokens": 5971,
+      "before_compaction": 5971,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "d0fc5773698d2bb5fa56e1717b1b5a003c5e48b5ee3bcba6f2bb26da533b70ae"
+    },
+    {
+      "request_id": "007",
+      "input_tokens": 6349,
+      "original_tokens": 6349,
+      "before_compaction": 6349,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "232bd759e8daf411bfd09c13e8fd8743fc61052cc48c4200d05d19d085156f36"
+    },
+    {
+      "request_id": "008",
+      "input_tokens": 6512,
+      "original_tokens": 6512,
+      "before_compaction": 6512,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "a92e3b389cf99369816bfd987867240487ff8a9a70596ae96ab283f8d0c1c180"
+    },
+    {
+      "request_id": "009",
+      "input_tokens": 6751,
+      "original_tokens": 6751,
+      "before_compaction": 6751,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "e5451e88f6f90b8f2806d4638ed043f457ea035a6574b312466d639690d19eee"
+    },
+    {
+      "request_id": "010",
+      "input_tokens": 8676,
+      "original_tokens": 8676,
+      "before_compaction": 8676,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "1ebf4ed007cf5e23c731386f761ce4bf1f58cc740b50ceb232aef5b24c0f1054"
+    },
+    {
+      "request_id": "011",
+      "input_tokens": 10664,
+      "original_tokens": 10664,
+      "before_compaction": 10664,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "80daff6284cc21c3393796af08d2f88c4a5008e6a9b13c878888f3c6ce3e880e"
+    },
+    {
+      "request_id": "012",
+      "input_tokens": 12652,
+      "original_tokens": 12652,
+      "before_compaction": 12652,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "f37c7ebf74c0388ac6c4a5ba31917957524a5ad3944767d5315b097af7db748a"
+    },
+    {
+      "request_id": "013",
+      "input_tokens": 14577,
+      "original_tokens": 14577,
+      "before_compaction": 14577,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "ac66a5a62a8e0c518f8af99cef29d027663520a493fccc72594d993b0aa64c48"
+    },
+    {
+      "request_id": "014",
+      "input_tokens": 16502,
+      "original_tokens": 16502,
+      "before_compaction": 16502,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "b6fac033f9d8d969b6137fe520f7a202681ff23e54e5c97f535679392ea31691"
+    },
+    {
+      "request_id": "015",
+      "input_tokens": 18427,
+      "original_tokens": 18427,
+      "before_compaction": 18427,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "82cbe736df115cee5715837178ade0d9ae1e1d1622735f20a320321643ada171"
+    },
+    {
+      "request_id": "016",
+      "input_tokens": 20352,
+      "original_tokens": 20352,
+      "before_compaction": 20352,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "f1354df802cbbb888dae6f171d8781a4d90a8f7f9d5ca4b7ed79833083030a93"
+    },
+    {
+      "request_id": "017",
+      "input_tokens": 22277,
+      "original_tokens": 22277,
+      "before_compaction": 22277,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "72d8f5f9d794aa783b5f9134b1203ac5e7ebd1eac559d89d570bc3066fc3c944"
+    },
+    {
+      "request_id": "018",
+      "input_tokens": 24202,
+      "original_tokens": 24202,
+      "before_compaction": 24202,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "aca62a76e6053b784e4fb2d5a6ead8db14444eacb8b1a63b1a0e5cf96f918637"
+    },
+    {
+      "request_id": "019",
+      "input_tokens": 26127,
+      "original_tokens": 26127,
+      "before_compaction": 26127,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "db4e20f51ec8fcc5a7abee9f1d5c302770667e3fe61a0eb106272d0d89828193"
+    },
+    {
+      "request_id": "020",
+      "input_tokens": 28052,
+      "original_tokens": 28052,
+      "before_compaction": 28052,
+      "compression_triggered": false,
+      "compressed": false,
+      "request_sha256": "c6209f6e6f0800a6e33c292ee8a243331d1904d3e5d722665eb5f4cb5dec36ae"
+    },
+    {
+      "request_id": "021",
+      "input_tokens": 15894,
+      "original_tokens": 29977,
+      "before_compaction": 29977,
+      "compression_triggered": true,
+      "compressed": true,
+      "request_sha256": "896ff100ec7fa351afbf98d8afc24a84e4f49243989ecf7eea8270e9f23a4d05"
+    },
+    {
+      "request_id": "022",
+      "input_tokens": 17831,
+      "original_tokens": 31902,
+      "before_compaction": 17831,
+      "compression_triggered": false,
+      "compressed": true,
+      "request_sha256": "62c5801c10ba4302fb8ede81d4373602e1d0a8df8d826a0706c5b14eba8db75b"
+    },
+    {
+      "request_id": "023",
+      "input_tokens": 19769,
+      "original_tokens": 33827,
+      "before_compaction": 19769,
+      "compression_triggered": false,
+      "compressed": true,
+      "request_sha256": "9e614dbdafba2917066d9786d5b3bade5e14f2142ef70e95805da35183c13fbd"
+    },
+    {
+      "request_id": "024",
+      "input_tokens": 21707,
+      "original_tokens": 35752,
+      "before_compaction": 21707,
+      "compression_triggered": false,
+      "compressed": true,
+      "request_sha256": "457d2f245bb181f29bea335b56c8f8ca9e874a53a7df258085b9f6d50cbf21c6"
+    },
+    {
+      "request_id": "025",
+      "input_tokens": 23640,
+      "original_tokens": 37677,
+      "before_compaction": 23640,
+      "compression_triggered": false,
+      "compressed": true,
+      "request_sha256": "21e945941cad588e7f821a746fd36cda0c6498161441778167a58409e5cfb342"
+    }
+  ],
+  "initial_input_pair_matches": true,
+  "previous_real_model_offline_replay": [
+    {
+      "request_id": "001",
+      "input_tokens": 3161,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "002",
+      "input_tokens": 3268,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "003",
+      "input_tokens": 5648,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "004",
+      "input_tokens": 5894,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "005",
+      "input_tokens": 6702,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "006",
+      "input_tokens": 6866,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "007",
+      "input_tokens": 8830,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "008",
+      "input_tokens": 12841,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "009",
+      "input_tokens": 13135,
+      "same_input_ids": true,
+      "compression_triggered": false
+    },
+    {
+      "request_id": "010",
+      "input_tokens": 13412,
+      "same_input_ids": true,
+      "compression_triggered": false
+    }
+  ],
+  "interpretation": "Scripted AppWorld requests directly re-rendered by pinned tokenizer. Previous real first-task inputs unchanged; replay is not a new task evaluation or proof of Memory effect."
+}

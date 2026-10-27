@@ -1,10 +1,19 @@
 # 项目状态
 
 - 最后更新：2026-10-27（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.18；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**EGTM v2.1工程/341测试/真实AppWorld脚本PASS；真实Qwen小样本PARTIAL，正式A/B NOT_RUN**。授权现有A100运行首任务A/B均官方失败，B更新0/1接受；按协议停止余下2任务（执行2/计划6）。模型进程停止并回传158文件；自动关机缺平台密钥失败，用户确认手动关机。未训练/P4-A/GRPO。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.19；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**Harness-Managed Memory 29k本地工程/350测试/真实AppWorld探针PASS，真实Qwen重实验NOT_RUN，等待用户开机**。按要求先完成本地，本轮不SSH/GPU，不重训/P4-A/GRPO；原v2.1真实小样本及全部历史保留。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮EGTM v2完善基线 `a2dbcb298a6fa4c74c2d858385e6c3b70ee4bd90`（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Harness 29k基线 `23a7d41beb35f950196a99ebe49b1a0ed21b8fca`（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Harness-Managed Memory 29k（2026-10-27）
+
+- **已完成**：默认关闭的独立Harness版本，无内部Memory模型生成；实际输入≥29000才压缩，保留最后移除边界，后续短回合不继续删除完整旧批次。保留原任务/Schema/最近两批及来源/stale，阈值前按剩余窗口降低回复上限。原1/2/3/4快照可读，旧锁不改。新锁`ff37168beefddbda0a8d12ce291a123d103f5d03496e4c880e3d43caddf510a6`。
+- **验证PASS**：350 pytest，Ruff check/119文件format；真实AppWorld29工具意图、25合成回执、3独立恢复；1次压缩29977→15894，后续23640无新压缩。5个实际请求用压缩上下文，输入420299→350005，少70294（16.72%，脚本数据）。25请求直接tokenizer重渲染及上轮真实短任务10输入离线不变通过。
+- **历史PASS**：353旧配置/报告、95轨迹/75任务/29家族、18包/6616文件、两个checkpoint未改；v2.1真实拒绝Memory终态及旧快照均可读。
+- **证据/命令**：`reports/egtm_harness_29k_report.md`与同前缀checks/world_probe/replay/integrity/plan。私有`runs/egtm_harness_29k_20261027/`，使用`probe_egtm.py --config configs/egtm_harness_29k_p3c.json`，以及`probe_egtm_v2.py --initial-only`的A初态；pytest/Ruff和直接分词回放均已运行。
+- **真实重实验待运行**：原3任务287e338_3/3c13f5a_1/229360a_2，同A100 Base-SFT，A关闭/B Harness29k，最多6次，各40请求/16384生成/600秒。新独立配置`egtm_harness_29k_pilot_{a,b}.json`，已纠正模型错误计入报表；基础设施/部分执行/纠错耗尽停止。全任务/初态/首次IDs及是否实际压缩分别验收。
+- **资源与下一步**：本轮0真实模型请求、0GPU、0SSH。用户要求本地完成后通知再开机；本地现已就绪，待用户开机再核验现有机器并重跑，结束关机。没有新模型成绩，不可复制上轮结果或将脚本节省当作效果。
 
 ## EGTM v2.1完善与授权真实小样本（2026-10-27）
 

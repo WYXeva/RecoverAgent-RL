@@ -29,6 +29,8 @@ from .state import capture, inspect_snapshot, restore
 from .student import StudentSession
 from .student_evaluation import evaluation_prompt, execution_clock, request_json
 from .task_memory import (
+    HARNESS_RUNTIME,
+    HARNESS_VERSION,
     MODEL_RUNTIME,
     MODEL_RUNTIMES,
     VISIBLE_RUNTIME,
@@ -45,7 +47,9 @@ BUDGET_STOPS = {"budget_exhausted", "context_budget_exhausted", "completion_clai
 def verify_source(runtime=RUNTIME):
     root = Path(__file__).resolve().parents[2]
     path = root / (
-        "configs/egtm_v2_improvement_runtime_lock.json"
+        "configs/egtm_harness_29k_runtime_lock.json"
+        if runtime == HARNESS_RUNTIME
+        else "configs/egtm_v2_improvement_runtime_lock.json"
         if runtime == VISIBLE_RUNTIME
         else "configs/egtm_v2_runtime_lock.json"
         if runtime == MODEL_RUNTIME
@@ -183,7 +187,8 @@ def fixed_plan(pool, settings, seen_tasks, excluded_tasks, split):
 
 def validate_config(config):
     if (
-        config["runtime_revision"] not in {RUNTIME, MEMORY_RUNTIME, *MODEL_RUNTIMES}
+        config["runtime_revision"]
+        not in {RUNTIME, MEMORY_RUNTIME, HARNESS_RUNTIME, *MODEL_RUNTIMES}
         or config["model"] != MODEL
         or config["tool_mode"] != "dynamic_discovery"
         or config["actor_prompt_variant"] != "execution_v5"
@@ -192,7 +197,9 @@ def validate_config(config):
         raise ValueError("P3-C requires fixed Base-SFT/execution_v5/B protocol")
     memory = memory_config(config.get("memory"))
     if memory["enabled"] and config["runtime_revision"] != (
-        VISIBLE_RUNTIME
+        HARNESS_RUNTIME
+        if memory["version"] == HARNESS_VERSION
+        else VISIBLE_RUNTIME
         if memory["version"] == VISIBLE_VERSION
         else MODEL_RUNTIME
         if memory["version"] == MODEL_VERSION
@@ -609,7 +616,8 @@ def collect(config_path, output):
     try:
         lock = (
             verify_source(config["runtime_revision"])
-            if config.get("runtime_revision") in {MEMORY_RUNTIME, *MODEL_RUNTIMES}
+            if config.get("runtime_revision")
+            in {MEMORY_RUNTIME, HARNESS_RUNTIME, *MODEL_RUNTIMES}
             else verify_source()
         )
         plan = validate_config(config)

@@ -230,6 +230,8 @@ class StudentSession:
                     uncompressed_prompt_tokens=0,
                     compressed_requests=0,
                 )
+                if self.memory.harness_managed:
+                    self.usage.update(compression_events=0, saved_input_tokens=0)
                 if self.memory.model_driven:
                     self.usage.update(
                         memory_update_requests=0,
@@ -417,7 +419,11 @@ class StudentSession:
             self.usage["compressed_requests"] += int(
                 request["memory_compilation"]["compressed"]
             )
-            if self.memory.model_driven:
+            if self.memory.harness_managed:
+                self.usage["compression_events"] += int(
+                    request["memory_compilation"]["compression_triggered"]
+                )
+            if self.memory.model_driven or self.memory.harness_managed:
                 self.usage["saved_input_tokens"] += request["memory_compilation"][
                     "original_tokens"
                 ] - len(request["input_token_ids"])

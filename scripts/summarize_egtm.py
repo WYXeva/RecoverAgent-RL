@@ -27,7 +27,7 @@ def summarize(config_path, directory):
         memory_usage = Counter()
         first_request, l1_active = None, False
         accepted_l1 = None
-        visible_l1, missing_l1, compressed = 0, 0, 0
+        visible_l1, missing_l1, compressed, compression_events = 0, 0, 0, 0
         for path in requests:
             request = read_json(path)
             if first_request is None:
@@ -40,6 +40,7 @@ def summarize(config_path, directory):
                 raise ValueError("Mixed policies in EGTM results")
             inputs += len(request["input_token_ids"])
             compilation = request.get("memory_compilation", {})
+            compression_events += int(compilation.get("compression_triggered", False))
             internal = request.get("purpose") == "memory_update"
             if internal and event.get("memory_status") == "accepted":
                 l1_active = True
@@ -173,6 +174,11 @@ def summarize(config_path, directory):
                 "l1_visible_requests": visible_l1,
                 "accepted_l1_missing_requests": missing_l1,
                 "compressed_requests": compressed,
+                **(
+                    {"compression_events": compression_events}
+                    if config["memory"]["version"] == "egtm-harness-memory-29k-v1"
+                    else {}
+                ),
                 "status": row["status"],
                 "official_success": row["official_success"],
                 "model_requests": len(requests),
@@ -316,6 +322,10 @@ def paired_report(config_a, directory_a, config_b, directory_b):
             for r in arms["B"]["rows"]
         )
     )
+    harness_mode = ca["memory"]["version"] == "egtm-harness-memory-29k-v1"
+    compression_exercised = any(
+        r.get("compression_events", 0) for r in arms["B"]["rows"]
+    )
     return {
         "status": status,
         "stage": ca.get("experiment_stage"),
@@ -324,8 +334,21 @@ def paired_report(config_a, directory_a, config_b, directory_b):
         "runtime_revision": ca["runtime_revision"],
         "mismatched_tasks": mismatches,
         "unverified_initial_conditions": unverified,
-        "pilot_protocol_ready": pilot_ready,
-        "semantic_l1_review": "NOT_AUTOMATED: review constraints/completed claims/need_evidence in actual receipts",
+        "pilot_protocol_ready": status == "PASS" and compression_exercised
+        if harness_mode
+        else pilot_ready,
+        **(
+            {
+                "harness_memory_exercised": compression_exercised,
+                "harness_protocol_ready": status == "PASS" and compression_exercised,
+                "corrected_protocol_errors_retained": True,
+            }
+            if harness_mode
+            else {}
+        ),
+        "semantic_l1_review": "NOT_APPLICABLE: Harness evidence extraction; no model L1 requests"
+        if harness_mode
+        else "NOT_AUTOMATED: review constraints/completed claims/need_evidence in actual receipts",
         "A": arms["A"],
         "B": arms["B"],
         "paired_tasks": rows,
@@ -340,14 +363,16 @@ def main():
     p.add_argument("--a", required=True)
     p.add_argument("--b", required=True)
     p.add_argument("--output", required=True)
-    p.add_argument("--version", choices=["v1", "v2", "v2_improvement"], default="v1")
+    p.add_argument(
+        "--version", choices=["v1", "v2", "v2_improvement", "harness_29k"], default="v1"
+    )
     p.add_argument("--stage", choices=["eval", "pilot"], default="eval")
     args = p.parse_args()
-    if args.version == "v2_improvement":
+    if args.version in {"v2_improvement", "harness_29k"}:
         result = paired_report(
-            f"configs/egtm_v2_improvement_{args.stage}_a.json",
+            f"configs/egtm_{args.version}_{args.stage}_a.json",
             args.a,
-            f"configs/egtm_v2_improvement_{args.stage}_b.json",
+            f"configs/egtm_{args.version}_{args.stage}_b.json",
             args.b,
         )
         write_json(args.output, result)

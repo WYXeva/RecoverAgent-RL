@@ -1,0 +1,48 @@
+{
+  "status": "READY_LOCAL_GPU_NOT_STARTED",
+  "baseline_commit": "23a7d41beb35f950196a99ebe49b1a0ed21b8fca",
+  "fixed_tasks": [
+    {
+      "task_id": "287e338_3",
+      "scenario_id": "287e338",
+      "split": "train",
+      "partition": "base_sft_unseen_task"
+    },
+    {
+      "task_id": "3c13f5a_1",
+      "scenario_id": "3c13f5a",
+      "split": "train",
+      "partition": "base_sft_unseen_task"
+    },
+    {
+      "task_id": "229360a_2",
+      "scenario_id": "229360a",
+      "split": "train",
+      "partition": "base_sft_unseen_task"
+    }
+  ],
+  "policy": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "adapter:34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd"
+  },
+  "limits_per_execution": {
+    "max_input_tokens": 32768,
+    "max_new_tokens": 4096,
+    "max_requests": 40,
+    "max_generated_tokens": 16384,
+    "wall_seconds": 600,
+    "seed": 42,
+    "temperature": 0.8,
+    "top_p": 0.95
+  },
+  "max_executions": 6,
+  "order": "A then B per task; same three tasks, no substitution",
+  "memory": "Harness-managed; no internal generation; actual input trigger29000; persistent compaction boundary",
+  "stop_rule": "Stop on infrastructure fault, interrupted batch or exhausted protocol corrections; successfully corrected model schema errors are retained and do not stop subsequent planned tasks. Valid task failures and unknown evaluations remain separate.",
+  "authorization_state": "User requests rerun but explicitly asks to finish local work and notify before they power on the existing machine. No SSH or GPU inference this round.",
+  "shutdown": "After future inference, preserve/verify evidence and shut down; previous platform command needed a shutdown key. Do not start/rent instances.",
+  "real_model_requests_this_round": 0
+}

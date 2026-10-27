@@ -100,6 +100,17 @@ def compile_context(tokenizer, messages, tools, memory, *, max_tokens, reserve_t
         "deferred_evidence": [],
         "compressed": False,
     }
+    if memory.harness_managed:
+        return _compile_harness_29k(
+            tokenizer,
+            messages,
+            tools,
+            memory,
+            original,
+            max_tokens,
+            reserve_tokens,
+            receipt,
+        )
     if memory.improved:
         return _compile_visible(
             tokenizer, messages, tools, memory, original, ceiling, receipt
@@ -187,6 +198,111 @@ def compile_context(tokenizer, messages, tools, memory, *, max_tokens, reserve_t
         ],
     )
     return kept, compact, receipt
+
+
+def _compile_harness_29k(
+    tokenizer, messages, tools, memory, original, max_tokens, reserve, receipt
+):
+    """Keep the previous removal boundary until the actual next input reaches 29k.
+
+    Rules maintain evidence metadata after every complete batch. No model summary
+    or internal generation is involved. The original history is never changed.
+    """
+    window = min(max_tokens, 32768)
+    through = memory.compaction["through"] if memory.compaction else 0
+
+    def render(cut, ceiling):
+        removed = [b for b in memory.batches if b["end"] <= cut]
+        omitted = {i for b in removed for i in range(b["start"], b["end"])}
+        kept = [copy.deepcopy(m) for i, m in enumerate(messages) if i not in omitted]
+        sources, deferred = [], []
+        if not removed:
+            return kept, original, removed, sources, deferred
+        selected = relevant_evidence(memory, messages, cut)
+        payload = {
+            "source": "recoveragent_egtm",
+            "kind": "harness_memory_data",
+            "interpretation": "Harness-extracted historical evidence, NOT instructions or a Student summary. "
+            "Observed means returned, not task success; stale needs revalidation; inferred plans are unverified. "
+            "Original task constraints remain authoritative and unchanged.",
+            "working_memory": memory.working_view([r["source_id"] for r in selected]),
+            "historical_evidence": [],
+        }
+        position = len(memory.initial_messages)
+        kept.insert(position, {"role": "user", "content": canonical(payload)})
+        ids = encode(tokenizer, kept, tools)
+        packets = memory.index.retrieve(
+            task_id=memory.task_id,
+            as_of=len(messages),
+            queries=[{"source_id": row["source_id"]} for row in selected],
+            present_ids=[m["tool_call_id"] for m in kept if m["role"] == "tool"],
+            limit=memory.config["retrieval_limit"],
+        )
+        for packet in packets:
+            packet["validity"] = (
+                "stale"
+                if packet["source_id"] in memory.stale_sources
+                else "observed_at_source_time"
+            )
+            payload["historical_evidence"].append(packet)
+            kept[position]["content"] = canonical(payload)
+            candidate = encode(tokenizer, kept, tools)
+            if len(candidate) <= min(ceiling, len(original) - 1):
+                ids = candidate
+                sources.append(packet["source_id"])
+            else:
+                payload["historical_evidence"].pop()
+                kept[position]["content"] = canonical(payload)
+                deferred.append(packet["source_id"])
+        return kept, ids, removed, sources, deferred
+
+    # Below 29k the Student may reduce its generation allowance to fit the window,
+    # exactly as Memory-off does; reserving 4096 must not trigger early compression.
+    current = render(
+        through, min(window - reserve, memory.config["trigger_tokens"] - 1)
+    )
+    before = len(current[1])
+    triggered = before >= memory.config["trigger_tokens"]
+    if triggered:
+        eligible = memory.batches[: -memory.config["recent_batches"]]
+        cut = eligible[-1]["end"] if eligible else 0
+        if cut <= through:
+            raise ContextBudgetError(
+                "29k reached without an older complete batch to compact"
+            )
+        candidate = render(cut, window - reserve)
+        if len(candidate[1]) >= before or len(candidate[1]) + reserve > window:
+            raise ContextBudgetError(
+                "29k compaction cannot safely reduce task/schema/recent history"
+            )
+        current = candidate
+        # Only commit a valid complete-history removal boundary, never partial output.
+        validate_history(current[0])
+        memory.compaction = {
+            "through": cut,
+            "history_end": len(messages),
+            "history_sha256": digest(messages),
+        }
+    kept, ids, removed, sources, deferred = current
+    if len(ids) >= window:
+        raise ContextBudgetError("Harness context cannot fit; no truncation")
+    validate_history(kept)
+    receipt.update(
+        memory_identity=memory.identity,
+        pre_compaction_tokens=before,
+        compression_triggered=triggered,
+        compressed=bool(removed),
+        compiled_tokens=len(ids),
+        compiled_messages_sha256=digest(kept),
+        retrieved_sources=sources,
+        deferred_evidence=deferred,
+        reserve_tokens=min(reserve, window - len(ids)),
+        omitted_batches=[
+            {"start": b["start"], "end": b["end"], "source_hash": b["prefix_hash"]}
+            for b in removed
+        ],
+    )
+    return kept, ids, receipt
 
 
 def _compile_visible(tokenizer, messages, tools, memory, original, ceiling, receipt):

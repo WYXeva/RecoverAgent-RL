@@ -97,12 +97,12 @@ def probe(args):
     from recoveragent.student import StudentSession
     from recoveragent.student_backend import validate_request
     from recoveragent.student_evaluation import evaluation_prompt, execution_clock
-    from recoveragent.task_memory import memory_config, RUNTIME
+    from recoveragent.task_memory import memory_config
 
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=False)
-    config = read_json("configs/egtm_v1_p3c.json")
-    source_lock = verify_source(RUNTIME)
+    config = read_json(args.config)
+    source_lock = verify_source(config["runtime_revision"])
     started = execution_clock()
     with (output / "tokenizer.log").open("x") as log:
         tokenizer = TokenizerPipe(args.tokenizer_python, log)
@@ -126,7 +126,7 @@ def probe(args):
                 answer_guard=True,
                 clock=execution_clock,
                 checkpoint_id="SCRIPTED_NOT_A_MODEL",
-                memory_config=memory_config({"enabled": True}),
+                memory_config=memory_config(config["memory"]),
             )
             snapshots = []
             token_rows = []
@@ -262,6 +262,13 @@ def probe(args):
             assert all(
                 r["compiled_tokens"] + r["reserve_tokens"] <= 32768 for r in token_rows
             )
+            if session.memory.harness_managed:
+                assert not session.memory.model_driven and not session.memory.updates
+                assert any(r["compression_triggered"] for r in token_rows)
+                assert all(
+                    r["compression_triggered"] == (r["pre_compaction_tokens"] >= 29000)
+                    for r in token_rows
+                )
             snapshots.append(
                 save_boundary(
                     session,
@@ -378,6 +385,11 @@ def probe(args):
                     "compiled_tokens",
                     "reserve_tokens",
                     "compressed",
+                    *(
+                        ["pre_compaction_tokens", "compression_triggered"]
+                        if "compression_triggered" in r
+                        else []
+                    ),
                 )
             }
             for r in token_rows
@@ -410,6 +422,7 @@ def main():
     parser.add_argument("--tokenizer-worker", action="store_true")
     parser.add_argument("--tokenizer-python", default=".venv-inference/bin/python")
     parser.add_argument("--root", default="data/appworld")
+    parser.add_argument("--config", default="configs/egtm_v1_p3c.json")
     parser.add_argument("--output")
     parser.add_argument("--report")
     parser.add_argument("--namespace")
