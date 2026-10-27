@@ -119,6 +119,8 @@ class StudentSession:
         protocol_harness=False,
         harness_revision=REFACTOR_REVISION,
         clock=None,
+        memory_config=None,
+        memory_state=None,
     ):
         if (
             hashlib.sha256(tokenizer.chat_template.encode()).hexdigest()
@@ -201,6 +203,29 @@ class StudentSession:
             self.usage.update(tool_requests=0, harness_rejections=0)
         if self.harness:
             self.usage.update(protocol_rejections=0, harness_notices=0)
+        self.memory = None
+        if memory_config is not None or memory_state is not None:
+            from .task_memory import TaskMemory, memory_config as normalize_memory
+
+            config = normalize_memory(memory_config)
+            if memory_state is not None and not config["enabled"]:
+                raise ValueError("Cannot restore Memory into a disabled session")
+            if config["enabled"]:
+                self.memory = memory_state or TaskMemory(
+                    adapter.task_id, messages, config
+                )
+                if (
+                    self.memory.task_id != adapter.task_id
+                    or self.memory.config != config
+                ):
+                    raise ValueError("Restored Memory task/config differs")
+                self.memory.validate_boundary(messages, tools)
+                self.usage.update(
+                    memory_update_seconds=0.0,
+                    context_compile_seconds=0.0,
+                    uncompressed_prompt_tokens=0,
+                    compressed_requests=0,
+                )
 
     def build_request(self):
         if self.stopped:
@@ -216,21 +241,54 @@ class StudentSession:
             self.stopped, self.termination = True, "completion_claim"
             raise ValueError("AppWorld task already completed")
         validate_history(self.messages)
-        text = self.tokenizer.apply_chat_template(
-            self.messages,
-            tools=self.tools,
-            tokenize=False,
-            add_generation_prompt=True,
-            enable_thinking=False,
-        )
-        ids = self.tokenizer(text, add_special_tokens=False)["input_ids"]
+        compiled_messages, compilation = self.messages, None
+        if self.memory is not None:
+            from .context_compiler import ContextBudgetError, compile_context
+
+            started = self.clock()
+            try:
+                compiled_messages, ids, compilation = compile_context(
+                    self.tokenizer,
+                    self.messages,
+                    self.tools,
+                    self.memory,
+                    max_tokens=self.max_input_tokens,
+                    reserve_tokens=min(
+                        self.max_new_tokens,
+                        self.max_generated_tokens - self.usage["generated_tokens"],
+                    ),
+                )
+            except ContextBudgetError as exc:
+                self.stopped, self.termination = True, "context_budget_exhausted"
+                if self.output:
+                    write_json(
+                        self.output / "context_compilation_failure.json",
+                        {
+                            "reason": str(exc),
+                            "history_sha256": digest(self.messages),
+                            "memory_identity": self.memory.identity,
+                            "no_truncation": True,
+                        },
+                    )
+                raise
+            finally:
+                self.usage["context_compile_seconds"] += self.clock() - started
+        else:
+            text = self.tokenizer.apply_chat_template(
+                self.messages,
+                tools=self.tools,
+                tokenize=False,
+                add_generation_prompt=True,
+                enable_thinking=False,
+            )
+            ids = self.tokenizer(text, add_special_tokens=False)["input_ids"]
         if len(ids) >= self.max_input_tokens:
             self.stopped, self.termination = True, "context_budget_exhausted"
             raise ValueError("Student context too long; no silent truncation")
         return {
             "format": "qwen3-batch-generation-v1",
             "policy": self.identity,
-            "messages": copy.deepcopy(self.messages),
+            "messages": copy.deepcopy(compiled_messages),
             "tools": copy.deepcopy(self.tools),
             "input_token_ids": ids,
             "max_new_tokens": min(
@@ -242,6 +300,7 @@ class StudentSession:
             "temperature": self.temperature,
             "top_p": self.top_p,
             "eos_token_id": self.tokenizer.eos_token_id,
+            **({"memory_compilation": compilation} if compilation is not None else {}),
         }
 
     def step(self, generate):
@@ -249,9 +308,25 @@ class StudentSession:
         number = self.usage["model_requests"] + 1
         name = f"{number:03d}"
         if self.output:
+            if self.memory is not None:
+                write_json(
+                    self.output / "requests" / (name + ".history.json"),
+                    {
+                        "messages": self.messages,
+                        "tools": self.tools,
+                        "memory_identity": self.memory.identity,
+                    },
+                )
             write_json(self.output / "requests" / (name + ".request.json"), request)
         self.usage["model_requests"] += 1
         self.usage["prompt_tokens"] += len(request["input_token_ids"])
+        if self.memory is not None:
+            self.usage["uncompressed_prompt_tokens"] += request["memory_compilation"][
+                "original_tokens"
+            ]
+            self.usage["compressed_requests"] += int(
+                request["memory_compilation"]["compressed"]
+            )
         event = {
             "request_id": name,
             "assistant_index": len(self.messages),
@@ -396,6 +471,11 @@ class StudentSession:
                     self.messages.append(notice)
                     self.usage["harness_notices"] += 1
             event["status"] = "complete_boundary"
+            if self.memory is not None and calls:
+                started = self.clock()
+                self.memory.observe(self.messages, event)
+                self.usage["memory_update_seconds"] += self.clock() - started
+                event["memory_identity"] = self.memory.identity
             if self.harness:
                 event["failure_category"] = failure_category(event)
             if guard:

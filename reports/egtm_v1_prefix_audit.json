@@ -1,0 +1,1623 @@
+{
+  "scope": "offline same-prefix token replay; no new model responses or task outcomes",
+  "tasks": 12,
+  "requests": 218,
+  "compressed_requests": 9,
+  "unfit_requests": 0,
+  "original_tokens": 2471377,
+  "compiled_tokens_fitting_only": 2400074,
+  "saved_tokens_fitting_only": 71303,
+  "real_model_requests": 0,
+  "rows": [
+    {
+      "task_id": "287e338_3",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3126,
+          "compiled_tokens": 3126,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 5493,
+          "compiled_tokens": 5493,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 6231,
+          "compiled_tokens": 6231,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 6533,
+          "compiled_tokens": 6533,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 6697,
+          "compiled_tokens": 6697,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 7399,
+          "compiled_tokens": 7399,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 0.12323089997516945,
+      "source_receipts_sha256": "2f6653edc24533e3703af53cbce99887764e16e1e1a8bbd7078d36b38477b3b3"
+    },
+    {
+      "task_id": "3c13f5a_1",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3173,
+          "compiled_tokens": 3173,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 5167,
+          "compiled_tokens": 5167,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 6258,
+          "compiled_tokens": 6258,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 6501,
+          "compiled_tokens": 6501,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 6825,
+          "compiled_tokens": 6825,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 6953,
+          "compiled_tokens": 6953,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 7065,
+          "compiled_tokens": 7065,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 7235,
+          "compiled_tokens": 7235,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 7682,
+          "compiled_tokens": 7682,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 10924,
+          "compiled_tokens": 10924,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 11021,
+          "compiled_tokens": 11021,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 11489,
+          "compiled_tokens": 11489,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 11883,
+          "compiled_tokens": 11883,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 12344,
+          "compiled_tokens": 12344,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "015",
+          "original_tokens": 12726,
+          "compiled_tokens": 12726,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "016",
+          "original_tokens": 13147,
+          "compiled_tokens": 13147,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "017",
+          "original_tokens": 13951,
+          "compiled_tokens": 13951,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "018",
+          "original_tokens": 14193,
+          "compiled_tokens": 14193,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "019",
+          "original_tokens": 14497,
+          "compiled_tokens": 14497,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "020",
+          "original_tokens": 14660,
+          "compiled_tokens": 14660,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "021",
+          "original_tokens": 14920,
+          "compiled_tokens": 14920,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "022",
+          "original_tokens": 15093,
+          "compiled_tokens": 15093,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "023",
+          "original_tokens": 15796,
+          "compiled_tokens": 15796,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 0.8467676019645296,
+      "source_receipts_sha256": "d354edfa2ae0c7627a16649ade1590daafd5c783bee3161c310b1e538420eff3"
+    },
+    {
+      "task_id": "229360a_2",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3174,
+          "compiled_tokens": 3174,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 5781,
+          "compiled_tokens": 5781,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 9197,
+          "compiled_tokens": 9197,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 9377,
+          "compiled_tokens": 9377,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 12781,
+          "compiled_tokens": 12781,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 15750,
+          "compiled_tokens": 15750,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 16084,
+          "compiled_tokens": 16084,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 16258,
+          "compiled_tokens": 16258,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 18138,
+          "compiled_tokens": 18138,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 19380,
+          "compiled_tokens": 19380,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 21154,
+          "compiled_tokens": 21154,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 23030,
+          "compiled_tokens": 23030,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 24797,
+          "compiled_tokens": 21636,
+          "compressed": true,
+          "saved_tokens": 3161
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 26671,
+          "compiled_tokens": 21576,
+          "compressed": true,
+          "saved_tokens": 5095
+        },
+        {
+          "request_id": "015",
+          "original_tokens": 28243,
+          "compiled_tokens": 21267,
+          "compressed": true,
+          "saved_tokens": 6976
+        },
+        {
+          "request_id": "016",
+          "original_tokens": 29475,
+          "compiled_tokens": 19973,
+          "compressed": true,
+          "saved_tokens": 9502
+        },
+        {
+          "request_id": "017",
+          "original_tokens": 31349,
+          "compiled_tokens": 20801,
+          "compressed": true,
+          "saved_tokens": 10548
+        }
+      ],
+      "seconds": 1.5917931040166877,
+      "source_receipts_sha256": "45c203083a96306ace19bbfea027b614b55ce381f1ebc61f99bb6e41517cfde8"
+    },
+    {
+      "task_id": "27e1026_2",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3141,
+          "compiled_tokens": 3141,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 5508,
+          "compiled_tokens": 5508,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 8979,
+          "compiled_tokens": 8979,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 9962,
+          "compiled_tokens": 9962,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 10212,
+          "compiled_tokens": 10212,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 10514,
+          "compiled_tokens": 10514,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 10679,
+          "compiled_tokens": 10679,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 11613,
+          "compiled_tokens": 11613,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 11710,
+          "compiled_tokens": 11710,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 11881,
+          "compiled_tokens": 11881,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 13267,
+          "compiled_tokens": 13267,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 16675,
+          "compiled_tokens": 16675,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 20782,
+          "compiled_tokens": 20782,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 21541,
+          "compiled_tokens": 21541,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 0.5902192029752769,
+      "source_receipts_sha256": "f6b8bb7fcd60b7d041b4942748b0a29f05c49af47d80a775dd32535435aee881"
+    },
+    {
+      "task_id": "2a163ab_1",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3140,
+          "compiled_tokens": 3140,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 4488,
+          "compiled_tokens": 4488,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 4820,
+          "compiled_tokens": 4820,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 5724,
+          "compiled_tokens": 5724,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 5892,
+          "compiled_tokens": 5892,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 9463,
+          "compiled_tokens": 9463,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 10809,
+          "compiled_tokens": 10809,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 13373,
+          "compiled_tokens": 13373,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 14423,
+          "compiled_tokens": 14423,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 15387,
+          "compiled_tokens": 15387,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 16543,
+          "compiled_tokens": 16543,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 16663,
+          "compiled_tokens": 16663,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 17112,
+          "compiled_tokens": 17112,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 20707,
+          "compiled_tokens": 20707,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "015",
+          "original_tokens": 21673,
+          "compiled_tokens": 21673,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "016",
+          "original_tokens": 22918,
+          "compiled_tokens": 22918,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "017",
+          "original_tokens": 26489,
+          "compiled_tokens": 22729,
+          "compressed": true,
+          "saved_tokens": 3760
+        },
+        {
+          "request_id": "018",
+          "original_tokens": 27454,
+          "compiled_tokens": 18509,
+          "compressed": true,
+          "saved_tokens": 8945
+        },
+        {
+          "request_id": "019",
+          "original_tokens": 28530,
+          "compiled_tokens": 17149,
+          "compressed": true,
+          "saved_tokens": 11381
+        },
+        {
+          "request_id": "020",
+          "original_tokens": 32101,
+          "compiled_tokens": 20166,
+          "compressed": true,
+          "saved_tokens": 11935
+        }
+      ],
+      "seconds": 1.4635485099861398,
+      "source_receipts_sha256": "885ce299ac80311f112cdb51ae31825fe3f7edb72c8c9bce427521428052223b"
+    },
+    {
+      "task_id": "302c169_3",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3147,
+          "compiled_tokens": 3147,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 3882,
+          "compiled_tokens": 3882,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 5297,
+          "compiled_tokens": 5297,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 5545,
+          "compiled_tokens": 5545,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 5849,
+          "compiled_tokens": 5849,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 6015,
+          "compiled_tokens": 6015,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 7119,
+          "compiled_tokens": 7119,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 7203,
+          "compiled_tokens": 7203,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 8370,
+          "compiled_tokens": 8370,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 8813,
+          "compiled_tokens": 8813,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 9091,
+          "compiled_tokens": 9091,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 10021,
+          "compiled_tokens": 10021,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 10428,
+          "compiled_tokens": 10428,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 11532,
+          "compiled_tokens": 11532,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 0.49810440302826464,
+      "source_receipts_sha256": "12ca9c759e7fa17deb2621da08ca95e1d615db60f68f0f48d0c3362e09d3d6f4"
+    },
+    {
+      "task_id": "34d9492_1",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3182,
+          "compiled_tokens": 3182,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 3850,
+          "compiled_tokens": 3850,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 4080,
+          "compiled_tokens": 4080,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 5079,
+          "compiled_tokens": 5079,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 5256,
+          "compiled_tokens": 5256,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 5688,
+          "compiled_tokens": 5688,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 6069,
+          "compiled_tokens": 6069,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 6233,
+          "compiled_tokens": 6233,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 6806,
+          "compiled_tokens": 6806,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 7247,
+          "compiled_tokens": 7247,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 7426,
+          "compiled_tokens": 7426,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 7594,
+          "compiled_tokens": 7594,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 7755,
+          "compiled_tokens": 7755,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 7917,
+          "compiled_tokens": 7917,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "015",
+          "original_tokens": 8381,
+          "compiled_tokens": 8381,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "016",
+          "original_tokens": 8848,
+          "compiled_tokens": 8848,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "017",
+          "original_tokens": 9010,
+          "compiled_tokens": 9010,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "018",
+          "original_tokens": 9462,
+          "compiled_tokens": 9462,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "019",
+          "original_tokens": 9660,
+          "compiled_tokens": 9660,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "020",
+          "original_tokens": 9850,
+          "compiled_tokens": 9850,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "021",
+          "original_tokens": 10318,
+          "compiled_tokens": 10318,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 0.6074067040462978,
+      "source_receipts_sha256": "23c5ea10e4df6e98206cf9d8aaad8ba82a68df2c680e7f4b0fc01f937dea67bd"
+    },
+    {
+      "task_id": "60d0b5b_1",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3143,
+          "compiled_tokens": 3143,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 4474,
+          "compiled_tokens": 4474,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 4968,
+          "compiled_tokens": 4968,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 6389,
+          "compiled_tokens": 6389,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 6629,
+          "compiled_tokens": 6629,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 6935,
+          "compiled_tokens": 6935,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 7100,
+          "compiled_tokens": 7100,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 7707,
+          "compiled_tokens": 7707,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 11494,
+          "compiled_tokens": 11494,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 12020,
+          "compiled_tokens": 12020,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 12364,
+          "compiled_tokens": 12364,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 12931,
+          "compiled_tokens": 12931,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 13386,
+          "compiled_tokens": 13386,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 13999,
+          "compiled_tokens": 13999,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "015",
+          "original_tokens": 14485,
+          "compiled_tokens": 14485,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "016",
+          "original_tokens": 14803,
+          "compiled_tokens": 14803,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "017",
+          "original_tokens": 15079,
+          "compiled_tokens": 15079,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "018",
+          "original_tokens": 15663,
+          "compiled_tokens": 15663,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "019",
+          "original_tokens": 19471,
+          "compiled_tokens": 19471,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "020",
+          "original_tokens": 19864,
+          "compiled_tokens": 19864,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "021",
+          "original_tokens": 20263,
+          "compiled_tokens": 20263,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "022",
+          "original_tokens": 20564,
+          "compiled_tokens": 20564,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 1.0558263070415705,
+      "source_receipts_sha256": "4ddf2e2160402dad552c5cfaad5ec83fff8d79ca776d4ffc3c453e1cf7e800f4"
+    },
+    {
+      "task_id": "60d0b5b_2",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3143,
+          "compiled_tokens": 3143,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 3250,
+          "compiled_tokens": 3250,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 4597,
+          "compiled_tokens": 4597,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 6473,
+          "compiled_tokens": 6473,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 6584,
+          "compiled_tokens": 6584,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 6890,
+          "compiled_tokens": 6890,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 7128,
+          "compiled_tokens": 7128,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 7300,
+          "compiled_tokens": 7300,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 7907,
+          "compiled_tokens": 7907,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 8577,
+          "compiled_tokens": 8577,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 9256,
+          "compiled_tokens": 9256,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 9881,
+          "compiled_tokens": 9881,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 10488,
+          "compiled_tokens": 10488,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 11111,
+          "compiled_tokens": 11111,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "015",
+          "original_tokens": 12160,
+          "compiled_tokens": 12160,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "016",
+          "original_tokens": 12772,
+          "compiled_tokens": 12772,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "017",
+          "original_tokens": 13257,
+          "compiled_tokens": 13257,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "018",
+          "original_tokens": 13880,
+          "compiled_tokens": 13880,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "019",
+          "original_tokens": 14487,
+          "compiled_tokens": 14487,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "020",
+          "original_tokens": 16441,
+          "compiled_tokens": 16441,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "021",
+          "original_tokens": 16807,
+          "compiled_tokens": 16807,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "022",
+          "original_tokens": 17295,
+          "compiled_tokens": 17295,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "023",
+          "original_tokens": 17595,
+          "compiled_tokens": 17595,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 0.9751707059913315,
+      "source_receipts_sha256": "521d4bb105b87f86595c86010739ab8ec1b18e0db93f86c31b20d3b1ce443dcc"
+    },
+    {
+      "task_id": "76f2c72_3",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3148,
+          "compiled_tokens": 3148,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 3255,
+          "compiled_tokens": 3255,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 3923,
+          "compiled_tokens": 3923,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 4624,
+          "compiled_tokens": 4624,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 4868,
+          "compiled_tokens": 4868,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 5174,
+          "compiled_tokens": 5174,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 5351,
+          "compiled_tokens": 5351,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 5798,
+          "compiled_tokens": 5798,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 6308,
+          "compiled_tokens": 6308,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 6831,
+          "compiled_tokens": 6831,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 7223,
+          "compiled_tokens": 7223,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 7386,
+          "compiled_tokens": 7386,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 7833,
+          "compiled_tokens": 7833,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 8288,
+          "compiled_tokens": 8288,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "015",
+          "original_tokens": 8735,
+          "compiled_tokens": 8735,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "016",
+          "original_tokens": 9191,
+          "compiled_tokens": 9191,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "017",
+          "original_tokens": 9613,
+          "compiled_tokens": 9613,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "018",
+          "original_tokens": 10077,
+          "compiled_tokens": 10077,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "019",
+          "original_tokens": 10452,
+          "compiled_tokens": 10452,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "020",
+          "original_tokens": 10827,
+          "compiled_tokens": 10827,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "021",
+          "original_tokens": 11202,
+          "compiled_tokens": 11202,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "022",
+          "original_tokens": 11577,
+          "compiled_tokens": 11577,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "023",
+          "original_tokens": 11952,
+          "compiled_tokens": 11952,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 0.8258459060452878,
+      "source_receipts_sha256": "1813229e483442e596d653c85571ba5a87ec207ea4a1f9501a5ade88b756e1e4"
+    },
+    {
+      "task_id": "afc0fce_2",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3153,
+          "compiled_tokens": 3153,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 9652,
+          "compiled_tokens": 9652,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 9906,
+          "compiled_tokens": 9906,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 11714,
+          "compiled_tokens": 11714,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 12037,
+          "compiled_tokens": 12037,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 12211,
+          "compiled_tokens": 12211,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 12367,
+          "compiled_tokens": 12367,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 12702,
+          "compiled_tokens": 12702,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 13187,
+          "compiled_tokens": 13187,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 13933,
+          "compiled_tokens": 13933,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 14915,
+          "compiled_tokens": 14915,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 16050,
+          "compiled_tokens": 16050,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 16829,
+          "compiled_tokens": 16829,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 17410,
+          "compiled_tokens": 17410,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "015",
+          "original_tokens": 17873,
+          "compiled_tokens": 17873,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "016",
+          "original_tokens": 18085,
+          "compiled_tokens": 18085,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "017",
+          "original_tokens": 18427,
+          "compiled_tokens": 18427,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "018",
+          "original_tokens": 18659,
+          "compiled_tokens": 18659,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "019",
+          "original_tokens": 19243,
+          "compiled_tokens": 19243,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "020",
+          "original_tokens": 19582,
+          "compiled_tokens": 19582,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "021",
+          "original_tokens": 19794,
+          "compiled_tokens": 19794,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 1.2520153080113232,
+      "source_receipts_sha256": "65eddafdd9a97f9f04064fee8e6d28a101af047f73f7d4d807e7acc84c18f8d2"
+    },
+    {
+      "task_id": "e85d92a_2",
+      "prefixes": [
+        {
+          "request_id": "001",
+          "original_tokens": 3133,
+          "compiled_tokens": 3133,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "002",
+          "original_tokens": 5500,
+          "compiled_tokens": 5500,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "003",
+          "original_tokens": 6506,
+          "compiled_tokens": 6506,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "004",
+          "original_tokens": 6856,
+          "compiled_tokens": 6856,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "005",
+          "original_tokens": 9002,
+          "compiled_tokens": 9002,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "006",
+          "original_tokens": 11787,
+          "compiled_tokens": 11787,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "007",
+          "original_tokens": 11835,
+          "compiled_tokens": 11835,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "008",
+          "original_tokens": 14646,
+          "compiled_tokens": 14646,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "009",
+          "original_tokens": 15045,
+          "compiled_tokens": 15045,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "010",
+          "original_tokens": 15151,
+          "compiled_tokens": 15151,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "011",
+          "original_tokens": 15380,
+          "compiled_tokens": 15380,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "012",
+          "original_tokens": 15682,
+          "compiled_tokens": 15682,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "013",
+          "original_tokens": 15856,
+          "compiled_tokens": 15856,
+          "compressed": false,
+          "saved_tokens": 0
+        },
+        {
+          "request_id": "014",
+          "original_tokens": 16806,
+          "compiled_tokens": 16806,
+          "compressed": false,
+          "saved_tokens": 0
+        }
+      ],
+      "seconds": 0.6212712040287443,
+      "source_receipts_sha256": "010a012764203ea4647053ec969c88a3eabf7cfe42635a4d3bb61be160d93a8c"
+    }
+  ]
+}

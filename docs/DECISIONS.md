@@ -412,3 +412,13 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 正式116步、参数变化/重载、固定Raw0/6与SFT4/6、P3-C12任务7自然失败/5隔离、225边界/11独立恢复分别验收。训练通过不等同广泛泛化；2个pre-error不计错误修复，5个预算中断不作自然失败示范。
 - 公开代码、汇总JSON、SHA清单和报告可审查；原始AppWorld轨迹、快照、官方tracker和权重仅私有保存。审查者没有私有包时，不能将汇总PASS当作独立重放通过。
 - 平台shutdown返回缺少关机密钥，自动关机失败；最终以用户报告手动关机记录，未独立查平台账单。实验结束到首次关机请求约5小时32分，明确与训练耗时分开，不隐去空闲/回传资源时间。
+
+## D048 · 2026-10-27 · EGTM 独立上下文、证据有效性与 v3 快照
+
+- 用户授权轻量 Task Memory，默认关闭；只新增 `task_memory.py`、`memory_store.py`、`context_compiler.py` 三个核心模块。复用 StudentSession、完整批次记录、state.py 和原评价入口，不新增 Memory Agent、Actor 工具、LLM、向量库或业务规划器。
+- L1 复制真实 JSON 标量及来源，保留 ID/日期/路径/金额原值。observed 表示该时刻确实返回，非任务已经完成；Assistant 原文计划为 inferred。非 JSON/大文本留引用，原文在 L2/L3。操作记录仅声称 returned/error_observed，剩余业务要求无法确定时明确 unknown。
+- L2 为内存精确索引 + JSONL 可移植快照，按 task_id、source/tool/field/typed entity ID（含ID数组）和完整批次截止位置查询。查询条件含全部分页/过滤/排序参数，空页不推广为全局结论。写入分类只用已经观察的官方 API 文档 method；未知方法或非 GET/HEAD 保守视为可能写入，跨应用使旧业务事实 stale，即使工具报错也不假定无副作用；无法提取标量的原始证据也单独记录stale来源。重新读取只替代同一精确查询的旧事实，不替其他页面下结论。
+- Compiler 保留全部 system/user 原文、当前工具集及最近两完整批次，移除较早完整配对，附有来源的 Memory 与确定性检索证据。相同请求/返回不重复装入检索；视图省略量和延后原文引用显式记录。原始 messages、请求/回执、工具返回与部分副作用不改；开启后另存实际 compiled messages/token IDs 和全量原始 history。禁止切片 token 或截断目标，不能同时容纳必要上下文和剩余允许回复时明确 context_budget_exhausted。
+- v3 快照要求同刻 Memory identity、索引、来源历史和 EGTM Agent runtime；恢复从原始合法历史重建事实及索引后比较，而不只相信自报哈希。v1/v2 读取规则不变。部分执行只留原中断证据，Memory 保持上一完整边界且不能附会成当前已执行状态。Harness 纠错保持原预算，不计恢复学习。
+- 新 `configs/egtm_v1_runtime_lock.json` 绑定当前运行源码，旧锁一字不改并应拒绝当前变更文件。默认关闭时请求/token/动作/使用量与原路径一致。完整官方评价、AnswerGuard、Prompt、SFT mask/权重实现均不改；v3 开发探针的中间版本单列，正式运行从新锁开始。
+- A/B 配置绑定 A100 正式 adapter tensor `34b87e77...e0ccd`、原固定 12 train/11 家族和同预算；这份任务清单已被检查过，不能冒充独立最终 benchmark。已有 218 请求的只读重算只证明输入压缩，模型响应/成功率、错误副作用和实际重复查询改善仍未测；不增设普通摘要基线，不因开发重算结果调任务或预算。

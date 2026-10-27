@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "version": "egtm-task-memory-v1",
+  "trigger_tokens": 24576,
+  "recent_batches": 2,
+  "max_facts": 48,
+  "retrieval_limit": 3
+}

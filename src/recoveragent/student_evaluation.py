@@ -20,6 +20,7 @@ from .execution_v5 import actor_system
 from .harness import REFACTOR_REVISION, RULES
 from .io import digest, files_manifest, read_json, write_json
 from .student import StudentSession
+from .task_memory import RUNTIME as MEMORY_RUNTIME
 
 RUNTIME = "p3b_shared_execution_20261026"
 
@@ -29,12 +30,16 @@ def execution_clock():
     return time.clock_gettime(time.CLOCK_MONOTONIC)
 
 
-def verify_execution_runtime():
+def verify_execution_runtime(runtime=RUNTIME):
     root = Path(__file__).resolve().parents[2]
-    path = root / "configs/p3b_evaluation_runtime_20261026_lock.json"
+    path = root / (
+        "configs/egtm_v1_runtime_lock.json"
+        if runtime == MEMORY_RUNTIME
+        else "configs/p3b_evaluation_runtime_20261026_lock.json"
+    )
     lock = read_json(path)
     if (
-        lock["runtime_revision"] != RUNTIME
+        lock["runtime_revision"] != runtime
         or lock["harness_revision"] != REFACTOR_REVISION
     ):
         raise ValueError("Wrong evaluation runtime lock")
@@ -181,7 +186,16 @@ def run_episode(config, case, arm, output):
         "experiment": experiment,
     }
     try:
-        record["evaluation_runtime"] = verify_execution_runtime()
+        record["evaluation_runtime"] = (
+            verify_execution_runtime(MEMORY_RUNTIME)
+            if config.get("runtime_revision") == MEMORY_RUNTIME
+            else verify_execution_runtime()
+        )
+        if (
+            config.get("memory", {}).get("enabled")
+            and config.get("runtime_revision") != MEMORY_RUNTIME
+        ):
+            raise ValueError("Memory requires its own execution source lock")
         if config["tool_mode"] != "dynamic_discovery":
             raise ValueError("This frozen evaluation uses dynamic discovery")
         from freezegun import configure
@@ -192,6 +206,13 @@ def run_episode(config, case, arm, output):
         tokenizer = load_tokenizer()
         record["environment"] = environment_check()
         identity = request_json(config["inference_url"])
+        if (
+            config.get("expected_policy") is not None
+            and identity != config["expected_policy"]
+        ):
+            raise ValueError(
+                "Serving checkpoint differs from the fixed experiment policy"
+            )
         adapter = EvaluationAdapter(
             config["appworld_root"], case["task_id"], experiment, case["split"]
         )
@@ -218,6 +239,7 @@ def run_episode(config, case, arm, output):
             protocol_harness=True,
             harness_revision=REFACTOR_REVISION,
             clock=execution_clock,
+            memory_config=config.get("memory"),
             **config["student_limits"],
         )
         if identity != session.identity:
@@ -233,6 +255,10 @@ def run_episode(config, case, arm, output):
             {"messages": session.messages, "tools": session.tools},
         )
         write_json(output / "terminal/runtime.json", adapter.runtime())
+        if session.memory is not None:
+            session.memory.save(
+                output / "terminal/memory", session.messages, session.tools
+            )
         write_json(
             output / "terminal/manifest.json",
             {

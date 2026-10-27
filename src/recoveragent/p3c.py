@@ -28,17 +28,22 @@ from .sampling import make_plan, official_pool
 from .state import capture, inspect_snapshot, restore
 from .student import StudentSession
 from .student_evaluation import evaluation_prompt, execution_clock, request_json
+from .task_memory import RUNTIME as MEMORY_RUNTIME, memory_config
 
 RUNTIME = "p3c_shared_execution_20261026"
 BUDGET_STOPS = {"budget_exhausted", "context_budget_exhausted", "completion_claim"}
 
 
-def verify_source():
+def verify_source(runtime=RUNTIME):
     root = Path(__file__).resolve().parents[2]
-    path = root / "configs/p3c_runtime_20261026_lock.json"
+    path = root / (
+        "configs/egtm_v1_runtime_lock.json"
+        if runtime == MEMORY_RUNTIME
+        else "configs/p3c_runtime_20261026_lock.json"
+    )
     lock = read_json(path)
     if (
-        lock["runtime_revision"] != RUNTIME
+        lock["runtime_revision"] != runtime
         or lock["harness_revision"] != REFACTOR_REVISION
     ):
         raise ValueError("Wrong P3-C runtime lock")
@@ -166,13 +171,16 @@ def fixed_plan(pool, settings, seen_tasks, excluded_tasks, split):
 
 def validate_config(config):
     if (
-        config["runtime_revision"] != RUNTIME
+        config["runtime_revision"] not in {RUNTIME, MEMORY_RUNTIME}
         or config["model"] != MODEL
         or config["tool_mode"] != "dynamic_discovery"
         or config["actor_prompt_variant"] != "execution_v5"
         or config["harness_runtime_revision"] != REFACTOR_REVISION
     ):
         raise ValueError("P3-C requires fixed Base-SFT/execution_v5/B protocol")
+    memory = memory_config(config.get("memory"))
+    if memory["enabled"] and config["runtime_revision"] != MEMORY_RUNTIME:
+        raise ValueError("Memory requires its own execution source lock")
     endpoint = urlparse(config["inference_url"])
     if (
         endpoint.scheme != "http"
@@ -233,7 +241,11 @@ def agent_runtime(session):
     if guard and guard["expected"] is not None:
         guard["expected"] = str(guard["expected"])
     return {
-        "format": RUNTIME,
+        "format": getattr(
+            session,
+            "runtime_revision",
+            MEMORY_RUNTIME if session.memory is not None else RUNTIME,
+        ),
         "policy": session.identity,
         "tool_mode": session.tool_mode,
         "usage": copy.deepcopy(session.usage),
@@ -256,6 +268,7 @@ def agent_runtime(session):
         },
         "harness": copy.deepcopy(vars(session.harness)) if session.harness else None,
         "answer_guard": guard,
+        **({"memory": session.memory.identity} if session.memory is not None else {}),
     }
 
 
@@ -275,6 +288,7 @@ def save_boundary(session, destination, position, provenance):
             "tool_mode": session.tool_mode,
         },
         agent_runtime=agent_runtime(session),
+        task_memory=session.memory,
     )
     manifest, _, _ = inspect_snapshot(ref)
     return {
@@ -446,8 +460,10 @@ def run_episode(config, row, directory, provenance, identity):
             protocol_harness=True,
             harness_revision=REFACTOR_REVISION,
             clock=execution_clock,
+            memory_config=config.get("memory"),
             **config["student_limits"],
         )
+        session.runtime_revision = config["runtime_revision"]
         collected = drive(
             session,
             lambda request: request_json(config["inference_url"], request),
@@ -485,7 +501,7 @@ def run_episode(config, row, directory, provenance, identity):
                 }
     termination = session.termination if session else None
     result = {
-        "format": RUNTIME,
+        "format": config["runtime_revision"],
         **row,
         "split": "train",
         "policy": identity,
@@ -547,6 +563,14 @@ def restore_probe(root, source, experiment, output):
             "source_unchanged": inspect_snapshot(source)[0] == original,
             "task_actions_executed": 0,
         }
+        if original["format_version"] == 3:
+            from .task_memory import TaskMemory
+
+            memory = TaskMemory.load(
+                Path(source) / "memory", imported["messages"], imported["tools"]
+            )
+            result["memory_matches"] = memory.identity == agent["memory"]
+            result["memory_identity"] = memory.identity
         if not all(
             v
             for k, v in result.items()
@@ -565,7 +589,11 @@ def collect(config_path, output):
     output.mkdir(parents=True, exist_ok=False)
     rows, stop_reason, identity, restorations = [], None, None, []
     try:
-        lock = verify_source()
+        lock = (
+            verify_source(config["runtime_revision"])
+            if config.get("runtime_revision") == MEMORY_RUNTIME
+            else verify_source()
+        )
         plan = validate_config(config)
         identity = verify_checkpoint(
             config["checkpoint"],
@@ -697,7 +725,7 @@ def collect(config_path, output):
     for row in rows:
         usage.update(row["usage"])
     summary = {
-        "format": RUNTIME,
+        "format": config.get("runtime_revision", RUNTIME),
         "attempted_tasks": len(rows),
         "natural_failures": sum(r["natural_failure"] for r in rows),
         "successes": sum(r["outcome"] == "success" for r in rows),
@@ -745,7 +773,7 @@ def main():
         )
     else:
         config = read_json(a.config)
-        lock = verify_source()
+        lock = verify_source(config["runtime_revision"])
         plan = validate_config(config)
         row = next(r for r in plan["rows"] if r["task_id"] == a.task)
         identity = verify_checkpoint(

@@ -1,10 +1,21 @@
 # 项目状态
 
-- 最后更新：2026-10-26（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.15；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**A100 Base-SFT训练与P3-C基础验收PASS**。短/最长烟测2/1步、正式116步更新/重载通过；固定6任务Raw0/6、SFT4/6（train2/2、内部validation1/2、dev1/2）。P3-C12任务/11家族、7有效自然失败、5预算中断隔离、225完整边界、11独立恢复通过。私有1.74GB包已回传并逐文件校验；自动关机缺平台密钥失败，用户已报告手动关机。泛化与P4-A未验收。
+- 最后更新：2026-10-27（Asia/Shanghai）
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.16；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**EGTM v1工程/软件/无模型真实环境 PASS；真实模型A/B未运行**。默认关闭，输入压缩与不可变证据分离，v3 Memory快照与v1/v2兼容。原A100训练与P3-C结果保留；本轮没有训练、Teacher Recovery、GRPO、模型调用或远程GPU操作。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮A100拉取基线 `60085420299a82f7deb12cf88441f2d221a7900d`（历史P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## EGTM Task Memory v1（2026-10-27）
+
+- **完成**：3个核心模块负责L1带来源/状态的事实及推断计划、L2 JSONL精确索引、独立Context Compiler；接入Student、P3-C/state和原评价入口。只在完整真实批次后更新，保留原任务/约束/全部原始历史与实际编译请求；写/未知副作用保守失效，非法/部分批次不生成成功记忆。
+- **默认与锁**：`configs/egtm_v1.json`默认关闭；独立`egtm_task_memory_20261027`运行锁。旧312个报告/配置、95条数据6616文件和两版checkpoint各7发布文件SHA不变。新v3绑定Memory/索引/来源及Agent runtime，旧v1/v2真实快照inspect通过；旧源码锁应拒绝当前修改。
+- **软件PASS**：289 pytest、Ruff check、114文件format检查通过。含边界/未来隔离、字段原值、分页过滤、失效/推断、混合非法批次、部分写入、关闭后请求/usage精确一致、v3重建校验/版本绑定等。
+- **真实探针PASS**：最终`runs/egtm_probe_20261027_f/`，实际AppWorld/固定Qwen tokenizer，25次脚本回复/29次工具调用意图，真实写读改、业务错误、写后丢返回及pre/post/late 3份独立进程恢复通过。非模型成绩、未运行官方任务评价；全轮c/d/e/f共116次真实工具调用，0模型/付费API/训练。
+- **Token证据**：最终长历史请求37660→17977（52.27%）；完整原历史保留，实际后端请求重分词核对通过。已有12条真实P3-C的218请求只读重算，9请求压缩，累计2471377→2400074（节省71303，2.89%），0无法编译。仅同前缀输入测量，不推断成功率/重复查询收益。
+- **成本与错误**：最终探针约139.31秒，Memory更新0.036秒、编译1.881秒，late Memory约1.53MB。a沙箱初始化阻塞后终止，b探针BatchEncoding序列化失败后修复；c/d/e开发证据保留。真实环境重复验证是检索去重、v3 runtime绑定及失效边界变更后的复验，未付费调用模型。官方Adapter/evaluator/Harness/Prompt/mask不改。
+- **配置与下一步**：A/B固定同A100 Base-SFT adapter、原12 train任务/11家族及相同预算，仅Memory.enabled不同，没有第三组摘要基线。`configs/egtm_v1_eval_{a,b}.json`与可选P3-C配置已准备，本机公开清单/源码/adapter哈希预检通过（`egtm_v1_preflight.json`，未联系backend）；当前无GPU授权，真实模型效果NOT_RUN。之后获授权再验证任务成功率、全部成本、上下文超限/重复调用及错误副作用；不自动启动实例。
+- **证据/命令**：`reports/egtm_v1_report.md`、`egtm_v1_world_probe.json`、`egtm_v1_prefix_audit.json`、`egtm_v1_integrity.json`、`egtm_v1_checks.txt`。实际`.venv/bin/python -m pytest -q`、Ruff；真实探针`PYTHONPATH=src HF_HOME="$PWD/.cache/huggingface" HF_HUB_OFFLINE=1 .venv-harness/bin/python scripts/probe_egtm.py --output runs/egtm_probe_20261027_f --namespace egtm_probe_20261027_f --report reports/egtm_v1_world_probe.json`；只读重算入口`audit_egtm_contexts.py`，完整argv及私有日志见报告。
 
 ## 新A100重训与P3-C（2026-10-26，完成）
 

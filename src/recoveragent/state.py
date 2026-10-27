@@ -9,7 +9,15 @@ POSITIONS = {"post_action", "pre_action", "pre_termination", "budget_exhausted"}
 
 
 def capture(
-    adapter, destination, messages, tools, position, metadata, *, agent_runtime=None
+    adapter,
+    destination,
+    messages,
+    tools,
+    position,
+    metadata,
+    *,
+    agent_runtime=None,
+    task_memory=None,
 ):
     if position not in POSITIONS:
         raise ValueError("Unknown checkpoint position")
@@ -17,6 +25,18 @@ def capture(
         validate_batch_history if agent_runtime is not None else validate_history
     )
     validator(messages)
+    if task_memory is None and agent_runtime is not None and "memory" in agent_runtime:
+        raise ValueError("Cannot omit Memory from a memory-enabled Agent checkpoint")
+    if task_memory is not None:
+        from .task_memory import RUNTIME as MEMORY_RUNTIME
+
+        if agent_runtime is None or agent_runtime.get("memory") != task_memory.identity:
+            raise ValueError("Memory snapshot requires matching Agent runtime")
+        if agent_runtime.get("format") != MEMORY_RUNTIME:
+            raise ValueError("Memory snapshot requires the EGTM runtime version")
+        if task_memory.task_id != adapter.task_id:
+            raise ValueError("Memory snapshot task mismatch")
+        task_memory.validate_boundary(messages, tools)
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
     state_id = "cp_" + destination.name
@@ -27,8 +47,14 @@ def capture(
     write_json(destination / "runtime.json", runtime)
     if agent_runtime is not None:
         write_json(destination / "agent_runtime.json", agent_runtime)
+    if task_memory is not None:
+        task_memory.save(destination / "memory", messages, tools)
     manifest = {
-        "format_version": 2 if agent_runtime is not None else 1,
+        "format_version": 3
+        if task_memory is not None
+        else 2
+        if agent_runtime is not None
+        else 1,
         "task_id": adapter.task_id,
         "split": "train",
         "position": position,
@@ -58,12 +84,25 @@ def inspect_snapshot(source):
         raise ValueError("Checkpoint files were modified")
     context = read_json(source / "context.json")
     version = manifest.get("format_version")
-    if version not in {1, 2}:
+    if version not in {1, 2, 3}:
         raise ValueError("Unsupported checkpoint format")
-    validator = validate_batch_history if version == 2 else validate_history
+    validator = validate_batch_history if version in {2, 3} else validate_history
     validator(context["messages"])
-    if version == 2 and "agent_runtime.json" not in manifest["files"]:
+    if version in {2, 3} and "agent_runtime.json" not in manifest["files"]:
         raise ValueError("Batch checkpoint requires agent runtime")
+    if version == 3:
+        from .task_memory import TaskMemory, RUNTIME as MEMORY_RUNTIME
+
+        memory = TaskMemory.load(
+            source / "memory", context["messages"], context["tools"]
+        )
+        agent = read_json(source / "agent_runtime.json")
+        if (
+            memory.task_id != manifest["task_id"]
+            or agent.get("memory") != memory.identity
+            or agent.get("format") != MEMORY_RUNTIME
+        ):
+            raise ValueError("Checkpoint Memory/runtime binding mismatch")
     if (
         digest(context["messages"]) != manifest["history_hash"]
         or digest(context["tools"]) != manifest["tool_schema_hash"]

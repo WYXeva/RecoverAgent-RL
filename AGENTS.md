@@ -1,6 +1,6 @@
 # AGENTS.md — RecoverAgent-RL
 
-> 工作约定 v0.15 · 2026-10-26
+> 工作约定 v0.16 · 2026-10-27
 > 适用范围：本项目及子目录。需求与完整验收见 `PROJECT_PLAN.md`。  
 > 本文件中的规则可随项目证据与用户后续要求更新；不要把第一版设计当作不可更改的既定结论。
 
@@ -69,6 +69,12 @@ v0.10 用户授权最终金额格式检查与一次模型自纠正。新 `execut
 用户提供新SSH并明确要求重新训练SFT、完成此前未完成测试、结束关机。本轮允许在该已运行A100 80GB执行原95条数据的既定BF16+LoRA单epoch重训；依次通过数据/分词/真实AppWorld/短长样本训练门槛，保留原checkpoint、数据和源码锁。训练继续用原包匹配源码与BF16补充锁，不用新版Harness源码绕过旧包锁。
 
 新运行绑定shared_execution_20261025 Harness与独立20261026源码锁；按同一历史六任务清单做Raw/SFT对照（明确属于已检查的开发任务），用新checkpoint执行固定12个train任务的P3-C及独立检查点恢复。A100显存门槛单独配置，不改旧96GB配置。正式Student、数据、Prompt、预算不变，不启动Teacher Recovery、Recovery-SFT或GRPO。回传并校验新checkpoint/证据后关闭本次服务器，不删除数据或自动租机。
+
+### v0.16：EGTM Task Memory（2026-10-27）
+
+用户授权默认关闭的轻量 EGTM：仅从当前任务完整真实批次建立 observed 事实、证据索引和 inferred 计划，写入/未知副作用使旧观察 stale。不得用隐藏答案、评价或未来历史更新 Memory。Context Compiler 独立构建实际请求，保留原任务约束、当时 Schema、合法调用配对及不可变原始历史；不能安全压缩时明确停止。Qwen tokenizer/non-thinking 模板、execution_v5 和共享 Harness 不改。
+
+新独立 `egtm_task_memory_20261027` 源码锁与 v3 快照绑定 Memory/索引/来源/Agent runtime，继续读取原 v1/v2；旧数据、权重、锁和成绩不改。实验仅 A=同一 Base-SFT 无 Memory、B=启用 EGTM，固定任务、模型及预算，没有第三种摘要基线。本轮只允许软件测试、无模型真实 AppWorld 探针和已有历史的只读分词重算；不重训、不启动 Teacher Recovery/GRPO/付费 GPU，不把 Token 节省冒称真实模型收益。交付见 `reports/egtm_v1_report.md`。
 
 ## 2. 每次开始工作
 
@@ -250,3 +256,4 @@ P0–P2 已完成本地基础设施验收。下一轮在**本机 P3-A**收集/�
 
 | v0.14 | 2026-10-25 | 授权评价/Schema修复、已训练4B自然失败采集与完整批次多检查点；远程不可用不自动启动，P4恢复留待下一阶段。 |
 | v0.15 | 2026-10-26 | 授权新A100重新执行既定Base-SFT、固定Raw/SFT测试和P3-C；新运行锁，备份后关机。 |
+| v0.16 | 2026-10-27 | EGTM 默认关闭、三层证据记忆/上下文编译/v3 快照；新独立锁和同 Base-SFT A/B 配置，仅软件及无模型真实环境验证。 |

@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "scope": "local public train plan, source lock and saved adapter hash preflight; no GPU/model execution",
+  "tasks": 12,
+  "families": 11,
+  "runtime_lock_sha256": "83fb78507ddafa13c7fbd41b5c216951b7b80a353c2893c0666d7487a0fa2d7c",
+  "policy": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "adapter:34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd"
+  },
+  "backend_contacted": false,
+  "gpu_started": false
+}

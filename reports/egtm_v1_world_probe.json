@@ -1,0 +1,299 @@
+{
+  "status": "PASS",
+  "source_lock_sha256": "83fb78507ddafa13c7fbd41b5c216951b7b80a353c2893c0666d7487a0fa2d7c",
+  "scope": "real AppWorld + pinned Qwen tokenizer, SCRIPTED completions only",
+  "task_id": "e3d6c94_3",
+  "environment": {
+    "sqlalchemy": "2.0.52",
+    "sqlmodel": "0.0.48",
+    "uri_roundtrip": true
+  },
+  "real_model_requests": 0,
+  "weights_loaded": false,
+  "training_started": false,
+  "actual_tool_call_intents": 29,
+  "scripted_requests": 25,
+  "usage": {
+    "model_requests": 25,
+    "generated_tokens": 1455,
+    "prompt_tokens": 322320,
+    "tool_calls": 29,
+    "unknown_generation_reservation": 0,
+    "tool_requests": 29,
+    "harness_rejections": 0,
+    "protocol_rejections": 1,
+    "harness_notices": 2,
+    "memory_update_seconds": 0.03645490016788244,
+    "context_compile_seconds": 1.8805158018949442,
+    "uncompressed_prompt_tokens": 419888,
+    "compressed_requests": 7
+  },
+  "checkpoints": 3,
+  "restorations": [
+    {
+      "status": "PASS",
+      "pid": 1500018,
+      "checkpoint_id": "6bf42a655fe15f58d2d914b00d4077b9f0ceca12634d061587497dbbe5c51f38",
+      "database_matches": true,
+      "history_matches": true,
+      "tools_match": true,
+      "runtime_matches": true,
+      "agent_runtime_sha256": "3c083e950f6553cb960330e969ab4860388cd30beacf86b82f88a7e2821179fa",
+      "agent_runtime_integrity_verified": true,
+      "task_active_matches": true,
+      "source_unchanged": true,
+      "task_actions_executed": 0,
+      "memory_matches": true,
+      "memory_identity": {
+        "version": "egtm-task-memory-v1",
+        "config_sha256": "e9df64f58370a02c3e0c3cf3a719bf980458ed7891f2e3f19eafaa31895868e3",
+        "index": {
+          "version": "egtm-evidence-jsonl-v1",
+          "rows": 8,
+          "sha256": "a37f8302632f35e386d9d87ff5461418f550279d25301e143a20b08701a989be"
+        },
+        "state_sha256": "db86959634238a7ac9ebfc7b2c0b566b0b27ebfe13e2a1e63ebb25926e0c013b"
+      }
+    },
+    {
+      "status": "PASS",
+      "pid": 1500175,
+      "checkpoint_id": "5be4918e387049c862d2c7c24b3722dc4022d3a12139e9ee43175f539e10432a",
+      "database_matches": true,
+      "history_matches": true,
+      "tools_match": true,
+      "runtime_matches": true,
+      "agent_runtime_sha256": "bf4c757a4ab591be7c07e32b9db4c48ec812ad31087e844385148f275dd7b238",
+      "agent_runtime_integrity_verified": true,
+      "task_active_matches": true,
+      "source_unchanged": true,
+      "task_actions_executed": 0,
+      "memory_matches": true,
+      "memory_identity": {
+        "version": "egtm-task-memory-v1",
+        "config_sha256": "e9df64f58370a02c3e0c3cf3a719bf980458ed7891f2e3f19eafaa31895868e3",
+        "index": {
+          "version": "egtm-evidence-jsonl-v1",
+          "rows": 9,
+          "sha256": "396e57142b60873ca12f4f610b8a0f78a998e45148d04083282e5461a1a21c47"
+        },
+        "state_sha256": "6490419d2d6dc13aa3ef53875721f3da7af528e14ce0cfbf68d30a1a62cf7d5c"
+      }
+    },
+    {
+      "status": "PASS",
+      "pid": 1500436,
+      "checkpoint_id": "aa74cbedab0e336e8e5402050a1ee7ddda1229f99d4afffd79a928df64a5bf8d",
+      "database_matches": true,
+      "history_matches": true,
+      "tools_match": true,
+      "runtime_matches": true,
+      "agent_runtime_sha256": "15cfc15ac470f341e8eeecb3df58afd2af2d1e1feaea2f851b4b2e5275ab3ca1",
+      "agent_runtime_integrity_verified": true,
+      "task_active_matches": true,
+      "source_unchanged": true,
+      "task_actions_executed": 0,
+      "memory_matches": true,
+      "memory_identity": {
+        "version": "egtm-task-memory-v1",
+        "config_sha256": "e9df64f58370a02c3e0c3cf3a719bf980458ed7891f2e3f19eafaa31895868e3",
+        "index": {
+          "version": "egtm-evidence-jsonl-v1",
+          "rows": 27,
+          "sha256": "135139b3cf3ccfb639230f4ad724d06e652e6808fa890823a7c352129bf7b92d"
+        },
+        "state_sha256": "fc0a664746c40669f48e45bfdc32614cc521368b93bd9ba44ffa75bacc700e08"
+      }
+    }
+  ],
+  "write_invalidation_pass": true,
+  "partial_batch_rejected": true,
+  "compiled_requests": 8,
+  "token_measurements": [
+    {
+      "request": 1,
+      "original_tokens": 3132,
+      "compiled_tokens": 3132,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 2,
+      "original_tokens": 3239,
+      "compiled_tokens": 3239,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 3,
+      "original_tokens": 5373,
+      "compiled_tokens": 5373,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 4,
+      "original_tokens": 5543,
+      "compiled_tokens": 5543,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 5,
+      "original_tokens": 5715,
+      "compiled_tokens": 5715,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 6,
+      "original_tokens": 5954,
+      "compiled_tokens": 5954,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 7,
+      "original_tokens": 6332,
+      "compiled_tokens": 6332,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 8,
+      "original_tokens": 6495,
+      "compiled_tokens": 6495,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 9,
+      "original_tokens": 6734,
+      "compiled_tokens": 6734,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 10,
+      "original_tokens": 8659,
+      "compiled_tokens": 8659,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 11,
+      "original_tokens": 10647,
+      "compiled_tokens": 10647,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 12,
+      "original_tokens": 12635,
+      "compiled_tokens": 12635,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 13,
+      "original_tokens": 14560,
+      "compiled_tokens": 14560,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 14,
+      "original_tokens": 16485,
+      "compiled_tokens": 16485,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 15,
+      "original_tokens": 18410,
+      "compiled_tokens": 18410,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 16,
+      "original_tokens": 20335,
+      "compiled_tokens": 20335,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 17,
+      "original_tokens": 22260,
+      "compiled_tokens": 22260,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 18,
+      "original_tokens": 24185,
+      "compiled_tokens": 24185,
+      "reserve_tokens": 4096,
+      "compressed": false
+    },
+    {
+      "request": 19,
+      "original_tokens": 26110,
+      "compiled_tokens": 17917,
+      "reserve_tokens": 4096,
+      "compressed": true
+    },
+    {
+      "request": 20,
+      "original_tokens": 28035,
+      "compiled_tokens": 17929,
+      "reserve_tokens": 4096,
+      "compressed": true
+    },
+    {
+      "request": 21,
+      "original_tokens": 29960,
+      "compiled_tokens": 17932,
+      "reserve_tokens": 4096,
+      "compressed": true
+    },
+    {
+      "request": 22,
+      "original_tokens": 31885,
+      "compiled_tokens": 17945,
+      "reserve_tokens": 4096,
+      "compressed": true
+    },
+    {
+      "request": 23,
+      "original_tokens": 33810,
+      "compiled_tokens": 17954,
+      "reserve_tokens": 4096,
+      "compressed": true
+    },
+    {
+      "request": 24,
+      "original_tokens": 35735,
+      "compiled_tokens": 17973,
+      "reserve_tokens": 4096,
+      "compressed": true
+    },
+    {
+      "request": "next_unsent",
+      "original_tokens": 37660,
+      "compiled_tokens": 17977,
+      "reserve_tokens": 4096,
+      "compressed": true
+    },
+    {
+      "request": 25,
+      "original_tokens": 37660,
+      "compiled_tokens": 17977,
+      "reserve_tokens": 4096,
+      "compressed": true
+    }
+  ],
+  "wall_seconds": 139.3054562699981,
+  "success_rate_or_model_benefit": "NOT_MEASURED",
+  "official_task_evaluation": "NOT_RUN"
+}

@@ -59,8 +59,15 @@ def setup_module_fixture(tmp_path, monkeypatch):
 
 
 def test_new_source_locks_and_original_locks_coexist():
-    assert len(verify_source()) == 64
-    assert verify_execution_runtime()["revision"] == "p3b_shared_execution_20261026"
+    from recoveragent.task_memory import RUNTIME as MEMORY_RUNTIME
+
+    assert len(verify_source(MEMORY_RUNTIME)) == 64
+    assert verify_execution_runtime(MEMORY_RUNTIME)["revision"] == MEMORY_RUNTIME
+    # Old locks deliberately reject changed runtime source, not silently rehashed.
+    with pytest.raises(ValueError, match="source changed"):
+        verify_source()
+    with pytest.raises(ValueError, match="source changed"):
+        verify_execution_runtime()
     assert read_json("configs/p3c_runtime_lock.json")["runtime_revision"] == (
         "p3c_complete_boundaries_20261025"
     )
