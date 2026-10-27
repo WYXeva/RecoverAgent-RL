@@ -1,0 +1,264 @@
+{
+  "format": "workspace-cleanup-v1",
+  "baseline_commit": "1ce064c761d0f2eef4577fd0733ea20d0479e76d",
+  "started_at_utc": "2026-10-27T14:34:29.238426+00:00",
+  "status": "PASS",
+  "allocated_bytes_before": 33961426944,
+  "deleted_duplicate_files": [
+    {
+      "path": "runs/p3b_formal_chunks/part_000",
+      "bytes": 67108864,
+      "sha256": "ca7c6b0472c30c3ccd83dbf53286ae4d9881caf824f5887b3963350846eae573",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 0
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_001",
+      "bytes": 67108864,
+      "sha256": "deff943867bfb7ee896c83418dffa3d6f7ecded32435aad36e65cdcce3fd90b8",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 67108864
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_002",
+      "bytes": 67108864,
+      "sha256": "567139cf5a7ba42fb4fb4400c9080a83f8ab3dbd23dcc96523ead42fa239a9f0",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 134217728
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_003",
+      "bytes": 67108864,
+      "sha256": "24a2cc92e78c5f385f26628902f9f8ec34ad1f47db7c22c23bb14e50bc2b79c4",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 201326592
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_004",
+      "bytes": 67108864,
+      "sha256": "8e54b2ffc448b55da896608da44429ffccd322e06ae9ad1bff9273274eb6d9a0",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 268435456
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_005",
+      "bytes": 67108864,
+      "sha256": "e3d177e3fd4767dce38a8ffd4912f5acf30c42e7bb056a2dd782fbc1d3d362af",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 335544320
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_006",
+      "bytes": 67108864,
+      "sha256": "6c61a84c87faad6c57fd6126cc760fe79fd27e76e1b9ba45eddf5f5f383ef174",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 402653184
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_007",
+      "bytes": 67108864,
+      "sha256": "fade0f5ebfb6e2e27039312324b597e3f4860d998665585cbd7d5001a2431789",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 469762048
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_008",
+      "bytes": 67108864,
+      "sha256": "a5f67fda9f8dad11327b93d290d028ce87970d0350e69a9aee62b4f2f1fb3fd7",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 536870912
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_009",
+      "bytes": 67108864,
+      "sha256": "3ba46c1eb3a159ac992fb8f7dcf2657de5d459daa8f0c243589407c77f491906",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 603979776
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_010",
+      "bytes": 67108864,
+      "sha256": "8c7f845a6492c1c8b76ab13b7afa2407ff7216faa9f50390773ad16f72fa6c9f",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 671088640
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_011",
+      "bytes": 67108864,
+      "sha256": "d471edc31d01863059ddbfce4243fb6e5ca5bb77259dd5f4b64469354d690823",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 738197504
+    },
+    {
+      "path": "runs/p3b_formal_chunks/part_012",
+      "bytes": 62153044,
+      "sha256": "be880eeed40bbd66cb394f246828b10eaae00e3ba84bdbbfa7cbd74495022817",
+      "retained_archive": "runs/p3b_remote_20261023_formal.tar.gz",
+      "archive_sha256": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "offset_bytes": 805306368
+    },
+    {
+      "path": "runs/a100_remote_20261026_parts/part0",
+      "bytes": 435639124,
+      "sha256": "00aeb20f561745adbbab09d306bc2c28449300b00a65b1b44f3bbc6d3dbe5bdb",
+      "retained_archive": "runs/a100_remote_20261026_verified.tar.gz",
+      "archive_sha256": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752",
+      "offset_bytes": 0
+    },
+    {
+      "path": "runs/a100_remote_20261026_parts/part1",
+      "bytes": 435639124,
+      "sha256": "06d290cf7a588711870c1575bedaa9cf6c6a5a3bed8b62b0048ec400b3919822",
+      "retained_archive": "runs/a100_remote_20261026_verified.tar.gz",
+      "archive_sha256": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752",
+      "offset_bytes": 435639124
+    },
+    {
+      "path": "runs/a100_remote_20261026_parts/part2",
+      "bytes": 435639124,
+      "sha256": "4913a3f2cc3e446722359456ef7c70a33d92547ab365c6761fe056fd6e33d01b",
+      "retained_archive": "runs/a100_remote_20261026_verified.tar.gz",
+      "archive_sha256": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752",
+      "offset_bytes": 871278248
+    },
+    {
+      "path": "runs/a100_remote_20261026_parts/part3",
+      "bytes": 435639121,
+      "sha256": "89225610f09c5292841ebebc8748b2e5e564fcab88be36adbfa6bdb92b768630",
+      "retained_archive": "runs/a100_remote_20261026_verified.tar.gz",
+      "archive_sha256": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752",
+      "offset_bytes": 1306917372
+    },
+    {
+      "path": "runs/a100_remote_20261026.tar.gz",
+      "bytes": 87997440,
+      "sha256": "398b6ceebf4aef4ad5ce261fff3d4a7baeb20269c565e9820b3d0d1807d89dfb",
+      "retained_archive": "runs/a100_remote_20261026_verified.tar.gz",
+      "archive_sha256": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752",
+      "offset_bytes": 0
+    },
+    {
+      "path": "runs/a100_remote_20261026_download2.tar.gz",
+      "bytes": 44130304,
+      "sha256": "d98215b7ac1791d03bd547a15c3b85789e85e7ec21445ed16e537b807e516ecf",
+      "retained_archive": "runs/a100_remote_20261026_verified.tar.gz",
+      "archive_sha256": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752",
+      "offset_bytes": 0
+    }
+  ],
+  "deleted_cache_dirs": [
+    {
+      "path": ".cache/pip",
+      "file_count": 746
+    },
+    {
+      "path": ".pytest_cache",
+      "file_count": 5
+    },
+    {
+      "path": ".ruff_cache",
+      "file_count": 5
+    },
+    {
+      "path": "src/recoveragent/__pycache__",
+      "file_count": 47
+    },
+    {
+      "path": "scripts/__pycache__",
+      "file_count": 22
+    },
+    {
+      "path": "tests/__pycache__",
+      "file_count": 39
+    }
+  ],
+  "duplicate_logical_bytes": 2742143649,
+  "cache_logical_bytes": 1249725977,
+  "protected_before": {
+    "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+    "dataset_files_verified": 6616,
+    "checkpoint_files_verified": 14,
+    "adapter_file_sha256": {
+      "runs/p3b_remote_20261023/checkpoints/run_003/formal": "14ef88e8d9d460e7806b9decf7ddd73a2fcd926486feefcb77800359e394f2ff",
+      "runs/a100_remote_20261026/checkpoints/run_001/formal": "7ff116bb81a7cf8e878b8ae7d122a2b5e4839cd5c2567b29279095c0bf39376f"
+    },
+    "retained_archives": {
+      "runs/p3b_remote_20261023_formal.tar.gz": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "runs/a100_remote_20261026_verified.tar.gz": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752"
+    }
+  },
+  "recovery": "Duplicate files can be reconstructed by reading bytes at offset_bytes for bytes length from retained_archive; its SHA-256 is recorded. Installer/test/bytecode caches regenerate on use.",
+  "paid_calls": 0,
+  "training_started": false,
+  "protected_after": {
+    "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+    "dataset_files_verified": 6616,
+    "checkpoint_files_verified": 14,
+    "adapter_file_sha256": {
+      "runs/p3b_remote_20261023/checkpoints/run_003/formal": "14ef88e8d9d460e7806b9decf7ddd73a2fcd926486feefcb77800359e394f2ff",
+      "runs/a100_remote_20261026/checkpoints/run_001/formal": "7ff116bb81a7cf8e878b8ae7d122a2b5e4839cd5c2567b29279095c0bf39376f"
+    },
+    "retained_archives": {
+      "runs/p3b_remote_20261023_formal.tar.gz": "70706c6547267f2a8827536f3344c858d10af3ef14a811a44bba41bb7ffafc55",
+      "runs/a100_remote_20261026_verified.tar.gz": "1e9e7786e3c9202b47e1993ed8b6bd7b0385ac7c11318763d97e7d8d11b28752"
+    }
+  },
+  "allocated_bytes_after": 29962047488,
+  "allocated_bytes_reclaimed": 3999379456,
+  "finished_at_utc": "2026-10-27T14:34:32.457643+00:00",
+  "software_verification": {
+    "pytest": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider",
+      "passed": 395,
+      "seconds": 1.63
+    },
+    "ruff_check": {
+      "command": ".venv/bin/ruff check --no-cache src scripts tests",
+      "status": "PASS"
+    },
+    "ruff_format": {
+      "command": ".venv/bin/ruff format --check --no-cache src scripts tests",
+      "status": "PASS",
+      "files": 126
+    },
+    "execution_v6_runtime_lock": {
+      "revision": "execution_v6_20261027",
+      "lock_sha256": "56c63b44619d9180514fc2298a345318154856630419e19c428580d942f8ba26"
+    },
+    "p3c_runtime_lock_sha256": "56c63b44619d9180514fc2298a345318154856630419e19c428580d942f8ba26",
+    "readme_local_links_verified": 26
+  },
+  "structure_cleanup": {
+    "readme_bytes_before": 9765,
+    "readme_bytes_after": 3883,
+    "changes": [
+      "Current workflow navigation replaces repeated historical status summaries.",
+      "Historical reports remain linked under a collapsed section.",
+      "Old 1.7B commands removed from the current landing page; historical reproduction report remains."
+    ],
+    "tracked_files_checked": 545,
+    "unchanged_tracked_files": 542,
+    "changed_tracked_files": [
+      "README.md",
+      "docs/DECISIONS.md",
+      "docs/STATUS.md"
+    ],
+    "runtime_source_or_config_changes": false,
+    "tracked_scripts_examined": 47,
+    "unused_runtime_scripts_removed": 0,
+    "reason": "All 47 scripts have references in configuration, tests, reports or source manifests. Historical reference alone is not proof of current use, but deleting them here would break evidence paths. No runtime dead code was established."
+  },
+  "deleted_file_count": 883
+}
