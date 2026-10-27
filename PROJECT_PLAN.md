@@ -1,5 +1,7 @@
 # RecoverAgent-RL：项目计划与需求文档
 
+> **分阶段执行补充（2026-10-27）**：当前执行范围由 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md) 控制：本轮仅 Stage 1（Full732 候选 A244/B244/C244 元数据、独立权限/运行就绪门禁、一个获允许的 train/合成最小探针），完成即停止；Stage 2–6 不得提前实现或执行。旧文档中的长期路线和历史授权不构成此次新训练/付费推理的授权。继续保留官方 AppWorld 用途约束和所有历史数据、权重、实验锁。execution_v6 的唯一业务 System Prompt 不受本阶段影响。
+
 > 2026-10-23 P3-B授权更新：用户明确授权在已提供的远程RTX PRO 6000 96GB上，数据/环境/短长烟测全部通过后执行既定Qwen3-4B Base-SFT和固定Raw对照；保留95条原数据与源码锁，结束回传checkpoint并关机。不启动Recovery-SFT或GRPO。旧阶段“不训练”文字为当时范围，当前以本项授权为准；实际验收见`reports/p3b_base_sft_report.md`。
 
 > 2026-10-25 P3-C授权更新：先修正评价分类与具体Schema反馈，使用既有4B Base-SFT采集固定train任务自然失败，保存多检查点并独立进程验证。固定12任务中8个未见、4个已见，分开统计且排除内部validation家族。不自动开启付费机器，不重训Base-SFT，不提前启动P4-A/Recovery-SFT/GRPO。新协议独立锁定，旧证据保留。
