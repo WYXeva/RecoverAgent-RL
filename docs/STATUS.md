@@ -2,9 +2,19 @@
 
 - 最后更新：2026-10-27（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.19；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Harness-Managed Memory 29k本地工程/350测试/真实AppWorld探针PASS，真实Qwen重实验NOT_RUN，等待用户开机**。按要求先完成本地，本轮不SSH/GPU，不重训/P4-A/GRPO；原v2.1真实小样本及全部历史保留。
+- 当前状态：**Harness29k真实小样本PARTIAL / INCOMPLETE：执行3/6，A两任务0/2、B一任务0/1，0压缩事件**。首任务A/B全10轮输入/输出IDs一致；第二任务A协议纠错耗尽，按冻结规则停止。31请求回放、350测试/Ruff通过。模型已退出、证据已回传；自动关机因平台缺密钥失败，已请求用户手动关机，当前待确认。未训练/P4-A/GRPO。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Harness 29k基线 `23a7d41beb35f950196a99ebe49b1a0ed21b8fca`（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Harness29k现有A100真实重实验（2026-10-27）
+
+- **授权与版本**：用户确认已开机后运行；源码提交2b6f998、锁ff37168b不变，隔离目录不覆盖旧实验。核验原Qwen3-4B revision/adapter参数SHA、模板、data manifest、AppWorld和两套Python环境。未改prompt、重训或追加任务。
+- **实际结果PARTIAL**：固定首任务287e338_3 A/B均官方有效失败，10次请求/12工具，各79757输入/641输出，全部输入/输出IDs相同；第二任务3c13f5a_1仅A运行，11请求/11工具，72708输入/518输出，官方有效失败。其3次协议拒绝用尽两次纠正机会，控制器停止第二任务B和第三任务A/B。有效评价3，基础设施0、未知0；不能报告完整A/B或0/3成功率。
+- **失败证据**：首任务只查推荐第0页20条，未确认完整覆盖；第二任务前两次缺app_name，中途查询不存在的phone API得到两次422，最后将username/password嵌入文档查询不允许的parameters字段，非法批次未执行。业务422不消耗协议预算、不触发服务熔断。31回复全部EOS，最长输入13412，非token截断/上下文耗尽。
+- **Memory与成本**：B未达到29000，0压缩/0净输入节省、0内部模型调用，真实长任务效用未测。合计31请求、232222输入/1800输出、35工具；生成138.34秒，worker合计299.90秒、控制器304.13秒，GPU峰值allocated10.88GiB，货币账单未知。规则维护0.017秒、编译0.279秒。
+- **证据与校验**：`reports/egtm_harness_29k_live_report.md`及同前缀results/audit/remote/shutdown/checks；私有`runs/egtm_harness29k_live_20261027/`。1.33MB归档SHA6cdc3f58...afe1307，251文件核验，31真实请求直接tokenizer回放/B终态Memory重建通过。364旧报告/配置未改；完整350测试和Ruff通过。
+- **关机待确认**：本轮backend已停止，0MiB；实验结束147.50秒后shutdown返回缺关机密钥，已即时通知用户手动关机。证据安全落地后仅本地处理，不冒称已关机或账单已停止。
+- **下一步**：此次阈值前行为一致得到实测支持，29k真实压缩尚无样本；后续若继续，应先明确是否让单任务模型协议失败只结束本任务，并预先固定后续任务，避免尚未触阈值就全批终止。本轮不修改该冻结规则、不扩预算或自动再开机。
 
 ## Harness-Managed Memory 29k（2026-10-27）
 

@@ -1,0 +1,15 @@
+{
+  "requested_unix": 1793090736.1322548,
+  "command": "/usr/local/sbin/shutdown",
+  "local_evidence_sha256": "6cdc3f58a1e75a64cd2370c2ee81a5f1a4ba9e358fdb40261a1f6c9bbafe1307",
+  "backup_verified": true,
+  "gpu": "0 MiB, 0 %\n",
+  "returncode": 255,
+  "stdout": "关机中...\n未设置关机密钥\n",
+  "stderr": "",
+  "automatic_shutdown_succeeded": false,
+  "manual_shutdown_user_reported": false,
+  "manual_confirmation_pending": true,
+  "platform_state_independently_verified": false,
+  "seconds_experiment_finish_to_first_shutdown_request": 147.49866437911987
+}

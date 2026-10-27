@@ -1,0 +1,76 @@
+{
+  "status": "PASS_REMOTE_PREFLIGHT_AND_TRANSFER",
+  "source": {
+    "sha256": "4fb6fdb0b3f3fd153223a630669ffb38e69d3dec80485053252fe71a443312bb",
+    "bytes": 921997,
+    "source_commit": "2b6f99823999231ff9cc0637aad2c0b63d1d30cb",
+    "files": 510
+  },
+  "preflight": {
+    "returncode": 0,
+    "worker": {
+      "source_sha": "ff37168beefddbda0a8d12ce291a123d103f5d03496e4c880e3d43caddf510a6",
+      "policy": {
+        "model": "Qwen/Qwen3-4B",
+        "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+        "thinking": false,
+        "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+        "checkpoint_id": "adapter:34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd"
+      },
+      "environment": {
+        "sqlalchemy": "2.0.52",
+        "sqlmodel": "0.0.48",
+        "uri_roundtrip": true
+      },
+      "tokenizer_class": "Qwen2TokenizerFast",
+      "tasks": [
+        "287e338_3",
+        "3c13f5a_1",
+        "229360a_2"
+      ],
+      "packages": {
+        "transformers": "4.57.6",
+        "appworld": "0.2.0.dev0",
+        "pydantic": "2.12.3",
+        "sqlalchemy": "2.0.52",
+        "sqlmodel": "0.0.48",
+        "freezegun": "1.5.1"
+      }
+    },
+    "worker_stderr": "None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.\n",
+    "model_env_returncode": 0,
+    "model_env": {
+      "cuda_available": true,
+      "gpu": "NVIDIA A100-SXM4-80GB",
+      "packages": {
+        "torch": "2.10.0+cu128",
+        "transformers": "4.57.6",
+        "peft": "0.18.0",
+        "accelerate": "1.12.0"
+      }
+    },
+    "dataset_manifest": [
+      {
+        "path": "data/base_sft_v1/manifest.json",
+        "sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c"
+      }
+    ],
+    "disk_free_bytes": 29206196224,
+    "unix": 1793090129.2043965
+  },
+  "controller": {
+    "stop_reason": "protocol_correction_exhausted",
+    "executions": 3,
+    "wall_seconds": 304.13430404663086,
+    "ended_unix": 1793090588.6335905,
+    "training_started": false
+  },
+  "evidence_archive_sha256": "6cdc3f58a1e75a64cd2370c2ee81a5f1a4ba9e358fdb40261a1f6c9bbafe1307",
+  "evidence_archive_bytes": 1334798,
+  "evidence_files_verified": 251,
+  "backend_process_seconds": 392.79422998428345,
+  "controller_sha256": "f0ac280ff2dc9f5878e1d77f936f623b0a5c199f289409dc51452c16a28ed64c",
+  "fee": "UNKNOWN; no hourly price or provider billing verified",
+  "training_started": false,
+  "old_runs_overwritten": false
+}
