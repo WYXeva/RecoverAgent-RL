@@ -22,6 +22,7 @@ from .adapter import AppWorldAdapter
 from .base_sft import MODEL, REVISION, TEMPLATE_SHA256, load_tokenizer
 from .demonstrations import sha256
 from .evaluation import environment_check, evaluate_isolated
+from .execution_v6 import RUNTIME as PROMPT_RUNTIME, VARIANT as CURRENT_PROMPT
 from .harness import REFACTOR_REVISION
 from .io import canonical, digest, files_manifest, read_json, write_json
 from .sampling import make_plan, official_pool
@@ -47,7 +48,9 @@ BUDGET_STOPS = {"budget_exhausted", "context_budget_exhausted", "completion_clai
 def verify_source(runtime=RUNTIME):
     root = Path(__file__).resolve().parents[2]
     path = root / (
-        "configs/egtm_harness_29k_runtime_lock.json"
+        "configs/execution_v6_runtime_lock.json"
+        if runtime == PROMPT_RUNTIME
+        else "configs/egtm_harness_29k_runtime_lock.json"
         if runtime == HARNESS_RUNTIME
         else "configs/egtm_v2_improvement_runtime_lock.json"
         if runtime == VISIBLE_RUNTIME
@@ -188,13 +191,24 @@ def fixed_plan(pool, settings, seen_tasks, excluded_tasks, split):
 def validate_config(config):
     if (
         config["runtime_revision"]
-        not in {RUNTIME, MEMORY_RUNTIME, HARNESS_RUNTIME, *MODEL_RUNTIMES}
+        not in {
+            PROMPT_RUNTIME,
+            RUNTIME,
+            MEMORY_RUNTIME,
+            HARNESS_RUNTIME,
+            *MODEL_RUNTIMES,
+        }
         or config["model"] != MODEL
         or config["tool_mode"] != "dynamic_discovery"
-        or config["actor_prompt_variant"] != "execution_v5"
+        or config["actor_prompt_variant"]
+        != (
+            CURRENT_PROMPT
+            if config["runtime_revision"] == PROMPT_RUNTIME
+            else "execution_v5"
+        )
         or config["harness_runtime_revision"] != REFACTOR_REVISION
     ):
-        raise ValueError("P3-C requires fixed Base-SFT/execution_v5/B protocol")
+        raise ValueError("P3-C requires the versioned Base-SFT/v5-or-v6/B protocol")
     memory = memory_config(config.get("memory"))
     if memory["enabled"] and config["runtime_revision"] != (
         HARNESS_RUNTIME

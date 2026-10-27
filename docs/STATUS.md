@@ -1,10 +1,17 @@
 # 项目状态
 
 - 最后更新：2026-10-27（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.20；正式 Student `Qwen/Qwen3-4B`。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
 - 当前状态：**Phase0–1审计/清单/接口完成；完整732自定义训练BLOCKED；train替代方案运行评分PARTIAL**。真实732任务/244场景、全部三变体；仅train的A/B/C各30冻结。90/90初态及只读API通过，84个有效初态评价、6个未知，未改奖励/换题。389软件测试及Ruff通过；新M1/M2/M3均未训练或授权，本轮0模型/Teacher/GPU/SSH。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Harness 29k基线 `23a7d41beb35f950196a99ebe49b1a0ed21b8fca`（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## 用户指定System Prompt execution_v6（2026-10-27）
+
+- **完成**：英文全文原样写入`src/recoveragent/execution_v6.py`；Teacher/Student共用，v6不追加旧提示/Harness/数值规则/预算段落。内容SHA `5ef2bb774a258ba0a0e00d94284a29720bad3d2578c9a2a54ec94a594272dbba`。B动态发现使用v6，旧A原样保留。
+- **接入/版本**：新`execution_v6_20261027`独立锁、`shared_stage_validation_v2.json`成为共享评估默认；Teacher配置验证、Student评估和P3-C可识别新版本。当前任务划分、执行预算、Memory关闭、模型与模板不变，6个未知评价造成的评分门槛仍PARTIAL。
+- **验证**：395测试、Ruff通过；合成Teacher请求落盘文本与Student构造文本完全一致，旧v5 A/B提示逐字节回退一致。新运行锁通过，旧锁不变且拒绝变更后的调用端源码。证据`reports/execution_v6_checks.txt`、`reports/execution_v6_integrity.json`。
+- **范围/限制**：无真实模型、Teacher请求、AppWorld探针、GPU/SSH或训练；不修改历史95条轨迹、权重、旧报告。真实提示效果未验证。实际命令`PYTHONPATH=src:. .venv/bin/python -m pytest -q`、Ruff check/format；历史完整复现用051b5f0或相应原commit。
 
 ## 全任务池划分与Shared Stage Validation（2026-10-27）
 

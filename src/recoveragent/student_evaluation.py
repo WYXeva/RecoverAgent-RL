@@ -16,8 +16,12 @@ from . import APPWORLD_REVISION
 from .adapter import AppWorldAdapter
 from .base_sft import load_tokenizer
 from .evaluation import environment_check, evaluate_here
-from .execution_v5 import actor_system
-from .harness import REFACTOR_REVISION, RULES
+from .execution_v6 import (
+    actor_system,
+    RUNTIME as PROMPT_RUNTIME,
+    VARIANT as CURRENT_PROMPT,
+)
+from .harness import REFACTOR_REVISION
 from .io import digest, files_manifest, read_json, write_json
 from .student import StudentSession
 from .task_memory import (
@@ -42,7 +46,9 @@ def execution_clock():
 def verify_execution_runtime(runtime=RUNTIME):
     root = Path(__file__).resolve().parents[2]
     path = root / (
-        "configs/egtm_harness_29k_runtime_lock.json"
+        "configs/execution_v6_runtime_lock.json"
+        if runtime == PROMPT_RUNTIME
+        else "configs/egtm_harness_29k_runtime_lock.json"
         if runtime == HARNESS_RUNTIME
         else "configs/egtm_v2_improvement_runtime_lock.json"
         if runtime == VISIBLE_RUNTIME
@@ -71,26 +77,24 @@ def verify_execution_runtime(runtime=RUNTIME):
 
 def evaluation_prompt(config):
     limits = config["student_limits"]
-    return (
-        actor_system(
-            {
-                "actor_prompt_variant": config["actor_prompt_variant"],
-                "tool_mode": config["tool_mode"],
-                "limits": {
-                    "max_tool_calls": None,
-                    "episode_generated_tokens": limits["max_generated_tokens"],
-                    "episode_wall_seconds": limits["wall_seconds"],
-                },
-                "teacher": {
-                    "max_tool_calls_per_turn": None,
-                    "max_new_tokens": limits["max_new_tokens"],
-                },
-                "remaining_generated_tokens": limits["max_generated_tokens"],
-                "remaining_requests": limits["max_requests"],
-            }
-        )
-        + "\n"
-        + RULES
+    return actor_system(
+        {
+            "actor_prompt_variant": config["actor_prompt_variant"],
+            "system_prompt_sha256": config.get("system_prompt_sha256"),
+            "tool_mode": config["tool_mode"],
+            "limits": {
+                "max_tool_calls": None,
+                "episode_generated_tokens": limits["max_generated_tokens"],
+                "episode_wall_seconds": limits["wall_seconds"],
+            },
+            "teacher": {
+                "max_tool_calls_per_turn": None,
+                "max_new_tokens": limits["max_new_tokens"],
+            },
+            "remaining_generated_tokens": limits["max_generated_tokens"],
+            "remaining_requests": limits["max_requests"],
+        },
+        harness=True,
     )
 
 
@@ -201,10 +205,14 @@ def run_episode(config, case, arm, output):
         "experiment": experiment,
     }
     try:
+        if (config.get("actor_prompt_variant") == CURRENT_PROMPT) != (
+            config.get("runtime_revision") == PROMPT_RUNTIME
+        ):
+            raise ValueError("execution_v6 requires its independent runtime lock")
         record["evaluation_runtime"] = (
             verify_execution_runtime(config["runtime_revision"])
             if config.get("runtime_revision")
-            in {MEMORY_RUNTIME, HARNESS_RUNTIME, *MODEL_RUNTIMES}
+            in {PROMPT_RUNTIME, MEMORY_RUNTIME, HARNESS_RUNTIME, *MODEL_RUNTIMES}
             else verify_execution_runtime()
         )
         if config.get("memory", {}).get("enabled") and config.get(

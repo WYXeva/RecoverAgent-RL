@@ -7,13 +7,16 @@
 > 2026-10-26新授权：在用户已提供SSH的A100 80GB上重新执行原95条既定Base-SFT，门槛全部通过后完成固定Raw/SFT对照及P3-C。新Harness使用独立运行锁；保留旧数据/源码/checkpoint，回传SHA校验后关机，不启动P4或GRPO。
 
 > 英文名称：Self-Improving Tool Agents through Failure Recovery  
-> 版本：v0.20
+> 版本：v0.21
 > 创建日期：2026-10-19  
 > 状态：本轮Phase0–1全任务池审计及三阶段协议准备；732/244元数据已核验，完整自定义训练受官方用途限制BLOCKED，仅train的30/30/30方案独立冻结；90初态/公开工具通过，84有效评价与6未知，评分门槛PARTIAL。新M1/M2/M3未训练、未授权；历史Harness29k结果及关机确认保留。
 > 使用对象：项目负责人、负责实现与实验的 Codex。  
 > 配套文件：项目根目录的 `AGENTS.md`。
 
 ## 0. 如何使用这份文档
+
+2026-10-27 最新提示变更：用户指定的英文system全文原样成为`execution_v6`，见`src/recoveragent/execution_v6.py`。Teacher/Student使用同一文本，不追加旧提示段落；执行校验、有限纠错、预算和官方评价不改。当前三阶段共享评估入口默认使用`configs/shared_stage_validation_v2.json`及`configs/execution_v6_runtime_lock.json`，任务划分/模型/工具模式/Memory/预算与v1一致，评分PARTIAL仍阻止后续运行。B动态发现使用v6，A和历史实验用原版本；此次只有软件修改，无模型或训练授权。
+
 
 2026-10-27 最新范围（共享阶段验证）：以真实任务索引审计完整池，不把732/244假设当结果；遵守官方train/dev/test用途。按seed20261028的独立哈希排序，在每个合法三变体场景内分配A正常Teacher/Base-SFT、B新Student失败/Recovery-SFT/在线GRPO、C三个阶段共享开发验证。全池244/244/244是受限候选；仅官方train的30/30/30是操作方案。C不进入任何参数训练，M1需从原始Qwen3-4B新训，M2续M1、M3续M2。旧95条数据、64训练任务、11内部验证任务及历史权重保持原样。
 
@@ -893,3 +896,7 @@ P0–P2 已有代码和真实最低验收，不得因新方案重建或覆盖历
 ### v0.20 · 全任务池研究方案与三阶段统一验证
 
 Phase0真实清单/权限/初态与评价可用性审计 → Phase1冻结C与A/B隔离 → Phase2 A正常示范及新M1 → Phase3 C评M1 → Phase4 B自然失败/Teacher恢复及M2 → Phase5 C评M2 → Phase6 B在线GRPO得M3 → Phase7 C评M3。每阶段都需要前置验收；本轮授权止于Phase1和后续接口/配置测试。完整池受限部分不执行、不查询隐藏标签，不用成绩重排划分。
+
+### v0.21 · 用户指定System Prompt
+
+新增execution_v6及共享评估v2，只改变system文本与运行身份；保留旧配置/锁/报告与原始数据。395软件测试通过，尚无真实模型效果验证。

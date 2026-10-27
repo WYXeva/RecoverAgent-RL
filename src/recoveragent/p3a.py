@@ -14,7 +14,7 @@ from jsonschema import ValidationError
 from .adapter import AppWorldAdapter, call_code
 from .io import digest, read_json, write_json
 from .runner import now
-from .execution_v5 import ACTOR_PROMPTS, actor_system
+from .execution_v6 import ACTOR_PROMPTS, VARIANT as CURRENT_PROMPT, actor_system
 from .answer_guard import AnswerGuard, PROTOCOL as ANSWER_PROTOCOL
 from .validated_selection import initialize_tools
 from .teacher_history import capture_terminal, validate_history
@@ -34,7 +34,6 @@ from .teacher import (
 )
 from .harness import (
     PROTOCOL as HARNESS_PROTOCOL,
-    RULES as HARNESS_RULES,
     RUNTIME_REVISION,
     SCHEMA_REVISION,
     REFACTOR_REVISION,
@@ -50,18 +49,22 @@ from .harness import (
 
 
 def validate_config(config):
+    if config.get("actor_prompt_variant") == CURRENT_PROMPT:
+        actor_system(config)  # Validate mode/checksum before any provider request.
     if config.get("harness_protocol") not in {None, HARNESS_PROTOCOL}:
         raise ValueError("Unknown harness protocol")
     if config.get("harness_protocol") and (
         config.get("harness_runtime_revision")
         not in {RUNTIME_REVISION, SCHEMA_REVISION, REFACTOR_REVISION}
-        or config.get("actor_prompt_variant") != "execution_v5"
+        or config.get("actor_prompt_variant") not in {"execution_v5", CURRENT_PROMPT}
         or config.get("environment_profile") != "appworld_sqlalchemy20_v1"
         or config["teacher"]["max_new_tokens"] != 4096
         or config["limits"]["max_tool_calls"] is not None
         or config["teacher"].get("max_tool_calls_per_turn") is not None
     ):
-        raise ValueError("harness_v1 requires declared v5/environment/unlimited tools")
+        raise ValueError(
+            "harness_v1 requires declared v5/v6/environment/unlimited tools"
+        )
     if (
         config["project_version"]
         not in {"0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "0.10"}
@@ -86,16 +89,20 @@ def validate_config(config):
         raise ValueError("Unknown selection protocol")
     if selection == PROTOCOL and (
         (config["project_version"], config.get("actor_prompt_variant"))
-        not in {("0.9", "execution_v4"), ("0.10", "execution_v5")}
+        not in {
+            ("0.9", "execution_v4"),
+            ("0.10", "execution_v5"),
+            ("0.10", CURRENT_PROMPT),
+        }
         or config.get("predictor_prompt_variant") != "dependency_examples_v2"
     ):
         raise ValueError("Validated selection requires the v0.9 prompt protocol")
     if config.get("answer_guard_protocol") not in {None, ANSWER_PROTOCOL}:
         raise ValueError("Unknown answer guard protocol")
-    if (config.get("actor_prompt_variant") == "execution_v5") != (
+    if (config.get("actor_prompt_variant") in {"execution_v5", CURRENT_PROMPT}) != (
         config.get("answer_guard_protocol") == ANSWER_PROTOCOL
     ) or (config.get("answer_guard_protocol") and config["project_version"] != "0.10"):
-        raise ValueError("v5 requires the declared v0.10 answer guard")
+        raise ValueError("v5/v6 requires the declared v0.10 answer guard")
     limits = config["limits"]
     caps = {
         "max_tasks": 2,
@@ -327,8 +334,7 @@ def run_teacher_episode(config, task_id, output, credentials):
             [
                 {
                     "role": "system",
-                    "content": actor_system(config)
-                    + ("\n" + HARNESS_RULES if harness else ""),
+                    "content": actor_system(config, harness=bool(harness)),
                 },
                 {
                     "role": "user",

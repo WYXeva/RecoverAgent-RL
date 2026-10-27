@@ -1,0 +1,67 @@
+{
+  "format": "shared-stage-validation-v2",
+  "split_manifest_sha256": "15760679a4cf338b281d3b893b980a539dea3a1c81e2fc676f4408926e2d24bf",
+  "model_identity": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+  },
+  "stages": {
+    "M1": "Base-SFT",
+    "M2": "Base-SFT + Recovery-SFT",
+    "M3": "Base-SFT + Recovery-SFT + GRPO"
+  },
+  "execution": {
+    "runtime_revision": "execution_v6_20261027",
+    "model": "Qwen/Qwen3-4B",
+    "actor_prompt_variant": "execution_v6",
+    "tool_mode": "dynamic_discovery",
+    "harness_runtime_revision": "shared_execution_20261025",
+    "appworld_root": "data/appworld",
+    "student_limits": {
+      "max_input_tokens": 32768,
+      "max_new_tokens": 4096,
+      "max_requests": 40,
+      "max_generated_tokens": 16384,
+      "wall_seconds": 600,
+      "seed": 42,
+      "temperature": 0.8,
+      "top_p": 0.95
+    },
+    "memory": {
+      "enabled": false,
+      "version": "egtm-harness-memory-29k-v1",
+      "trigger_tokens": 29000,
+      "recent_batches": 2,
+      "max_facts": 48,
+      "retrieval_limit": 3
+    },
+    "system_prompt_sha256": "5ef2bb774a258ba0a0e00d94284a29720bad3d2578c9a2a54ec94a594272dbba"
+  },
+  "start_kind": "clean_original_task",
+  "primary_metric": "TGC",
+  "unknown_evaluations": "preserve_unknown_no_zero_reward_no_complete_TGC",
+  "selection_scope": "Known-scenario development validation; no task substitutions",
+  "private_coverage": {
+    "path": "runs/unified_split_20261027/private_task_coverage_v1.json",
+    "sha256": "141e83777b19cb521d156d5ffadee4ec473cb333ea29149369249952deace0ad"
+  },
+  "comparison_requirements": [
+    "all_C_tasks_for_all_3_stages",
+    "same_initial_DB",
+    "same_first_token_ids",
+    "same_prompt_schema_seed_budget_memory",
+    "validated_checkpoint_lineage"
+  ],
+  "execution_authorized": false,
+  "ready_checkpoints": {
+    "M1": null,
+    "M2": null,
+    "M3": null
+  },
+  "scoring_preflight": {
+    "path": "reports/unified_task_runtime_probe.json",
+    "sha256": "1084b196bb7bca92ce3f0d08dd3dcbea072220c9d38d0bf827e8272ab0468b3c"
+  }
+}

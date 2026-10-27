@@ -11,9 +11,9 @@ from recoveragent.unified_split import sha
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("command", choices=["prepare", "run", "compare"])
-    p.add_argument("--protocol", default="configs/shared_stage_validation.json")
+    p.add_argument("--protocol", default="configs/shared_stage_validation_v2.json")
     p.add_argument("--plan", default="configs/unified_task_split.json")
-    p.add_argument("--lock", default="configs/unified_stage_runtime_lock.json")
+    p.add_argument("--lock", default="configs/execution_v6_runtime_lock.json")
     p.add_argument("--stage", choices=["M1", "M2", "M3"])
     p.add_argument("--release")
     p.add_argument("--release-sha256")
@@ -31,7 +31,10 @@ def main():
     if any(
         sha(path) != lock["files"][key]
         for path, key in (
-            (a.protocol, "configs/shared_stage_validation.json"),
+            (
+                a.protocol,
+                lock.get("protocol_path", "configs/shared_stage_validation.json"),
+            ),
             (a.plan, "configs/unified_task_split.json"),
         )
     ):

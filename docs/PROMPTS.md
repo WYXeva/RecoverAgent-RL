@@ -1,4 +1,18 @@
-# A/B 提示协议 v0.7
+# 执行提示协议
+
+## 当前：execution_v6（2026-10-27）
+
+按用户提供的全文原样使用，唯一英文源码为[execution_v6.py](../src/recoveragent/execution_v6.py)。文本SHA-256：`5ef2bb774a258ba0a0e00d94284a29720bad3d2578c9a2a54ec94a594272dbba`（UTF-8，无末尾额外换行）。Teacher/Student共享同一构造函数，不再在v6后拼接旧预算、AnswerGuard或Harness段落。工具Schema仍由原chat template/请求tools字段提供，non-thinking模板不改。
+
+运行时参数检查、批次边界、有限纠错、AnswerGuard和预算保持原行为；不在system正文重复它们。此原文描述的是`dynamic_discovery`，故v6拒绝与`api_predictor`混用；A继续使用其原提示。没有自动把旧数据改写成新prompt，也没有真实模型实验。
+
+当前共享评估默认入口：`scripts/evaluate_shared_stage.py` → `configs/shared_stage_validation_v2.json` → `configs/execution_v6_runtime_lock.json`。Teacher配置可显式选择`actor_prompt_variant=execution_v6`和该`protocol_lock`，其他授权、数据成员与质量门槛仍须满足；本次没有生成/启动新的Teacher采集计划。P3-C已识别相同新runtime，旧采集配置不变。
+
+旧`shared_stage_validation.json`及旧锁保持原字节；严格复现用`051b5f0`或各实验原commit。新checkout的旧运行锁会拒绝已变化的调用端源码，这是预期的版本保护，不重新计算旧哈希放行。
+
+## 历史：A/B提示协议 v0.7
+
+以下是2026-10-21的原协议，保留复现，不代表当前v6默认值。
 
 2026-10-21 用户确认采用：共享执行规范、A 的前置依赖补全与两个正例、B 的按需动态发现。仅 P3-A Teacher 数据采集与小样本验证；不启动 Student SFT 或 GRPO。
 
