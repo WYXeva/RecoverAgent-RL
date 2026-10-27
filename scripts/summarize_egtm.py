@@ -23,13 +23,20 @@ def summarize(config_path, directory):
         requests = sorted((folder / "session/requests").glob("*.request.json"))
         inputs, original_inputs, responses, repetitions, business_errors = 0, 0, 0, 0, 0
         queries, emitted_ids = Counter(), set()
+        memory_usage = Counter()
         for path in requests:
             request = read_json(path)
             if request["policy"] != config["expected_policy"]:
                 raise ValueError("Mixed policies in EGTM results")
             inputs += len(request["input_token_ids"])
             compilation = request.get("memory_compilation", {})
-            if config["memory"]["enabled"] != bool(compilation):
+            internal = request.get("purpose") == "memory_update"
+            if internal:
+                memory_usage["memory_update_requests"] += 1
+                memory_usage["memory_update_input_tokens"] += len(
+                    request["input_token_ids"]
+                )
+            if config["memory"]["enabled"] != bool(compilation or internal):
                 raise ValueError("Memory arm differs from its requests")
             original_inputs += compilation.get(
                 "original_tokens", len(request["input_token_ids"])
@@ -45,8 +52,14 @@ def summarize(config_path, directory):
                 ):
                     raise ValueError("Generation receipt does not match input")
                 responses += len(response["token_ids"])
+                if internal:
+                    memory_usage["memory_update_output_tokens"] += len(
+                        response["token_ids"]
+                    )
         for path in sorted((folder / "session/turns").glob("*.json")):
             turn = read_json(path)
+            if turn["event"].get("memory_status") == "rejected":
+                memory_usage["memory_validation_failures"] += 1
             calls = {
                 c["id"]: c["function"]
                 for m in turn["messages"]
@@ -68,6 +81,20 @@ def summarize(config_path, directory):
             inputs != usage["prompt_tokens"] or responses != usage["generated_tokens"]
         ):
             raise ValueError("Reported usage does not match actual receipts")
+        if (
+            config["memory"].get("version") == "egtm-model-working-memory-v2"
+            and config["memory"]["enabled"]
+        ):
+            if any(
+                usage.get(k, 0) != memory_usage[k]
+                for k in (
+                    "memory_update_requests",
+                    "memory_update_input_tokens",
+                    "memory_update_output_tokens",
+                    "memory_validation_failures",
+                )
+            ):
+                raise ValueError("Memory usage differs from raw receipts")
         rows.append(
             {
                 "task_id": row["task_id"],
@@ -89,11 +116,16 @@ def summarize(config_path, directory):
                 "unknown_generation_reservation": usage.get(
                     "unknown_generation_reservation"
                 ),
+                **dict(memory_usage),
+                "saved_input_tokens": usage.get("saved_input_tokens", 0),
+                "net_input_saving_same_actions": original_inputs
+                - inputs
+                - memory_usage["memory_update_input_tokens"],
                 "memory_update_seconds": usage.get("memory_update_seconds", 0),
                 "context_compile_seconds": usage.get("context_compile_seconds", 0),
                 "memory_snapshot_bytes": sum(
                     p.stat().st_size
-                    for p in (folder / "terminal/memory").glob("*")
+                    for p in (folder / "terminal/memory").rglob("*")
                     if p.is_file()
                 ),
                 "wrong_business_side_effects": None,
@@ -123,9 +155,12 @@ def main():
     p.add_argument("--a", required=True)
     p.add_argument("--b", required=True)
     p.add_argument("--output", required=True)
+    p.add_argument("--version", choices=["v1", "v2"], default="v1")
     args = p.parse_args()
     result = {
-        arm: summarize(f"configs/egtm_v1_eval_{arm.lower()}.json", directory)
+        arm: summarize(
+            f"configs/egtm_{args.version}_eval_{arm.lower()}.json", directory
+        )
         for arm, directory in (("A", args.a), ("B", args.b))
     }
     result["interpretation"] = (

@@ -1,0 +1,18 @@
+$ .venv/bin/python -m pytest -q
+........................................................................ [ 22%]
+........................................................................ [ 45%]
+........................................................................ [ 67%]
+........................................................................ [ 90%]
+...............................                                          [100%]
+319 passed in 0.76s
+Exit: 0; elapsed_seconds: 1.093
+
+$ .venv/bin/ruff check src tests scripts
+All checks passed!
+Exit: 0; elapsed_seconds: 0.008
+
+$ .venv/bin/ruff format --check src tests scripts
+117 files already formatted
+Exit: 0; elapsed_seconds: 0.008
+
+Publishing clone: same 319 tests PASS; Ruff check/format and git diff --check PASS.

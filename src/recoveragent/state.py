@@ -28,15 +28,15 @@ def capture(
     if task_memory is None and agent_runtime is not None and "memory" in agent_runtime:
         raise ValueError("Cannot omit Memory from a memory-enabled Agent checkpoint")
     if task_memory is not None:
-        from .task_memory import RUNTIME as MEMORY_RUNTIME
-
         if agent_runtime is None or agent_runtime.get("memory") != task_memory.identity:
             raise ValueError("Memory snapshot requires matching Agent runtime")
-        if agent_runtime.get("format") != MEMORY_RUNTIME:
+        if agent_runtime.get("format") != task_memory.runtime:
             raise ValueError("Memory snapshot requires the EGTM runtime version")
         if task_memory.task_id != adapter.task_id:
             raise ValueError("Memory snapshot task mismatch")
         task_memory.validate_boundary(messages, tools)
+        if task_memory.model_driven:
+            _validate_model_runtime(task_memory, agent_runtime)
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
     state_id = "cp_" + destination.name
@@ -50,7 +50,7 @@ def capture(
     if task_memory is not None:
         task_memory.save(destination / "memory", messages, tools)
     manifest = {
-        "format_version": 3
+        "format_version": (4 if task_memory.model_driven else 3)
         if task_memory is not None
         else 2
         if agent_runtime is not None
@@ -84,14 +84,14 @@ def inspect_snapshot(source):
         raise ValueError("Checkpoint files were modified")
     context = read_json(source / "context.json")
     version = manifest.get("format_version")
-    if version not in {1, 2, 3}:
+    if version not in {1, 2, 3, 4}:
         raise ValueError("Unsupported checkpoint format")
-    validator = validate_batch_history if version in {2, 3} else validate_history
+    validator = validate_batch_history if version in {2, 3, 4} else validate_history
     validator(context["messages"])
-    if version in {2, 3} and "agent_runtime.json" not in manifest["files"]:
+    if version in {2, 3, 4} and "agent_runtime.json" not in manifest["files"]:
         raise ValueError("Batch checkpoint requires agent runtime")
-    if version == 3:
-        from .task_memory import TaskMemory, RUNTIME as MEMORY_RUNTIME
+    if version in {3, 4}:
+        from .task_memory import TaskMemory
 
         memory = TaskMemory.load(
             source / "memory", context["messages"], context["tools"]
@@ -100,9 +100,12 @@ def inspect_snapshot(source):
         if (
             memory.task_id != manifest["task_id"]
             or agent.get("memory") != memory.identity
-            or agent.get("format") != MEMORY_RUNTIME
+            or agent.get("format") != memory.runtime
+            or (version == 4) != memory.model_driven
         ):
             raise ValueError("Checkpoint Memory/runtime binding mismatch")
+        if version == 4:
+            _validate_model_runtime(memory, agent)
     if (
         digest(context["messages"]) != manifest["history_hash"]
         or digest(context["tools"]) != manifest["tool_schema_hash"]
@@ -131,3 +134,28 @@ def restore(adapter, source):
         raise ValueError("Imported runtime does not match source")
     inspect_snapshot(source)
     return manifest, context
+
+
+def _validate_model_runtime(memory, agent):
+    if agent.get("usage", {}).get("unknown_generation_reservation", 0):
+        raise ValueError("Unresolved generation cannot become a Memory checkpoint")
+    usage = agent.get("usage", {})
+    for key, expected in {
+        "memory_update_requests": len(memory.updates),
+        "memory_update_input_tokens": sum(
+            len(r["request"]["input_token_ids"]) for r in memory.updates
+        ),
+        "memory_update_output_tokens": sum(
+            len(r["response"]["token_ids"]) for r in memory.updates
+        ),
+        "memory_validation_failures": sum(
+            r["status"] == "rejected" for r in memory.updates
+        ),
+    }.items():
+        if usage.get(key) != expected:
+            raise ValueError("Memory usage/receipt boundary mismatch")
+    for receipt in memory.updates:
+        if receipt["request"]["policy"] != agent.get("policy"):
+            raise ValueError("Memory update came from a different Student policy")
+        if int(receipt["request_id"]) > agent.get("usage", {}).get("model_requests", 0):
+            raise ValueError("Memory receipt exceeds Agent request boundary")

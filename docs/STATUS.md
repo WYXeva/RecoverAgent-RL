@@ -1,10 +1,21 @@
 # 项目状态
 
 - 最后更新：2026-10-27（Asia/Shanghai）
-- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.16；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**EGTM v1工程/软件/无模型真实环境 PASS；真实模型A/B未运行**。默认关闭，输入压缩与不可变证据分离，v3 Memory快照与v1/v2兼容。原A100训练与P3-C结果保留；本轮没有训练、Teacher Recovery、GRPO、模型调用或远程GPU操作。
+- 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.17；正式 Student `Qwen/Qwen3-4B`。
+- 当前状态：**EGTM v2工程/软件/无真实模型AppWorld探针PASS；真实Qwen Memory效果NOT_RUN**。同Student内部请求生成L1，共享原预算，v4回执快照兼容1/2/3。v1及原A100/P3-C全部证据保留；本轮无模型推理、训练、Teacher Recovery、GRPO或远程GPU操作。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮A100拉取基线 `60085420299a82f7deb12cf88441f2d221a7900d`（历史P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮EGTM v2基线 `091b8f18cfee384e9fb8c3406638ab6a71c78d4b`（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## EGTM v2 模型驱动 L1（2026-10-27）
+
+- **实现**：基线091b8f1已同步。原三层Memory模块基础上增加同一Student独立JSON请求；L1语义判断unverified、精确事实查真实原值，need_evidence驱动L2；L3不可变。无新增Agent/模型/Memory工具。业务输入阈值20000、至少3批节流、内部最多2048输出；共享40请求/16384生成/600秒，不加业务纠错次数。
+- **边界**：仅成功L1覆盖的旧完整批次可移除；非法/缺证据更新保留旧状态和未覆盖历史。v4保存原请求/响应、L1/L2/Agent使用量，恢复检查回执而非重新生成；部分副作用/未知生成禁止合法快照。完整Agent续跑控制器不在本轮范围，禁止新Session重置旧Memory预算。
+- **软件PASS**：319 pytest；Ruff check与117文件format check。含30项新软件用例；真实Qwen生成效果未测。请求/模型输出/工具动作分开记录，内部Memory输出不成为Teacher示范或训练目标。
+- **真实脚本PASS**：`runs/egtm_v2_probe_20261027_c`：28合成生成回合=24业务+4Memory，29真实AppWorld工具意图，3接受L1/1故意JSON失败；3个v4快照独立进程恢复。真实写读改、业务错误、写后丢返回与部分批次禁存通过。0真实模型/付费API/GPU/训练。
+- **Token/成本**：固定tokenizer测得相同脚本业务输入414188→264088；Memory输入57217/输出469，全部输入321305/输出1902，净输入减少92883（22.43%），10实际压缩请求。最长37553→11251。耗时141.25秒，Memory回合0.177秒/编译2.494秒/索引0.037秒；这些不包含真实模型计算，不外推模型收益。私有证据约18MB。
+- **兼容**：原95条/75任务/29家族、18来源包、6616文件manifest及两版checkpoint各7文件SHA不变；327历史报告/配置不变；真实旧v1/v2及3份v3快照inspect通过。新`configs/egtm_v2_runtime_lock.json`不重写旧锁；固定A/B只变enabled，12任务/11家族、同A100 adapter和原预算，本地预检通过，未联系backend。
+- **错误/限制/下一步**：软件测试发现并消除了新历史结果重复进入Memory检索载荷；测试夹具task_id/返回键修正，另修复关闭时额外时钟检查、非JSON/null事实混淆与无L1恢复的预算重置入口；a/b开发证据及锁保留，最终c完整复验，三轮共87真实工具意图/84合成生成、0真实模型。真实模型是否能可靠生成JSON、保留约束和改善成功率仍NOT_RUN；待用户授权现有GPU推理后执行固定两组，不自动开机/租赁，不进入P4或训练。
+- **证据与命令**：`reports/egtm_v2_report.md`、`egtm_v2_world_probe.json`、`egtm_v2_integrity.json`、`egtm_v2_preflight.json`、`egtm_v2_checks.txt`。实际pytest/Ruff及`PYTHONPATH=src HF_HOME="$PWD/.cache/huggingface" HF_HUB_OFFLINE=1 timeout 600 .venv-harness/bin/python scripts/probe_egtm_v2.py --output runs/egtm_v2_probe_20261027_c --namespace egtm_v2_probe_20261027_c`；私有请求/结果/快照和日志保留，不上传原始任务数据。
 
 ## EGTM Task Memory v1（2026-10-27）
 

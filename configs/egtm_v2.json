@@ -1,0 +1,10 @@
+{
+  "enabled": false,
+  "version": "egtm-model-working-memory-v2",
+  "trigger_tokens": 20000,
+  "recent_batches": 2,
+  "retrieval_limit": 3,
+  "update_max_new_tokens": 2048,
+  "min_update_batches": 3,
+  "max_l1_chars": 6000
+}

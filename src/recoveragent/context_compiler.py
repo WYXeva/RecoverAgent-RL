@@ -65,7 +65,11 @@ def relevant_evidence(memory, messages, cutoff):
             if v is not None and len(str(v)) <= 128
         }
         scores[number] = scores.get(number, 0) + len(words & scalars)
-    selected, seen = [], set()
+    requested = memory.requested_evidence(cutoff) if memory.model_driven else []
+    selected = list(requested)
+    seen = {digest([r["tool_name"], r["arguments"], r["content"]]) for r in selected}
+    if len(selected) >= memory.config["retrieval_limit"]:
+        return selected
     for n in sorted(scores, key=lambda n: (scores[n], n), reverse=True):
         row = memory.index.rows[n]
         if scores[n] <= 0 or row["boundary_end"] > cutoff or not row["executed"]:
@@ -99,6 +103,8 @@ def compile_context(tokenizer, messages, tools, memory, *, max_tokens, reserve_t
     if len(original) <= min(ceiling, memory.config["trigger_tokens"]):
         return copy.deepcopy(messages), original, receipt
     removable = memory.batches[: -memory.config["recent_batches"]]
+    if memory.model_driven:
+        removable = [b for b in removable if b["end"] <= memory.covered_end]
     if not removable:
         if len(original) <= ceiling:
             return copy.deepcopy(messages), original, receipt
@@ -108,7 +114,13 @@ def compile_context(tokenizer, messages, tools, memory, *, max_tokens, reserve_t
     omitted = {i for b in removable for i in range(b["start"], b["end"])}
     # Preserve ALL original system/user constraints and Harness feedback, in order.
     kept = [copy.deepcopy(m) for i, m in enumerate(messages) if i not in omitted]
-    selected = relevant_evidence(memory, messages, removable[-1]["end"])
+    cutoff = len(messages) if memory.model_driven else removable[-1]["end"]
+    selected = relevant_evidence(memory, messages, cutoff)
+    required = (
+        {r["source_id"] for r in memory.requested_evidence(cutoff)}
+        if memory.model_driven
+        else set()
+    )
     view = memory.working_view([r["source_id"] for r in selected])
     payload = {
         "source": "recoveragent_egtm",
@@ -122,6 +134,8 @@ def compile_context(tokenizer, messages, tools, memory, *, max_tokens, reserve_t
     kept.insert(position, {"role": "user", "content": canonical(payload)})
     compact = encode(tokenizer, kept, tools)
     if len(compact) > ceiling:
+        if len(original) <= ceiling:
+            return copy.deepcopy(messages), original, receipt
         raise ContextBudgetError(
             "EGTM mandatory constraints/memory/recent batches exceed context budget"
         )
@@ -144,6 +158,13 @@ def compile_context(tokenizer, messages, tools, memory, *, max_tokens, reserve_t
             compact = candidate
             receipt["retrieved_sources"].append(row["source_id"])
         else:
+            if row["source_id"] in required:
+                if len(original) <= ceiling:
+                    receipt.update(retrieved_sources=[], deferred_evidence=[])
+                    return copy.deepcopy(messages), original, receipt
+                raise ContextBudgetError(
+                    "Requested L1 evidence cannot fit safely; no silent omission"
+                )
             payload["historical_evidence"].pop()
             kept[position]["content"] = canonical(payload)
             receipt["deferred_evidence"].append(row["source_id"])

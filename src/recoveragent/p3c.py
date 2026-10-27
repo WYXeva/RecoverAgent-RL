@@ -28,7 +28,12 @@ from .sampling import make_plan, official_pool
 from .state import capture, inspect_snapshot, restore
 from .student import StudentSession
 from .student_evaluation import evaluation_prompt, execution_clock, request_json
-from .task_memory import RUNTIME as MEMORY_RUNTIME, memory_config
+from .task_memory import (
+    MODEL_RUNTIME,
+    MODEL_VERSION,
+    RUNTIME as MEMORY_RUNTIME,
+    memory_config,
+)
 
 RUNTIME = "p3c_shared_execution_20261026"
 BUDGET_STOPS = {"budget_exhausted", "context_budget_exhausted", "completion_claim"}
@@ -37,7 +42,9 @@ BUDGET_STOPS = {"budget_exhausted", "context_budget_exhausted", "completion_clai
 def verify_source(runtime=RUNTIME):
     root = Path(__file__).resolve().parents[2]
     path = root / (
-        "configs/egtm_v1_runtime_lock.json"
+        "configs/egtm_v2_runtime_lock.json"
+        if runtime == MODEL_RUNTIME
+        else "configs/egtm_v1_runtime_lock.json"
         if runtime == MEMORY_RUNTIME
         else "configs/p3c_runtime_20261026_lock.json"
     )
@@ -171,7 +178,7 @@ def fixed_plan(pool, settings, seen_tasks, excluded_tasks, split):
 
 def validate_config(config):
     if (
-        config["runtime_revision"] not in {RUNTIME, MEMORY_RUNTIME}
+        config["runtime_revision"] not in {RUNTIME, MEMORY_RUNTIME, MODEL_RUNTIME}
         or config["model"] != MODEL
         or config["tool_mode"] != "dynamic_discovery"
         or config["actor_prompt_variant"] != "execution_v5"
@@ -179,7 +186,9 @@ def validate_config(config):
     ):
         raise ValueError("P3-C requires fixed Base-SFT/execution_v5/B protocol")
     memory = memory_config(config.get("memory"))
-    if memory["enabled"] and config["runtime_revision"] != MEMORY_RUNTIME:
+    if memory["enabled"] and config["runtime_revision"] != (
+        MODEL_RUNTIME if memory["version"] == MODEL_VERSION else MEMORY_RUNTIME
+    ):
         raise ValueError("Memory requires its own execution source lock")
     endpoint = urlparse(config["inference_url"])
     if (
@@ -244,7 +253,7 @@ def agent_runtime(session):
         "format": getattr(
             session,
             "runtime_revision",
-            MEMORY_RUNTIME if session.memory is not None else RUNTIME,
+            session.memory.runtime if session.memory is not None else RUNTIME,
         ),
         "policy": session.identity,
         "tool_mode": session.tool_mode,
@@ -563,7 +572,7 @@ def restore_probe(root, source, experiment, output):
             "source_unchanged": inspect_snapshot(source)[0] == original,
             "task_actions_executed": 0,
         }
-        if original["format_version"] == 3:
+        if original["format_version"] in {3, 4}:
             from .task_memory import TaskMemory
 
             memory = TaskMemory.load(
@@ -591,7 +600,7 @@ def collect(config_path, output):
     try:
         lock = (
             verify_source(config["runtime_revision"])
-            if config.get("runtime_revision") == MEMORY_RUNTIME
+            if config.get("runtime_revision") in {MEMORY_RUNTIME, MODEL_RUNTIME}
             else verify_source()
         )
         plan = validate_config(config)

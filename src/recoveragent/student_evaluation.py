@@ -20,7 +20,7 @@ from .execution_v5 import actor_system
 from .harness import REFACTOR_REVISION, RULES
 from .io import digest, files_manifest, read_json, write_json
 from .student import StudentSession
-from .task_memory import RUNTIME as MEMORY_RUNTIME
+from .task_memory import MODEL_RUNTIME, MODEL_VERSION, RUNTIME as MEMORY_RUNTIME
 
 RUNTIME = "p3b_shared_execution_20261026"
 
@@ -33,7 +33,9 @@ def execution_clock():
 def verify_execution_runtime(runtime=RUNTIME):
     root = Path(__file__).resolve().parents[2]
     path = root / (
-        "configs/egtm_v1_runtime_lock.json"
+        "configs/egtm_v2_runtime_lock.json"
+        if runtime == MODEL_RUNTIME
+        else "configs/egtm_v1_runtime_lock.json"
         if runtime == MEMORY_RUNTIME
         else "configs/p3b_evaluation_runtime_20261026_lock.json"
     )
@@ -187,13 +189,16 @@ def run_episode(config, case, arm, output):
     }
     try:
         record["evaluation_runtime"] = (
-            verify_execution_runtime(MEMORY_RUNTIME)
-            if config.get("runtime_revision") == MEMORY_RUNTIME
+            verify_execution_runtime(config["runtime_revision"])
+            if config.get("runtime_revision") in {MEMORY_RUNTIME, MODEL_RUNTIME}
             else verify_execution_runtime()
         )
-        if (
-            config.get("memory", {}).get("enabled")
-            and config.get("runtime_revision") != MEMORY_RUNTIME
+        if config.get("memory", {}).get("enabled") and config.get(
+            "runtime_revision"
+        ) != (
+            MODEL_RUNTIME
+            if config["memory"].get("version") == MODEL_VERSION
+            else MEMORY_RUNTIME
         ):
             raise ValueError("Memory requires its own execution source lock")
         if config["tool_mode"] != "dynamic_discovery":

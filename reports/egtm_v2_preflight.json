@@ -1,0 +1,17 @@
+{
+  "status": "PASS_LOCAL_OFFLINE",
+  "runtime_lock_sha256": "2ad146f159818a255de050336cca695901f47d07fdb5bd75ce007961c996c5dc",
+  "policy": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "adapter:34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd"
+  },
+  "task_count": 12,
+  "scenario_count": 11,
+  "config_sha256": "1b77df0414a998589c0b495f432067cd8d70adeeb9cdc371cb5652a31a147486",
+  "backend_contacted": false,
+  "gpu_started": false,
+  "real_model_requests": 0
+}

@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "baseline": "091b8f18cfee384e9fb8c3406638ab6a71c78d4b",
+  "dataset": {
+    "status": "PASS",
+    "manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+    "dataset_id": "652e035993b97b66711324e1e15304160fe29af847493b57c7802e61bceaf4bb",
+    "counts": {
+      "source_qualified": 104,
+      "selected": 95,
+      "unique_tasks": 75,
+      "families": 29,
+      "deferred": 5,
+      "reserved_by_task_cap": 4,
+      "exact_duplicates": 0,
+      "high_similarity_pairs": 18
+    },
+    "source_packages_reverified": 18,
+    "training_started": false,
+    "official_train_rechecked": false
+  },
+  "verified_dataset_files": 6616,
+  "unchanged_historical_reports_and_configs": 327,
+  "weights": {
+    "reports/a100_checkpoint_release_20261026.json": {
+      "verified_files": 7,
+      "adapter_tensor_sha256": "34b87e77f8f49e3fef772d9c7f1074d89f07dd32bda38d81d6675120bb5e0ccd"
+    },
+    "reports/p3b_checkpoint_release_20261023.json": {
+      "verified_files": 7,
+      "adapter_tensor_sha256": "aefac6f068361cb5c0fc76c6a26f8b45231953b37d141f1ec9352a29917cf9c0"
+    }
+  },
+  "historical_snapshots": {
+    "runs/p0_state_20261019_b/source": {
+      "format_version": 1,
+      "checkpoint_id": "2195cc296f4be9c9c7164eb9da1f90dcaec77dfe0994df63d27f4a6f56190326"
+    },
+    "runs/a100_remote_20261026/runs/p3c_001/287e338_3/checkpoints/001_pre": {
+      "format_version": 2,
+      "checkpoint_id": "e22cbd86bcea5b73db23391234dee26d73d315ce06924b937aad61778a902bb1"
+    },
+    "runs/egtm_probe_20261027_f/pre_error": {
+      "format_version": 3,
+      "checkpoint_id": "6bf42a655fe15f58d2d914b00d4077b9f0ceca12634d061587497dbbe5c51f38"
+    },
+    "runs/egtm_probe_20261027_f/post_error": {
+      "format_version": 3,
+      "checkpoint_id": "5be4918e387049c862d2c7c24b3722dc4022d3a12139e9ee43175f539e10432a"
+    },
+    "runs/egtm_probe_20261027_f/late": {
+      "format_version": 3,
+      "checkpoint_id": "aa74cbedab0e336e8e5402050a1ee7ddda1229f99d4afffd79a928df64a5bf8d"
+    }
+  }
+}

@@ -219,6 +219,10 @@ class StudentSession:
                     or self.memory.config != config
                 ):
                     raise ValueError("Restored Memory task/config differs")
+                if memory_state is not None and self.memory.model_driven:
+                    raise ValueError(
+                        "A fresh StudentSession cannot resume model Memory with reset budgets; restore the full Agent runtime first"
+                    )
                 self.memory.validate_boundary(messages, tools)
                 self.usage.update(
                     memory_update_seconds=0.0,
@@ -226,6 +230,15 @@ class StudentSession:
                     uncompressed_prompt_tokens=0,
                     compressed_requests=0,
                 )
+                if self.memory.model_driven:
+                    self.usage.update(
+                        memory_update_requests=0,
+                        memory_update_input_tokens=0,
+                        memory_update_output_tokens=0,
+                        memory_validation_failures=0,
+                        saved_input_tokens=0,
+                        evidence_index_seconds=0.0,
+                    )
 
     def build_request(self):
         if self.stopped:
@@ -242,22 +255,61 @@ class StudentSession:
             raise ValueError("AppWorld task already completed")
         validate_history(self.messages)
         compiled_messages, compilation = self.messages, None
+        purpose, reason, request_tools = None, None, self.tools
         if self.memory is not None:
             from .context_compiler import ContextBudgetError, compile_context
 
             started = self.clock()
             try:
-                compiled_messages, ids, compilation = compile_context(
-                    self.tokenizer,
-                    self.messages,
-                    self.tools,
-                    self.memory,
-                    max_tokens=self.max_input_tokens,
-                    reserve_tokens=min(
+                compile_error = None
+                try:
+                    compiled_messages, ids, compilation = compile_context(
+                        self.tokenizer,
+                        self.messages,
+                        self.tools,
+                        self.memory,
+                        max_tokens=self.max_input_tokens,
+                        reserve_tokens=min(
+                            self.max_new_tokens,
+                            self.max_generated_tokens - self.usage["generated_tokens"],
+                        ),
+                    )
+                except ContextBudgetError as exc:
+                    if not self.memory.model_driven:
+                        raise
+                    from .context_compiler import encode
+
+                    ids = encode(self.tokenizer, self.messages, self.tools)
+                    compile_error = exc
+                # Do not insert internal requests between a rejection and its immediate correction.
+                if (
+                    self.memory.model_driven
+                    and (
+                        not self.events
+                        or self.events[-1]["status"] == "complete_boundary"
+                    )
+                    and not (
+                        self.answer_guard and self.answer_guard.expected is not None
+                    )
+                ):
+                    reason = self.memory.update_reason(len(ids))
+                if reason:
+                    from .context_compiler import encode
+
+                    purpose, request_tools, compilation = "memory_update", [], None
+                    compiled_messages = self.memory.update_messages(self.messages)
+                    ids = encode(self.tokenizer, compiled_messages, request_tools)
+                    reserve = min(
+                        self.memory.config["update_max_new_tokens"],
                         self.max_new_tokens,
                         self.max_generated_tokens - self.usage["generated_tokens"],
-                    ),
-                )
+                    )
+                    if len(ids) + reserve > min(self.max_input_tokens, 32768):
+                        raise ContextBudgetError(
+                            "Incremental Memory request cannot fit; no truncation"
+                        )
+                elif compile_error:
+                    raise compile_error
             except ContextBudgetError as exc:
                 self.stopped, self.termination = True, "context_budget_exhausted"
                 if self.output:
@@ -285,13 +337,23 @@ class StudentSession:
         if len(ids) >= self.max_input_tokens:
             self.stopped, self.termination = True, "context_budget_exhausted"
             raise ValueError("Student context too long; no silent truncation")
+        if (
+            self.memory is not None
+            and self.memory.model_driven
+            and self.clock() - self.started >= self.wall_seconds
+        ):
+            self.stopped, self.termination = True, "budget_exhausted"
+            raise ValueError("Student time budget exhausted before generation")
         return {
             "format": "qwen3-batch-generation-v1",
             "policy": self.identity,
             "messages": copy.deepcopy(compiled_messages),
-            "tools": copy.deepcopy(self.tools),
+            "tools": copy.deepcopy(request_tools),
             "input_token_ids": ids,
             "max_new_tokens": min(
+                self.memory.config["update_max_new_tokens"]
+                if purpose
+                else self.max_new_tokens,
                 self.max_new_tokens,
                 self.max_generated_tokens - self.usage["generated_tokens"],
                 self.max_input_tokens - len(ids),
@@ -300,6 +362,7 @@ class StudentSession:
             "temperature": self.temperature,
             "top_p": self.top_p,
             "eos_token_id": self.tokenizer.eos_token_id,
+            **({"purpose": purpose, "memory_trigger": reason} if purpose else {}),
             **({"memory_compilation": compilation} if compilation is not None else {}),
         }
 
@@ -320,13 +383,22 @@ class StudentSession:
             write_json(self.output / "requests" / (name + ".request.json"), request)
         self.usage["model_requests"] += 1
         self.usage["prompt_tokens"] += len(request["input_token_ids"])
-        if self.memory is not None:
+        if request.get("memory_compilation") is not None:
             self.usage["uncompressed_prompt_tokens"] += request["memory_compilation"][
                 "original_tokens"
             ]
             self.usage["compressed_requests"] += int(
                 request["memory_compilation"]["compressed"]
             )
+            if self.memory.model_driven:
+                self.usage["saved_input_tokens"] += request["memory_compilation"][
+                    "original_tokens"
+                ] - len(request["input_token_ids"])
+        memory_request = request.get("purpose") == "memory_update"
+        memory_started = self.clock() if memory_request else None
+        if memory_request:
+            self.usage["memory_update_requests"] += 1
+            self.usage["memory_update_input_tokens"] += len(request["input_token_ids"])
         event = {
             "request_id": name,
             "assistant_index": len(self.messages),
@@ -335,6 +407,8 @@ class StudentSession:
             "history_hash": digest(self.messages),
             "dispatched_count": 0,
         }
+        if memory_request:
+            event["purpose"] = "memory_update"
         self.events.append(event)
         batch_open, response_received = False, False
         try:
@@ -363,6 +437,43 @@ class StudentSession:
             self.usage["generated_tokens"] += len(ids)
             self.usage["unknown_generation_reservation"] = 0
             text = self.tokenizer.decode(ids, skip_special_tokens=False)
+            if memory_request:
+                self.usage["memory_update_output_tokens"] += len(ids)
+                if response.get("text") != text:
+                    raise ValueError("Raw Memory response text/token mismatch")
+                try:
+                    if ids[-1] != self.tokenizer.eos_token_id or response[
+                        "finish_reason"
+                    ] not in {"stop", "eos"}:
+                        raise ValueError("Incomplete Memory output")
+                    self.memory.parse_l1(text, len(self.messages))
+                except (ValueError, TypeError, KeyError) as exc:
+                    status, error = "rejected", str(exc)
+                    self.usage["memory_validation_failures"] += 1
+                else:
+                    status, error = "accepted", None
+                self.memory.record_update(
+                    self.messages,
+                    self.tools,
+                    {
+                        "request_id": name,
+                        "history_end": len(self.messages),
+                        "history_sha256": digest(self.messages),
+                        "old_l1_sha256": digest(self.memory.l1),
+                        "tools": copy.deepcopy(self.tools),
+                        "request": request,
+                        "response": response,
+                        "status": status,
+                        "error": error,
+                    },
+                )
+                event.update(
+                    status="memory_boundary",
+                    memory_status=status,
+                    error=error,
+                    memory_identity=self.memory.identity,
+                )
+                return event
             if not self.harness and ids[-1] != self.tokenizer.eos_token_id:
                 raise ValueError("Missing Student EOS boundary")
             try:
@@ -474,7 +585,12 @@ class StudentSession:
             if self.memory is not None and calls:
                 started = self.clock()
                 self.memory.observe(self.messages, event)
-                self.usage["memory_update_seconds"] += self.clock() - started
+                metric = (
+                    "evidence_index_seconds"
+                    if self.memory.model_driven
+                    else "memory_update_seconds"
+                )
+                self.usage[metric] += self.clock() - started
                 event["memory_identity"] = self.memory.identity
             if self.harness:
                 event["failure_category"] = failure_category(event)
@@ -505,6 +621,8 @@ class StudentSession:
                 )
             raise
         finally:
+            if memory_request:
+                self.usage["memory_update_seconds"] += self.clock() - memory_started
             if self.harness:
                 event["harness"] = self.harness.summary()
             if self.output:

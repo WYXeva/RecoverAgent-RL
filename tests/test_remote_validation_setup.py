@@ -59,10 +59,15 @@ def setup_module_fixture(tmp_path, monkeypatch):
 
 
 def test_new_source_locks_and_original_locks_coexist():
-    from recoveragent.task_memory import RUNTIME as MEMORY_RUNTIME
+    from recoveragent.task_memory import (
+        MODEL_RUNTIME as MEMORY_RUNTIME,
+        RUNTIME as OLD_MEMORY_RUNTIME,
+    )
 
     assert len(verify_source(MEMORY_RUNTIME)) == 64
     assert verify_execution_runtime(MEMORY_RUNTIME)["revision"] == MEMORY_RUNTIME
+    with pytest.raises(ValueError, match="source changed"):
+        verify_source(OLD_MEMORY_RUNTIME)
     # Old locks deliberately reject changed runtime source, not silently rehashed.
     with pytest.raises(ValueError, match="source changed"):
         verify_source()

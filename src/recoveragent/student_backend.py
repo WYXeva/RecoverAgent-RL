@@ -115,6 +115,15 @@ def main():
                         "policy": identity,
                         "input_token_ids": ids,
                         "token_ids": tokens,
+                        **(
+                            {
+                                "text": tokenizer.decode(
+                                    tokens, skip_special_tokens=False
+                                )
+                            }
+                            if request.get("purpose") == "memory_update"
+                            else {}
+                        ),
                         "finish_reason": "eos"
                         if tokens and tokens[-1] == tokenizer.eos_token_id
                         else "length",
