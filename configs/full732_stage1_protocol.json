@@ -1,0 +1,60 @@
+{
+  "format": "full732-stage1-v1",
+  "scope": "full_pool_candidate",
+  "stage": 1,
+  "split": {
+    "path": "configs/unified_task_split_full_pool_candidate.json",
+    "sha256": "0466cec29d9ad770a1cfeacb4c93945e5fcbcad68b9e980c5264d447418121a2",
+    "manifest_sha256": "086c0e2a1ac1143967d7ea8af06e0cc434aecdb39a51e1fe6c5fd42585ae2cab"
+  },
+  "audit": {
+    "path": "reports/full_task_pool_audit.json",
+    "sha256": "31114871571334e1991eb447cb5406f6a23e13e7f52038a2e5ad51bca1b09c3c"
+  },
+  "upstream_policy": {
+    "source_url": "https://github.com/StonyBrookNLP/appworld/blob/42b5bcf3cd334fee33f0c37c02070a9f5807add5/README.md#no_entry_sign-agent-development-restrictions",
+    "revision": "42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+    "reviewed_document_sha256": "f4049141b6e520217395b7ccd9f27048c8e0f90331690dcbef300d2bc4ff7bdd",
+    "evidence_kind": "reviewed_pinned_official_split_usage",
+    "grants": {
+      "parameter_training": [
+        "train"
+      ],
+      "taskwise_development_validation": [
+        "train",
+        "dev"
+      ]
+    },
+    "additional_grants": []
+  },
+  "execution_reference": {
+    "path": "configs/shared_stage_validation_v2.json",
+    "sha256": "3213895388eb56c7ba70e45a213b4791b67969cd788d514864245747833ef33a"
+  },
+  "runtime_lock": {
+    "path": "configs/execution_v6_runtime_lock.json",
+    "sha256": "56c63b44619d9180514fc2298a345318154856630419e19c428580d942f8ba26"
+  },
+  "clean_state_evidence": {
+    "path": "reports/unified_task_runtime_probe.json",
+    "sha256": "1084b196bb7bca92ce3f0d08dd3dcbea072220c9d38d0bf827e8272ab0468b3c"
+  },
+  "probe": {
+    "task_id": "07b42fd_1",
+    "purpose": "recovery_sft",
+    "selection": "lexicographically_first_official_train_task_id_in_frozen_candidate",
+    "kind": "scripted_public_read_only",
+    "worker": {
+      "path": "scripts/audit_unified_pool.py",
+      "sha256": "44b0042d6c8f3e56e00a0b014160d294189250be81235b691d17898841f812b3"
+    },
+    "max_tasks": 1,
+    "max_public_tool_calls": 1,
+    "timeout_seconds": 120
+  },
+  "model_execution_authorized": false,
+  "teacher_requests": 0,
+  "gpu_requests": 0,
+  "training_authorized": false,
+  "evaluation_semantics": "clean_initial_state_evidence_does_not_establish_successful_terminal_scoring; preserve_unknown"
+}

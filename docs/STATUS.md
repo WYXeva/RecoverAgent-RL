@@ -2,9 +2,18 @@
 
 - 最后更新：2026-10-27（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Phase0–1审计/清单/接口完成；完整732自定义训练BLOCKED；train替代方案运行评分PARTIAL**。真实732任务/244场景、全部三变体；仅train的A/B/C各30冻结。90/90初态及只读API通过，84个有效初态评价、6个未知，未改奖励/换题。389软件测试及Ruff通过；新M1/M2/M3均未训练或授权，本轮0模型/Teacher/GPU/SSH。
+- 当前状态：**Full732 Stage 1 工程/单任务脚本探针PASS；Full732训练与模型执行仍BLOCKED**。原A244/B244/C244未改；用途准入分别30/30/49，其余受限。427软件测试及Ruff通过。本轮0模型/Teacher/GPU/SSH/训练；Stage 2–6未执行，提交后停止。既有train替代方案评分PARTIAL保留，不能冒充Full732。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Harness 29k基线 `23a7d41beb35f950196a99ebe49b1a0ed21b8fca`（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Full732 Stage 1 协议入口与边界验收（2026-10-27）
+
+- **范围/版本**：已fetch/pull并核验8e4b9dd祖先；基线71fd3fe。复用冻结732任务/244场景、各244的清单和原seed；仅新增`full732_stage1.py`、配置、针对性测试与报告。没有重新审计任务内容或随机划分，没有修改旧执行入口。
+- **准入**：原清单/审计/政策/执行引用绑定固定SHA；区分元数据合法、用途允许、技术就绪与本阶段授权。A/B各30 train符合训练用途；C的30 train+19 dev符合逐题开发用途。其余623题所分配用途受限，保留在完整清单。手改READY、伪造grant或重算JSON哈希不会放行；实际dispatch不读取可编辑的结果矩阵。
+- **真实探针**：唯一任务07b42fd_1按ID排序预先固定，使用原worker。首次初始化120秒超时，证据保留；一次无任务依赖检查后，在本机非受限环境同任务新目录重跑25.167秒通过。1次已完成公开文档查询、DB不变、1次官方完整有效失败。只代表链路可用，不是模型成绩或成功终态评分通过；首次超时根因未定。
+- **验证/完整性**：427测试（新增32）、Ruff及128文件format通过；此前547个已有Git文件在文档更新前不变。正式数据6,616文件、原manifest/归档、两版checkpoint共14文件SHA不变。execution_v6文件/正文及旧运行锁不改。
+- **已知阻塞**：构造器测试确认旧StudentSession仍要求旧Harness/AnswerGuard提示段落，与v6原文不匹配；仅记录并阻止模型就绪声明，没有绕过或修改。旧初态6个unknown不改为失败，也不证明未来终态不可评分；新M1和受限用途资格仍未满足。
+- **证据/下一步**：`reports/full732_stage1_report.md`；私有`runs/full732_stage1_20261027/`保存准入矩阵、两次回执/源码、官方结果及校验清单。命令为`python -m recoveragent.full732_stage1 inventory|probe`及pytest/Ruff（详细环境见报告）。Stage 1完成后停止；下一阶段待用户授权，仅建议先验证合法来源的终态评分边界。
 
 ## 工作区清理与入口精简（2026-10-27）
 
