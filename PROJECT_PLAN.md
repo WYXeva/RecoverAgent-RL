@@ -1,6 +1,6 @@
 # RecoverAgent-RL：项目计划与需求文档
 
-> **当前分阶段实施（2026-10-28）**：见 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md) 及 [docs/P4_STAGE2_SCORING.md](docs/P4_STAGE2_SCORING.md)。Stage 1 已验收，execution_v6 Student 初始化兼容修复已提交；下一轮仅授权 Stage 2 在三个固定、合法的官方 train 任务上核验初态 unknown 与可信终态评分的分类。结束必须停下；Stage 3–6、任何 Teacher/GPU/训练、以及原官方 test 的逐题开发/训练均不在本轮范围。继续保持 Full732 A244/B244/C244 候选设计和旧数据/锁/Prompt 原样，权限来源必须独立审查。
+> **当前分阶段实施（2026-10-28）**：Stage 1、Student execution_v6 初始化修复与 Stage 2 三任务评分诊断均已完成；Stage 2 发现旧成功 Teacher 控制快照重评仅4/5、新官方train正向参照5/5，提示 `model_hashes` 等评分元数据在跨进程快照恢复中可能不完整。**下一项仅允许在用户下发独立任务后执行 [docs/P4_STAGE2B_SNAPSHOT_INTEGRITY.md](docs/P4_STAGE2B_SNAPSHOT_INTEGRITY.md)**，追踪保存/导出/恢复/评价保真度；参见 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md)。Stage 3–6、Teacher/GPU/训练不自动启动；Full732 A244/B244/C244 候选、AppWorld用途限制、execution_v6 System Prompt、原始数据、权重和旧源码锁均保持不变。
 
 > 2026-10-23 P3-B授权更新：用户明确授权在已提供的远程RTX PRO 6000 96GB上，数据/环境/短长烟测全部通过后执行既定Qwen3-4B Base-SFT和固定Raw对照；保留95条原数据与源码锁，结束回传checkpoint并关机。不启动Recovery-SFT或GRPO。旧阶段“不训练”文字为当时范围，当前以本项授权为准；实际验收见`reports/p3b_base_sft_report.md`。
 
