@@ -19,7 +19,14 @@ from .io import (
     read_json,
     write_json,
 )
-from .teacher import normalize_message, response_usage, usage_cost
+from .teacher import (
+    normalize_message,
+    response_usage,
+    usage_cost,
+    reasoning_enabled,
+    provider_history,
+    response_model_matches,
+)
 from .teacher_history import validate_history
 from .validated_selection import validate_predictor_receipts
 from .answer_guard import validate_guard_record
@@ -100,6 +107,8 @@ def validate_receipts(trajectory, directory):
     messages = trajectory["messages"]
     totals = {"prompt_tokens": 0, "generated_tokens": 0, "cached_prompt_tokens": 0}
     cost, calls = 0.0, 0
+    reasoning_by_index = {}
+    with_reasoning = reasoning_enabled(trajectory["teacher"])
     predictor = validate_predictor_receipts(trajectory, directory)
     validate_guard_record(trajectory)
     validate_harness_record(trajectory)
@@ -118,19 +127,26 @@ def validate_receipts(trajectory, directory):
         ):
             raise ValueError("Provider receipt changed")
         index = turn["assistant_index"]
-        if request["messages"] != messages[:index] or request["tools"] != turn["tools"]:
-            raise ValueError("Actual Teacher context mismatch")
+        expected_messages = provider_history(messages[:index], reasoning_by_index)
         if (
-            request["model"] != trajectory["teacher"]["model"]
-            or response["model"] != request["model"]
+            request["messages"] != expected_messages
+            or request["tools"] != turn["tools"]
         ):
+            raise ValueError("Actual Teacher context mismatch")
+        if request["model"] != trajectory["teacher"][
+            "model"
+        ] or not response_model_matches(trajectory["teacher"], response["model"]):
             raise ValueError("Teacher model identity mismatch")
-        if request.get("thinking") != {"type": "disabled"}:
+        if request.get("thinking") != {
+            "type": "enabled" if with_reasoning else "disabled"
+        }:
             raise ValueError("Unexpected thinking protocol")
         if "protocol_rejection" in turn:
             try:
                 rejected = normalize_message(
-                    response, trajectory["teacher"].get("max_tool_calls_per_turn", 1)
+                    response,
+                    trajectory["teacher"].get("max_tool_calls_per_turn", 1),
+                    allow_reasoning=with_reasoning,
                 )
                 check_batch(
                     rejected,
@@ -168,11 +184,17 @@ def validate_receipts(trajectory, directory):
                 raise ValueError("Valid response was falsely marked as rejected")
         elif (
             normalize_message(
-                response, trajectory["teacher"].get("max_tool_calls_per_turn", 1)
+                response,
+                trajectory["teacher"].get("max_tool_calls_per_turn", 1),
+                allow_reasoning=with_reasoning,
             )
             != messages[index]
         ):
             raise ValueError("Teacher output does not match stored Assistant")
+        if with_reasoning and "protocol_rejection" not in turn:
+            reasoning = response["choices"][0]["message"].get("reasoning_content")
+            if reasoning is not None:
+                reasoning_by_index[index] = reasoning
         usage = response_usage(response)
         if usage != turn["usage"]:
             raise ValueError("Per-turn usage mismatch")

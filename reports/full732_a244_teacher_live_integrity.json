@@ -1,0 +1,23 @@
+{
+  "baseline_commit": "3b950e8f3d564dfcdde47938899d553dec6eae8b",
+  "existing_tracked_files": 577,
+  "changed_files": [
+    "docs/DECISIONS.md",
+    "docs/STATUS.md",
+    "src/recoveragent/demonstrations.py",
+    "src/recoveragent/fresh_teacher.py",
+    "src/recoveragent/p3a.py",
+    "src/recoveragent/teacher.py",
+    "tests/test_fresh_teacher.py",
+    "tests/test_teacher_data.py"
+  ],
+  "unchanged_existing_files": 569,
+  "execution_v6_sha256": "352d106b7b052cc1a2b5c249e19c6a512e989355fc60f6495034f32db24a4400",
+  "split_sha256": "0466cec29d9ad770a1cfeacb4c93945e5fcbcad68b9e980c5264d447418121a2",
+  "runtime_lock_verified": "e1f0c1665a9e81ab48f4fc770f041903e93b8cc204802efacc80cd45b4e67008",
+  "full244_records": 244,
+  "candidate_manifest_sha256": "e8c1ec60e1b645075878b2fc85fc5a19791bac7f30bb74a987ff7eb760178938",
+  "candidate_integrity": "PASS",
+  "source_receipt_manifests": "PASS",
+  "raw_old_teacher_or_weights_read": false
+}

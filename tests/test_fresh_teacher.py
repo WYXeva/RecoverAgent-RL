@@ -69,12 +69,26 @@ def test_installed_license_and_membership_required(tmp_path):
 def test_schedule_budget_and_smoke_are_fixed():
     config, rows = fresh.campaign_config()
     assert rows[0]["task_id"] == "07b42fd_2"
-    assert config["fresh_campaign"]["total_cost_cap"] == 244
+    settings = config["fresh_campaign"]
+    assert settings["total_requests"] == 244 * 80
+    assert config["limits"]["episode_requests"] == 80
+    assert settings["total_cost_cap"] == 244 * config["limits"]["episode_cost"]
     assert config["fresh_campaign"]["max_attempts_per_task"] == 1
-    worker = fresh.worker_config(
-        config, rows[0], {"cost": 243.5, "requests": 9740, "outputs": 3997690}
+    initial = fresh.worker_config(
+        config, rows[0], {"cost": 0, "requests": 0, "outputs": 0}
     )
-    assert worker["remaining_cost"] == 0.5
+    assert initial["remaining_requests"] == 76
+    assert initial["remaining_generated_tokens"] == 15900
+    worker = fresh.worker_config(
+        config,
+        rows[0],
+        {
+            "cost": settings["total_cost_cap"] - 0.5,
+            "requests": settings["total_requests"] - 24,
+            "outputs": 3997206,
+        },
+    )
+    assert worker["remaining_cost"] == pytest.approx(0.5 - 0.0049605)
     assert (
         worker["remaining_requests"] == 20 and worker["remaining_generated_tokens"] == 6
     )
@@ -96,7 +110,7 @@ def test_claim_survives_interruption_and_cannot_be_counted_as_success(tmp_path):
     after = fresh.result_rows(config, rows, tmp_path)
     assert after[0]["status"] == "INTERRUPTED" and after[0]["official_success"] is None
     assert after[0]["cost_or_unknown"] is None and not after[0]["eligible_for_sft"]
-    assert fresh.totals(after)["cost"] == 1
+    assert fresh.totals(after)["cost"] == config["limits"]["episode_cost"]
     assert all(r["attempt_count"] == 0 for r in after[1:])
 
 
@@ -138,9 +152,11 @@ def test_interruption_keeps_known_usage_and_remaining_reservation(
     assert records[0]["input_tokens"] == 100
     assert records[0]["output_tokens"] == 20
     assert records[0]["tool_calls"] == 3
-    assert records[0]["unknown_cost_reservation"] == 0.8
+    assert (
+        records[0]["unknown_cost_reservation"] == config["limits"]["episode_cost"] - 0.2
+    )
     assert records[0]["cost_or_unknown"] is None
-    assert fresh.totals(records)["cost"] == 1
+    assert fresh.totals(records)["cost"] == config["limits"]["episode_cost"]
 
 
 def test_official_filters_do_not_accept_relabeled_custom_data():
@@ -243,7 +259,15 @@ def test_custom_worker_reuses_real_checks_and_preserves_original_split(
     monkeypatch.setattr(
         p3a,
         "TeacherPolicy",
-        lambda cfg, creds: TeacherPolicy(cfg, creds, transport=lambda _: response()),
+        lambda cfg, creds: TeacherPolicy(
+            cfg,
+            creds,
+            transport=lambda _: {
+                **response(),
+                "model": cfg["teacher"]["model"],
+                "id": "synthetic_response_001",
+            },
+        ),
     )
     monkeypatch.setattr(
         fresh,
@@ -273,10 +297,12 @@ def test_custom_worker_reuses_real_checks_and_preserves_original_split(
 
 def test_relay_variables_cannot_silently_use_official_endpoint_or_prices():
     config, _ = fresh.campaign_config()
+    config["teacher"]["pricing"]["input_per_million"] = None
+    config["fresh_campaign"]["provider_access_verified"] = False
     credentials = {
         "DEEPSEEK_API_KEY": "synthetic",
         "DEEPSEEK_BASE_URL": "https://znbcode.com/v1",
-        "DEEPSEEK_MODEL": "deepseek-flash",
+        "DEEPSEEK_MODEL": config["teacher"]["model"],
     }
     check = fresh.provider_preflight(config, credentials)
     assert check["status"] == "BLOCKED"

@@ -76,6 +76,31 @@ def response():
     }
 
 
+def test_explicit_http_client_identity_preserves_auth_and_no_redirect(
+    config, monkeypatch
+):
+    import io
+    import urllib.request
+    from recoveragent.teacher import NoRedirect
+
+    config["teacher"]["http_user_agent"] = "RecoverAgent-RL/0.2"
+    policy = TeacherPolicy(config, {"DEEPSEEK_API_KEY": "synthetic-key"})
+
+    class Opener:
+        def open(self, request, timeout):
+            assert request.get_header("User-agent") == "RecoverAgent-RL/0.2"
+            assert request.get_header("Authorization") == "Bearer synthetic-key"
+            assert json.loads(request.data) == {"synthetic": True}
+            return io.BytesIO(b'{"synthetic_response":true}')
+
+    def build(handler):
+        assert handler is NoRedirect
+        return Opener()
+
+    monkeypatch.setattr(urllib.request, "build_opener", build)
+    assert policy._post({"synthetic": True}) == {"synthetic_response": True}
+
+
 def install_fixture(monkeypatch, config, provider_response=None, transport_error=False):
     class FakeWorld(Adapter):
         versions = {"revision": APPWORLD_REVISION, "data_version": "SYNTHETIC"}
@@ -498,3 +523,101 @@ def test_interrupted_worker_keeps_known_receipts_and_unknown_reservation(
     assert usage["usage_priced_cost"] == pytest.approx(0.000095)
     assert usage["unknown_cost_reservation"] == 1.0
     assert usage["unknown_generation_reservation"] == 512 and not usage["usage_known"]
+
+
+def test_relay_identity_is_explicit_and_does_not_invent_fingerprint(config):
+    raw = response()
+    raw.pop("system_fingerprint")
+    raw["id"] = "synthetic-response-id"
+    with pytest.raises(ValueError, match="identity"):
+        p3a.verified_response_usage(raw, config["teacher"], 512)
+    config["teacher"]["response_identity_protocol"] = "model_response_id_v1"
+    usage, identity = p3a.verified_response_usage(raw, config["teacher"], 512)
+    assert identity == (config["teacher"]["model"], None)
+    assert usage["generated_tokens"] == 20
+    teacher = config["teacher"]
+    teacher["response_model_aliases"] = ["synthetic_explicit_alias"]
+    _, alias_identity = p3a.verified_response_usage(
+        {**raw, "model": "synthetic_explicit_alias"}, teacher, 512, identity
+    )
+    assert alias_identity == identity
+    for change in ({"id": ""}, {"model": "unexpected"}):
+        with pytest.raises(ValueError, match="identity"):
+            p3a.verified_response_usage({**raw, **change}, config["teacher"], 512)
+
+
+def test_reasoning_replay_is_evidence_bound_and_excluded_from_sft(
+    config, tmp_path, monkeypatch
+):
+    from recoveragent.teacher import REASONING_AUDIT_PROTOCOL
+    from recoveragent.demonstrations import as_demo, validate_demo, validate_receipts
+    from recoveragent.io import digest
+
+    sentinel = "SYNTHETIC_PROVIDER_REASONING_NOT_FOR_STUDENT"
+    raw = response()
+    raw["choices"][0]["message"]["reasoning_content"] = sentinel
+    with pytest.raises(ValueError):
+        normalize_message(raw)
+    assert "reasoning_content" not in normalize_message(raw, allow_reasoning=True)
+    config["teacher"].update(thinking=True, reasoning_protocol=REASONING_AUDIT_PROTOCOL)
+    extra = {
+        "type": "function",
+        "function": {
+            "name": "synthetic__lookup",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    }
+
+    class World(Adapter):
+        versions = {"revision": APPWORLD_REVISION, "data_version": "SYNTHETIC"}
+
+        def initial_tools(self):
+            return [extra, *TOOLS]
+
+        def execute(self, name, arguments, tools):
+            self.completed = name == "supervisor__complete_task"
+            return "synthetic result", tools
+
+    replies = []
+    for i in range(2):
+        r = copy.deepcopy(raw)
+        call = r["choices"][0]["message"]["tool_calls"][0]
+        call["id"] = "synthetic_call_" + str(i)
+        if i == 0:
+            call["function"] = {"name": "synthetic__lookup", "arguments": "{}"}
+        replies.append(r)
+    seen = []
+
+    def transport(payload):
+        assert payload["thinking"] == {"type": "enabled"}
+        seen.append(payload)
+        if len(seen) == 2:
+            assert payload["messages"][2]["reasoning_content"] == sentinel
+        return replies[len(seen) - 1]
+
+    monkeypatch.setattr(p3a, "AppWorldAdapter", World)
+    monkeypatch.setattr(
+        p3a,
+        "TeacherPolicy",
+        lambda cfg, creds: TeacherPolicy(cfg, creds, transport=transport),
+    )
+    monkeypatch.setattr(
+        p3a, "official_evaluate", lambda *a: (True, {"synthetic": True})
+    )
+    output = tmp_path / "reasoning_only_software"
+    t = p3a.run_teacher_episode(
+        config, "unit_task", output, {"DEEPSEEK_API_KEY": "synthetic"}
+    )
+    assert t["status"] == "valid" and t["usage"]["provider_requests"] == 2
+    record = as_demo(t)
+    validate_demo(record)
+    validate_receipts(t, output)
+    assert sentinel not in json.dumps(record["messages"])
+    assert config["student"]["thinking"] is False
+    path = output / "requests/002.request.json"
+    changed = read_json(path)
+    changed["messages"][2]["reasoning_content"] = "forged reasoning"
+    path.write_text(json.dumps(changed))
+    t["turns"][1]["request_hash"] = digest(changed)
+    with pytest.raises(ValueError, match="context mismatch"):
+        validate_receipts(t, output)

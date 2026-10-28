@@ -1,0 +1,17 @@
+Pytest executed before paid native collection against unchanged runtime source:
+........................................................................ [ 14%]
+........................................................................ [ 29%]
+........................................................................ [ 44%]
+........................................................................ [ 59%]
+........................................................................ [ 74%]
+........................................................................ [ 89%]
+.....................................................                    [100%]
+485 passed in 10.56s
+
+Final Ruff checks:
+All checks passed!
+137 files already formatted
+
+Data/source integrity: reports/full732_a244_teacher_live_integrity.json
+Post-stop real no-model checks: all six history checks true; original 17 environment files unchanged; official valid failure 2/7.
+No training or GPU run.

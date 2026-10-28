@@ -24,7 +24,7 @@ from .research_access import ROOT, SCOPE, a_tasks, authorize_task, context_for
 from .runner import now
 from .teacher import preflight, read_credentials
 
-DEFAULT = ROOT / "configs/full732_a244_teacher_fresh_v2.json"
+DEFAULT = ROOT / "configs/full732_a244_teacher_relay_native_20261028.json"
 
 
 def provider_preflight(config, credentials):
@@ -154,8 +154,8 @@ def campaign_config(path=DEFAULT):
         or settings["split_manifest_sha256"] != plan["manifest_sha256"]
         or settings["max_attempts_per_task"] != 1
         or settings["batch_size"] != 10
-        or settings["total_cost_cap"] != 244
-        or settings["total_requests"] != 9760
+        or settings["total_cost_cap"] != 244 * config["limits"]["episode_cost"]
+        or settings["total_requests"] != 244 * config["limits"]["episode_requests"]
         or settings["total_generated_tokens"] != 3997696
     ):
         raise ValueError("Frozen A244 schedule/budget changed")
@@ -165,15 +165,26 @@ def campaign_config(path=DEFAULT):
 def worker_config(config, row, spent):
     worker = copy.deepcopy(config)
     worker["custom_research"] = context_for(row)
+    # Diagnosed setup attempts are never erased or given fresh request/token
+    # allowances. Their reconciled usage is bound into the new campaign config.
+    setup = config["fresh_campaign"].get("reconciled_setup_usage", {})
+    task_setup = setup.get(row["task_id"], {})
+    spent = {
+        key: value + sum(item.get(key, 0) for item in setup.values())
+        for key, value in spent.items()
+    }
     worker.update(
         remaining_requests=min(
-            40, config["fresh_campaign"]["total_requests"] - spent["requests"]
+            config["limits"]["episode_requests"] - task_setup.get("requests", 0),
+            config["fresh_campaign"]["total_requests"] - spent["requests"],
         ),
         remaining_generated_tokens=min(
-            16384, config["fresh_campaign"]["total_generated_tokens"] - spent["outputs"]
+            16384 - task_setup.get("outputs", 0),
+            config["fresh_campaign"]["total_generated_tokens"] - spent["outputs"],
         ),
         remaining_cost=min(
-            1, config["fresh_campaign"]["total_cost_cap"] - spent["cost"]
+            config["limits"]["episode_cost"] - task_setup.get("cost", 0),
+            config["fresh_campaign"]["total_cost_cap"] - spent["cost"],
         ),
     )
     validate_config(worker)
@@ -209,7 +220,7 @@ def result_rows(config, rows, output):
                 attempt_count=1,
                 status="INTERRUPTED",
                 cost_or_unknown=None,
-                unknown_cost_reservation=1,
+                unknown_cost_reservation=config["limits"]["episode_cost"],
                 reasons=["claimed_attempt_no_final_receipt"],
             )
             if directory.exists():
@@ -220,9 +231,11 @@ def result_rows(config, rows, output):
                     model_requests=usage["provider_requests"],
                     tool_calls=usage["tool_calls"],
                     priced_cost_estimate=usage["usage_priced_cost"],
-                    # Keep the unaccounted part of the task's full USD 1 reserve.
+                    # Keep the unaccounted part of the task's full cost reserve.
                     # A missing final receipt never licenses another paid attempt.
-                    unknown_cost_reservation=max(0, 1 - usage["usage_priced_cost"]),
+                    unknown_cost_reservation=max(
+                        0, config["limits"]["episode_cost"] - usage["usage_priced_cost"]
+                    ),
                 )
         if (directory / "result.json").exists():
             sealed = read_json(directory / "evidence_manifest.json")["files"]

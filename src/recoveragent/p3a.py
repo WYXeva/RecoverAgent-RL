@@ -29,6 +29,8 @@ from .teacher import (
     normalize_message,
     preflight,
     read_credentials,
+    reasoning_enabled,
+    response_model_matches,
     response_usage,
     usage_cost,
 )
@@ -183,8 +185,20 @@ def verified_response_usage(response, teacher, max_tokens, backend=None):
     ):
         raise ValueError("Provider exceeded configured billing bound")
     identity = (response.get("model"), response.get("system_fingerprint"))
-    if identity[0] != teacher["model"] or not identity[1]:
+    relay_identity = teacher.get("response_identity_protocol") == "model_response_id_v1"
+    if (
+        not response_model_matches(teacher, identity[0])
+        or (not relay_identity and not identity[1])
+        or (
+            relay_identity
+            and (not isinstance(response.get("id"), str) or not response["id"])
+        )
+    ):
         raise ValueError("Unverifiable Teacher response identity")
+    if relay_identity:
+        # Preserve the actual response model in each raw receipt/turn; compare only
+        # explicitly configured service aliases as the same requested model family.
+        identity = (teacher["model"], identity[1])
     if backend is not None and backend != identity:
         raise ValueError("Teacher backend identity changed during the episode")
     return usage, identity
@@ -460,7 +474,9 @@ def run_teacher_episode(config, task_id, output, credentials):
             usage["model_turns"] += 1
             try:
                 message = normalize_message(
-                    response, teacher.get("max_tool_calls_per_turn", 1)
+                    response,
+                    teacher.get("max_tool_calls_per_turn", 1),
+                    allow_reasoning=reasoning_enabled(teacher),
                 )
                 if harness:
                     check_batch(message, messages, tools, require_action=True)
@@ -518,6 +534,8 @@ def run_teacher_episode(config, task_id, output, credentials):
                 event["format_error"] = type(exc).__name__ + ": " + str(exc)
                 termination = "invalid_completion"
                 break
+            if reasoning_enabled(teacher):
+                policy.remember_response(len(messages), response)
             messages.append(message)
             verdicts = guard.inspect(calls) if guard else [None] * len(calls)
             if guard:

@@ -530,3 +530,14 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 使用独立v2采集配置与源码锁，不重签v1锁、不改A244/Prompt/工具检查/预算。保留凭据与endpoint/model匹配、实际访问及可核实价格门槛，没有自动发送付费请求或把403改为成功。
 - 本轮显式加载.env证实Key存在。旧报告最终离线预检没有传凭据文件，故其“缺Key”原因不是实际凭据缺失；保留旧回执并纠正解释，不修改历史JSON。当前价格与访问仍未核实，0新增Teacher尝试。
 - 482测试与Ruff通过，包含同域名合法合成配置能通过预检及历史锁拒绝新源码；无真实模型、AppWorld任务、GPU或训练。报告见`reports/full732_provider_gate_revision.md`。
+
+## D062 · 2026-10-28 · 中转站真实协议、Teacher推理审计与80次请求
+
+- 用户确认 Teacher 为 `deepseek-v4.1-flash`，并明确确认响应名 `deepseek-v4-1-flash` 为同一选定服务模型。仅在新显式 `model_response_id_v1` 协议允许这两个名称；保留每次真实model、response ID和可选fingerprint，不假造不可变上游权重版本。旧协议仍要求原精确名称与fingerprint。用户允许Teacher推理，Student继续Qwen3-4B/non-thinking。
+- 实测普通urllib User-Agent的models请求403，声明项目User-Agent后同地址/Key200并列出该模型；采用显式配置，不移除认证、重定向防护或未知收费保护。旧两个接入中断原件保持不变，四次收费请求均已获得真实回执并与usage账单核对，再从原首任务干净状态重新执行；不会自动重复未知收费请求。
+- 新 `provider_reasoning_audit_only_v1` 将真实reasoning_content保存在原始provider回执，并按历史Assistant位置回传给同一Teacher；不进入结构化SFT messages/Assistant目标。回执复验从原始历史逐回合重建provider请求，拒绝篡改或未来推理；不伪造工具或推理内容。固定System Prompt、Student模板、动态Schema、AnswerGuard及Harness实际检查保持不变。
+- 用户取消独立金额上限、将每任务请求设为80；继续16384累计生成、4096单回复、600秒及工具数量不限。首任务此前4次接入请求/484生成token在新配置中扣除，不因新配置获得额外请求额度。为复用原有限数值会计机制，26/任务、6344/全轮是按既定请求和最大输入/输出计价推导的保守预留，不是用户实际账单或新增费用限制。每次重新干净执行的600秒与接入诊断耗时分别披露。
+- 费率取公开model-plaza并乘用户确认的0.3：输入/缓存输入/输出每百万0.3/0.006/1.2，UI标为CNY；Key的usage接口标为USD。二者分别存储，不自行换汇或将估价冒充实际扣费。费用、总量和未知项均保留。用户关于不按服务条款硬阻断的D061决定继续有效；不伪称服务方授予许可。
+- 新配置/锁分别封存严格接入、推理兼容、明确别名三个实际运行版本；最后一个为默认采集入口。每版派发前冻结源码副本，旧锁不重签。此前95条Teacher未读取或复用；仅Stage3A/A244真实正常Teacher，仍不运行GPU、Student推理、训练或B/C。实际完成数量与验收见本轮新增采集报告和STATUS。
+
+- 本轮真实执行到第5任务：4官方成功/终态等价、3合格候选、1超长暂缓；Provider在max_tokens507时返回512/length触发原故障停止，239项未执行。原UNKNOWN不回填，停后官方自动保存状态诊断2/7，真实调用历史一致。细节、全部账单及尚待修复的异常路径见`reports/full732_a244_teacher_live_20261028.md`；不因少量超额而修改旧预算，不以中断当作普通Teacher策略失败。

@@ -13,6 +13,36 @@ from pathlib import Path
 from .io import canonical
 from .teacher_history import validate_history
 
+REASONING_AUDIT_PROTOCOL = "provider_reasoning_audit_only_v1"
+
+
+def reasoning_enabled(teacher):
+    return (
+        teacher.get("thinking") is True
+        and teacher.get("reasoning_protocol") == REASONING_AUDIT_PROTOCOL
+    )
+
+
+def response_model_matches(teacher, model):
+    return model == teacher["model"] or (
+        teacher.get("response_identity_protocol") == "model_response_id_v1"
+        and model in teacher.get("response_model_aliases", [])
+    )
+
+
+def provider_history(messages, reasoning_by_index):
+    """Reattach only real earlier provider reasoning; training history stays clean."""
+    result = copy.deepcopy(messages)
+    for index, reasoning in reasoning_by_index.items():
+        if (
+            not 0 <= index < len(result)
+            or result[index]["role"] != "assistant"
+            or not isinstance(reasoning, str)
+        ):
+            raise ValueError("Invalid provider reasoning boundary")
+        result[index]["reasoning_content"] = reasoning
+    return result
+
 
 class TeacherBlocked(ValueError):
     pass
@@ -79,7 +109,9 @@ def preflight(config, credentials):
         or url.fragment
     ):
         reasons.append("INVALID_TEACHER_ENDPOINT")
-    if teacher.get("thinking") is not False:
+    if teacher.get("thinking") is not False and not (
+        reasoning_enabled(teacher) and config.get("tool_mode") == "dynamic_discovery"
+    ):
         reasons.append("P3A_V1_REQUIRES_NON_THINKING_PROTOCOL")
     return {
         "status": "BLOCKED" if reasons else "READY_FOR_PILOT",
@@ -93,7 +125,7 @@ def preflight(config, credentials):
     }
 
 
-def normalize_message(response, max_calls=1):
+def normalize_message(response, max_calls=1, *, allow_reasoning=False):
     """Preserve native batches; reject malformed/oversized batches atomically."""
     choices = response.get("choices", [])
     if len(choices) != 1:
@@ -102,7 +134,12 @@ def normalize_message(response, max_calls=1):
     if choice.get("finish_reason") not in {"stop", "tool_calls"}:
         raise ValueError("Truncated, filtered or unsupported completion")
     raw = choice["message"]
-    if raw.get("role") != "assistant" or raw.get("reasoning_content"):
+    reasoning = raw.get("reasoning_content")
+    if (
+        raw.get("role") != "assistant"
+        or (reasoning and not allow_reasoning)
+        or (reasoning is not None and not isinstance(reasoning, str))
+    ):
         raise ValueError("Unexpected role or reasoning in non-thinking protocol")
     content = raw.get("content")
     if content is not None and not isinstance(content, str):
@@ -181,12 +218,27 @@ class TeacherPolicy:
         self.config = config["teacher"]
         self.key = credentials[self.config["api_key_env"]]
         self.transport = transport or self._post
+        self.reasoning_by_index = {}
+
+    def remember_response(self, index, response):
+        if reasoning_enabled(self.config):
+            reasoning = response["choices"][0]["message"].get("reasoning_content")
+            if reasoning is not None:
+                if not isinstance(reasoning, str):
+                    raise ValueError("Provider reasoning must be text")
+                self.reasoning_by_index[index] = reasoning
 
     def _post(self, payload):
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.key,
+        }
+        if self.config.get("http_user_agent"):
+            headers["User-Agent"] = self.config["http_user_agent"]
         request = urllib.request.Request(
             self.config["base_url"].rstrip("/") + "/chat/completions",
             canonical(payload).encode(),
-            {"Content-Type": "application/json", "Authorization": "Bearer " + self.key},
+            headers,
         )
         try:
             with urllib.request.build_opener(NoRedirect).open(
@@ -207,7 +259,7 @@ class TeacherPolicy:
         validate_history(messages)
         payload = {
             "model": self.config["model"],
-            "messages": copy.deepcopy(messages),
+            "messages": provider_history(messages, self.reasoning_by_index),
             "tools": copy.deepcopy(tools),
             "stream": False,
             "max_tokens": max_tokens,
@@ -216,6 +268,11 @@ class TeacherPolicy:
             "tool_choice": "auto",
             "parallel_tool_calls": False,
         }
+        if reasoning_enabled(self.config):
+            payload["thinking"] = {"type": "enabled"}
+            # Thinking mode ignores temperature; auto tool choice is the default.
+            payload.pop("temperature")
+            payload.pop("tool_choice")
         if len(canonical(payload).encode()) > self.config["max_request_bytes"]:
             raise TeacherBlocked("REQUEST_SIZE_LIMIT")
         return payload

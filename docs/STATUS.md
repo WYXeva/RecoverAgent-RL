@@ -2,9 +2,18 @@
 
 - 最后更新：2026-10-28（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Stage 3A A244 固定清单保留；已按用户新指示撤掉项目自加的域名条款拦截，访问/费率仍未核实，真实采集未启动**。当前0尝试、0成功、0候选、244未执行。当前v2配置及新锁不改旧v1；显式读取.env确认Key存在，旧最终预检未传文件所得“缺Key”不代表实际凭据缺失。482软件测试和Ruff通过，前轮单train无模型快照证据保留；没有本轮模型/GPU/SSH/训练。详见`reports/full732_provider_gate_revision.md`。
+- 当前状态：**Stage 3A真实Teacher采集PARTIAL，已停止**。固定A244中实际5任务：4官方成功且跨进程复评一致，3条合格/28监督样本/3540监督token，1条超长deferred；第5题Provider超出生成上限引发主链UNKNOWN，停后无模型官方诊断为有效失败2/7。239题未执行。全部91请求/140工具已留证，已保存候选私有SHA包，不启动训练。新报告`reports/full732_a244_teacher_live_20261028.md/json`；旧零采集报告保留为历史。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Stage 3A基线 `29216c7516d9604838ca499f04327997001f2e84`（Stage 2B基线25e6dac）（Stage 2基线def1578）（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Stage 3A基线 `29216c7516d9604838ca499f04327997001f2e84`（Stage 2B基线25e6dac）（Stage 2基线def1578）（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。本轮独立克隆 `/tmp/recoveragent-provider-publish-20261028`（此前克隆路径保留在历史报告），主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Stage 3A 中转站实际采集与协议兼容（2026-10-28）
+
+- **授权/接入**：用户确认deepseek-v4.1-flash及响应deepseek-v4-1-flash同一服务、0.3倍率、金额不设独立上限、每任务80请求、Teacher可推理/Student non-thinking。新增显式User-Agent/响应身份与推理审计协议；不修改v6、工具校验或旧锁。新默认`full732_a244_teacher_relay_native_20261028.json`，前两版接入原件封存。
+- **真实结果**：5个A任务正常执行，4个官方成功、4个独立终态重评10项一致。3条合格候选/3场景，28 Assistant样本、3540监督token、最长12583。042a9fc_1因完整上下文超32768整条deferred。新增原始数据全部私有；旧95条未读、不复用。全量244未验收，不称总体100%成功。
+- **中断与诊断**：099174d_3第30请求max_tokens507，response512且length，累计16389超过16384；未执行该截断回复。原Runner抛ValueError并粗分worker_environment，主链UNKNOWN/null和费用预留不改。已在独立无模型进程评估官方自动保存状态，2/7有效失败；46调用代码/返回与官方日志完全对应，17文件评分前后SHA不变。它不是本轮合格项目terminal/recovery样本。停止后无继续派发/付费重试。
+- **实际成本**：含两次接入诊断共7次尝试、91模型请求、140真实工具、response输入1861852/输出34908。Key账单actual_cost=0.21547368（接口unit=USD），公开费率估价0.21528168（UI标CNY）；币种标签不一致未换汇。账单输出多160，14条response total与分项和不同，原始字段全部保留，不编造解释或精确逐任务扣费。
+- **交付/证据**：`reports/full732_a244_teacher_live_20261028.md/json`；私有`runs/full732_a244_live_native_20261028/`及`runs/full732_a244_launch_20261028/`，候选包`data/full732_a244_fresh_20261028_partial/`，manifest SHA `e8c1ec60e1b645075878b2fc85fc5a19791bac7f30bb74a987ff7eb760178938`。全部485测试、Ruff check/format137文件通过；真实Qwen仅tokenizer/格式验收，无模型权重推理或训练。
+- **阻塞/下一步**：模型名称兼容已实测通过；余239题因新Provider token契约异常按冻结规则停止。需独立修复超额响应的精确分类、实际usage保留和合法边界终态保存，核验该渠道的生成上限，再以新锁继续未执行任务，不覆盖旧回执或重新收费收集已通过的四题。Stage3A未完成，Base-SFT/Recovery-SFT/GRPO/B/C尚未启动。
 
 ## Stage 3A A244 新采集入口与阻塞（2026-10-28）
 
