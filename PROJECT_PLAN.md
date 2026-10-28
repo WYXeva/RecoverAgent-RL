@@ -1,6 +1,6 @@
 # RecoverAgent-RL：项目计划与需求文档
 
-> **当前分阶段实施（2026-10-28）**：Stage 2B 已验证兼容环境的单任务 live→save/export→独立进程恢复→官方评分一致（5/5）；历史旧快照和其4/5重评不修改。**下一项仅允许用户下达单独指令后执行 [docs/P4_STAGE3A_BASE_SFT_READINESS.md](docs/P4_STAGE3A_BASE_SFT_READINESS.md)**：离线审计 Full732 冻结 A244 Base-SFT 候选数据、合规用途、历史 Teacher成功证据、snapshot评分风险和补采集预算；不付费、不调用模型、不训练。详见 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md)。M1/M2/M3 仍未训练，新 Full732 训练/逐题评估仍受原 AppWorld 上游用途规定限制。A/B/C 候选及所有旧数据、权重、System Prompt、源码锁保持不变。
+> **最新用户决策（2026-10-28）**：跳过历史 Teacher 复用/数据准入盘点，直接对冻结 Full732 的 **A244 所有不同任务从零采集正常 Teacher 示范**。当前 Stage 3A 的详细执行规范见 [docs/P4_STAGE3A_BASE_SFT_READINESS.md](docs/P4_STAGE3A_BASE_SFT_READINESS.md)，已有同名路径的旧版「只做历史数据清点」被取代。严格保持 B244 用于后续 Recovery-SFT/GRPO、C244 用于同一验证集；只把本轮真实官方成功且独立恢复评分可靠的 A 轨迹作为后续 M1 候选，不复用旧95示范。独立自定义协议非官方排行榜；保留原split来源、访问与版权条件及付费预算门禁，受限/未授权任务不冒充已完成。Stage 3A 完成即停，不自动训练新 M1，也不运行 Stage 4–6。
 
 > 2026-10-23 P3-B授权更新：用户明确授权在已提供的远程RTX PRO 6000 96GB上，数据/环境/短长烟测全部通过后执行既定Qwen3-4B Base-SFT和固定Raw对照；保留95条原数据与源码锁，结束回传checkpoint并关机。不启动Recovery-SFT或GRPO。旧阶段“不训练”文字为当时范围，当前以本项授权为准；实际验收见`reports/p3b_base_sft_report.md`。
 
