@@ -1,6 +1,6 @@
 # AGENTS.md — RecoverAgent-RL
 
-> **当前开发门禁（2026-10-28）**：Stage 1、v6 Student 初始化、Stage 2 官方终态评分边界与 Stage 2B 单任务快照评分保真度已分别验收。下一步**只允许在用户单独向 Codex 下达指令后执行 Stage 3A**，具体见 [docs/P4_STAGE3A_BASE_SFT_READINESS.md](docs/P4_STAGE3A_BASE_SFT_READINESS.md) 与 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md)：离线清点 Full732 A244 的新 Base-SFT 候选来源、权限、历史有效 Teacher 示范与预算计划。严格停在数据准备，**不得实际采集付费 Teacher、启动模型/GPU、训练新 M1、实施 Recovery-SFT/GRPO或调用测试来源逐题内容**。原 Full732 A244/B244/C244 冻结分配不变，官方 AppWorld test 用途约束和证据门槛不因自定义方案而消失；`execution_v6` System Prompt、原数据、历史权重和源码锁保持原样。本门禁不进入 Agent 输入。
+> **最新用户决定（2026-10-28，优先于历史 Stage 3A 计划）**：新 Base-SFT **不检查、不复用旧 95 条 Teacher 示范**，针对冻结 Full732 分配中的 **A244 全部任务从原始干净初态重新独立采集 Teacher**。当前唯一任务由 [docs/P4_STAGE3A_BASE_SFT_READINESS.md](docs/P4_STAGE3A_BASE_SFT_READINESS.md) 定义（文件名沿用以保持链接，内容已改为「A244 Fresh Teacher Collection」）。B244 留给 Recovery-SFT/GRPO，C244 保留为唯一共享验证集；不得回退为仅 A30 方案，也不能虚报 244 条成功。独立自定义实验不冒称官方 benchmark，实际数据访问/许可证和费用上限必须如实核验；未获权限或额度时暂停相应执行、保存未执行分母。不得读取参考解作示范、修改 execution_v6 System Prompt/官方评分器/旧权重/旧数据/旧锁。Stage 3A 只采集和验收，不启动 Base-SFT 训练、Student/Recovery-SFT/GRPO 或 C244 评估。交付后立即停止；本项目实施文档不进入 Actor 输入。
 
 > 工作约定 v0.21 · 2026-10-27
 > 适用范围：本项目及子目录。需求与完整验收见 `PROJECT_PLAN.md`。  
