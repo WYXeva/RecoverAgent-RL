@@ -1,0 +1,416 @@
+{
+  "format": "full732-stage2-scoring-diagnosis-v1",
+  "baseline_commit": "def15782a58e6547c940463e90cf9f6347127e09",
+  "scope": "Only fixed three official train tasks; not Full732 scoring certification",
+  "task_order": [
+    "76f2c72_1",
+    "d0b1f43_1",
+    "07b42fd_1"
+  ],
+  "diagnosis_status": "COMPLETE",
+  "initial_vs_legal_terminal_boundary": "PASS_FOR_FIXED_THREE",
+  "historical_terminal_reproduction": "PARTIAL_2_OF_3",
+  "full732_execution_status": "BLOCKED_UNCHANGED",
+  "rows": [
+    {
+      "task_id": "76f2c72_1",
+      "official_split": "train",
+      "scenario_id": "76f2c72",
+      "initial": {
+        "status": "RECORDED",
+        "evaluation_status": "evaluation_error",
+        "category": "unknown",
+        "success": null,
+        "official_success": false,
+        "official_result_complete": true,
+        "tracker_counts": {
+          "num_tests": 2,
+          "passes": 1,
+          "failures": 1
+        },
+        "restored_db_hash_matches": null,
+        "task_completed": false,
+        "answer_is_not_given_sentinel": true,
+        "scoring_did_not_modify_saved_dbs": true,
+        "seconds": 24.30195132899098,
+        "evidence_kind": "fresh_initial_evaluation",
+        "result_path": "runs/full732_stage2_20261028/initial_76f2c72_1/result.json",
+        "result_sha256": "49a22c9b6ae88c40e82d6dfd19ee81200fbcbd99a0c2beee5dd1943c28b1c952",
+        "raw_tracker_sha256": "5d4604e17816b69b470bac9fdcb069a1d097f33115eec4ce249233681d6ee263",
+        "classification_sha256": "707e1f636f11c3e5e87c0dc553d8e976353f6cacc09f3687cee90dc561fb332f",
+        "exception_frames": [
+          {
+            "exception_type": "ValueError",
+            "frames": [
+              {
+                "file": "appworld/data/tasks/76f2c72_1/ground_truth/evaluation.py",
+                "line": 38,
+                "function": "evaluate"
+              },
+              {
+                "file": "appworld/evaluator.py",
+                "line": 132,
+                "function": "case"
+              },
+              {
+                "file": "appworld/common/evaluation.py",
+                "line": 251,
+                "function": "assert_plus"
+              }
+            ]
+          }
+        ]
+      },
+      "positive": {
+        "status": "PASS",
+        "evaluation_status": "valid",
+        "category": "task_success",
+        "success": true,
+        "official_success": true,
+        "official_result_complete": true,
+        "tracker_counts": {
+          "num_tests": 2,
+          "passes": 2,
+          "failures": 0
+        },
+        "restored_db_hash_matches": true,
+        "task_completed": true,
+        "answer_is_not_given_sentinel": false,
+        "scoring_did_not_modify_saved_dbs": true,
+        "seconds": 33.99431350303348,
+        "evidence_kind": "fresh_evaluation_of_immutable_historical_teacher_terminal",
+        "result_path": "runs/full732_stage2_20261028/positive_76f2c72_1/result.json",
+        "result_sha256": "a09c51f28a339a7ea75cac82763b765f34c5cb963968273f07137e106b2d3096",
+        "raw_tracker_sha256": "46b3e3818925d355ef19cfa4d7a8e636c5ba4279d86cad045763492c20bf7945",
+        "classification_sha256": "7ba0ca996daad078ccce045569c7e2dd34ec61e2e311b3406062cef031a8fb38",
+        "exception_frames": [],
+        "sealed_model_hashes_empty": true
+      }
+    },
+    {
+      "task_id": "d0b1f43_1",
+      "official_split": "train",
+      "scenario_id": "d0b1f43",
+      "initial": {
+        "status": "RECORDED",
+        "evaluation_status": "evaluation_error",
+        "category": "unknown",
+        "success": null,
+        "official_success": false,
+        "official_result_complete": true,
+        "tracker_counts": {
+          "num_tests": 2,
+          "passes": 1,
+          "failures": 1
+        },
+        "restored_db_hash_matches": null,
+        "task_completed": false,
+        "answer_is_not_given_sentinel": true,
+        "scoring_did_not_modify_saved_dbs": true,
+        "seconds": 24.065099427010864,
+        "evidence_kind": "fresh_initial_evaluation",
+        "result_path": "runs/full732_stage2_20261028/initial_d0b1f43_1/result.json",
+        "result_sha256": "b1f51ef6b4d0c12eeba5e34f1acf55883a1a60cb4399145de44065f5ed124d3b",
+        "raw_tracker_sha256": "1c1885f20afc5f0246947ac27fb2f8889ff4f33d08c9a178fe825a0e4fcedaed",
+        "classification_sha256": "f580deb84b9a15d333a1b74a6665f21f435b8e13a66a1a2425c949030cbb1569",
+        "exception_frames": [
+          {
+            "exception_type": "ValueError",
+            "frames": [
+              {
+                "file": "appworld/data/tasks/d0b1f43_1/ground_truth/evaluation.py",
+                "line": 38,
+                "function": "evaluate"
+              },
+              {
+                "file": "appworld/evaluator.py",
+                "line": 132,
+                "function": "case"
+              },
+              {
+                "file": "appworld/common/evaluation.py",
+                "line": 252,
+                "function": "assert_plus"
+              }
+            ]
+          }
+        ]
+      },
+      "positive": {
+        "status": "PASS",
+        "evaluation_status": "valid",
+        "category": "task_success",
+        "success": true,
+        "official_success": true,
+        "official_result_complete": true,
+        "tracker_counts": {
+          "num_tests": 2,
+          "passes": 2,
+          "failures": 0
+        },
+        "restored_db_hash_matches": true,
+        "task_completed": true,
+        "answer_is_not_given_sentinel": false,
+        "scoring_did_not_modify_saved_dbs": true,
+        "seconds": 35.087633259012364,
+        "evidence_kind": "fresh_evaluation_of_immutable_historical_teacher_terminal",
+        "result_path": "runs/full732_stage2_20261028/positive_d0b1f43_1/result.json",
+        "result_sha256": "1e2cd0aa794a464312369a5e358d232185e321cecbeef2cbd2e54cbbe4c1fcea",
+        "raw_tracker_sha256": "46b3e3818925d355ef19cfa4d7a8e636c5ba4279d86cad045763492c20bf7945",
+        "classification_sha256": "7ba0ca996daad078ccce045569c7e2dd34ec61e2e311b3406062cef031a8fb38",
+        "exception_frames": [],
+        "sealed_model_hashes_empty": true
+      }
+    },
+    {
+      "task_id": "07b42fd_1",
+      "official_split": "train",
+      "scenario_id": "07b42fd",
+      "initial": {
+        "status": "RECORDED",
+        "evaluation_status": "valid",
+        "category": "task_failure",
+        "success": false,
+        "official_success": false,
+        "official_result_complete": true,
+        "tracker_counts": {
+          "num_tests": 5,
+          "passes": 1,
+          "failures": 4
+        },
+        "restored_db_hash_matches": null,
+        "task_completed": false,
+        "answer_is_not_given_sentinel": true,
+        "scoring_did_not_modify_saved_dbs": true,
+        "seconds": 24.637380597996525,
+        "evidence_kind": "fresh_initial_evaluation",
+        "result_path": "runs/full732_stage2_20261028/initial_07b42fd_1/result.json",
+        "result_sha256": "f3d4817355963ecd318367ede5fa188939744cf5235bb5a230c02a05e73240b7",
+        "raw_tracker_sha256": "c8112bbb2624885c0b43d7bf131b5de5914df0d33ceac2b9dfcb4b7d4025b311",
+        "classification_sha256": "ad551731c1d4af9e3cb9ae8e9ba829b73d3424905d2eb17e21918d427cfdc4cb",
+        "exception_frames": [
+          {
+            "exception_type": "AssertionError",
+            "frames": [
+              {
+                "file": "appworld/data/tasks/07b42fd_1/ground_truth/evaluation.py",
+                "line": 39,
+                "function": "evaluate"
+              },
+              {
+                "file": "appworld/evaluator.py",
+                "line": 128,
+                "function": "answer"
+              },
+              {
+                "file": "appworld/common/evaluation.py",
+                "line": 370,
+                "function": "assert_plus"
+              }
+            ]
+          },
+          {
+            "exception_type": "AssertionError",
+            "frames": [
+              {
+                "file": "appworld/data/tasks/07b42fd_1/ground_truth/evaluation.py",
+                "line": 45,
+                "function": "evaluate"
+              },
+              {
+                "file": "appworld/evaluator.py",
+                "line": 132,
+                "function": "case"
+              },
+              {
+                "file": "appworld/common/evaluation.py",
+                "line": 370,
+                "function": "assert_plus"
+              }
+            ]
+          },
+          {
+            "exception_type": "AssertionError",
+            "frames": [
+              {
+                "file": "appworld/data/tasks/07b42fd_1/ground_truth/evaluation.py",
+                "line": 62,
+                "function": "evaluate"
+              },
+              {
+                "file": "appworld/evaluator.py",
+                "line": 132,
+                "function": "case"
+              },
+              {
+                "file": "appworld/common/evaluation.py",
+                "line": 110,
+                "function": "assert_plus"
+              }
+            ]
+          },
+          {
+            "exception_type": "AssertionError",
+            "frames": [
+              {
+                "file": "appworld/data/tasks/07b42fd_1/ground_truth/evaluation.py",
+                "line": 69,
+                "function": "evaluate"
+              },
+              {
+                "file": "appworld/evaluator.py",
+                "line": 132,
+                "function": "case"
+              },
+              {
+                "file": "appworld/common/evaluation.py",
+                "line": 110,
+                "function": "assert_plus"
+              }
+            ]
+          }
+        ]
+      },
+      "positive": {
+        "status": "FAIL",
+        "evaluation_status": "valid",
+        "category": "task_failure",
+        "success": false,
+        "official_success": false,
+        "official_result_complete": true,
+        "tracker_counts": {
+          "num_tests": 5,
+          "passes": 4,
+          "failures": 1
+        },
+        "restored_db_hash_matches": true,
+        "task_completed": true,
+        "answer_is_not_given_sentinel": false,
+        "scoring_did_not_modify_saved_dbs": true,
+        "seconds": 34.515820925007574,
+        "evidence_kind": "fresh_evaluation_of_immutable_historical_teacher_terminal",
+        "result_path": "runs/full732_stage2_20261028/positive_07b42fd_1/result.json",
+        "result_sha256": "cf2a2da123d03e0829f35664783b8b52aba5a89127d7224a078196b4e0a2caba",
+        "raw_tracker_sha256": "262b60eff3cbd40741a6328d3584e0d36aff7b03f59448421bd5a55413ee346e",
+        "classification_sha256": "a5ea1cf61d0c119a1509774060165d49bde14bf944b9f1f67f520ca359c6ffd6",
+        "exception_frames": [
+          {
+            "exception_type": "AssertionError",
+            "frames": [
+              {
+                "file": "appworld/data/tasks/07b42fd_1/ground_truth/evaluation.py",
+                "line": 45,
+                "function": "evaluate"
+              },
+              {
+                "file": "appworld/evaluator.py",
+                "line": 132,
+                "function": "case"
+              },
+              {
+                "file": "appworld/common/evaluation.py",
+                "line": 370,
+                "function": "assert_plus"
+              }
+            ]
+          }
+        ],
+        "sealed_model_hashes_empty": true
+      }
+    }
+  ],
+  "control_official_reference": {
+    "task_id": "07b42fd_1",
+    "kind": "fresh_official_train_reference_verification_not_model",
+    "upstream_verify_task_success": true,
+    "independent_evaluation_status": "valid",
+    "independent_evaluation_category": "task_success",
+    "independent_evaluation_success": true,
+    "tracker_counts": {
+      "num_tests": 5,
+      "passes": 5,
+      "failures": 0
+    },
+    "live_and_isolated_trackers_equal": true,
+    "saved_model_hashes_empty": false,
+    "result_sha256": "5a5b8bc189e0097ed8a34b55f06ec3912e703884eb8dcfa3832110eba1dc6b79",
+    "upstream_tracker_sha256": "560514cd462fb99f34621cfbda3f3021ed5217dd465964340b78162bc38f537e",
+    "independent_tracker_sha256": "560514cd462fb99f34621cfbda3f3021ed5217dd465964340b78162bc38f537e",
+    "private_script_sha256": "778fff6d04ee67da9145a55221e631bbfbbc99ad0eb7ff9ffd7195d53ebdb7de",
+    "public_api_calls": 15,
+    "final_completion_api_observed": true,
+    "seconds": 8.400601402972825
+  },
+  "counts": {
+    "unique_tasks": 3,
+    "initial_states_evaluated": 3,
+    "sealed_terminals_restored_and_evaluated": 3,
+    "fresh_official_reference_runs": 1,
+    "official_evaluator_invocations": 8,
+    "official_successes": 4,
+    "valid_task_failures": 2,
+    "unknown_evaluations": 2,
+    "environment_errors": 0,
+    "all_state_worker_seconds": 185.00280044402461,
+    "public_api_calls": 15,
+    "model_calls": 0,
+    "paid_teacher_calls": 0,
+    "gpu_calls": 0,
+    "ssh_calls": 0,
+    "training_steps": 0
+  },
+  "findings": {
+    "unknown_root_cause": "Unavailable answer sentinel fails float normalization in official assert_plus; not a missing target object.",
+    "sealed_control_failure": "Sealed model_hashes.json is empty; official changed_model_names filters by model hashes before comparing records. Logical row hash matches, but one change-detection assertion fails. The historical live success is not rewritten.",
+    "snapshot_metadata_origin": "NOT_VERIFIED: stage that originally omitted model hashes has not been isolated.",
+    "classification": "Original trackers retained. Unknown keeps official_success=false and controller success=null; valid outcomes retain official bool.",
+    "production_gate": "Unchanged conservative hold. Initial unknown alone is not evidence of unscorable valid terminals. Do not relabel old preflight PASS or unlock Full732."
+  },
+  "not_verified": [
+    "Four other unknown train variants (not rerun)",
+    "Other tasks and restricted Full732 sources",
+    "Whether all historical snapshots preserve scoring metadata",
+    "Real model performance",
+    "Original cause of empty legacy model-hash metadata"
+  ],
+  "software_checks": {
+    "kind": "summary_recorded_from_actual_tool_output",
+    "pytest": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider",
+      "passed": 463,
+      "seconds": 2.28,
+      "exec_session_id": 27998,
+      "exit_code": 0
+    },
+    "targeted_pytest": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/test_stage2_scoring.py tests/test_evaluation_classification.py",
+      "passed": 19,
+      "seconds": 0.22,
+      "exit_code": 0
+    },
+    "ruff_check": {
+      "command": ".venv/bin/ruff check --no-cache src tests scripts",
+      "result": "All checks passed!",
+      "exit_code": 0
+    },
+    "ruff_format": {
+      "command": ".venv/bin/ruff format --check --no-cache src tests scripts",
+      "result": "131 files already formatted",
+      "exit_code": 0
+    },
+    "new_files_sha256": {
+      "scripts/probe_stage2_scoring.py": "3d5488e97112f1a3e1cd7cfe2e8f57c43966aeaa65b62992677fc2bfdfc398fb",
+      "tests/test_stage2_scoring.py": "13b9d16391233438c7d3bee37269f40a3e82ecaa07d348c0434895111304b893"
+    },
+    "actual_model_calls": 0
+  },
+  "protected_sha256": {
+    "src/recoveragent/execution_v6.py": "352d106b7b052cc1a2b5c249e19c6a512e989355fc60f6495034f32db24a4400",
+    "configs/student_v6_runtime_lock.json": "8fdc382b64508f5f2440a8a099eb4b77225ad6972ad1a854f61cc647875fa3fa",
+    "configs/unified_task_split_full_pool_candidate.json": "0466cec29d9ad770a1cfeacb4c93945e5fcbcad68b9e980c5264d447418121a2",
+    "configs/unified_task_split.json": "d320ecde758d0aa482e6995971c5fb39f627c5183e906418e5391d24bcf14329",
+    "src/recoveragent/evaluation.py": "7a1873f124a84c750f5de63a95e9409fa154689efe10648aa7e5544b1372b91c",
+    "src/recoveragent/shared_stage.py": "b74ca5c3c40ce5e3a85eaf4583580896bdbb63ca7856b2601a65c0edf90b7b09",
+    "data/base_sft_v1/manifest.json": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c"
+  }
+}

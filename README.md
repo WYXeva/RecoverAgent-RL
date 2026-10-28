@@ -12,6 +12,7 @@
 | --- | --- |
 | Full732 当前工作范围 | [Stage 1 门禁](docs/P4_STAGE_GATES.md)，Stage 2–6 须逐阶段授权 |
 | Full732 Stage 1 入口/验收 | [full732_stage1.py](src/recoveragent/full732_stage1.py)、[工程报告](reports/full732_stage1_report.md) |
+| Stage 2 评分诊断 | [固定三任务报告](reports/full732_stage2_scoring_report.md)、[脱敏结果](reports/full732_stage2_scoring_summary.json) |
 | 冻结 Full732 候选划分 | [A244/B244/C244](configs/unified_task_split_full_pool_candidate.json) |
 | 既有审计与 train 替代方案 | [审计报告](reports/unified_training_plan.md)、[A30/B30/C30](configs/unified_task_split.json) |
 | 既有共享评估接口 | [evaluate_shared_stage.py](scripts/evaluate_shared_stage.py)、[train 替代方案配置](configs/shared_stage_validation_v2.json) |
@@ -19,7 +20,7 @@
 | Teacher/Student 工具执行 | [Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
 | 排查模型实际输入/输出 | [LLM 请求视图](docs/LLM_VIEW.md) |
 
-Full732 Stage 1 独立准入、软件测试及一个 train 任务脚本链路已通过，原 A/B/C 各 244 题保持不变；涉及受限来源的执行仍 **BLOCKED**。Stage 2–6 未执行。既有 train 替代方案各 30 题，仍有 6 个未知评价、评分预检 **PARTIAL**，不能当作 Full732 主设计。旧 checkpoint 有新验证集训练暴露，不能作为新实验的无泄漏 M1。StudentSession 与 v6 的初始化兼容问题已在[独立新运行协议](reports/student_v6_compatibility_report.md)中修复并通过离线测试；历史配置仍须其原提交复现。新三阶段训练和评估尚未执行。
+Full732 Stage 1及v6初始化兼容修复已通过。Stage 2在固定三个train任务上验证：初态unknown不代表合法终态不能评分；同时发现旧控制快照缺少评分变更元数据，重现只2/3通过，同任务官方验证对照可正常成功。原A/B/C各244题不变，生产评分预检PARTIAL与受限用途阻断仍保留；Stage 3–6未执行。旧checkpoint有新验证集训练暴露，不能作为新实验的无泄漏M1。[v6新运行协议](reports/student_v6_compatibility_report.md)与历史配置分别复现，不自动放行新训练和全池评估。
 
 ## 目录与本地验证
 

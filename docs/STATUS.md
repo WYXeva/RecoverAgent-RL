@@ -2,9 +2,17 @@
 
 - 最后更新：2026-10-28（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Stage 1 后单项 v6 Student 初始化兼容修复PASS（软件/离线分词）；Full732训练与模型执行仍BLOCKED**。新运行锁独立，Prompt及原A244/B244/C244不改。456软件测试及Ruff通过；真实Qwen tokenizer配合合成回执通过，不是模型效果。0模型/Teacher/GPU/SSH/训练；Stage 2–6未执行，提交后停止。既有train替代方案评分PARTIAL保留，不能冒充Full732。
+- 当前状态：**Stage 2评分诊断完成：固定三任务的初态/合法终态边界PASS；旧封存终态重现PARTIAL（2/3）；Full732仍BLOCKED**。两个初态unknown任务的成功终态均可评分；控制任务旧快照4/5，新官方train对照及独立重评均5/5。没有强改unknown或整体预检状态。463测试及Ruff通过，0模型/付费Teacher/GPU/SSH/训练；Stage 3–6未执行，提交后停止。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮兼容修复基线 `e359d537fd95ef6d818c8e729b337b1b20be7b74`（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮评分诊断基线 `def15782a58e6547c940463e90cf9f6347127e09`（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Stage 2 固定train初态/合法终态评分（2026-10-28）
+
+- **基线/范围**：fetch/pull并核验`def15782a58e6547c940463e90cf9f6347127e09`；只按P4_STAGE2_SCORING执行`76f2c72_1`、`d0b1f43_1`、`07b42fd_1`，先只读审查，再三个初态、三个封存Teacher终态；不改任何旧锁绑定源码。
+- **实际结果**：前两任务初态官方false/项目unknown，成功终态均2/2；控制任务初态1/5有效失败。unknown来自占位答案的float归一化ValueError，并非目标对象缺失。所有原tracker和异常帧保留，未将null改0。
+- **发现的问题**：控制任务旧快照虽行哈希一致，独立评分只有4/5；其封存model_hashes为空，官方变更模型检测未识别到变更。原成功回执不改。额外使用同一任务的官方train验证函数，实际公开API15次，官方live和新进程重评均5/5且tracker完全相同。旧采集何时遗漏元数据尚未定位，不修补旧DB或奖励。
+- **验收/资源**：狭义三任务评分边界通过；旧快照重现2/3；其他四个unknown变体和Full732未复验，不据此全量解锁。7次状态执行/验证、8次官方评价、约185秒worker时间；0模型/GPU/SSH/付费/训练。针对性19、完整463测试与Ruff/131文件format通过。
+- **交付/下一步**：`reports/full732_stage2_scoring_report.md`及脱敏summary JSON；私有`runs/full732_stage2_20261028/`。建议未来将初态环境就绪与合法终态评分分开，并补评分元数据验收；生产`scoring_status=PARTIAL`和Full732用途阻断未改。只新增独立诊断脚本/测试，不执行Stage 3，等待审查。
 
 ## Stage 1 后 v6 Student 单项兼容性修复（2026-10-28）
 
