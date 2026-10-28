@@ -23,6 +23,7 @@ def export(config_path, campaign, destination, public_json):
         fcntl.flock(lock, fcntl.LOCK_SH | fcntl.LOCK_NB)
         destination.mkdir(parents=True, exist_ok=False)
         rows, candidates, clean_successes, sources = [], [], [], []
+        response_names = Counter()
         for item in plan:
             row = {
                 key: item[key] for key in ("task_id", "scenario_id", "official_split")
@@ -39,6 +40,8 @@ def export(config_path, campaign, destination, public_json):
                 continue
             review = read_review(home)
             source = Path(review["directory"])
+            for receipt in (source / "requests").glob("*.response.json"):
+                response_names[str(read_json(receipt).get("model"))] += 1
             if (source / "evidence_manifest.json").exists():
                 expected = read_json(source / "evidence_manifest.json")["files"]
                 actual = files_manifest(source)
@@ -130,6 +133,7 @@ def export(config_path, campaign, destination, public_json):
                 stream.writelines(canonical(record) + "\n" for record in records)
         summary = {
             "planned_tasks": len(plan),
+            "response_model_labels": dict(response_names),
             "attempted_tasks": sum(r["status"] != "NOT_RUN" for r in rows),
             "official_successes": sum(r["official_success"] is True for r in rows),
             "official_failures": sum(r["official_success"] is False for r in rows),

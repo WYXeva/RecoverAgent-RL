@@ -621,3 +621,39 @@ def test_reasoning_replay_is_evidence_bound_and_excluded_from_sft(
     t["turns"][1]["request_hash"] = digest(changed)
     with pytest.raises(ValueError, match="context mismatch"):
         validate_receipts(t, output)
+
+
+def test_user_asserted_relay_names_are_audit_only_without_weakening_receipts(config):
+    from recoveragent.teacher import response_model_matches
+
+    teacher = config["teacher"]
+    teacher.update(
+        provider="openai_compatible_relay",
+        response_identity_protocol="model_response_id_v1",
+        response_model_policy="user_asserted_relay_aliases_v1",
+        response_model_alias_evidence="SYNTHETIC_USER_AUTHORIZATION",
+    )
+    raw = response()
+    raw.pop("system_fingerprint")
+    raw.update(id="synthetic-response", model="ali/deepseek-v4.1-flash")
+    before = copy.deepcopy(raw)
+    usage, identity = p3a.verified_response_usage(raw, teacher, 512)
+    assert raw == before and identity == (teacher["model"], None)
+    assert usage["generated_tokens"] == 20
+    for alias in ("another-route-label", "deepseek-v4-1-flash"):
+        assert (
+            p3a.verified_response_usage(
+                {**raw, "model": alias}, teacher, 512, identity
+            )[1]
+            == identity
+        )
+    for invalid in (None, "", "   ", 123):
+        assert not response_model_matches(teacher, invalid)
+    with pytest.raises(ValueError, match="identity"):
+        p3a.verified_response_usage({**raw, "id": ""}, teacher, 512)
+    with pytest.raises(ValueError, match="billing bound"):
+        p3a.verified_response_usage(raw, teacher, 1)
+    for key in ("response_model_policy", "response_model_alias_evidence", "provider"):
+        old = copy.deepcopy(teacher)
+        old.pop(key)
+        assert not response_model_matches(old, raw["model"])

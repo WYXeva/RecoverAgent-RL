@@ -1,0 +1,3352 @@
+{
+  "summary": {
+    "planned_tasks": 244,
+    "attempted_tasks": 39,
+    "official_successes": 17,
+    "official_failures": 7,
+    "unknown_original_results": 15,
+    "trainable_candidates": 14,
+    "clean_successes_including_deferred": 17,
+    "not_run": 205,
+    "tasks_with_any_error": 27,
+    "successes_with_corrected_or_business_errors": 5,
+    "error_types": {
+      "protocol_correction": 14,
+      "training_format_deferred": 3,
+      "business_api_error": 6,
+      "provider_token_bound": 8,
+      "execution_budget_exhausted": 1,
+      "official_task_failure": 7,
+      "provider_http_error": 1,
+      "provider_usage_unknown": 5,
+      "evaluation_runtime": 3,
+      "provider_model_identity": 1
+    },
+    "statuses": {
+      "SUCCEEDED": 14,
+      "DEFERRED": 3,
+      "UNKNOWN": 15,
+      "FAILED": 7,
+      "NOT_RUN": 205
+    },
+    "assistant_samples": 157,
+    "supervised_tokens": 26343,
+    "longest_eligible_sequence": 28705,
+    "post_stop_diagnostics": {
+      "valid_success": 0,
+      "valid_failure": 12,
+      "unknown": 3,
+      "original_results_unchanged": true
+    },
+    "usage_including_inherited_tasks_excluding_setup_diagnostics": {
+      "requests": 556,
+      "inputs": 7549927,
+      "outputs": 259481,
+      "cached": 4129074,
+      "cost": 1.3624075439999999,
+      "unknown_cost": 1.59744
+    },
+    "setup_diagnostics": [
+      {
+        "task_id": "07b42fd_2",
+        "reason": "First paid receipt received; optional system_fingerprint absent and thinking disabled ignored; no tools executed. Billing reconciled before one compatibility retry.",
+        "original_attempt": "d943b0be82d3a6c2b8b35bbf0235f4d2794596cd8f1a7c4feb7aa42798afb154",
+        "provider_requests": 1,
+        "input_tokens": 1924,
+        "output_tokens": 98,
+        "billed_actual_cost": 0.0006948,
+        "billed_unit": "USD",
+        "original_result_sha256": "1e1bae238dd0dd969d542cf3a5b2e4d19bad51c60908a8f5e1c0c2b73e5535ce",
+        "bill_receipt_sha256": "024cd06235b89627dcc7c885642135e7720edd007649b93e20696f2368e19dce"
+      },
+      {
+        "task_id": "07b42fd_2",
+        "reason": "Response model spelling differs; exact alternate spelling explicitly confirmed by user. No replay of unknown charged request; all four setup requests reconciled against billing before clean restart.",
+        "original_attempt": "249414defc4aaea153f0dddddb6f92c560b6f799f3f3c48a84c7101c2c2d24bb",
+        "provider_requests": 3,
+        "input_tokens": 12675,
+        "output_tokens": 386,
+        "tool_calls": 5,
+        "original_result_sha256": "07be91ad81b5d6338fe648d8cba4bbeac9d734f01d82a8fa32b9831026ed20a5",
+        "bill_receipt_sha256": "95194cda2c2ec05e852afd435ecd4225d867655bbd90b4e3ef22f12107bafd21",
+        "billed_actual_cost": 0.0042657,
+        "billed_unit": "USD"
+      }
+    ],
+    "tool_calls_excluding_setup_diagnostics": 945
+  },
+  "rows": [
+    {
+      "task_id": "07b42fd_2",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 10,
+        "inputs": 77873,
+        "outputs": 1687,
+        "cached": 62080,
+        "cost": 0.007134779999999999,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 20,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_live_native_20261028",
+      "source_worker_config_sha256": "7d0f3df6ff85b6f5a2e9c6adf907504da64df7de3e56bbf7bd6c3363c56b9699",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_live_native_20261028/attempts/fresh_4fa24657fea03f5c77e0",
+      "review_sha256": "d4a1461c6af2e57bbe16ea3871eca2411cc81fb4753a4703573adacc673bfad4",
+      "source_manifest_sha256": "918391e6a72b1032097048efa99431811916b489cdbf7734d4d040d84da92280",
+      "trajectory_sha256": "2220bf34c69a98fdf2fbaf745deb1a7430250322261c12cd2861f7709a504743",
+      "assistant_samples": 10,
+      "supervised_tokens": 1074,
+      "longest_sequence": 9921,
+      "replay_verified": true
+    },
+    {
+      "task_id": "024c982_3",
+      "scenario_id": "024c982",
+      "official_split": "test_normal",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 6,
+        "inputs": 31010,
+        "outputs": 1118,
+        "cached": 18432,
+        "cost": 0.005225591999999999,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 10,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_live_native_20261028",
+      "source_worker_config_sha256": "281a1a9cdccd7e9b93c1a1b0f44655404a30cac3b9a5d8749ea1e35279d40748",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_live_native_20261028/attempts/fresh_1e13a11429524936010a",
+      "review_sha256": "daf9e5e5c3579a86fd759f20975941b52dc2afdc366efc90c8d69a1a13866d5b",
+      "source_manifest_sha256": "5163fd74cf84c8b77a9ff220b96dae0a4164d80a8680c2d0be9c6675e5bcbe07",
+      "trajectory_sha256": "6501f2c7d62832dfd535c837f304b85330f71c1f423c12c5de32495984a88d8c",
+      "assistant_samples": 6,
+      "supervised_tokens": 545,
+      "longest_sequence": 6552,
+      "replay_verified": true
+    },
+    {
+      "task_id": "042a9fc_1",
+      "scenario_id": "042a9fc",
+      "official_split": "test_normal",
+      "status": "DEFERRED",
+      "official_success": true,
+      "eligible_for_sft": false,
+      "errors": [
+        "protocol_correction",
+        "training_format_deferred"
+      ],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 29,
+        "inputs": 649536,
+        "outputs": 12375,
+        "cached": 487296,
+        "cost": 0.06644577599999998,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 34,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_live_native_20261028",
+      "source_worker_config_sha256": "71d6ddb0212b52a173c8127f2ebe0505a52fe16e9ffd1b244416263383b004e2",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_live_native_20261028/attempts/fresh_fd894c8ebea5e50e5c94",
+      "review_sha256": "7c796a463abd0754f2557885ecc970eaea138b8a68fbe26c47682d5a2097328c",
+      "source_manifest_sha256": "b7d2354667b1da08b7a2633f976e6364c423bd3d400d6c41f3ce1b6054c423c7",
+      "trajectory_sha256": "eae805b07e12d7c667a86ec4ed436694c44fb76eb27123c4964a68a89bf1ded8",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": true
+    },
+    {
+      "task_id": "07bb666_1",
+      "scenario_id": "07bb666",
+      "official_split": "test_challenge",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 12,
+        "inputs": 89028,
+        "outputs": 2855,
+        "cached": 28928,
+        "cost": 0.021629568000000002,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 25,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_live_native_20261028",
+      "source_worker_config_sha256": "faf7290dfe9a77cfb6a3fb1a566d4ec763d9fd11b030b610c261b90ab26aeda8",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_live_native_20261028/attempts/fresh_3551464bdfc57ea59b96",
+      "review_sha256": "c5da387ef04b8c3ca100f855f14cbe8eaab0d2a124ecac79538d81c64782bdf8",
+      "source_manifest_sha256": "3d6ed3426ffe828d2160880d31448419bb35d2aafab8051e4ab148a16d8aacf6",
+      "trajectory_sha256": "3713ecfd71ab6a15231623f624e1b35f3f0c7dfb04922fcf85635b67a51c9c8d",
+      "assistant_samples": 12,
+      "supervised_tokens": 1921,
+      "longest_sequence": 12583,
+      "replay_verified": true
+    },
+    {
+      "task_id": "099174d_3",
+      "scenario_id": "099174d",
+      "official_split": "test_challenge",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "business_api_error",
+        "protocol_correction",
+        "provider_token_bound"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 30,
+        "inputs": 999806,
+        "outputs": 16389,
+        "cached": 713344,
+        "cost": 0.10988546399999999,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 46,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_live_native_20261028",
+      "source_worker_config_sha256": "dd593205fba8e2354f4fff52e1f0e7c47b934183a92d454141e94dc614c38549",
+      "business_api_errors": 2,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "9f9d82fb13a2d1ad928d2dc8f62ebf12dbd8e2ef8b05eaa9096e473034c0432f",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_live_native_20261028/attempts/fresh_8d155b08b483df2dd521",
+      "review_sha256": "9de4c3b2b3bd731ef599d0b79b7e90c2aeed8b6296e1bf6aff87000349a65421",
+      "source_manifest_sha256": "8bf98e669e76fa8e33cb2efd217e4d8d293db9e018699b0e6846e53f13f25ee6",
+      "trajectory_sha256": "85421e12bb2f6bc0267f7b8a4500a8b454232c74739f482019dd5b95909e1a37",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "09ac073_1",
+      "scenario_id": "09ac073",
+      "official_split": "test_challenge",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "provider_token_bound"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 9,
+        "inputs": 94996,
+        "outputs": 6807,
+        "cached": 24704,
+        "cost": 0.029404224,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 17,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "ece53d64482be0258851d200c8324912f60701159fab5867c49a33ff0549dc17",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "f19b33b5f0cac39607fdc5e6ebb06145778591e9531dae1efcf9aa4aa8d1224a",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_6e66590f4147e73c1061",
+      "review_sha256": "fd51bd17085051dda3dd3fe65184ea09e59c62e55247c18d178ec075a8ce7668",
+      "source_manifest_sha256": "fa0230568194963f3f20cb80d7ee5a6745f20c3ea2850014fd6353faf6ce379b",
+      "trajectory_sha256": "d0ac5c91acb69fbf0043163b462811b5f629337bfbe66c2ede03b8bb1744c54a",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "09b0ee6_2",
+      "scenario_id": "09b0ee6",
+      "official_split": "test_normal",
+      "status": "FAILED",
+      "official_success": false,
+      "eligible_for_sft": false,
+      "errors": [
+        "execution_budget_exhausted",
+        "official_task_failure",
+        "protocol_correction"
+      ],
+      "termination_reason": "budget_exhausted",
+      "usage": {
+        "requests": 34,
+        "inputs": 477833,
+        "outputs": 16384,
+        "cached": 395520,
+        "cost": 0.04672782,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 36,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "76aaad0a44b6958af555e89defdfd1233b3f534ffb8216eb340dc2fb5f4b6569",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_711a49d78b677b1ab08d",
+      "review_sha256": "38d5b12a230ceefafe685c3815dea2377c23547016939826c11363a02aa8079c",
+      "source_manifest_sha256": "7a57290e06da5680c64f5339983d8e470341a4bd988c73bb67ef884c684e5116",
+      "trajectory_sha256": "e6e9baa7bcac7e208721e1350ec636084dd9ca1f76753dbffa12c914187de69c",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "0a9d82a_3",
+      "scenario_id": "0a9d82a",
+      "official_split": "test_normal",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 11,
+        "inputs": 73940,
+        "outputs": 6608,
+        "cached": 24576,
+        "cost": 0.022886256,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 35,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "0d72cd991fbdffbc278dd0b084f6128395c059794cfeaf86192e42f6371dbe40",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_370efbf63aa2c327ba46",
+      "review_sha256": "73721c6722eadf28755c4c7463249071db8c47b9c083a337fa3a439b8ef9a25c",
+      "source_manifest_sha256": "536e9afd153cc170a931652e2d4a63dda7fb3b847ff9a6df41fea07c7eed9915",
+      "trajectory_sha256": "b150703fe0e8b1883a7e29920a442d909091f0312435635a5851aa3968816e3b",
+      "assistant_samples": 11,
+      "supervised_tokens": 4835,
+      "longest_sequence": 20118,
+      "replay_verified": true
+    },
+    {
+      "task_id": "0d01c76_3",
+      "scenario_id": "0d01c76",
+      "official_split": "test_normal",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "protocol_correction",
+        "provider_token_bound"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 15,
+        "inputs": 203520,
+        "outputs": 17728,
+        "cached": 90496,
+        "cost": 0.055723776,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 47,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "1e1edfdf66d746f0e5457717ff7d20ad9e3e038f7a78cd64ee18e23887ad95fa",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "6c23a4c77237ae8518786276838f12aae2b3e0c706b95af2c256a4d0243f994d",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_18db0d13115aee6156bc",
+      "review_sha256": "330fac8c4fd04db626a75f1bc3525b3b81fd5a16fa430374aea2a2e2710fcefa",
+      "source_manifest_sha256": "50d668c77fb942e76abc671e1d26be631b6b142c7896c64c97f65e5c1b1ff859",
+      "trajectory_sha256": "0b4dd64c8cfc51d7a65caf9ba1b88cd58564decdf74db2a72a79f8d3bd280471",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "0d22252_2",
+      "scenario_id": "0d22252",
+      "official_split": "test_challenge",
+      "status": "FAILED",
+      "official_success": false,
+      "eligible_for_sft": false,
+      "errors": [
+        "official_task_failure",
+        "protocol_correction"
+      ],
+      "termination_reason": "protocol_correction_exhausted",
+      "usage": {
+        "requests": 12,
+        "inputs": 80951,
+        "outputs": 3502,
+        "cached": 33280,
+        "cost": 0.01870338,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 17,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "763311d32042fb8509e889b1e874e547b5cdcfa4ebe6190767ea78842eb5d4f2",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_b97d86c1ddad180c831e",
+      "review_sha256": "de59af25675d74fc8c59c0c83f996830daf224a1e46687809760584162f27dec",
+      "source_manifest_sha256": "99e79025d1a8afcc5d751d43f6d1e957b927b91a3fabf7ba10a743748939102f",
+      "trajectory_sha256": "4d48e7ba25bdc5b32168b1f9f359625e3e9682a081bcbbfc0c7e89358c9c47a3",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "0d8a4ee_3",
+      "scenario_id": "0d8a4ee",
+      "official_split": "dev",
+      "status": "DEFERRED",
+      "official_success": true,
+      "eligible_for_sft": false,
+      "errors": [
+        "training_format_deferred"
+      ],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 12,
+        "inputs": 219665,
+        "outputs": 6431,
+        "cached": 67200,
+        "cost": 0.053859899999999995,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 37,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "40847c1ec17ccf8398a69c43790e6201261e4e2452c14774d0cfc4196eeb831f",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_ec37da53841ebc40be84",
+      "review_sha256": "a357643cc0a40c60fa4533ff640f4391f51142329ecd4dc6cd0496f9bfdeea4e",
+      "source_manifest_sha256": "1a6e3721a38220afc59a82ce0540be2dffaf4c40da48c59eb7edbf17bdba9b2b",
+      "trajectory_sha256": "a13425eba1bd13b63d8876b953dd08cad38b09968ac14e851a025cd7c57ae8ae",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": true
+    },
+    {
+      "task_id": "0de03ad_1",
+      "scenario_id": "0de03ad",
+      "official_split": "test_challenge",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "provider_http_error",
+        "provider_usage_unknown"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 17,
+        "inputs": 204708,
+        "outputs": 9712,
+        "cached": 43250,
+        "cost": 0.0603513,
+        "unknown_cost": 0.319488
+      },
+      "tool_calls": 25,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "1ba94a6a2a2fbb3bbbe379989c903590c7fe35f2e16c3dfa8619c323fa1224aa",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "1cc4b57ca5fc65e95c6ffe0ac7b255d99c76693bf09992d6cf821ad9e92de366",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_42f04382518be42b403a",
+      "review_sha256": "7587bc1b3b66ca1d0e87527faac47bb0d20e7053275e42cc94fd5ed3dd4ae7a6",
+      "source_manifest_sha256": "0c089e74647f1b6fdc4ce0520c26a3c7fd4d597ce0e2dd881a7dae9e90dced00",
+      "trajectory_sha256": "b58188baeea0ae96ac638d86144309028a57bf75f733ebf24216d02e3ad32456",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "0de03ea_3",
+      "scenario_id": "0de03ea",
+      "official_split": "test_normal",
+      "status": "FAILED",
+      "official_success": false,
+      "eligible_for_sft": false,
+      "errors": [
+        "official_task_failure"
+      ],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 8,
+        "inputs": 70862,
+        "outputs": 3088,
+        "cached": 30464,
+        "cost": 0.016007783999999997,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 13,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "aa3a8c046bda4d51dd5f1f24026c5ab0e7aae69522f911d51d6829caa58bef35",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_94e86118aecf4891a65b",
+      "review_sha256": "62ffaf2f3f30fe9be340fef787c8b1c03240ada23fa2a8833b528ff6333bfc2a",
+      "source_manifest_sha256": "125ea4800933f6802b66e90ba0cc19eef9556f6e2d3c0d2e9097f2ac43f2e145",
+      "trajectory_sha256": "57f2dcf1477970bce8eb9d0190b89461c4a972041972c742a7b6f98708643211",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "1150ed6_2",
+      "scenario_id": "1150ed6",
+      "official_split": "test_normal",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [
+        "protocol_correction"
+      ],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 12,
+        "inputs": 93674,
+        "outputs": 2351,
+        "cached": 54272,
+        "cost": 0.014967432000000001,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 14,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "4b93468f81091d135dc1ed91a2ae229e493c66c2f3021ab16a98176be16ce11d",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_1c7ba2aaa9074bb7730e",
+      "review_sha256": "908b17d2795f49a05142ea65abd93aecacb94ce4ae7df1de17f0f235a1b5ec3b",
+      "source_manifest_sha256": "f1cbe4d309372f029e2f0980b5113af2d1e46a999624eaf567a78e88e5f72021",
+      "trajectory_sha256": "d8b637750cd35c32db22a7eee30a76c40fb42c7de8a3f138cd393eecdf9d65b0",
+      "assistant_samples": 11,
+      "supervised_tokens": 936,
+      "longest_sequence": 9508,
+      "replay_verified": true
+    },
+    {
+      "task_id": "13547f5_2",
+      "scenario_id": "13547f5",
+      "official_split": "test_normal",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 8,
+        "inputs": 32581,
+        "outputs": 864,
+        "cached": 14720,
+        "cost": 0.00648342,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 10,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "df88f8a90dd30fc2fc9022b57445cda4cb99ac1de96c9e46b6f4b04f754a36ba",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_1b5361245b226a1cfcc4",
+      "review_sha256": "f35c000f1365cfbe755a02bac4778bfc9c049fc4962418714e131c32d724a225",
+      "source_manifest_sha256": "d7cea0d971ac75d5999d35ac2c14b24cc192a45c048a305d02fe0bfef4d2f63f",
+      "trajectory_sha256": "63b0b237fbe8e45b78b038f15d30e486f15253d8b2c3548f92f25b6312999233",
+      "assistant_samples": 8,
+      "supervised_tokens": 529,
+      "longest_sequence": 5016,
+      "replay_verified": true
+    },
+    {
+      "task_id": "143527e_2",
+      "scenario_id": "143527e",
+      "official_split": "test_challenge",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 14,
+        "inputs": 190250,
+        "outputs": 4628,
+        "cached": 70144,
+        "cost": 0.042006263999999995,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 21,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "ae99e57139829d643dd1906f9d55a84d386fd96e894e45c07f3da56223535aaa",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_44f025e8afe49a1b2371",
+      "review_sha256": "b51c91679a313aa1fb117ef7d0acc8793df49d47a9e3c49678d7248173e8da52",
+      "source_manifest_sha256": "e68d338dd0dd7e819c2ec6536b90d557209d59bd04a59892c101a6985e55c86b",
+      "trajectory_sha256": "d807335791e5e34688372fc24853b001e097f60e8a314c031275a9a0a6739abb",
+      "assistant_samples": 14,
+      "supervised_tokens": 2151,
+      "longest_sequence": 19911,
+      "replay_verified": true
+    },
+    {
+      "task_id": "166f4ff_1",
+      "scenario_id": "166f4ff",
+      "official_split": "test_normal",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "evaluation_runtime"
+      ],
+      "termination_reason": "evaluation_error",
+      "usage": {
+        "requests": 7,
+        "inputs": 32815,
+        "outputs": 1860,
+        "cached": 9088,
+        "cost": 0.009404628,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 8,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "42619b7de6fb4e235521bdd694271fbadaba81325a4080ecc88463d4648ae359",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "evaluation_error",
+        "success": null,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "96996753479797daa88019582931019b25a94c49d2886f2a0a5444b7307922d6",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_180c316965800d2a704c",
+      "review_sha256": "fa690b0cead4464c6b02f15d10ead87af6d56f0c2ac54ed9f2ec2221ea57bd78",
+      "source_manifest_sha256": "c7b3678a7fcebb512f031433c439cd57fd1f04d4f63471ae4ebec152ada5df45",
+      "trajectory_sha256": "84890dea011482912f8f04a997a4b4422a6f95fb29557ce49a381e381f790688",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "16be9ce_2",
+      "scenario_id": "16be9ce",
+      "official_split": "test_challenge",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "evaluation_runtime"
+      ],
+      "termination_reason": "evaluation_error",
+      "usage": {
+        "requests": 8,
+        "inputs": 101069,
+        "outputs": 2026,
+        "cached": 26112,
+        "cost": 0.025074971999999997,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 20,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "b7395197eed3568a3b8f9cc13c2d5ec11d52803fd19a1f6277c2dafad6225408",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "evaluation_error",
+        "success": null,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "14f7ae808bcaf04bedd7cac0ca3888417886e7abea38753307e7dce4d32f2376",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_d1dff5ddd0c3bf7a88c2",
+      "review_sha256": "fd560fd2b2b1b230d935a77a8ede58d37a8bb28067772d45b6b02e5e1f051848",
+      "source_manifest_sha256": "efdeb8295f65a6c6b195e2bfb4543298d3eb812d76b76deb294bba72bc3596cc",
+      "trajectory_sha256": "f7fbae16a0e553f570be0d172c96e9898fe87c0dbd541b3a174b2f65f5a87fc2",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "18670a5_3",
+      "scenario_id": "18670a5",
+      "official_split": "test_challenge",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 14,
+        "inputs": 138274,
+        "outputs": 5288,
+        "cached": 58304,
+        "cost": 0.030686423999999997,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 30,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "01b4f3e2fac9b8e6175a5263ab838c5316c04a6a41a411c672865de1a7874b45",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_4150ae7dcdb8a60511f8",
+      "review_sha256": "17c0bbbcfe9ef9f086d05e5ac9bee1d4818355e6c8c408b8dd814cd5a9d01775",
+      "source_manifest_sha256": "1f98f547e0548ed0f7d7d33bd8e7ee610c6b3ecd57700755c01ebb89df5b03bc",
+      "trajectory_sha256": "bd8f460877999af531696d606cc934600793884221f14e70745852ce32113512",
+      "assistant_samples": 14,
+      "supervised_tokens": 2604,
+      "longest_sequence": 16650,
+      "replay_verified": true
+    },
+    {
+      "task_id": "1a79e37_1",
+      "scenario_id": "1a79e37",
+      "official_split": "test_challenge",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "business_api_error",
+        "protocol_correction",
+        "provider_token_bound"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 35,
+        "inputs": 609404,
+        "outputs": 15350,
+        "cached": 306048,
+        "cost": 0.11126308799999995,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 38,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "e0b88293f574f1004244757659952059fe15b65f335ae6e2d04009b1e5adb9e0",
+      "business_api_errors": 2,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "46cc40fca3588ee548d8ecc558a01540f99f1e1b7a75bbb039dec57717e57f5f",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_952d5ca012acb29070b1",
+      "review_sha256": "d9d37a6641ce5623feade06786e42d0912be48a7f352c8a7e9c88329b6a492c8",
+      "source_manifest_sha256": "02f8af11a1637c2ceefacb230487ec8387461599e5ca7a2ec75d8d1a77c4cc2f",
+      "trajectory_sha256": "0c8118fd9fa9b88b5fcc2645a932eb916ac10ce1749b543af181ac95e91f4521",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "1b2bae9_3",
+      "scenario_id": "1b2bae9",
+      "official_split": "test_challenge",
+      "status": "FAILED",
+      "official_success": false,
+      "eligible_for_sft": false,
+      "errors": [
+        "business_api_error",
+        "official_task_failure",
+        "protocol_correction"
+      ],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 31,
+        "inputs": 588636,
+        "outputs": 11772,
+        "cached": 318080,
+        "cost": 0.09720167999999998,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 40,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "786612de8126afcd6427cf31712675d34520176951f9ae05b782a23e45400eec",
+      "business_api_errors": 3,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_af78fc57dbe9ce26c8d6",
+      "review_sha256": "18488989daf692d6d50678a06e7ba7bc7dbc5bb17a59a8a754e2ba935e2349e8",
+      "source_manifest_sha256": "dbfc5c65f7b8c53f139eb5f9d3d8e46ce112768e5acc3fef2cd836b955dc61dd",
+      "trajectory_sha256": "aa6897248190cfe5cde64e93f958256b35c17912a390e892934af028fc89fde5",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "1b988ac_1",
+      "scenario_id": "1b988ac",
+      "official_split": "test_challenge",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "provider_token_bound"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 9,
+        "inputs": 98827,
+        "outputs": 8397,
+        "cached": 26880,
+        "cost": 0.031821779999999994,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 21,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "2a8440255a9eeea172071c4d50fe779838d93e6399dab853ec08f14c85966bfe",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "d245235fe5c72a5dfd3319d812154db8f148c520c9ac55dc38f35552afe5ebb3",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_6d664939c17d5f48ab6a",
+      "review_sha256": "2bf44f995000fb107cde338f6ef62deec4da12c206fedb45566024ea97514c9f",
+      "source_manifest_sha256": "7ff6ae6956b0463822e6c80960e072567548c312273a2734322d88b577851dea",
+      "trajectory_sha256": "573a185cb1011088c9b121df586e3f7f747fd858291161534cbf86d23c969204",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "1c4bd27_3",
+      "scenario_id": "1c4bd27",
+      "official_split": "test_challenge",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [
+        "protocol_correction"
+      ],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 12,
+        "inputs": 106127,
+        "outputs": 4479,
+        "cached": 42880,
+        "cost": 0.024606180000000002,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 22,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "56cc43badcbd91aa8d717e451d425b98b281e1965608ce18419c36d4deff58e2",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_998b798c570fccfa3120",
+      "review_sha256": "23cfb0380ee38c42be87edf9d8bd92a523f195f1dbb5f3916a7ea7a8c36daa7b",
+      "source_manifest_sha256": "37c8738156fa0c14b19b9b2a80a2194a6c2bf5377572ece35b5a109b03028efd",
+      "trajectory_sha256": "72d2a5225cef1e9fc079bd4e6e5d9139a05a1455b0a99eb77a91ca84bf33c11a",
+      "assistant_samples": 10,
+      "supervised_tokens": 2180,
+      "longest_sequence": 22222,
+      "replay_verified": true
+    },
+    {
+      "task_id": "20c1328_2",
+      "scenario_id": "20c1328",
+      "official_split": "test_challenge",
+      "status": "FAILED",
+      "official_success": false,
+      "eligible_for_sft": false,
+      "errors": [
+        "official_task_failure",
+        "protocol_correction"
+      ],
+      "termination_reason": "protocol_correction_exhausted",
+      "usage": {
+        "requests": 9,
+        "inputs": 75426,
+        "outputs": 1616,
+        "cached": 17536,
+        "cost": 0.019411415999999997,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 20,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "05987d54097c16fdb803f0f69643220a8fc3ac17973265dcea6169517dfdae18",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_36ccf792e8f5c3c0befc",
+      "review_sha256": "acc5c6582a5d05706c47c181034b1feebce2f23dfafeca1490035d18d262dd66",
+      "source_manifest_sha256": "325722209211248a8bc8528ebaf54459a5cdedc4384dbda0ec106efae59951f0",
+      "trajectory_sha256": "60d110eb11bd805f33eb6ef57b27ca92fe77947502f1d6404da8cbc6e8af4e53",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "21abae1_3",
+      "scenario_id": "21abae1",
+      "official_split": "test_normal",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "evaluation_runtime",
+        "provider_token_bound"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 6,
+        "inputs": 36234,
+        "outputs": 7964,
+        "cached": 12800,
+        "cost": 0.0166638,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 7,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "1d135d27d125d74b4aba3cc2e1437740ae9b511518bb46b95349a1a3691639a2",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "evaluation_error",
+        "success": null,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "14f7ae808bcaf04bedd7cac0ca3888417886e7abea38753307e7dce4d32f2376",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_877d2ca06596b49caedd",
+      "review_sha256": "694440b1cce8768b1d86d9bba5b24d9cf4f26a48150d3aad5b2983d0dfbd530b",
+      "source_manifest_sha256": "f4eb8f906543968c37635634c07fa043a60e9f54a323379f31cc3387551255fd",
+      "trajectory_sha256": "3e4655adc14bfaec50fabc976f62d93e32d51febe705e05501e628cf863bbba9",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "229360a_3",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "provider_usage_unknown"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 11,
+        "inputs": 119264,
+        "outputs": 5560,
+        "cached": 59520,
+        "cost": 0.02495232,
+        "unknown_cost": 0.319488
+      },
+      "tool_calls": 25,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "7a3d4a7052a4a8e9346528a58c618e0eb8b3619ac6c62e7d04956dcbed5a040b",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "22bcf3d1926351a7709274983a2d8713471fdf429f1980d2b8d4e3211f56e7d3",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_2709dc516ac5f8d1c664",
+      "review_sha256": "c9e99b8af4b1bbd82ecca9e3ea0722f6e3b56a99a75b93edc02fdb0a80011ec2",
+      "source_manifest_sha256": "5d183bfbc135b0d5a6c47615b6d5c1015ccad72cddbb4e5f67f17c50ddfed3ef",
+      "trajectory_sha256": "31d73004af81523c3ac6107283d74bb40288ace01037194f7e178a0f597d0cc5",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "22cc237_1",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "status": "FAILED",
+      "official_success": false,
+      "eligible_for_sft": false,
+      "errors": [
+        "official_task_failure",
+        "protocol_correction"
+      ],
+      "termination_reason": "protocol_correction_exhausted",
+      "usage": {
+        "requests": 9,
+        "inputs": 49401,
+        "outputs": 892,
+        "cached": 14848,
+        "cost": 0.011525388,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 10,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "580b4777cae3309adfd9bb7fef2239a5e8640fce8ccb50e5ccedd401934aa128",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_844c10fc236f6b43fe0f",
+      "review_sha256": "aaf52acb36749f294e717f65ca3339ad2606a9696fa5ef76b3b96af36f2c8f44",
+      "source_manifest_sha256": "72ad622f046cbb12d89f0deb2e83df83d7f49375a85f14b308dafb7aad9fd9f1",
+      "trajectory_sha256": "24c067553fbabe34ab1b003123737226d3a1058dd646671acb4a176664432173",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "23cf851_2",
+      "scenario_id": "23cf851",
+      "official_split": "dev",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "protocol_correction",
+        "provider_usage_unknown"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 10,
+        "inputs": 77537,
+        "outputs": 3072,
+        "cached": 33536,
+        "cost": 0.017087916,
+        "unknown_cost": 0.319488
+      },
+      "tool_calls": 10,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "de084412190d02ff795993bf3916a122214d188907b084913cb32b4c4ea5c23c",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "6e9899d432c5836cad29e18a8250626a174faf113de70768e1bc04b36acd69ba",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_b6d96de20c8eae68a302",
+      "review_sha256": "283e296e503fb8e252216e71256fe139a429dfb62db07ae9a6a9e593cc627566",
+      "source_manifest_sha256": "d90709649d608aa25313ada0c974ec802de95a968a305db2a2e55b24a97c8f4b",
+      "trajectory_sha256": "591efc6b5697d1a362bec65b5e3b236fbeb37fb612f0379dfcda58109a55708d",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "23d431c_3",
+      "scenario_id": "23d431c",
+      "official_split": "test_challenge",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "business_api_error",
+        "provider_token_bound"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 18,
+        "inputs": 429132,
+        "outputs": 12637,
+        "cached": 214912,
+        "cost": 0.08071987200000001,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 30,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "31dae93deeb679593d429fde2372959c0adab1502a0ddeb48adefab3d2b07bad",
+      "business_api_errors": 2,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "32cf80f8c7eb60244829babf5e132afda28871018ad83ff197235c230624d2fe",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_cd45f51d7418bd4f3ad8",
+      "review_sha256": "350efdfc4c3a18ba65ad911d0802fbfa8379d24a0327e5cb9328272167a5a9db",
+      "source_manifest_sha256": "bebe0b24d9061561efdf44569df5dc9af8917175190404a0638d6641225cc7dd",
+      "trajectory_sha256": "78b94df8ddf96cab98744db016983c0de5216d101dfee83ca99274e6c8a71b3f",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "245cb43_1",
+      "scenario_id": "245cb43",
+      "official_split": "test_challenge",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "provider_usage_unknown"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 12,
+        "inputs": 76601,
+        "outputs": 2957,
+        "cached": 38400,
+        "cost": 0.0152391,
+        "unknown_cost": 0.319488
+      },
+      "tool_calls": 22,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_20261028",
+      "source_worker_config_sha256": "8de7db5021ab1aeef1cc7ba48b7ef9ba90da26a43e83e3671943953c4ed37abe",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "64fa183c2196644fb819e8058e51230b14cf85323ddf5a6f5494b27a3264b261",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_parallel_20261028/attempts/fresh_e0718dadef9118844018",
+      "review_sha256": "53906786f1dfb9cde5da1d4e8a3f53450256977a29489d1ba095251f48ec8717",
+      "source_manifest_sha256": "2ebd4886d17a06fbdd353d4108fdeb04d5af6a83c2d2dd23d5f708a1b3bd6a89",
+      "trajectory_sha256": "9db44fae18de58cb8d76fac63f540ab4d546aeec889f26aa11def3a08eee697e",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "258796c_1",
+      "scenario_id": "258796c",
+      "official_split": "test_challenge",
+      "status": "FAILED",
+      "official_success": false,
+      "eligible_for_sft": false,
+      "errors": [
+        "official_task_failure"
+      ],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 6,
+        "inputs": 65277,
+        "outputs": 1105,
+        "cached": 17408,
+        "cost": 0.015791147999999998,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 13,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_v2_20261028",
+      "source_worker_config_sha256": "82e0d1f7f2817ed8dfbf3059e22574a8a0fd0c883d1b40c08bef2e0a10c85a85",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_v2_20261028/attempts/fresh_70b67027953f5735d84b",
+      "review_sha256": "7730b0556ebc8e9cd2cb95be16ac05854591506aaf411d2cd80433d610765f21",
+      "source_manifest_sha256": "d049517f77adf965e75655bafb7534ed38c74c1594244963e0ed68e55483d0a7",
+      "trajectory_sha256": "ce074907363742d0f5c41f5fa22c1e314aeffa773dbfc305488d142456fae267",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "270f1ff_1",
+      "scenario_id": "270f1ff",
+      "official_split": "test_normal",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 12,
+        "inputs": 132411,
+        "outputs": 3244,
+        "cached": 86144,
+        "cost": 0.018289764,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 23,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_v2_20261028",
+      "source_worker_config_sha256": "55490df5ae9e4a8534d52101e9aeeab18259971145a0a809b76060f92f33bff3",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_v2_20261028/attempts/fresh_fff466358ea3241da504",
+      "review_sha256": "6d7067e1b28338d257b9c8e7f76246907716debff5a2467913c6250c1fcc1814",
+      "source_manifest_sha256": "946f186db2bc593c76d4a1728a0ada9fb4b8a1a18013d1fffc2fef64e3d8ac70",
+      "trajectory_sha256": "92d53f94bff94dd52850b4104e11707ff53158521e97f1a389aab4582a45cfe4",
+      "assistant_samples": 12,
+      "supervised_tokens": 1752,
+      "longest_sequence": 15222,
+      "replay_verified": true
+    },
+    {
+      "task_id": "277d81d_2",
+      "scenario_id": "277d81d",
+      "official_split": "test_challenge",
+      "status": "DEFERRED",
+      "official_success": true,
+      "eligible_for_sft": false,
+      "errors": [
+        "business_api_error",
+        "training_format_deferred"
+      ],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 11,
+        "inputs": 198336,
+        "outputs": 8594,
+        "cached": 73088,
+        "cost": 0.048325728000000005,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 45,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_v2_20261028",
+      "source_worker_config_sha256": "6c1d7676b5afd0f814261cbac0c2529170de0cc698364ae0d99431ca85eb737f",
+      "business_api_errors": 10,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_v2_20261028/attempts/fresh_e990e967e4eed1cdbe0e",
+      "review_sha256": "dd1c24721561563c3f9764dbe4e4fafc2438b848972272bc582293a750871e5b",
+      "source_manifest_sha256": "e002ec307f1fc256ee6b896403b8bda35d29f051190d66c6cf8d19271ccf4401",
+      "trajectory_sha256": "26b2fc407ee733b4c0c30e3b188db19a1d9d3098423af631f27acacd449e17d4",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": true
+    },
+    {
+      "task_id": "27e1026_2",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 11,
+        "inputs": 167826,
+        "outputs": 6246,
+        "cached": 75648,
+        "cost": 0.035602488,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 37,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_v2_20261028",
+      "source_worker_config_sha256": "4c31d1fc4de7ad0a0297bef60248da8a873f22b852655624abcd7e8f4074772b",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_v2_20261028/attempts/fresh_e0c914f2d532283b508b",
+      "review_sha256": "236cd3bd2b462fb59f494854e0570a195412c1e40264d0a33e870bfc7870dc64",
+      "source_manifest_sha256": "02cfce65ef0723fff9058411a88b124d9af327c568fd20771b2c24f3d9035661",
+      "trajectory_sha256": "a938bdffd913c6ea5dc2128fa5087056b1468f7fc9767945e7baba6487b55ef7",
+      "assistant_samples": 11,
+      "supervised_tokens": 1581,
+      "longest_sequence": 28705,
+      "replay_verified": true
+    },
+    {
+      "task_id": "287e338_1",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 6,
+        "inputs": 33342,
+        "outputs": 1174,
+        "cached": 19200,
+        "cost": 0.005766599999999999,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 8,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_parallel_v2_20261028",
+      "source_worker_config_sha256": "1e04a98241a30a076cee8c0a8370a3977ae380f144728fb452334c69d7cce87c",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_parallel_v2_20261028/attempts/fresh_925693c102a8b0fa25ba",
+      "review_sha256": "22d93158ceba52c80a863586caf738c94faed750cfafd9e6927ef7ea54c4b227",
+      "source_manifest_sha256": "ae63db3983e0f45cfedd956d9dde6b64a2d729617f53cf935580759d4f388d6e",
+      "trajectory_sha256": "3aaafe1a77b9cba541dc04d6ef3749c2bca95eb0f104fbf30a59eeeb740d8c79",
+      "assistant_samples": 6,
+      "supervised_tokens": 485,
+      "longest_sequence": 7182,
+      "replay_verified": true
+    },
+    {
+      "task_id": "29a7b7e_2",
+      "scenario_id": "29a7b7e",
+      "official_split": "test_normal",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "protocol_correction",
+        "provider_token_bound"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 23,
+        "inputs": 204935,
+        "outputs": 17100,
+        "cached": 163584,
+        "cost": 0.033906804,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 23,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_serial_20261028",
+      "source_worker_config_sha256": "9eb3e24d2ff3049c8ec975d19e0c51e0806f0fcd28cd24744a5a6762cb4ee525",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "4ebcec3be30f447dd983ff5380cd3406ec2e0f80b634800c84b55298fdd1960a",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_serial_20261028/attempts/fresh_8db5c54130b221babd7b",
+      "review_sha256": "9318a3b6c1bca84f68782bb6f476dc09b60b1d4dbcd424edbae1ee6adc89eb94",
+      "source_manifest_sha256": "788ab0646a2db39570b12d668f3fa9180ed53f5e39b77e578b9a91d8acedc718",
+      "trajectory_sha256": "6847a1a36b1097f87e72ca390f5321fdaa6bbbfcb1449c5a8de43a39c86b4ae6",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "29caf6f_3",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 14,
+        "inputs": 147416,
+        "outputs": 4422,
+        "cached": 79488,
+        "cost": 0.026161727999999995,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 22,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_serial_20261028",
+      "source_worker_config_sha256": "36ba4beeafaf2a9006d03134df1ee2235d48fc74b69273bd56344efab1ee3321",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_serial_20261028/attempts/fresh_c924871ccf808308ee27",
+      "review_sha256": "762cd88778754f9273de47afef252374abcd1c6be4b320824c993fbbd4436cab",
+      "source_manifest_sha256": "9cdce7cd6e93ee0435eb4546b3dc2e460945c69dc8a8fe35fc502d64d55d086c",
+      "trajectory_sha256": "12b6a70791f2e4500f45bc36b35d008471e5bd9ec2a756178d680a99f329f85e",
+      "assistant_samples": 14,
+      "supervised_tokens": 1922,
+      "longest_sequence": 15657,
+      "replay_verified": true
+    },
+    {
+      "task_id": "2a163ab_3",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "status": "SUCCEEDED",
+      "official_success": true,
+      "eligible_for_sft": true,
+      "errors": [],
+      "termination_reason": "completion_claim",
+      "usage": {
+        "requests": 18,
+        "inputs": 229989,
+        "outputs": 13996,
+        "cached": 162432,
+        "cost": 0.038036891999999996,
+        "unknown_cost": 0.0
+      },
+      "tool_calls": 35,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_serial_20261028",
+      "source_worker_config_sha256": "61951597cd5a0bda11eb72ab6dbe50f89c15d458efd20bf02367e388a6adef0b",
+      "business_api_errors": 0,
+      "post_stop_diagnostic": null,
+      "source": "runs/full732_a244_serial_20261028/attempts/fresh_5d8f672f25299fb3dcc2",
+      "review_sha256": "d005647dce010427a47fc7d151c989e9b90b6be62fe8d7d4f6c5e3bbef2622d9",
+      "source_manifest_sha256": "e3e8b6126a1f26450b42adafc41162cf1bb26aa082c40a02be6e953a5b42fc99",
+      "trajectory_sha256": "38dbcb12edcf8e90f32a1f22ad9f31b49d6d3da73cd6beb35e09bc426b118e0b",
+      "assistant_samples": 18,
+      "supervised_tokens": 3828,
+      "longest_sequence": 25884,
+      "replay_verified": true
+    },
+    {
+      "task_id": "2c544f9_1",
+      "scenario_id": "2c544f9",
+      "official_split": "test_normal",
+      "status": "UNKNOWN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": [
+        "business_api_error",
+        "protocol_correction",
+        "provider_model_identity",
+        "provider_usage_unknown"
+      ],
+      "termination_reason": "infrastructure_error",
+      "usage": {
+        "requests": 25,
+        "inputs": 241415,
+        "outputs": 7203,
+        "cached": 114432,
+        "cost": 0.047425092,
+        "unknown_cost": 0.319488
+      },
+      "tool_calls": 29,
+      "unresolved_tool_intents": 0,
+      "collection_campaign": "full732_a244_serial_20261028",
+      "source_worker_config_sha256": "b6a87337fbdb0505d6d4430dfc3da10affd663d15f0ce6771eb8f912deea363f",
+      "business_api_errors": 6,
+      "post_stop_diagnostic": {
+        "status": "valid",
+        "success": false,
+        "source_files_unchanged": true,
+        "evaluation_sha256": "0094c66a93d5c393d965c279247378b7fa76bf82b65e01bf81db5cf4dd4e605d",
+        "certified_recovery_checkpoint": false
+      },
+      "source": "runs/full732_a244_serial_20261028/attempts/fresh_0b0804a2f1fafd7a2ab5",
+      "review_sha256": "31bfa1529c26af4783931861858b88c6aa8baaea834edc60efbf70a246a1216b",
+      "source_manifest_sha256": "c6ce52b63c4f5350a4bebdb9545d5d1a72d1fe2b1f7ffc41ba99d9c6d1df69f3",
+      "trajectory_sha256": "dfaacaa8dac96fac5c4eab85bfe446e5c2943a4306a29bba40eab1bc8cc68159",
+      "assistant_samples": 0,
+      "supervised_tokens": 0,
+      "longest_sequence": null,
+      "replay_verified": false
+    },
+    {
+      "task_id": "2d9f728_2",
+      "scenario_id": "2d9f728",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "2e9b91e_3",
+      "scenario_id": "2e9b91e",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "2ff4dfb_2",
+      "scenario_id": "2ff4dfb",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "302c169_3",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "30e8586_2",
+      "scenario_id": "30e8586",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "31dc501_1",
+      "scenario_id": "31dc501",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "321ec38_2",
+      "scenario_id": "321ec38",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "325d6ec_2",
+      "scenario_id": "325d6ec",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "32616b5_2",
+      "scenario_id": "32616b5",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "33e202d_3",
+      "scenario_id": "33e202d",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "34d9492_1",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "3650990_1",
+      "scenario_id": "3650990",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "365e0a3_2",
+      "scenario_id": "365e0a3",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "36705ae_3",
+      "scenario_id": "36705ae",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "37a8675_3",
+      "scenario_id": "37a8675",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "383a053_2",
+      "scenario_id": "383a053",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "383cbac_2",
+      "scenario_id": "383cbac",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "396c5a2_1",
+      "scenario_id": "396c5a2",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "3aa1a22_3",
+      "scenario_id": "3aa1a22",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "3ab5b8b_1",
+      "scenario_id": "3ab5b8b",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "3b8fb7a_3",
+      "scenario_id": "3b8fb7a",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "3c13f5a_1",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "3d9a636_1",
+      "scenario_id": "3d9a636",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "3f3c139_3",
+      "scenario_id": "3f3c139",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "3fcc458_2",
+      "scenario_id": "3fcc458",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "4242c97_2",
+      "scenario_id": "4242c97",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "425a494_2",
+      "scenario_id": "425a494",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "432dc7a_3",
+      "scenario_id": "432dc7a",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "4441ee9_1",
+      "scenario_id": "4441ee9",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "476b213_2",
+      "scenario_id": "476b213",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "4815c06_3",
+      "scenario_id": "4815c06",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "4ac4a8d_3",
+      "scenario_id": "4ac4a8d",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "4d12842_3",
+      "scenario_id": "4d12842",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "4ec8de5_1",
+      "scenario_id": "4ec8de5",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "4fab96f_1",
+      "scenario_id": "4fab96f",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "50e1ac9_2",
+      "scenario_id": "50e1ac9",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "522e5e5_2",
+      "scenario_id": "522e5e5",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "5238afc_1",
+      "scenario_id": "5238afc",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "530b157_3",
+      "scenario_id": "530b157",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "552869a_1",
+      "scenario_id": "552869a",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "57c3486_1",
+      "scenario_id": "57c3486",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "5800354_3",
+      "scenario_id": "5800354",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "59bcfc8_3",
+      "scenario_id": "59bcfc8",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "59fae45_2",
+      "scenario_id": "59fae45",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "5a83b05_3",
+      "scenario_id": "5a83b05",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "5e27cd7_3",
+      "scenario_id": "5e27cd7",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "60d0b5b_3",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6104387_2",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6171bbc_2",
+      "scenario_id": "6171bbc",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "634f342_3",
+      "scenario_id": "634f342",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6474048_2",
+      "scenario_id": "6474048",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "652485c_1",
+      "scenario_id": "652485c",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6588a51_3",
+      "scenario_id": "6588a51",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "66b7899_1",
+      "scenario_id": "66b7899",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "68ee2c9_1",
+      "scenario_id": "68ee2c9",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "690d51b_2",
+      "scenario_id": "690d51b",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "692c77d_2",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "69ba40f_1",
+      "scenario_id": "69ba40f",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6a5e690_2",
+      "scenario_id": "6a5e690",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6b6ca61_2",
+      "scenario_id": "6b6ca61",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6bdbc26_1",
+      "scenario_id": "6bdbc26",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6c2c621_2",
+      "scenario_id": "6c2c621",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6d59d90_1",
+      "scenario_id": "6d59d90",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6ea6792_1",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "6f4b9a5_1",
+      "scenario_id": "6f4b9a5",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7238049_2",
+      "scenario_id": "7238049",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7264edc_2",
+      "scenario_id": "7264edc",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7434096_2",
+      "scenario_id": "7434096",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7574325_1",
+      "scenario_id": "7574325",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "76f2c72_1",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "771d8fc_2",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "77bcb81_2",
+      "scenario_id": "77bcb81",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7847649_2",
+      "scenario_id": "7847649",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7b97e6d_3",
+      "scenario_id": "7b97e6d",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7bdaf23_3",
+      "scenario_id": "7bdaf23",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7d26579_3",
+      "scenario_id": "7d26579",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7d7fbf6_1",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "7e1be84_3",
+      "scenario_id": "7e1be84",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "80acbaf_3",
+      "scenario_id": "80acbaf",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "81be677_2",
+      "scenario_id": "81be677",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "82d2e01_3",
+      "scenario_id": "82d2e01",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "82e2fac_2",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "83a7951_3",
+      "scenario_id": "83a7951",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "8749218_3",
+      "scenario_id": "8749218",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "8a13317_2",
+      "scenario_id": "8a13317",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "8ce6779_1",
+      "scenario_id": "8ce6779",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "8d42650_1",
+      "scenario_id": "8d42650",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "8f79e35_2",
+      "scenario_id": "8f79e35",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9016950_2",
+      "scenario_id": "9016950",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "906f2c7_3",
+      "scenario_id": "906f2c7",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "90adc3f_3",
+      "scenario_id": "90adc3f",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9126bf0_1",
+      "scenario_id": "9126bf0",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "92fe421_2",
+      "scenario_id": "92fe421",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "953b296_3",
+      "scenario_id": "953b296",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "96bf160_2",
+      "scenario_id": "96bf160",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "986aa4e_3",
+      "scenario_id": "986aa4e",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9871968_3",
+      "scenario_id": "9871968",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "988af8e_1",
+      "scenario_id": "988af8e",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "98d2608_3",
+      "scenario_id": "98d2608",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "998908e_1",
+      "scenario_id": "998908e",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9a16324_2",
+      "scenario_id": "9a16324",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9aae7da_1",
+      "scenario_id": "9aae7da",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9b2dc64_1",
+      "scenario_id": "9b2dc64",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9bf2c8a_2",
+      "scenario_id": "9bf2c8a",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9dabbc9_3",
+      "scenario_id": "9dabbc9",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9ef034e_2",
+      "scenario_id": "9ef034e",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "9ef798c_1",
+      "scenario_id": "9ef798c",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a132254_1",
+      "scenario_id": "a132254",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a1d3dfd_2",
+      "scenario_id": "a1d3dfd",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a30375d_1",
+      "scenario_id": "a30375d",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a3ba388_2",
+      "scenario_id": "a3ba388",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a53a8fd_3",
+      "scenario_id": "a53a8fd",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a5b0084_3",
+      "scenario_id": "a5b0084",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a676f2a_3",
+      "scenario_id": "a676f2a",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a7179fa_3",
+      "scenario_id": "a7179fa",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a8f302f_3",
+      "scenario_id": "a8f302f",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "a97e35d_3",
+      "scenario_id": "a97e35d",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "aa8502b_3",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "aaa25aa_1",
+      "scenario_id": "aaa25aa",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ac62177_2",
+      "scenario_id": "ac62177",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "adb1060_3",
+      "scenario_id": "adb1060",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "af84964_1",
+      "scenario_id": "af84964",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "afc0fce_2",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "afc4005_1",
+      "scenario_id": "afc4005",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b05f69a_1",
+      "scenario_id": "b05f69a",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b08d5ef_3",
+      "scenario_id": "b08d5ef",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b0934aa_3",
+      "scenario_id": "b0934aa",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b0a8eae_1",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b119b1f_3",
+      "scenario_id": "b119b1f",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b3bdcc1_3",
+      "scenario_id": "b3bdcc1",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b4707e8_1",
+      "scenario_id": "b4707e8",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b68eb83_1",
+      "scenario_id": "b68eb83",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b6d1104_1",
+      "scenario_id": "b6d1104",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b6d1f70_3",
+      "scenario_id": "b6d1f70",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b71318e_1",
+      "scenario_id": "b71318e",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b7a9ee9_2",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "b9c5c9a_1",
+      "scenario_id": "b9c5c9a",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ba46d91_3",
+      "scenario_id": "ba46d91",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "baeb104_3",
+      "scenario_id": "baeb104",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "bcb9696_1",
+      "scenario_id": "bcb9696",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "bde252e_1",
+      "scenario_id": "bde252e",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "c1091c7_1",
+      "scenario_id": "c1091c7",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "c77c005_1",
+      "scenario_id": "c77c005",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "c8f5f44_3",
+      "scenario_id": "c8f5f44",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "c901732_2",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "c9458ed_2",
+      "scenario_id": "c9458ed",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "cb4ee7a_3",
+      "scenario_id": "cb4ee7a",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ccb4494_1",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ccf4b82_3",
+      "scenario_id": "ccf4b82",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "cdaaea5_3",
+      "scenario_id": "cdaaea5",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "cdf61bd_3",
+      "scenario_id": "cdf61bd",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ce359b5_3",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ce73d68_2",
+      "scenario_id": "ce73d68",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "cef9191_2",
+      "scenario_id": "cef9191",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "cf6abd2_2",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d037dc8_1",
+      "scenario_id": "d037dc8",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d0b1f43_3",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d18139b_3",
+      "scenario_id": "d18139b",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d194965_1",
+      "scenario_id": "d194965",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d37c235_3",
+      "scenario_id": "d37c235",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d4e9306_3",
+      "scenario_id": "d4e9306",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d6ac34d_2",
+      "scenario_id": "d6ac34d",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d6d8cb6_1",
+      "scenario_id": "d6d8cb6",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d8e490b_1",
+      "scenario_id": "d8e490b",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "d9987f6_1",
+      "scenario_id": "d9987f6",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "dac78d9_1",
+      "scenario_id": "dac78d9",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "dbc0276_3",
+      "scenario_id": "dbc0276",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "dc5c5c6_2",
+      "scenario_id": "dc5c5c6",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "dcb2559_3",
+      "scenario_id": "dcb2559",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "dcbd34b_3",
+      "scenario_id": "dcbd34b",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "df61dc5_1",
+      "scenario_id": "df61dc5",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e0fe09c_3",
+      "scenario_id": "e0fe09c",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e201314_2",
+      "scenario_id": "e201314",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e3d6c94_1",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e52623a_2",
+      "scenario_id": "e52623a",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e70b117_2",
+      "scenario_id": "e70b117",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e775c78_3",
+      "scenario_id": "e775c78",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e7a10f8_3",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e7f15ba_3",
+      "scenario_id": "e7f15ba",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "e85d92a_1",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "eb5ad85_2",
+      "scenario_id": "eb5ad85",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ec437da_1",
+      "scenario_id": "ec437da",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ec655df_1",
+      "scenario_id": "ec655df",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "efc3cea_1",
+      "scenario_id": "efc3cea",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f099b4c_2",
+      "scenario_id": "f099b4c",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f323bae_3",
+      "scenario_id": "f323bae",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f37e804_3",
+      "scenario_id": "f37e804",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f3a6713_3",
+      "scenario_id": "f3a6713",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f3f60f0_1",
+      "scenario_id": "f3f60f0",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f691597_1",
+      "scenario_id": "f691597",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f6936d4_1",
+      "scenario_id": "f6936d4",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f6be291_2",
+      "scenario_id": "f6be291",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f6f2e67_2",
+      "scenario_id": "f6f2e67",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f861c32_3",
+      "scenario_id": "f861c32",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f86d850_2",
+      "scenario_id": "f86d850",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "f99d726_2",
+      "scenario_id": "f99d726",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "fa327a6_3",
+      "scenario_id": "fa327a6",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "fac291d_3",
+      "scenario_id": "fac291d",
+      "official_split": "dev",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "fb05fed_2",
+      "scenario_id": "fb05fed",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "fd1f8fa_2",
+      "scenario_id": "fd1f8fa",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "fdc4b74_2",
+      "scenario_id": "fdc4b74",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "fddb6b6_3",
+      "scenario_id": "fddb6b6",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ff58e36_1",
+      "scenario_id": "ff58e36",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ffe6d5e_2",
+      "scenario_id": "ffe6d5e",
+      "official_split": "test_normal",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    },
+    {
+      "task_id": "ffea2b5_1",
+      "scenario_id": "ffea2b5",
+      "official_split": "test_challenge",
+      "status": "NOT_RUN",
+      "official_success": null,
+      "eligible_for_sft": false,
+      "errors": []
+    }
+  ],
+  "dataset": "data/full732_a244_fresh_checkpoint39_20261028",
+  "dataset_manifest_sha256": "b6ff30e27a2427141812faee2f08d65c52c93f81eefa715eb8051519dc69f8be",
+  "dataset_file_sha256": {
+    "error_register.jsonl": "43a5bbaf17349b598e74187acd4c989e294c2f13a18753818be52b7b78036784",
+    "successful_clean.jsonl": "6102f61fce6f0df4ea532e89e29e9ff97eda61dd61c369a6e481f89fd699641d",
+    "trainable_candidates.jsonl": "6b3a731865b35dfb474d03fa0a20d2a7f9fcbbe44043842f7570cc91624ad7a3"
+  },
+  "global_stop": {
+    "reason": "untrusted_service_or_state",
+    "already_dispatched": 0,
+    "completed": 39
+  },
+  "error_definition": "Includes successfully corrected protocol/API errors. Do not count every error-bearing task as failed. Original unknown and post-stop diagnosis remain separate."
+}

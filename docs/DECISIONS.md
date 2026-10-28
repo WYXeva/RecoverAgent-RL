@@ -565,3 +565,10 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 新`full732_a244_teacher_serial_20261028.json`及独立锁复用同一控制器、workers=1。派发前核验35份原review、源result/trajectory和manifest SHA；固定244清单中只执行余209项。保留3并发、2并发以及串行的实际调度版本，不能宣称全部任务原本串行。
 - 不修改Teacher生成、Prompt、环境、80请求/16384生成/600秒或成功过滤条件。传输错误仍按任务归档、不重复未知收费请求；认证/余额、未授权响应模型、状态污染或连续worker环境故障继续停止。当前只能证明并行期间出现传输错误，不能证明所有错误由并发造成；串行后的错误单独报告。
 - 原始成功/未知/官方失败、超长deferred均保留，不补写旧评分；后续集中处理错误，不在本轮自动改提示或重采失败。新调度不启动Student/GPU、Base-SFT或B/C。
+
+## D066 · 2026-10-28 · 中转站响应名称按用户声明仅审计
+
+- 单worker第4项2c544f9_1第25请求实际返回ali/deepseek-v4.1-flash，旧显式别名列表不接受，保存原UNKNOWN并停止于39项。真实payload请求仍为deepseek-v4.1-flash；只读models目录只列原名，公开plaza没有ali映射。这个事实不能证明换了模型，也不能独立证明上游权重一致。
+- 用户先明确允许ali完整名称，随后明确要求中转站响应无论如何称呼均视为请求的deepseek-v4.1-flash，不再按名字停止。新增`user_asserted_relay_aliases_v1`只在显式relay、model_response_id_v1及用户来源说明同时存在时启用。真实response名保留而不参与相等性拒绝；仍要求非空字符串、response ID、有效usage、固定请求model/endpoint和原预算。不假造不可变权重revision。
+- 原严格协议仍只接受原名/预先列明别名，未配置新策略的运行不受影响。新serial_relay配置/源码锁派发前封存，不重签旧锁；新默认入口指向新锁，旧实验用旧commit或私有源码副本复现。原39份review及其unknown费用不回填，不重新付费重收；余205项仍按固定队列串行执行。
+- 完整500pytest及Ruff通过，新增测试覆盖任意真实返回标签不被改写、缺失ID/非法model字段和超额usage仍拒绝、未授权旧配置仍严格。此变更只按用户渠道身份声明调整元数据检查，不放宽AppWorld成功、恢复一致性、SFT长度或mask条件，不启动训练。

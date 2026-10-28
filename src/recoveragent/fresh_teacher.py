@@ -24,7 +24,7 @@ from .research_access import ROOT, SCOPE, a_tasks, authorize_task, context_for
 from .runner import now
 from .teacher import preflight, read_credentials
 
-DEFAULT = ROOT / "configs/full732_a244_teacher_relay_native_20261028.json"
+DEFAULT = ROOT / "configs/full732_a244_teacher_serial_relay_20261028.json"
 
 
 def provider_preflight(config, credentials):

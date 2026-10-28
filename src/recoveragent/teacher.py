@@ -24,6 +24,15 @@ def reasoning_enabled(teacher):
 
 
 def response_model_matches(teacher, model):
+    # Explicit user assertion about a relay's routing aliases, not weight attestation.
+    # Request model/endpoint remain fixed and verified against the saved request.
+    if (
+        teacher.get("response_identity_protocol") == "model_response_id_v1"
+        and teacher.get("response_model_policy") == "user_asserted_relay_aliases_v1"
+        and teacher.get("provider") == "openai_compatible_relay"
+        and teacher.get("response_model_alias_evidence")
+    ):
+        return isinstance(model, str) and bool(model.strip())
     return model == teacher["model"] or (
         teacher.get("response_identity_protocol") == "model_response_id_v1"
         and model in teacher.get("response_model_aliases", [])

@@ -49,7 +49,7 @@ def test_frozen_parallel_scope_and_prior_source_receipts(tmp_path):
     }
     inherited = parallel.inherited_records(config, rows)
     assert len(rows) == 244 and len(inherited) == 1
-    assert config["parallel_collection"]["workers"] == 2
+    assert config["parallel_collection"]["workers"] == 1
     assert config["limits"]["episode_requests"] == 80
     broken = copy.deepcopy(config)
     broken["parallel_collection"]["prior"]["campaign_sha256"] = "0" * 64
@@ -281,15 +281,14 @@ def test_transport_task_errors_continue_without_paid_retry_or_zero_cost():
 def test_serial_config_and_dispatch_preserve_scope_without_overlap(
     monkeypatch, tmp_path
 ):
-    serial, rows = fresh.campaign_config(
-        Path("configs/full732_a244_teacher_serial_20261028.json")
-    )
-    original, original_rows = fresh.campaign_config(parallel.DEFAULT)
-    assert rows == original_rows and len(rows) == 244
+    serial, rows = fresh.campaign_config(parallel.DEFAULT)
+    original = read_json("configs/full732_a244_teacher_serial_20261028.json")
+    assert serial["fresh_campaign"]["tasks"] == original["fresh_campaign"]["tasks"]
+    assert len(rows) == 244
     assert serial["parallel_collection"]["workers"] == 1
-    for key in ("teacher", "limits", "student", "actor_prompt_variant", "tool_mode"):
+    for key in ("limits", "student", "actor_prompt_variant", "tool_mode"):
         assert serial[key] == original[key]
-    assert len(serial["parallel_collection"]["continuation_reviews"]["reviews"]) == 35
+    assert len(serial["parallel_collection"]["continuation_reviews"]["reviews"]) == 39
     state, done, rows = simulate(monkeypatch, tmp_path, workers=1)
     assert state["peak"] == 1 and len(done) == len(rows) == 6
     assert state["started"] == [r["task_id"] for r in rows]

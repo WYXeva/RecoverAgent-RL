@@ -23,7 +23,7 @@ from .teacher import (
     usage_cost,
 )
 
-DEFAULT = ROOT / "configs/full732_a244_teacher_parallel_v2_20261028.json"
+DEFAULT = ROOT / "configs/full732_a244_teacher_serial_relay_20261028.json"
 
 
 def receipt_usage(directory, teacher):
