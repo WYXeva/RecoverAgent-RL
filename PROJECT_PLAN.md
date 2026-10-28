@@ -1,6 +1,6 @@
 # RecoverAgent-RL：项目计划与需求文档
 
-> **分阶段执行补充（2026-10-27）**：当前执行范围由 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md) 控制：本轮仅 Stage 1（Full732 候选 A244/B244/C244 元数据、独立权限/运行就绪门禁、一个获允许的 train/合成最小探针），完成即停止；Stage 2–6 不得提前实现或执行。旧文档中的长期路线和历史授权不构成此次新训练/付费推理的授权。继续保留官方 AppWorld 用途约束和所有历史数据、权重、实验锁。execution_v6 的唯一业务 System Prompt 不受本阶段影响。
+> **当前分阶段实施（2026-10-28）**：见 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md) 及 [docs/P4_STAGE2_SCORING.md](docs/P4_STAGE2_SCORING.md)。Stage 1 已验收，execution_v6 Student 初始化兼容修复已提交；下一轮仅授权 Stage 2 在三个固定、合法的官方 train 任务上核验初态 unknown 与可信终态评分的分类。结束必须停下；Stage 3–6、任何 Teacher/GPU/训练、以及原官方 test 的逐题开发/训练均不在本轮范围。继续保持 Full732 A244/B244/C244 候选设计和旧数据/锁/Prompt 原样，权限来源必须独立审查。
 
 > 2026-10-23 P3-B授权更新：用户明确授权在已提供的远程RTX PRO 6000 96GB上，数据/环境/短长烟测全部通过后执行既定Qwen3-4B Base-SFT和固定Raw对照；保留95条原数据与源码锁，结束回传checkpoint并关机。不启动Recovery-SFT或GRPO。旧阶段“不训练”文字为当时范围，当前以本项授权为准；实际验收见`reports/p3b_base_sft_report.md`。
 
