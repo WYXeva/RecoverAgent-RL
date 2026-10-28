@@ -1,6 +1,6 @@
 # AGENTS.md — RecoverAgent-RL
 
-> **当前开发门禁（2026-10-28）**：Stage 1、execution_v6 Student 兼容修复和 Stage 2 初态/合法终态评分诊断已完成（Stage 2 旧封存 Teacher 终态重评仅2/3通过）。接下来**只允许在用户向 Codex 下达单独执行指令后开展 Stage 2B**，阅读 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md) 和 [docs/P4_STAGE2B_SNAPSHOT_INTEGRITY.md](docs/P4_STAGE2B_SNAPSHOT_INTEGRITY.md)：在固定合法 train 范围追查快照 model_hashes 元数据与官方评分的保存/恢复一致性。完成立即提交、报告、停止；不得提前执行 Stage 3–6、Teacher/GPU/训练或原 test 来源逐题开发。Full732 A244/B244/C244 设计和 execution_v6 原始 System Prompt、旧权重/报告/源码锁保持不变。本门禁不进入 Actor 输入。
+> **当前开发门禁（2026-10-28）**：Stage 1、v6 Student 初始化、Stage 2 官方终态评分边界与 Stage 2B 单任务快照评分保真度已分别验收。下一步**只允许在用户单独向 Codex 下达指令后执行 Stage 3A**，具体见 [docs/P4_STAGE3A_BASE_SFT_READINESS.md](docs/P4_STAGE3A_BASE_SFT_READINESS.md) 与 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md)：离线清点 Full732 A244 的新 Base-SFT 候选来源、权限、历史有效 Teacher 示范与预算计划。严格停在数据准备，**不得实际采集付费 Teacher、启动模型/GPU、训练新 M1、实施 Recovery-SFT/GRPO或调用测试来源逐题内容**。原 Full732 A244/B244/C244 冻结分配不变，官方 AppWorld test 用途约束和证据门槛不因自定义方案而消失；`execution_v6` System Prompt、原数据、历史权重和源码锁保持原样。本门禁不进入 Agent 输入。
 
 > 工作约定 v0.21 · 2026-10-27
 > 适用范围：本项目及子目录。需求与完整验收见 `PROJECT_PLAN.md`。  
