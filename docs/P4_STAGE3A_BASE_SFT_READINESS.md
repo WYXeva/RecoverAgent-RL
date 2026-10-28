@@ -44,7 +44,7 @@
 
 ### 3A-3 最小训练配方与成本计划（无执行）
 
-冻结原始 Qwen3-4B revision、tokenizer/chat template、execution_v6 + dynamic_discovery、BF16+LoRA、Assistant-only loss、32678/4096（注意以已有正式配置为准，若这里与原配置不一致必须以原32768为准）、单轮 output/token预算与训练谱系 M1→M2→M3。
+冻结原始 Qwen3-4B revision、tokenizer/chat template、execution_v6 + dynamic_discovery、BF16+LoRA、Assistant-only loss、32768上下文窗口 / 4096单回复输出上限（以实际冻结配置为准）、单轮 output/token预算与训练谱系 M1→M2→M3。
 
 根据真实候选数据统计：
 - A244 应收集任务数量及有效示范数、缺口按scenario/原split分类；不得为补足数量复制/造假。
