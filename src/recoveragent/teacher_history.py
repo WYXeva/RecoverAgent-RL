@@ -42,7 +42,7 @@ def capture_terminal(adapter, destination, messages, tools, metadata):
         "format_version": "p3a-terminal-batch-v1",
         "purpose": "terminal evidence before official evaluation; not P0/P2 replay",
         "task_id": adapter.task_id,
-        "split": "train",
+        "split": getattr(adapter, "official_split", "train"),
         "position": "post_action",
         "history_end_index": len(messages),
         "history_hash": digest(messages),

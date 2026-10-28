@@ -40,9 +40,14 @@ def sha256(path):
 
 def validate_demo(record):
     """Only the exact structured messages and per-turn public schemas are model input."""
+    custom = record.get("custom_research") is not None
+    if custom:
+        from .research_access import FORMAT as CUSTOM_FORMAT, validate_record
+
+        validate_record(record)
     if (
-        record["kind"] != FORMAT
-        or record["split"] != "train"
+        record["kind"] != (CUSTOM_FORMAT if custom else FORMAT)
+        or (not custom and record["split"] != "train")
         or record["actor_role"] != "teacher"
     ):
         raise ValueError("Not a normal train Teacher demonstration")
@@ -231,7 +236,14 @@ def filter_attempt(trajectory, evaluation, train_ids, limits, directory):
         "Qwen/Qwen3-4B",
     } or not teacher.get("revision"):
         reasons.append("unverified_teacher_identity")
-    if trajectory.get("task_id") not in train_ids or trajectory.get("split") != "train":
+    custom = trajectory.get("custom_research") is not None
+    if custom:
+        from .research_access import validate_record
+
+        validate_record(trajectory)
+    if trajectory.get("task_id") not in train_ids or (
+        not custom and trajectory.get("split") != "train"
+    ):
         reasons.append("not_official_train")
     if trajectory.get("status") != "valid":
         reasons.append("infrastructure_error")
@@ -309,6 +321,11 @@ def as_demo(trajectory):
     )
     record = {k: copy.deepcopy(trajectory[k]) for k in keys}
     record["kind"] = FORMAT
+    if trajectory.get("custom_research") is not None:
+        from .research_access import FORMAT as CUSTOM_FORMAT
+
+        record["kind"] = CUSTOM_FORMAT
+        record["custom_research"] = copy.deepcopy(trajectory["custom_research"])
     for key in (
         "tool_mode",
         "actor_prompt_variant",

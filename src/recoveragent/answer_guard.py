@@ -165,7 +165,11 @@ def validate_guard_record(record):
     messages = record["messages"]
     guard = AnswerGuard(json.loads(messages[1]["content"])["instruction"])
     if RULES not in messages[0]["content"]:
-        raise ValueError("Undeclared answer guard")
+        if not record.get("custom_research"):
+            raise ValueError("Undeclared answer guard")
+        from .research_access import validate_record
+
+        validate_record(record)  # Exact v6 plus real controls; replay below unchanged.
     for turn in record["turns"]:
         if "protocol_rejection" in turn and "harness" in record:
             if guard.pending:

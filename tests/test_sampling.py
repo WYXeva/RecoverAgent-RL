@@ -131,8 +131,13 @@ def test_diagnostics_cannot_be_labeled_random_sampling():
         )
 
 
-def test_expansion_requires_frozen_contract_and_legacy_caps(tmp_path):
+def test_expansion_requires_frozen_contract_and_legacy_caps(
+    tmp_path, current_teacher_unit_lock
+):
     config = read_json("configs/p3a_expanded.json")
+    with pytest.raises(ValueError, match="protocol changed"):
+        p3a.validate_config(config)
+    config = current_teacher_unit_lock(config)
     p3a.validate_config(config)
     changed = copy.deepcopy(config)
     changed["actor_prompt_variant"] = "budget_batched_v2"
@@ -153,10 +158,10 @@ def test_expansion_requires_frozen_contract_and_legacy_caps(tmp_path):
     "proceed,reserve,expected", [(True, 0, 12), (False, 0, 1), (True, 196608, 1)]
 )
 def test_interrupted_worker_preserved_and_unknown_budget_not_reused(
-    tmp_path, monkeypatch, proceed, reserve, expected
+    tmp_path, monkeypatch, proceed, reserve, expected, current_teacher_unit_lock
 ):
     # Synthetic controller fault injection only; not a Teacher trajectory.
-    config = read_json("configs/p3a_expanded.json")
+    config = current_teacher_unit_lock(read_json("configs/p3a_expanded.json"))
     config["authorization"]["max_cost"] = 12
     config["continue_after_infrastructure_error"] = proceed
     plan = make_plan(POOL, SETTINGS)

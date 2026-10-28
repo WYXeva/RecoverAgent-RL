@@ -2,9 +2,18 @@
 
 - 最后更新：2026-10-28（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Stage 2B 单任务新快照评分保真 PASS；旧封存状态未修复，Full732 仍 BLOCKED、全局 scoring_status 仍 PARTIAL**。07b42fd_1 新官方终态经保存/导出/跨进程恢复后均5/5；与旧Teacher终态12个DB变更文件完全相同，唯一文件差异为model_hashes.json。467测试及Ruff通过；0模型/付费Teacher/GPU/SSH/训练，Stage 3–6未执行，提交后停止。
+- 当前状态：**Stage 3A A244 新采集工程通过，真实 Teacher 采集在 dispatch 前 BLOCKED**。已从原 Full732 划分固定完整 A244，未读取或复用旧95条示范；当前0尝试、0成功、0候选、244未执行。中转站URL写法已确认，但其公开条款禁止生成训练数据，且访问/费率未核实。481软件测试、Ruff及单train无模型快照评分往返通过；没有模型/GPU/SSH/训练。Stage 2B历史与原全局 scoring PARTIAL 不改，不能把本轮探针当作采集成功。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Stage 2B基线 `25e6dacd5ad5854afd5c7fc9beec8c49531faf84`（Stage 2基线def1578）（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Stage 3A基线 `29216c7516d9604838ca499f04327997001f2e84`（Stage 2B基线25e6dac）（Stage 2基线def1578）（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Stage 3A A244 新采集入口与阻塞（2026-10-28）
+
+- **冻结范围**：原A244/244场景，train30、dev19、test_normal56、test_challenge139，不改划分、不退A30、不读取旧Teacher。仅独立私有研究入口；官方benchmark模式限制不变。许可证/来源/共享DB与Schema预检覆盖244；仅07b42fd_2实际初始化，其他243项未做运行验收。
+- **工程**：复用P3-A Runner、官方评分、Stage 2B评分状态检查及原SFT mask。新增独立准入与串行小批次控制、claim去重/续跑、未知费用保留、成功终态独立评分、v6示范过滤兼容；不关闭Harness/AnswerGuard。新配置/锁为`configs/full732_a244_teacher_fresh_v1.json`及`full732_a244_teacher_fresh_lock.json`。历史锁不重签，历史Student/Teacher需原commit复现。
+- **真实限制**：用户已授权本轮费用“无上限”，工程保留每项USD1、首轮USD244总上限及40请求/16384生成/600秒。dotenv有效，新URL `https://znbcode.com/v1`与接入文档一致；旧代码只读取Key、忽略dotenv URL/model，误向官方余额端点查询得到401。relay `/v1/models`两次403不能证明chat接口一定不可用；实际chat未调用。更关键是用户提供页面的公开政策禁止用输出训练或批量采集Agent训练轨迹，无例外许可证据；费率也未知，因此配置始终拒绝付费dispatch，不能改READY绕过。
+- **验证**：481 pytest（新增14）、Ruff check与137文件format PASS；07b42fd_2无模型公开文档查询1次、两独立world、两次原评分均1/5有效失败，行/变更追踪/model_hashes/13文件/完整评分一致；不是Teacher示范。离线真实Qwen tokenizer+合成回执1样本、24监督token、559最长序列，mask/padding/parser PASS；0真实模型请求，0新增候选。
+- **证据/命令**：`reports/full732_a244_teacher_fresh_report.md/json`、私有`runs/full732_a244_fresh_20261028/`；`PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider`，`.venv/bin/ruff check --no-cache .`及`format --check .`。真实探针/恢复命令见报告，旧证据不可覆盖。未重新审计或修改95条数据及权重；v6、官方评分器、原划分/旧锁原字节不变。
+- **下一步**：取得允许训练数据用途的Teacher服务及可核实费率/模型回执，再冻结新服务配置、执行原定首题真实smoke和完整A244；不得静默换服务或自动重发未知收费请求。本轮提交阻塞报告后停止，不训练Base-SFT，不运行B/C、Recovery-SFT或GRPO。
 
 ## Stage 2B 快照评分保真（2026-10-28）
 

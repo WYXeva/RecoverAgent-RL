@@ -33,8 +33,8 @@ DOC["function"]["parameters"]["additionalProperties"] = False
 
 
 @pytest.fixture
-def make_session(monkeypatch):
-    # Only the tokenizer is synthetic; runtime locks, guards and dispatch are real code.
+def make_session(monkeypatch, current_v6_unit_lock):
+    # Tokenizer/source-tree manifest are synthetic; lock checker/guards/dispatch real.
     monkeypatch.setattr(
         student,
         "TEMPLATE_SHA256",
@@ -242,7 +242,9 @@ def test_trusted_runtime_rejects_source_or_contract_drift(tmp_path, monkeypatch,
         verify_student_runtime(V6_RUNTIME)
 
 
-def test_both_student_entrypoints_route_to_the_new_lock(monkeypatch):
+def test_both_student_entrypoints_route_to_the_new_lock(
+    monkeypatch, current_v6_unit_lock
+):
     from recoveragent import p3c
 
     expected = verify_student_runtime(V6_RUNTIME)

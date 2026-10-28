@@ -36,7 +36,15 @@ def call_code(name, arguments, tools):
 
 class AppWorldAdapter:
     def __init__(
-        self, root, task_id, experiment_name, seed=42, max_interactions=100, timeout=60
+        self,
+        root,
+        task_id,
+        experiment_name,
+        seed=42,
+        max_interactions=100,
+        timeout=60,
+        *,
+        research=None,
     ):
         from appworld import AppWorld, load_task_ids
         from appworld.common.path_store import path_store
@@ -50,7 +58,11 @@ class AppWorldAdapter:
                 "AppWorld must be installed from the pinned source revision"
             )
         update_root(str(Path(root).resolve()))
-        if task_id not in load_task_ids("train"):
+        if research is not None:
+            from .research_access import authorize_task
+
+            self.official_split = authorize_task(root, task_id, research)
+        elif task_id not in load_task_ids("train"):
             raise ValueError("P0–P2 accepts official train tasks only")
         output = (
             Path(path_store.experiment_outputs) / experiment_name / "tasks" / task_id

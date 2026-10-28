@@ -66,8 +66,11 @@ def test_new_source_locks_and_original_locks_coexist():
         RUNTIME as OLD_MEMORY_RUNTIME,
     )
 
-    assert len(verify_source(V6_RUNTIME)) == 64
-    assert verify_execution_runtime(V6_RUNTIME)["revision"] == V6_RUNTIME
+    # Stage 3A adds an independent research path; never re-sign this old lock.
+    with pytest.raises(ValueError, match="source changed"):
+        verify_source(V6_RUNTIME)
+    with pytest.raises(ValueError, match="source changed"):
+        verify_execution_runtime(V6_RUNTIME)
     with pytest.raises(ValueError, match="source changed"):
         verify_source(PROMPT_RUNTIME)
     with pytest.raises(ValueError, match="source changed"):

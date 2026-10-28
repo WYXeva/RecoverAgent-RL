@@ -1,0 +1,25 @@
+{
+  "baseline_commit": "29216c7516d9604838ca499f04327997001f2e84",
+  "baseline_tracked_files": 565,
+  "unchanged": 554,
+  "intentional_changes": [
+    "docs/DECISIONS.md",
+    "docs/STATUS.md",
+    "src/recoveragent/adapter.py",
+    "src/recoveragent/answer_guard.py",
+    "src/recoveragent/demonstrations.py",
+    "src/recoveragent/harness.py",
+    "src/recoveragent/p3a.py",
+    "src/recoveragent/teacher_history.py",
+    "tests/test_remote_validation_setup.py",
+    "tests/test_sampling.py",
+    "tests/test_student_v6.py"
+  ],
+  "deleted": [],
+  "v6_and_original_split_unchanged": true,
+  "historical_config_report_files_unchanged": true,
+  "historical_teacher_data_read_or_reaudited": false,
+  "historical_weight_files_read_or_reaudited": false,
+  "new_report_manifest_sha256": "daad285e742e3b212252606fe03a3ca95b6cfcdf3999a6da32b3eb043d9199c5",
+  "new_configuration_and_lock_valid": true
+}

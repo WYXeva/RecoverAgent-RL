@@ -49,6 +49,12 @@ from .harness import (
 
 
 def validate_config(config):
+    if config.get("custom_research"):
+        from .research_access import validate_identity
+
+        validate_identity(
+            config["custom_research"]["task_id"], config["custom_research"]
+        )
     if config.get("actor_prompt_variant") == CURRENT_PROMPT:
         actor_system(config)  # Validate mode/checksum before any provider request.
     if config.get("harness_protocol") not in {None, HARNESS_PROTOCOL}:
@@ -247,6 +253,11 @@ def interrupted_usage(directory, teacher):
 def run_teacher_episode(config, task_id, output, credentials):
     """Production path always uses a real AppWorldAdapter and a real TeacherPolicy."""
     validate_config(config)
+    if config.get("custom_research"):
+        from .fresh_teacher import provider_preflight
+
+        if provider_preflight(config, credentials)["status"] == "BLOCKED":
+            raise ValueError("Fresh research provider preflight blocked")
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=False)
     started = now()
@@ -268,7 +279,7 @@ def run_teacher_episode(config, task_id, output, credentials):
         "format_version": "p3a-1",
         "trajectory_id": output.name,
         "task_id": task_id,
-        "split": "train",
+        "split": config.get("custom_research", {}).get("official_split", "train"),
         "mode": "teacher_normal",
         "tool_mode": config.get("tool_mode", "dynamic_discovery"),
         "actor_prompt_variant": config.get("actor_prompt_variant", "legacy_v1"),
@@ -308,6 +319,8 @@ def run_teacher_episode(config, task_id, output, credentials):
         usage.update(protocol_rejections=0, harness_notices=0)
     if "selection_protocol" in config:
         trajectory["selection_protocol"] = config["selection_protocol"]
+    if config.get("custom_research"):
+        trajectory["custom_research"] = copy.deepcopy(config["custom_research"])
     messages = trajectory["messages"]
     try:
         if harness:
@@ -315,7 +328,12 @@ def run_teacher_episode(config, task_id, output, credentials):
 
             trajectory["environment_check"] = environment_check()
         policy = TeacherPolicy(config, credentials)
-        adapter = AppWorldAdapter(
+        adapter_class = AppWorldAdapter
+        if config.get("custom_research"):
+            from .fresh_teacher import FreshAdapter
+
+            adapter_class = FreshAdapter
+        adapter = adapter_class(
             config["appworld_root"],
             task_id,
             output.name,
@@ -325,6 +343,11 @@ def run_teacher_episode(config, task_id, output, credentials):
             # This compatibility sentinel removes its former hidden 100-execute
             # ceiling; token/request/time budgets remain the operational bounds.
             max_interactions=sys.maxsize,
+            **(
+                {"research": config["custom_research"]}
+                if config.get("custom_research")
+                else {}
+            ),
         )
         trajectory["scenario_id"] = adapter.world.task.generator_id
         trajectory["appworld"] = adapter.versions
@@ -587,6 +610,11 @@ def run_teacher_episode(config, task_id, output, credentials):
         evaluation_started = bool(harness)
         if harness:
             from .evaluation import evaluate_isolated
+
+            if config.get("custom_research"):
+                from .fresh_teacher import evaluate_custom_isolated
+
+                evaluate_isolated = evaluate_custom_isolated
 
             evaluated = evaluate_isolated(
                 task_id, output.name, config["appworld_root"], output

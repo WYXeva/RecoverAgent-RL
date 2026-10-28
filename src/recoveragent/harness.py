@@ -528,6 +528,11 @@ def validate_record(record):
 
 
 def _harness_missing(record):
+    if record.get("custom_research"):
+        from .research_access import validate_record
+
+        validate_record(record)
+        return False  # The full actual-control replay above remains mandatory.
     return (
         record["harness"].get("protocol") != PROTOCOL
         or RULES not in record["messages"][0]["content"]
