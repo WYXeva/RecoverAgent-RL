@@ -523,3 +523,10 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 新记录采用独立custom格式，继承真实official_split。v6示范复验用精确Prompt和实际控制器/回执，保留完整Harness及AnswerGuard重放，不再要求不存在的旧提示段落；历史格式验证保持不变。共享源码变更导致旧运行锁拒绝当前checkout是预期行为；不重签历史锁，临时单测锁不等于运行授权。新锁只用于本轮采集工程。
 - 复用原P3-A、官方评分、Stage2B行/追踪/metadata/文件/原tracker等价检查及SFT Assistant-only编码。claim写在调用之前，中断不重复付费，已知usage与未知预留并存；真实成功还须跨进程复评、严格过滤和无截断编码才可成为候选。只读model_hashes为空可合法，不能只比行哈希或只看hash非空。
 - 481测试、Ruff、固定单train无模型往返和真实tokenizer+合成回执通过；244真实采集仍0尝试/0示范，全部BLOCKED/NOT_RUN，成功率N/A。未读取旧Teacher/重训/启动GPU/运行B/C。本轮交付工程和完整阻塞分母后停止，不以软件PASS代替Stage3A采集验收。
+
+## D061 · 2026-10-28 · 撤掉项目自加的域名条款硬拦截
+
+- 用户明确要求不按该条款阻断。删除上一轮按域名硬编码的 `PROVIDER_TERMS_DISALLOW_TRAINING_DATA` 分支；不把服务条款当成代码永久封禁规则。历史条款证据保留，不将这一用户决定表述为服务商已授权。
+- 使用独立v2采集配置与源码锁，不重签v1锁、不改A244/Prompt/工具检查/预算。保留凭据与endpoint/model匹配、实际访问及可核实价格门槛，没有自动发送付费请求或把403改为成功。
+- 本轮显式加载.env证实Key存在。旧报告最终离线预检没有传凭据文件，故其“缺Key”原因不是实际凭据缺失；保留旧回执并纠正解释，不修改历史JSON。当前价格与访问仍未核实，0新增Teacher尝试。
+- 482测试与Ruff通过，包含同域名合法合成配置能通过预检及历史锁拒绝新源码；无真实模型、AppWorld任务、GPU或训练。报告见`reports/full732_provider_gate_revision.md`。

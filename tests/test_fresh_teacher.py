@@ -282,7 +282,7 @@ def test_relay_variables_cannot_silently_use_official_endpoint_or_prices():
     assert check["status"] == "BLOCKED"
     assert "VERIFIED_PRICE_REQUIRED" in check["reasons"]
     assert "PROVIDER_ACCESS_NOT_VERIFIED" in check["reasons"]
-    assert "PROVIDER_TERMS_DISALLOW_TRAINING_DATA" in check["reasons"]
+    assert "PROVIDER_TERMS_DISALLOW_TRAINING_DATA" not in check["reasons"]
     wrong = copy.deepcopy(config)
     wrong["teacher"]["base_url"] = "https://api.deepseek.com"
     assert (
@@ -296,7 +296,7 @@ def test_relay_variables_cannot_silently_use_official_endpoint_or_prices():
     )
 
 
-def test_provider_use_restriction_is_not_overridden_by_ready_flag():
+def test_provider_domain_is_not_a_runtime_terms_block():
     config, _ = fresh.campaign_config()
     config["fresh_campaign"]["provider_access_verified"] = True
     config["teacher"]["pricing"].update(
@@ -307,5 +307,13 @@ def test_provider_use_restriction_is_not_overridden_by_ready_flag():
         checked_at="SYNTHETIC_TEST_ONLY",
     )
     check = fresh.provider_preflight(config, {"DEEPSEEK_API_KEY": "synthetic"})
-    assert check["status"] == "BLOCKED"
-    assert check["reasons"] == ["PROVIDER_TERMS_DISALLOW_TRAINING_DATA"]
+    assert check["status"] == "READY_FOR_PILOT"
+    assert check["reasons"] == []
+
+
+def test_old_fresh_runtime_lock_is_preserved_and_rejects_changed_source():
+    from recoveragent.io import read_json
+
+    config = read_json("configs/full732_a244_teacher_fresh_v1.json")
+    with pytest.raises(ValueError, match="protocol changed"):
+        fresh.verify_lock(config)

@@ -2,11 +2,13 @@
 
 - 最后更新：2026-10-28（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Stage 3A A244 新采集工程通过，真实 Teacher 采集在 dispatch 前 BLOCKED**。已从原 Full732 划分固定完整 A244，未读取或复用旧95条示范；当前0尝试、0成功、0候选、244未执行。中转站URL写法已确认，但其公开条款禁止生成训练数据，且访问/费率未核实。481软件测试、Ruff及单train无模型快照评分往返通过；没有模型/GPU/SSH/训练。Stage 2B历史与原全局 scoring PARTIAL 不改，不能把本轮探针当作采集成功。
+- 当前状态：**Stage 3A A244 固定清单保留；已按用户新指示撤掉项目自加的域名条款拦截，访问/费率仍未核实，真实采集未启动**。当前0尝试、0成功、0候选、244未执行。当前v2配置及新锁不改旧v1；显式读取.env确认Key存在，旧最终预检未传文件所得“缺Key”不代表实际凭据缺失。482软件测试和Ruff通过，前轮单train无模型快照证据保留；没有本轮模型/GPU/SSH/训练。详见`reports/full732_provider_gate_revision.md`。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Stage 3A基线 `29216c7516d9604838ca499f04327997001f2e84`（Stage 2B基线25e6dac）（Stage 2基线def1578）（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
 
 ## Stage 3A A244 新采集入口与阻塞（2026-10-28）
+
+- **后续用户修订**：撤掉 `provider_preflight` 的域名条款拒绝分支；当前使用 `full732_a244_teacher_fresh_v2.json`/`full732_a244_teacher_fresh_v2_lock.json`。不删除原公开条款证据或伪称服务方授权，不更改认证、费用及预算校验。当前带.env的预检仅剩价格来源/价格/访问未验证三项；本节下面保留上一轮事实，新的执行选择以此条及D061为准。
 
 - **冻结范围**：原A244/244场景，train30、dev19、test_normal56、test_challenge139，不改划分、不退A30、不读取旧Teacher。仅独立私有研究入口；官方benchmark模式限制不变。许可证/来源/共享DB与Schema预检覆盖244；仅07b42fd_2实际初始化，其他243项未做运行验收。
 - **工程**：复用P3-A Runner、官方评分、Stage 2B评分状态检查及原SFT mask。新增独立准入与串行小批次控制、claim去重/续跑、未知费用保留、成功终态独立评分、v6示范过滤兼容；不关闭Harness/AnswerGuard。新配置/锁为`configs/full732_a244_teacher_fresh_v1.json`及`full732_a244_teacher_fresh_lock.json`。历史锁不重签，历史Student/Teacher需原commit复现。
