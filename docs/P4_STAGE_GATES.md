@@ -1,6 +1,6 @@
 # RecoverAgent-RL · 分阶段实施门禁（2026-10-27）
 
-> **当前唯一后续任务：Stage 2B — 快照评分元数据完整性诊断。** Stage 2 已按预定范围完成，旧 Teacher 控制快照独立重评分仅4/5（新官方train终态5/5）。下一步只允许在用户明确指示后按 [P4_STAGE2B_SNAPSHOT_INTEGRITY.md](P4_STAGE2B_SNAPSHOT_INTEGRITY.md) 验证模型变更元数据的保存/恢复一致性；完成即停止。
+> **当前唯一后续任务：Stage 3A — Full732 A244 Base-SFT 离线数据来源准入与补采集规划。** Stage 2B 单个合法train任务的兼容环境快照往返/独立评分已实测PASS，旧快照不修补，Full732用途限制未解除。用户另行给出执行Prompt后只按 [P4_STAGE3A_BASE_SFT_READINESS.md](P4_STAGE3A_BASE_SFT_READINESS.md) 执行；结束报告并停止，不允许直接进入模型训练。
 > 本文是面向 Codex 的**工作范围控制文件**，不是 Student/Teacher 的 System Prompt。
 > 业务执行 System Prompt 唯一源码保持 `src/recoveragent/execution_v6.py`，不得修改其文本、拼接额外段落或悄悄切回 v5。
 > 原始 AppWorld 官方划分、历史实验与发布 checkpoint 均保持不变。每一阶段只有用户明确下达下一阶段指令才可推进。
@@ -21,7 +21,8 @@
 | --- | --- | --- | --- |
 | Stage 1（完成） | Full732 元数据契约、来源权限门禁、可测试的统一入口最小垂直切片 | 当前用户指令 | 代码/配置/最小 train 探针、拒绝测试、报告；受限执行正确阻断 |
 | Stage 2（已完成诊断） | train 初态unknown与合法终态评分边界 | 用户已授权且已运行 | PASS；旧封存成功终态跨进程复评PARTIAL |
-| **Stage 2B（当前下一项）** | 固定train写入任务的快照变更元数据与评分等价性 | 等用户明确下发任务 | 最小复现、原因证据、必要回归与报告，禁止训练 |
+| Stage 2B（已完成） | 固定train写入任务的快照变更元数据与评分等价性 | 已按用户指令执行 | 新兼容环境单任务往返5/5 PASS；旧快照未修复 |
+| **Stage 3A（下一项）** | Full732 A244 Teacher成功示范的来源/权限/评分证据审计和补采集计划，不付费、不训练 | 用户另行下发指令 | 脱敏来源清单、准入统计、成本/阻塞计划、最小回归 |
 | Stage 3 | A 侧 Teacher 正常任务示范与新 Base-SFT M1 | Stage 2 完成；Teacher/GPU/额度单独授权 | 真实成功示范、Assistant-only mask、权重更新/保存/重载 |
 | Stage 4 | B 侧 Student 新自然失败、真实 Teacher 检查点接管、Recovery-SFT M2 | 新 M1 已验收；Teacher/训练授权 | 真实成功恢复后缀、正确训练掩码、新权重可重载 |
 | Stage 5 | B 侧当前策略在线 GRPO，产出 M3 | M2 已验收，奖励有效，GPU 单独授权 | 同起点 G=4、行为 logprobs/mask、有效奖励、真实参数更新 |
@@ -29,9 +30,11 @@
 
 每阶段结束**立即停止**；只提交本阶段实际成果与阻塞项，等待用户审查。**Codex 不得把表中后续阶段顺便实现。**
 
-## Stage 2B 当前工作与 Stage 1–2 历史记录
+## Stage 3A 当前工作与 Stage 1–2B 历史记录
 
-**现在唯一可继续执行的文档：[docs/P4_STAGE2B_SNAPSHOT_INTEGRITY.md](P4_STAGE2B_SNAPSHOT_INTEGRITY.md)。** 下文旧 Stage 2 和 Stage 1 段落均属历史，不得再作为当前 Codex 指令。Stage 2 官方初态/终态诊断见 `reports/full732_stage2_scoring_report.md`，遗留旧快照 model_hashes 保真度问题须先于 Stage 3 解决。
+**本轮唯一可新执行文档：[docs/P4_STAGE3A_BASE_SFT_READINESS.md](P4_STAGE3A_BASE_SFT_READINESS.md)。** Stage 2B 报告见 `reports/full732_stage2b_snapshot_integrity.md`，兼容环境往返PASS但旧快照和Full732非train用途受限不变。此处以下 Stage 1–2B 均是历史，不得重跑或提前执行 Stage3真实采集。
+
+Stage 2B 已完成；旧版Stage 2B执行提示是历史记录，不属于当前任务。
 
 Stage 1–2 已完成，后文为历史执行记录；不得重复调用 Stage 1 或 Stage 2 的旧命令。
 
