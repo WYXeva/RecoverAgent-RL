@@ -1,6 +1,6 @@
 # RecoverAgent-RL · 分阶段实施门禁（2026-10-27）
 
-> **当前唯一可执行任务：Stage 1 — Full732 协议入口与边界验收。**
+> **当前唯一可执行任务：Stage 2 — 官方 train 任务终态评分完整性诊断。** Stage 1 与 execution_v6 Student 兼容修复均已有独立报告验收；本轮仅按照 [P4_STAGE2_SCORING.md](P4_STAGE2_SCORING.md) 完成合法 train 范围的最小评分诊断，结束立即停止。
 > 本文是面向 Codex 的**工作范围控制文件**，不是 Student/Teacher 的 System Prompt。
 > 业务执行 System Prompt 唯一源码保持 `src/recoveragent/execution_v6.py`，不得修改其文本、拼接额外段落或悄悄切回 v5。
 > 原始 AppWorld 官方划分、历史实验与发布 checkpoint 均保持不变。每一阶段只有用户明确下达下一阶段指令才可推进。
@@ -19,8 +19,8 @@
 
 | 阶段 | 唯一交付目标 | 开始条件 | 结束门槛 |
 | --- | --- | --- | --- |
-| **Stage 1（现在）** | Full732 元数据契约、来源权限门禁、可测试的统一入口最小垂直切片 | 当前用户指令 | 代码/配置/最小 train 探针、拒绝测试、报告；受限执行正确阻断 |
-| Stage 2 | 独立评分与终态合法性验证（初态 unknown 与终态失败分开），及受限数据使用资格判定 | 用户复核 Stage 1；合规的评价来源 | 成功/失败/未知分类可验证、无偷改上游判题器 |
+| Stage 1（完成） | Full732 元数据契约、来源权限门禁、可测试的统一入口最小垂直切片 | 当前用户指令 | 代码/配置/最小 train 探针、拒绝测试、报告；受限执行正确阻断 |
+| **Stage 2（现在）** | 仅允许 train 的初态/合法成功终态评分边界独立验证，不扩展原 test 用途权限 | 用户复核 Stage 1；合规的评价来源 | 成功/失败/未知分类可验证、无偷改上游判题器 |
 | Stage 3 | A 侧 Teacher 正常任务示范与新 Base-SFT M1 | Stage 2 完成；Teacher/GPU/额度单独授权 | 真实成功示范、Assistant-only mask、权重更新/保存/重载 |
 | Stage 4 | B 侧 Student 新自然失败、真实 Teacher 检查点接管、Recovery-SFT M2 | 新 M1 已验收；Teacher/训练授权 | 真实成功恢复后缀、正确训练掩码、新权重可重载 |
 | Stage 5 | B 侧当前策略在线 GRPO，产出 M3 | M2 已验收，奖励有效，GPU 单独授权 | 同起点 G=4、行为 logprobs/mask、有效奖励、真实参数更新 |
@@ -28,7 +28,15 @@
 
 每阶段结束**立即停止**；只提交本阶段实际成果与阻塞项，等待用户审查。**Codex 不得把表中后续阶段顺便实现。**
 
-## 2. Stage 1 本轮具体实施范围
+## Stage 2 当前执行提示与原 Stage 1 历史记录
+
+当前 Stage 1 已完成，历史工程要求和回执留存于下文，不再重复执行。**现在仅执行 [docs/P4_STAGE2_SCORING.md](P4_STAGE2_SCORING.md)；禁止把下文 Stage 1 的“本轮范围”误读为可继续做的任务。**
+
+Stage 2 固定三个官方 train 诊断任务（`76f2c72_1`、`d0b1f43_1`、`07b42fd_1`），只验证初态 `unknown` 与可信正向终态评分之间的差别，不改官方 AppWorld evaluator、System Prompt、已冻结任务划分及旧源码锁。Stage 2 不授权模型推理、Teacher API、GPU、训练或测试来源逐题分析。完成报告后提交并停止。
+
+---
+
+## 2. Stage 1 本轮具体实施范围（历史已完成）
 
 ### 2.1 首先只读确认与冻结引用
 
