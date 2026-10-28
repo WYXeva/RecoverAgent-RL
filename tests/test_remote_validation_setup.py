@@ -60,13 +60,18 @@ def setup_module_fixture(tmp_path, monkeypatch):
 
 def test_new_source_locks_and_original_locks_coexist():
     from recoveragent.execution_v6 import RUNTIME as PROMPT_RUNTIME
+    from recoveragent.student import V6_RUNTIME
     from recoveragent.task_memory import (
         HARNESS_RUNTIME as MEMORY_RUNTIME,
         RUNTIME as OLD_MEMORY_RUNTIME,
     )
 
-    assert len(verify_source(PROMPT_RUNTIME)) == 64
-    assert verify_execution_runtime(PROMPT_RUNTIME)["revision"] == PROMPT_RUNTIME
+    assert len(verify_source(V6_RUNTIME)) == 64
+    assert verify_execution_runtime(V6_RUNTIME)["revision"] == V6_RUNTIME
+    with pytest.raises(ValueError, match="source changed"):
+        verify_source(PROMPT_RUNTIME)
+    with pytest.raises(ValueError, match="source changed"):
+        verify_execution_runtime(PROMPT_RUNTIME)
     with pytest.raises(ValueError, match="source changed"):
         verify_source(MEMORY_RUNTIME)
     with pytest.raises(ValueError, match="source changed"):

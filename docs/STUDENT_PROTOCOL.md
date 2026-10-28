@@ -1,5 +1,7 @@
 # Qwen3-4B Student 批量函数调用接口
 
+> 2026-10-28兼容补充：下文保留早期接口说明。当前精确`execution_v6`必须显式传入`execution_protocol=student.V6_RUNTIME`（`student_execution_v6_20261028`）、`protocol_harness=True`、`answer_guard=True`、`tool_mode="dynamic_discovery"`。构造器核验`configs/student_v6_runtime_lock.json`的固定配置摘要、源文件及实际检查器；不追加旧规则到System Prompt。`student_evaluation`和`p3c`已接入新runtime的传递与校验，旧配置/锁不自动迁移。使用新协议不授予运行权限；Stage 2–6仍待授权。详细证据见[兼容修复报告](../reports/student_v6_compatibility_report.md)。
+
 `recoveragent.student.StudentSession` 是新的独立接口，旧 `policy.py` / `runner.py` / `inference.py` 及 P0–P2 轨迹不修改。正式模型固定 `Qwen/Qwen3-4B`、revision `1cfa9a7208912126459214e8b04321603b3df60c`，non-thinking，模板 SHA-256 与 `base_sft.py` 一致。当前完成格式、调度和证据接口；尚未接入并运行真实4B权重，不是 Student 成绩或训练完成。
 
 ## 输入、生成和执行

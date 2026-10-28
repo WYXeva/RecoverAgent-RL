@@ -19,7 +19,7 @@
 | Teacher/Student 工具执行 | [Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
 | 排查模型实际输入/输出 | [LLM 请求视图](docs/LLM_VIEW.md) |
 
-Full732 Stage 1 独立准入、软件测试及一个 train 任务脚本链路已通过，原 A/B/C 各 244 题保持不变；涉及受限来源的执行仍 **BLOCKED**。Stage 2–6 未执行。既有 train 替代方案各 30 题，仍有 6 个未知评价、评分预检 **PARTIAL**，不能当作 Full732 主设计。旧 checkpoint 有新验证集训练暴露，不能作为新实验的无泄漏 M1；现有 StudentSession 与 v6 提示声明也存在待修复兼容性阻塞。新三阶段训练和评估尚未执行。
+Full732 Stage 1 独立准入、软件测试及一个 train 任务脚本链路已通过，原 A/B/C 各 244 题保持不变；涉及受限来源的执行仍 **BLOCKED**。Stage 2–6 未执行。既有 train 替代方案各 30 题，仍有 6 个未知评价、评分预检 **PARTIAL**，不能当作 Full732 主设计。旧 checkpoint 有新验证集训练暴露，不能作为新实验的无泄漏 M1。StudentSession 与 v6 的初始化兼容问题已在[独立新运行协议](reports/student_v6_compatibility_report.md)中修复并通过离线测试；历史配置仍须其原提交复现。新三阶段训练和评估尚未执行。
 
 ## 目录与本地验证
 

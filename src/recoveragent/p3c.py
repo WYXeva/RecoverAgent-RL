@@ -27,7 +27,7 @@ from .harness import REFACTOR_REVISION
 from .io import canonical, digest, files_manifest, read_json, write_json
 from .sampling import make_plan, official_pool
 from .state import capture, inspect_snapshot, restore
-from .student import StudentSession
+from .student import StudentSession, V6_RUNTIME, verify_student_runtime
 from .student_evaluation import evaluation_prompt, execution_clock, request_json
 from .task_memory import (
     HARNESS_RUNTIME,
@@ -46,6 +46,8 @@ BUDGET_STOPS = {"budget_exhausted", "context_budget_exhausted", "completion_clai
 
 
 def verify_source(runtime=RUNTIME):
+    if runtime == V6_RUNTIME:
+        return verify_student_runtime(runtime)["lock_sha256"]
     root = Path(__file__).resolve().parents[2]
     path = root / (
         "configs/execution_v6_runtime_lock.json"
@@ -193,6 +195,7 @@ def validate_config(config):
         config["runtime_revision"]
         not in {
             PROMPT_RUNTIME,
+            V6_RUNTIME,
             RUNTIME,
             MEMORY_RUNTIME,
             HARNESS_RUNTIME,
@@ -203,7 +206,7 @@ def validate_config(config):
         or config["actor_prompt_variant"]
         != (
             CURRENT_PROMPT
-            if config["runtime_revision"] == PROMPT_RUNTIME
+            if config["runtime_revision"] in {PROMPT_RUNTIME, V6_RUNTIME}
             else "execution_v5"
         )
         or config["harness_runtime_revision"] != REFACTOR_REVISION
@@ -498,6 +501,9 @@ def run_episode(config, row, directory, provenance, identity):
             answer_guard=True,
             protocol_harness=True,
             harness_revision=REFACTOR_REVISION,
+            execution_protocol=(
+                V6_RUNTIME if config.get("runtime_revision") == V6_RUNTIME else None
+            ),
             clock=execution_clock,
             memory_config=config.get("memory"),
             **config["student_limits"],
@@ -631,7 +637,13 @@ def collect(config_path, output):
         lock = (
             verify_source(config["runtime_revision"])
             if config.get("runtime_revision")
-            in {MEMORY_RUNTIME, HARNESS_RUNTIME, *MODEL_RUNTIMES}
+            in {
+                PROMPT_RUNTIME,
+                V6_RUNTIME,
+                MEMORY_RUNTIME,
+                HARNESS_RUNTIME,
+                *MODEL_RUNTIMES,
+            }
             else verify_source()
         )
         plan = validate_config(config)

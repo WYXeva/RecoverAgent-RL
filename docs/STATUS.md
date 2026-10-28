@@ -1,10 +1,17 @@
 # 项目状态
 
-- 最后更新：2026-10-27（Asia/Shanghai）
+- 最后更新：2026-10-28（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Full732 Stage 1 工程/单任务脚本探针PASS；Full732训练与模型执行仍BLOCKED**。原A244/B244/C244未改；用途准入分别30/30/49，其余受限。427软件测试及Ruff通过。本轮0模型/Teacher/GPU/SSH/训练；Stage 2–6未执行，提交后停止。既有train替代方案评分PARTIAL保留，不能冒充Full732。
+- 当前状态：**Stage 1 后单项 v6 Student 初始化兼容修复PASS（软件/离线分词）；Full732训练与模型执行仍BLOCKED**。新运行锁独立，Prompt及原A244/B244/C244不改。456软件测试及Ruff通过；真实Qwen tokenizer配合合成回执通过，不是模型效果。0模型/Teacher/GPU/SSH/训练；Stage 2–6未执行，提交后停止。既有train替代方案评分PARTIAL保留，不能冒充Full732。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Harness 29k基线 `23a7d41beb35f950196a99ebe49b1a0ed21b8fca`（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮兼容修复基线 `e359d537fd95ef6d818c8e729b337b1b20be7b74`（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Stage 1 后 v6 Student 单项兼容性修复（2026-10-28）
+
+- **基线/范围**：fetch/pull到`e359d537fd95ef6d818c8e729b337b1b20be7b74`。用户单独授权修复初始化；只改Student构造器和两个Student调用点的协议/锁路由，未实施Stage 2评分或后续阶段。
+- **修复**：复现旧构造器`Student protocol harness must be declared in the prompt`。新增`student_execution_v6_20261028`和`configs/student_v6_runtime_lock.json`；精确v6文本、固定配置摘要、源码SHA、实际启用的Harness/AnswerGuard、dynamic_discovery与原预算共同验收，不再以旧规则段落作为v6启用证明。旧v5仍执行原声明检查；两次通用纠错与一次同值数值纠错算法不改。
+- **验证**：pytest 456通过（原427）；Ruff check和129文件format通过。离线真实Qwen3-4B tokenizer、原revision/non-thinking模板与合成环境完成4个合成回执、2个模拟工具执行：缺app_name被整批拒绝、正确调用、金额字符串拒绝、同值数字纠正。真实模型/AppWorld任务调用均0；不报告模型成功率。命令及证据见`reports/student_v6_compatibility_report.md`和私有`runs/student_v6_compat_20261028/`。
+- **完整性/阻塞**：execution_v6整个文件、旧锁、原95条数据6,616文件、两版checkpoint14文件及Stage 1证据13文件SHA核验不变。旧Stage 1入口/共享评估配置仍绑定历史锁，在修改后的checkout应拒绝执行；精确历史复现使用e359d537。新锁不授予数据/GPU权限，不解除Full732用途、评分和新M1阻塞。真实模型初始化与端到端效果本轮未测，停止等待新指示。
 
 ## Full732 Stage 1 协议入口与边界验收（2026-10-27）
 

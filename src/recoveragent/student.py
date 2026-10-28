@@ -8,11 +8,13 @@ reason and policy identity; this cannot be replaced with fabricated Teacher data
 import copy
 import hashlib
 import json
+import math
 import time
 from pathlib import Path
 
 from .adapter import call_code
 from .base_sft import MODEL, REVISION, TEMPLATE_SHA256
+from .execution_v6 import SYSTEM_PROMPT, SYSTEM_PROMPT_SHA256
 from .io import canonical, digest, write_json
 from .teacher_history import validate_history
 from .tool_modes import MODES, execute_with_mode
@@ -28,6 +30,58 @@ from .harness import (
     RULES as HARNESS_RULES,
     REFACTOR_REVISION,
 )
+
+
+V6_RUNTIME = "student_execution_v6_20261028"
+V6_LOCK = "configs/student_v6_runtime_lock.json"
+ROOT = Path(__file__).resolve().parents[2]
+# Pin the reviewed config separately from the self-referencing source manifest.
+V6_CONTRACT_SHA256 = "d12bc386a3e9c9c0f577937667b8768debc0743a0941dea4d87d711522ecceed"
+
+
+def verify_student_runtime(runtime):
+    """Bind v6's controller contract to reviewed source, never a prompt substring.
+
+    This lock identifies software only; it grants no data, model or GPU permission.
+    Historical runtime locks remain immutable and use their original checkouts.
+    """
+    if runtime != V6_RUNTIME:
+        raise ValueError("Unknown Student execution protocol")
+    path = ROOT / V6_LOCK
+    raw = path.read_bytes()
+    lock = json.loads(raw)
+    required = {
+        "src/recoveragent/" + name + ".py"
+        for name in (
+            "student",
+            "execution_v6",
+            "harness",
+            "answer_guard",
+            "base_sft",
+            "teacher_history",
+            "tool_modes",
+            "adapter",
+            "io",
+            "p3c",
+            "student_evaluation",
+        )
+    }
+    if (
+        lock.get("runtime_revision") != runtime
+        or digest(lock.get("session_contract")) != V6_CONTRACT_SHA256
+        or not required <= lock.get("files", {}).keys()
+    ):
+        raise ValueError("Wrong Student execution contract or incomplete source lock")
+    for name, expected in lock["files"].items():
+        if Path(name).is_absolute() or ".." in Path(name).parts:
+            raise ValueError("Invalid Student source path")
+        if hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != expected:
+            raise ValueError("Student runtime source changed: " + name)
+    return {
+        "revision": runtime,
+        "lock_sha256": hashlib.sha256(raw).hexdigest(),
+        "session_contract": lock["session_contract"],
+    }
 
 
 def _constant(_):
@@ -118,6 +172,7 @@ class StudentSession:
         answer_guard=False,
         protocol_harness=False,
         harness_revision=REFACTOR_REVISION,
+        execution_protocol=None,
         clock=None,
         memory_config=None,
         memory_state=None,
@@ -155,7 +210,39 @@ class StudentSession:
             if protocol_harness
             else None
         )
-        if self.harness and (
+        self.execution_protocol = None
+        is_v6 = bool(messages) and messages[0] == {
+            "role": "system",
+            "content": SYSTEM_PROMPT,
+        }
+        if execution_protocol is not None or is_v6:
+            self.execution_protocol = verify_student_runtime(execution_protocol)
+            contract = self.execution_protocol["session_contract"]
+            if (
+                not is_v6
+                or contract["system_prompt_sha256"] != SYSTEM_PROMPT_SHA256
+                or protocol_harness is not True
+                or answer_guard is not True
+                or self.harness is None
+                or self.harness.revision != REFACTOR_REVISION
+                or tool_mode != contract["tool_mode"]
+            ):
+                raise ValueError(
+                    "v6 requires the exact prompt and enabled shared guards"
+                )
+            bounds = {
+                "max_input_tokens": max_input_tokens,
+                "max_new_tokens": max_new_tokens,
+                "max_requests": max_requests,
+                "max_generated_tokens": max_generated_tokens,
+                "wall_seconds": wall_seconds,
+            }
+            if any(
+                not math.isfinite(value) or value > contract["budget_caps"][key]
+                for key, value in bounds.items()
+            ):
+                raise ValueError("v6 Student resource budget exceeds its contract")
+        elif self.harness and (
             messages[0]["role"] != "system"
             or HARNESS_RULES not in messages[0]["content"]
         ):
@@ -165,7 +252,7 @@ class StudentSession:
             if (
                 len(messages) < 2
                 or messages[0]["role"] != "system"
-                or ANSWER_RULES not in messages[0]["content"]
+                or (not is_v6 and ANSWER_RULES not in messages[0]["content"])
             ):
                 raise ValueError("Student answer guard must be declared in the prompt")
             self.answer_guard = AnswerGuard(
@@ -183,6 +270,10 @@ class StudentSession:
         self.output = Path(output) if output else None
         if self.output:
             self.output.mkdir(parents=True, exist_ok=False)
+            if self.execution_protocol:
+                write_json(
+                    self.output / "execution_protocol.json", self.execution_protocol
+                )
         self.max_input_tokens, self.max_new_tokens = max_input_tokens, max_new_tokens
         self.max_requests, self.max_generated_tokens = (
             max_requests,

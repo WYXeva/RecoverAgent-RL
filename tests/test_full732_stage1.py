@@ -207,6 +207,8 @@ def test_synthetic_worker_wiring_retains_unknown_and_provenance(
 ):
     protocol, _, _, _ = entry.load_contract()
     monkeypatch.setattr(entry, "_verify_probe_inputs", lambda _: None)
+    # Synthetic worker wiring only; real historical lock rejection is tested below.
+    monkeypatch.setattr(entry, "verify_lock", lambda _: None)
     calls = []
 
     def worker(command, **kwargs):
@@ -243,6 +245,7 @@ def test_synthetic_worker_wiring_retains_unknown_and_provenance(
 
 def test_worker_fault_preserves_receipt_without_retry(monkeypatch, tmp_path):
     monkeypatch.setattr(entry, "_verify_probe_inputs", lambda _: None)
+    monkeypatch.setattr(entry, "verify_lock", lambda _: None)
     calls = []
 
     def timeout(command, **kwargs):
@@ -261,6 +264,7 @@ def test_worker_fault_preserves_receipt_without_retry(monkeypatch, tmp_path):
 
 def test_evaluation_environment_error_does_not_pass_probe(monkeypatch, tmp_path):
     monkeypatch.setattr(entry, "_verify_probe_inputs", lambda _: None)
+    monkeypatch.setattr(entry, "verify_lock", lambda _: None)
 
     def worker(command, **kwargs):
         target = Path(command[-1])
@@ -284,7 +288,23 @@ def test_evaluation_environment_error_does_not_pass_probe(monkeypatch, tmp_path)
     assert read_json(out / "result.json")["status"] == "BLOCKED"
 
 
-def test_existing_student_v6_guard_incompatibility_is_reported_not_bypassed(
+def test_historical_stage1_lock_still_rejects_changed_runtime_before_worker(
+    monkeypatch, tmp_path
+):
+    def forbidden(*args, **kwargs):
+        pytest.fail("Historical lock mismatch must precede data/worker access")
+
+    monkeypatch.setattr(entry, "_verify_probe_inputs", forbidden)
+    monkeypatch.setattr(entry.subprocess, "run", forbidden)
+    protocol, _, _, _ = entry.load_contract()
+    with pytest.raises(ValueError, match="source/config lock mismatch"):
+        entry.run_probe(
+            protocol["probe"]["task_id"], "recovery_sft", tmp_path / "denied"
+        )
+    assert not (tmp_path / "denied").exists()
+
+
+def test_student_v6_requires_an_explicit_trusted_runtime(
     monkeypatch,
 ):
     from recoveragent import student
@@ -295,7 +315,7 @@ def test_existing_student_v6_guard_incompatibility_is_reported_not_bypassed(
         "TEMPLATE_SHA256",
         hashlib.sha256(Tokenizer.chat_template.encode()).hexdigest(),
     )
-    with pytest.raises(ValueError, match="harness must be declared"):
+    with pytest.raises(ValueError, match="Unknown Student execution protocol"):
         student.StudentSession(
             Adapter(),
             Tokenizer(),

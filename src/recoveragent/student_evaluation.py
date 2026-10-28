@@ -23,7 +23,7 @@ from .execution_v6 import (
 )
 from .harness import REFACTOR_REVISION
 from .io import digest, files_manifest, read_json, write_json
-from .student import StudentSession
+from .student import StudentSession, V6_RUNTIME, verify_student_runtime
 from .task_memory import (
     HARNESS_RUNTIME,
     HARNESS_VERSION,
@@ -44,6 +44,8 @@ def execution_clock():
 
 
 def verify_execution_runtime(runtime=RUNTIME):
+    if runtime == V6_RUNTIME:
+        return verify_student_runtime(runtime)
     root = Path(__file__).resolve().parents[2]
     path = root / (
         "configs/execution_v6_runtime_lock.json"
@@ -206,13 +208,19 @@ def run_episode(config, case, arm, output):
     }
     try:
         if (config.get("actor_prompt_variant") == CURRENT_PROMPT) != (
-            config.get("runtime_revision") == PROMPT_RUNTIME
+            config.get("runtime_revision") in {PROMPT_RUNTIME, V6_RUNTIME}
         ):
             raise ValueError("execution_v6 requires its independent runtime lock")
         record["evaluation_runtime"] = (
             verify_execution_runtime(config["runtime_revision"])
             if config.get("runtime_revision")
-            in {PROMPT_RUNTIME, MEMORY_RUNTIME, HARNESS_RUNTIME, *MODEL_RUNTIMES}
+            in {
+                PROMPT_RUNTIME,
+                V6_RUNTIME,
+                MEMORY_RUNTIME,
+                HARNESS_RUNTIME,
+                *MODEL_RUNTIMES,
+            }
             else verify_execution_runtime()
         )
         if config.get("memory", {}).get("enabled") and config.get(
@@ -269,6 +277,9 @@ def run_episode(config, case, arm, output):
             answer_guard=True,
             protocol_harness=True,
             harness_revision=REFACTOR_REVISION,
+            execution_protocol=(
+                V6_RUNTIME if config.get("runtime_revision") == V6_RUNTIME else None
+            ),
             clock=execution_clock,
             memory_config=config.get("memory"),
             **config["student_limits"],
