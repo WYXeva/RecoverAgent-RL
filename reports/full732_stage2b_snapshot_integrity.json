@@ -1,0 +1,482 @@
+{
+  "scope": "Stage 2B only, fixed official train, no models; not new demonstrations or model scores",
+  "baseline_commit": "25e6dacd5ad5854afd5c7fc9beec8c49531faf84",
+  "stage2b_new_roundtrip_status": "PASS",
+  "historical_snapshot_repaired": false,
+  "global_scoring_unlocked": false,
+  "task_id": "07b42fd_1",
+  "environment": {
+    "sqlalchemy": "2.0.52",
+    "sqlmodel": "0.0.48",
+    "uri_roundtrip": true
+  },
+  "old_sources": {
+    "07b42fd_1": {
+      "source": "runs/base_sft_v1_20261021_b05/teacher_935fa94ac30d",
+      "checkpoint_id": "4ad52d13569e21943771c43634d594d13288207428fefce9562c1a1193e68696",
+      "original_tracker": {
+        "num_tests": 5,
+        "passes": 5,
+        "success": true
+      },
+      "metadata_files": [
+        {
+          "path": "runs/base_sft_v1_20261021_b05/teacher_935fa94ac30d/terminal/dbs/model_hashes.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "empty": true
+        },
+        {
+          "path": "data/appworld/experiments/outputs/teacher_935fa94ac30d/tasks/07b42fd_1/checkpoints/p3a_terminal/model_hashes.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "empty": true
+        },
+        {
+          "path": "data/appworld/experiments/outputs/teacher_935fa94ac30d/tasks/07b42fd_1/dbs/model_hashes.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "empty": true
+        }
+      ],
+      "manifest_sha256": "4a43fd59fbc6828f71806a88c33d842dc3f0468a713b7bce0a9b786fe85f7ccc",
+      "stage2_result_sha256": "cf2a2da123d03e0829f35664783b8b52aba5a89127d7224a078196b4e0a2caba"
+    },
+    "76f2c72_1": {
+      "source": "runs/base_sft_v1_20261021_b01/teacher_8bd716312dd2",
+      "checkpoint_id": "859026481b0f420f54f6c2eaed4efb92d07ac10e23e8e6071455642b1c5defe1",
+      "original_tracker": {
+        "num_tests": 2,
+        "passes": 2,
+        "success": true
+      },
+      "metadata_files": [
+        {
+          "path": "runs/base_sft_v1_20261021_b01/teacher_8bd716312dd2/terminal/dbs/model_hashes.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "empty": true
+        }
+      ],
+      "manifest_sha256": "6dcd7fc3a4abd332dfdaebb8e6a95bc6bf1424dc3222af61177115629f9657da",
+      "stage2_result_sha256": "a09c51f28a339a7ea75cac82763b765f34c5cb963968273f07137e106b2d3096"
+    }
+  },
+  "uri_probes": {
+    "uri_legacy": {
+      "revision": "stage2b-snapshot-scoring-integrity-v1",
+      "task_id": "07b42fd_1",
+      "model_requests": 0,
+      "sqlalchemy": "2.1.5",
+      "requested_home": ":memory:stage2b_uri_probe",
+      "actual_home": ":memory:file%3Astage2b_uri_probe",
+      "rendered_url": "sqlite:///file%3Astage2b_uri_probe/spotify.db?cache=shared&mode=memory&uri=true",
+      "home_matches": false,
+      "task_executions": 0,
+      "execution_status": "completed",
+      "seconds": 1.2528933170251548
+    },
+    "uri_compatible": {
+      "revision": "stage2b-snapshot-scoring-integrity-v1",
+      "task_id": "07b42fd_1",
+      "model_requests": 0,
+      "sqlalchemy": "2.0.52",
+      "requested_home": ":memory:stage2b_uri_probe",
+      "actual_home": ":memory:stage2b_uri_probe",
+      "rendered_url": "sqlite:///file:stage2b_uri_probe/spotify.db?cache=shared&mode=memory&uri=true",
+      "home_matches": true,
+      "task_executions": 0,
+      "execution_status": "completed",
+      "seconds": 1.243843616975937
+    }
+  },
+  "historical_replay_verified": {
+    "path": ".cache/harness_revalidation_20261022_a/teacher_935fa94ac30d",
+    "anchored_to_report": {
+      "receipt.json": true,
+      "terminal_manifest.json": true,
+      "isolated_evaluation.json": true
+    },
+    "model_hashes_file_sha256": "3e5fa8e1a88c2595fe8d4ad1e7f2d30d5b6ffafb939546f611d0df38fb998903",
+    "files_now": {
+      "evaluation_worker.log": "187e511303fc94dcff22ac828b9183a795c6eae9698899ef60117ed5dd74d234",
+      "isolated_evaluation.json": "419effaade5e307045f14170ac6ac99100dfe5436440370a2589f4a906ad3c9c",
+      "receipt.json": "08ee15d08856e6c46cdaafb1fecf451f6cf0c4171423acb4920f0fc400466851",
+      "terminal_dbs/admin.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/amazon.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/api_docs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/file_system.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/gmail.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/model_hashes.json": "3e5fa8e1a88c2595fe8d4ad1e7f2d30d5b6ffafb939546f611d0df38fb998903",
+      "terminal_dbs/phone.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/simple_note.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/splitwise.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/spotify.jsonl": "b26fefbe4d408c7ea7d714a353ca8364a0e3579bd4cd762ed126bbf6a4f76b02",
+      "terminal_dbs/supervisor.jsonl": "0f1e67b5433658836f2ebd18400b9b75b964329d3630513f14298d34f070265b",
+      "terminal_dbs/todoist.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_dbs/venmo.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "terminal_manifest.json": "c84988b30a657f9b76769a8db15f19f5f6bbf32a4023f0ae5f40e9fd12fd0c1c"
+    },
+    "official_passes": 5,
+    "official_num_tests": 5
+  },
+  "old_new_files": {
+    "old_path": "runs/base_sft_v1_20261021_b05/teacher_935fa94ac30d/terminal/dbs",
+    "new_path": "runs/full732_stage2b_20261028/live_verified/export",
+    "same_files": [
+      "admin.jsonl",
+      "amazon.jsonl",
+      "api_docs.jsonl",
+      "file_system.jsonl",
+      "gmail.jsonl",
+      "phone.jsonl",
+      "simple_note.jsonl",
+      "splitwise.jsonl",
+      "spotify.jsonl",
+      "supervisor.jsonl",
+      "todoist.jsonl",
+      "venmo.jsonl"
+    ],
+    "different_files": [
+      "model_hashes.json"
+    ],
+    "historical_replay_db_manifest_verified": true
+  },
+  "new_live": {
+    "experiment": "stage2b_live_2ae5faf216126df9e97a",
+    "pid": 1990537,
+    "initial": {
+      "db_fingerprint": "55b271ade7cfe698e9ea3810149464fbc9251baf1504d73edc6420f05171ec7d",
+      "metadata": {
+        "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+        "empty": true,
+        "keys": []
+      },
+      "declared_home": ":memory:task_output-07b42fd_1",
+      "actual_homes": [
+        ":memory:task_output-07b42fd_1"
+      ],
+      "changes_sha256": "f4466a7063a5ae1b23b8e46fd72b4f50feec498eaf4e2fe3cba2d6862a1d1616",
+      "changes_counts": {
+        "api_docs": 0,
+        "supervisor": 18,
+        "amazon": 0,
+        "phone": 0,
+        "file_system": 0,
+        "spotify": 8,
+        "venmo": 0,
+        "gmail": 0,
+        "splitwise": 0,
+        "simple_note": 0,
+        "todoist": 0,
+        "admin": 0
+      }
+    },
+    "before_save": {
+      "db_fingerprint": "75cf473b75a0b8ad36e5f1a810c57e4d0945266665a64dcf4f2e139133ca97d1",
+      "metadata": {
+        "sha256": "4c3ebd1a6e7783d66c688cef9656e3f94ca8a47ff927af31f57a1f649f17d90a",
+        "empty": false,
+        "keys": [
+          "spotify.UserArtistFollowing",
+          "supervisor.Task"
+        ]
+      },
+      "declared_home": ":memory:task_output-07b42fd_1",
+      "actual_homes": [
+        ":memory:task_output-07b42fd_1"
+      ],
+      "changes_sha256": "7cb0afbeaafceb4f7aecde57116330e55a923ae0dc84eaa3a7bf3a8d2ff7bbf8",
+      "changes_counts": {
+        "api_docs": 0,
+        "supervisor": 19,
+        "amazon": 0,
+        "phone": 0,
+        "file_system": 0,
+        "spotify": 9,
+        "venmo": 0,
+        "gmail": 0,
+        "splitwise": 0,
+        "simple_note": 0,
+        "todoist": 0,
+        "admin": 0
+      }
+    },
+    "after_save": {
+      "db_fingerprint": "75cf473b75a0b8ad36e5f1a810c57e4d0945266665a64dcf4f2e139133ca97d1",
+      "metadata": {
+        "sha256": "4c3ebd1a6e7783d66c688cef9656e3f94ca8a47ff927af31f57a1f649f17d90a",
+        "empty": false,
+        "keys": [
+          "spotify.UserArtistFollowing",
+          "supervisor.Task"
+        ]
+      },
+      "declared_home": ":memory:task_output-07b42fd_1",
+      "actual_homes": [
+        ":memory:task_output-07b42fd_1"
+      ],
+      "changes_sha256": "7cb0afbeaafceb4f7aecde57116330e55a923ae0dc84eaa3a7bf3a8d2ff7bbf8",
+      "changes_counts": {
+        "api_docs": 0,
+        "supervisor": 19,
+        "amazon": 0,
+        "phone": 0,
+        "file_system": 0,
+        "spotify": 9,
+        "venmo": 0,
+        "gmail": 0,
+        "splitwise": 0,
+        "simple_note": 0,
+        "todoist": 0,
+        "admin": 0
+      }
+    },
+    "saved": {
+      "path": "/home/eva/project/RecoverAgent-RL/data/appworld/experiments/outputs/stage2b_live_2ae5faf216126df9e97a/tasks/07b42fd_1/checkpoints/stage2b_before_export",
+      "files": {
+        "admin.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "amazon.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "api_docs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file_system.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "gmail.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "model_hashes.json": "3e5fa8e1a88c2595fe8d4ad1e7f2d30d5b6ffafb939546f611d0df38fb998903",
+        "phone.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "simple_note.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "splitwise.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "spotify.jsonl": "b26fefbe4d408c7ea7d714a353ca8364a0e3579bd4cd762ed126bbf6a4f76b02",
+        "supervisor.jsonl": "0f1e67b5433658836f2ebd18400b9b75b964329d3630513f14298d34f070265b",
+        "todoist.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "venmo.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "metadata": {
+        "sha256": "4c3ebd1a6e7783d66c688cef9656e3f94ca8a47ff927af31f57a1f649f17d90a",
+        "empty": false,
+        "keys": [
+          "spotify.UserArtistFollowing",
+          "supervisor.Task"
+        ]
+      }
+    },
+    "exported": {
+      "path": "runs/full732_stage2b_20261028/live_verified/export",
+      "files": {
+        "admin.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "amazon.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "api_docs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file_system.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "gmail.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "model_hashes.json": "3e5fa8e1a88c2595fe8d4ad1e7f2d30d5b6ffafb939546f611d0df38fb998903",
+        "phone.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "simple_note.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "splitwise.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "spotify.jsonl": "b26fefbe4d408c7ea7d714a353ca8364a0e3579bd4cd762ed126bbf6a4f76b02",
+        "supervisor.jsonl": "0f1e67b5433658836f2ebd18400b9b75b964329d3630513f14298d34f070265b",
+        "todoist.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "venmo.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "metadata": {
+        "sha256": "4c3ebd1a6e7783d66c688cef9656e3f94ca8a47ff927af31f57a1f649f17d90a",
+        "empty": false,
+        "keys": [
+          "spotify.UserArtistFollowing",
+          "supervisor.Task"
+        ]
+      }
+    },
+    "score": {
+      "status": "valid",
+      "category": "task_success",
+      "success": true,
+      "num_tests": 5,
+      "passes": 5,
+      "failures": 0,
+      "official_sha256": "23904f94f009dfa851d2fbf77caa397df5c07c4426e7474ffb636eb4663d4bfc"
+    },
+    "api_calls": 15,
+    "seconds": 49.43207107897615
+  },
+  "new_restored": {
+    "experiment": "stage2b_restore_cbc20a5389c63cba0bba",
+    "pid": 1993934,
+    "after_import": {
+      "db_fingerprint": "75cf473b75a0b8ad36e5f1a810c57e4d0945266665a64dcf4f2e139133ca97d1",
+      "metadata": {
+        "sha256": "4c3ebd1a6e7783d66c688cef9656e3f94ca8a47ff927af31f57a1f649f17d90a",
+        "empty": false,
+        "keys": [
+          "spotify.UserArtistFollowing",
+          "supervisor.Task"
+        ]
+      },
+      "declared_home": ":memory:task_output-07b42fd_1",
+      "actual_homes": [
+        ":memory:task_output-07b42fd_1"
+      ],
+      "changes_sha256": "7cb0afbeaafceb4f7aecde57116330e55a923ae0dc84eaa3a7bf3a8d2ff7bbf8",
+      "changes_counts": {
+        "api_docs": 0,
+        "supervisor": 19,
+        "amazon": 0,
+        "phone": 0,
+        "file_system": 0,
+        "spotify": 9,
+        "venmo": 0,
+        "gmail": 0,
+        "splitwise": 0,
+        "simple_note": 0,
+        "todoist": 0,
+        "admin": 0
+      }
+    },
+    "saved_terminal": {
+      "path": "/home/eva/project/RecoverAgent-RL/data/appworld/experiments/outputs/stage2b_restore_cbc20a5389c63cba0bba/tasks/07b42fd_1/dbs",
+      "files": {
+        "admin.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "amazon.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "api_docs.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "file_system.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "gmail.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "model_hashes.json": "3e5fa8e1a88c2595fe8d4ad1e7f2d30d5b6ffafb939546f611d0df38fb998903",
+        "phone.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "simple_note.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "splitwise.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "spotify.jsonl": "b26fefbe4d408c7ea7d714a353ca8364a0e3579bd4cd762ed126bbf6a4f76b02",
+        "supervisor.jsonl": "0f1e67b5433658836f2ebd18400b9b75b964329d3630513f14298d34f070265b",
+        "todoist.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "venmo.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "metadata": {
+        "sha256": "4c3ebd1a6e7783d66c688cef9656e3f94ca8a47ff927af31f57a1f649f17d90a",
+        "empty": false,
+        "keys": [
+          "spotify.UserArtistFollowing",
+          "supervisor.Task"
+        ]
+      }
+    },
+    "score": {
+      "status": "valid",
+      "category": "task_success",
+      "success": true,
+      "num_tests": 5,
+      "passes": 5,
+      "failures": 0,
+      "official_sha256": "23904f94f009dfa851d2fbf77caa397df5c07c4426e7474ffb636eb4663d4bfc"
+    },
+    "seconds": 25.7142714910442,
+    "snapshot_scoring_integrity": {
+      "status": "PASS",
+      "checks": {
+        "rows_and_tracking_equal": true,
+        "metadata_persisted": true,
+        "snapshot_files_equal": true,
+        "export_unchanged": true,
+        "evaluation_db_unchanged": true,
+        "complete_official_results": true,
+        "official_results_equal": true,
+        "independent_process": true,
+        "trusted_live_receipt": true,
+        "write_metadata_present": true
+      }
+    }
+  },
+  "costs": {
+    "completed_reference_program_executions": 1,
+    "world_initialization_attempts": 3,
+    "world_initialization_successes": 2,
+    "official_evaluations": 2,
+    "public_api_calls": 15,
+    "model_requests": 0,
+    "teacher_api_requests": 0,
+    "gpu_jobs": 0,
+    "training_steps": 0,
+    "paid_service_cost": 0,
+    "successful_pipeline_seconds": 75.14634257002035,
+    "initialization_failure_elapsed_seconds": null,
+    "elapsed_note": "First failed observer left freezegun active; raw seconds unusable, retained; not included in successful pipeline time."
+  },
+  "first_initialization_failure": {
+    "receipt_sha256": "57f8a04f79d8293316485cc14355cf01048e0849568c5905d5f2ce0e3a12d2a6",
+    "source_sha256": "5579aba14f5ad695c4cf74bc14459f3b4dae3b59e25091f1f21b69fe818b679a",
+    "failure": "observer accessed num_interactions before world initialization completed",
+    "reference_program_executed": false,
+    "world_execute_entered": false,
+    "reason": "Traceback in initialize._save_state before verify._verify_task world.execute",
+    "elapsed_seconds_usable": false,
+    "elapsed_reason": "incomplete initializer leaves freezegun perf_counter patched",
+    "next_step": "fix observer initialization guard, then sole planned reference execution, not an additional task retry"
+  },
+  "integrity": {
+    "protected_directories": {
+      "runs/base_sft_v1_20261021_b05/teacher_935fa94ac30d": true,
+      "runs/base_sft_v1_20261021_b01/teacher_8bd716312dd2": true,
+      "runs/full732_stage2_20261028": true,
+      "data/appworld/data/tasks/07b42fd_1": true,
+      "data/appworld/data/base_dbs": true,
+      "data/appworld/experiments/outputs/teacher_935fa94ac30d/tasks/07b42fd_1": true,
+      "data/appworld/experiments/outputs/stage2_8eaf1d8f15a48be8a444cf86/tasks/07b42fd_1": true
+    },
+    "upstream": {
+      ".venv/lib/python3.14/site-packages/appworld/environment.py": true,
+      ".venv/lib/python3.14/site-packages/appworld/evaluator.py": true,
+      ".venv/lib/python3.14/site-packages/appworld/verify.py": true,
+      ".venv/lib/python3.14/site-packages/appworld/collections/models.py": true,
+      ".venv/lib/python3.14/site-packages/appworld/apps/lib/models/db.py": true,
+      ".venv/lib/python3.14/site-packages/appworld/apps/lib/models/orm.py": true,
+      ".venv/lib/python3.14/site-packages/appworld/apps/lib/apis/local_remote.py": true
+    },
+    "execution_v6_sha256": "352d106b7b052cc1a2b5c249e19c6a512e989355fc60f6495034f32db24a4400",
+    "student_lock_sha256": "8fdc382b64508f5f2440a8a099eb4b77225ad6972ad1a854f61cc647875fa3fa",
+    "dataset_manifest_sha256": "5b297cf38d7b23cb6dc02c461a0bb030c69e58d938bffda9c7569a67ad44b24c",
+    "source_runtime_lock_valid": true
+  },
+  "software": {
+    "pytest_passed": 467,
+    "new_tests": 4,
+    "ruff_check": "PASS",
+    "ruff_format_files": 133
+  },
+  "evidence_sha256": {
+    "baseline_files.json": "e2d21fd7cb7b8095a4ea8a17da3c5de051e649ecd6bb1fa96f3cf6cd473b3dec",
+    "execution_plan.json": "d87ace978b8f0150e917f2e5dc05421e33f9b068b183bbf5b3457a6a653445b7",
+    "historical_replay_verified.json": "d721a822a98915cd746a86ee84942e260a50486edad741717dc677637d08083e",
+    "initial_probe_source.py": "5579aba14f5ad695c4cf74bc14459f3b4dae3b59e25091f1f21b69fe818b679a",
+    "initialization_failure.json": "3a26e22680c391504fa9faed1fd83c6392a0afff817fc4b0c58880b85bfdd691",
+    "integrity_before_docs.json": "e4e5c0f34006fa25d30dd78516171b1b961fe4061b3211006cfec23b83d8e867",
+    "live/manifest.json": "e12c08e2b044d7b4046e4608272dfc9c5dbc07e09fd6ab3203f2b186ce4e3e28",
+    "live/receipt.json": "57f8a04f79d8293316485cc14355cf01048e0849568c5905d5f2ce0e3a12d2a6",
+    "live.log": "e1e03b9e5cb81b66277c83bdcb98e9d1e97614d404207511cb1994912e844d25",
+    "live_verified/boundaries.json": "91d14dd97fdd99ff87f7daa72e5c25493ba3beb44b79916461310a0070fb09ed",
+    "live_verified/manifest.json": "7d5344ef917195aa7d055518a8c32a1982bc05741ce9084daefa9b9c872dece7",
+    "live_verified/official_tracker.json": "560514cd462fb99f34621cfbda3f3021ed5217dd465964340b78162bc38f537e",
+    "live_verified/receipt.json": "00abb086f03188379466dfa56a32581ce0f82597ade6f954ca78b2775aabdad8",
+    "live_verified/save_boundary_01.json": "fc040053ea36f161d8d3bd50c0aa8a5b8b4b747a46d964fb84c0d82540e76102",
+    "live_verified.log": "57007084a8f4c9b07e3b46ad13602da9b0edc70688cd7a94101350b15021845a",
+    "old_new_file_comparison.json": "057625fc2948c2a4b600b2004c7e5ee9efb1b98f40d11722cf5407ff67c77c55",
+    "protected_files.json": "c55ed2fd6da8e1b10987a7f8a492f078c9ddd417f308d38ff98b3fd6d42a9c76",
+    "pytest.log": "49d09b50efd67fd9d0d0907d5ed4e1203fe71da38198acb37c6e87289c8baf9d",
+    "read_only_review.json": "1b3a7f424c76033de33df1ed07f67d36c00f5ec4e05d0a5477a89a31e9568363",
+    "restored/boundaries.json": "68f815357e6677997df0dac2a7700cd11ebce8a91b9a3f4075ce93df648ada9d",
+    "restored/evaluation_worker.log": "187e511303fc94dcff22ac828b9183a795c6eae9698899ef60117ed5dd74d234",
+    "restored/isolated_evaluation.json": "aad14efae75948df73db40c066d5173ac0f2d648b9fc972b2488f477faf70d13",
+    "restored/manifest.json": "a4887a607c3cc5aac12336e2463c24ed744b2d09fd1ff3d6fd3cff77c3337de6",
+    "restored/official_tracker.json": "560514cd462fb99f34621cfbda3f3021ed5217dd465964340b78162bc38f537e",
+    "restored/receipt.json": "0393bbf753ae2b41c644175e1e814c143ea86943b2ec43c25897110096ffbe4f",
+    "restored.log": "79db53604f44a622da4631bc14e233f721c6e5096fa3e1ce25227afe5fadf0d9",
+    "ruff_check.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "ruff_format.log": "273e81e5999dffa54a2889cd098e6b1b5fa9937e557bd94fbc92a5cf43b546f0",
+    "uri_compatible/manifest.json": "8955ee6ab81decf0dab795f1b2e176ad0e8fcb50cae59ee400a3262ceb9c8cb2",
+    "uri_compatible/receipt.json": "521a99c4eff1df0840778f37859056786654852b0146c7cef01bb2fa956b4beb",
+    "uri_legacy/manifest.json": "60be1ef772315db62443e01862accb577251c1891c18e80d1ca0724070f727a7",
+    "uri_legacy/receipt.json": "99ef98341d56349938aa6e540da3511bcaa5215f92ce388bf2aad3b574427ed2",
+    "publication_integrity.json": "8c1103cd08c073e02ba56486d676b422b2997898a872947415c071636c883ce3"
+  },
+  "publication_integrity": {
+    "baseline_files": 560,
+    "only_changed_existing_files": [
+      "docs/DECISIONS.md",
+      "docs/STATUS.md"
+    ],
+    "full732_split_path": "configs/unified_task_split_full_pool_candidate.json",
+    "full732_split_sha256": "0466cec29d9ad770a1cfeacb4c93945e5fcbcad68b9e980c5264d447418121a2",
+    "all_existing_source_config_report_bytes_unchanged": true,
+    "script_matches_live_and_restore": true
+  }
+}

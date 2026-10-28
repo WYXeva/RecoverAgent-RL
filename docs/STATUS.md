@@ -2,9 +2,17 @@
 
 - 最后更新：2026-10-28（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Stage 2评分诊断完成：固定三任务的初态/合法终态边界PASS；旧封存终态重现PARTIAL（2/3）；Full732仍BLOCKED**。两个初态unknown任务的成功终态均可评分；控制任务旧快照4/5，新官方train对照及独立重评均5/5。没有强改unknown或整体预检状态。463测试及Ruff通过，0模型/付费Teacher/GPU/SSH/训练；Stage 3–6未执行，提交后停止。
+- 当前状态：**Stage 2B 单任务新快照评分保真 PASS；旧封存状态未修复，Full732 仍 BLOCKED、全局 scoring_status 仍 PARTIAL**。07b42fd_1 新官方终态经保存/导出/跨进程恢复后均5/5；与旧Teacher终态12个DB变更文件完全相同，唯一文件差异为model_hashes.json。467测试及Ruff通过；0模型/付费Teacher/GPU/SSH/训练，Stage 3–6未执行，提交后停止。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
-- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮评分诊断基线 `def15782a58e6547c940463e90cf9f6347127e09`（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+- GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Stage 2B基线 `25e6dacd5ad5854afd5c7fc9beec8c49531faf84`（Stage 2基线def1578）（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。独立克隆 `/tmp/recoveragent-diagnosis-20261022`，主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
+
+## Stage 2B 快照评分保真（2026-10-28）
+
+- **范围/根因**：只读核验07b42fd_1旧Teacher原checkpoint、导出、终态均为空metadata；问题在原采集保存产物已存在，不是这次导入才丢失。旧SQLAlchemy2.1.5官方URI探针解析多出file%3A，导致ORM计数键与save_state取值键失配；既有2.0.52兼容环境正常。同轨迹历史17调用重放5/5的原始SHA也已核实，不重跑、不计新增。原时刻RAM未留存，证据限度详见报告。
+- **真实验证PASS**：唯一07b42fd_1官方参考执行15公开API，live5/5；命名保存、现有Adapter导出、新进程导入、终态保存、另进程官方评价均一致。行SHA、model hashes、28条SQL变更追踪摘要及全部13文件相同；live/恢复原tracker字节SHA一致。只读76f2c72_1旧2/2是“不按空hash一律拒绝”的对照；0个P3-C检查点、无其他任务执行。
+- **失败和成本**：首次探针观察器在环境初始化前读num_interactions报错，业务程序未执行；失败原件保留，修正后仅执行原定一次参考程序。首次异常使freezegun计时失真，未计入有效耗时。完成的live/恢复含评分共75.146秒，两URI探针2.497秒；共3次初始化尝试、2次完成、2次官方评分，0模型/Teacher API/GPU/SSH/训练。
+- **工程/兼容**：只新增独立诊断脚本与4个回归，完整467测试、Ruff check/133文件format通过。snapshot_scoring_integrity只作诊断资格，缺证据不当奖励0；未改生产评分门槛。7个受保护目录、7份官方源码SHA不变；v6原文、旧锁、数据manifest、任务划分保持不变，Student v6验锁通过。
+- **交付/下一步**：`reports/full732_stage2b_snapshot_integrity.md/json`，私有`runs/full732_stage2b_20261028/`。命令为`probe_snapshot_integrity.py uri|live|restore`及pytest/Ruff（完整命令见报告）。旧状态没有回填，不将一个成功往返扩展为所有检查点已验收；未来关键快照需独立评分等价证据。全局PARTIAL和用途限制仍保留，提交后停止，等待下一次审查。
 
 ## Stage 2 固定train初态/合法终态评分（2026-10-28）
 
