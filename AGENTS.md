@@ -1,6 +1,6 @@
 # AGENTS.md — RecoverAgent-RL
 
-> **当前开发门禁（2026-10-28）**：先阅读 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md) 和 [docs/P4_STAGE2_SCORING.md](docs/P4_STAGE2_SCORING.md)。Stage 1 与 Student v6 初始化兼容修复已完成；接下来**只允许在用户交给 Codex 单独执行指令后完成 Stage 2**：固定三个允许的 train 任务，验证初态 unknown 与合法终态评分的边界，完毕提交、报告、停止。Stage 3–6 不得提前实施。Full732 A244/B244/C244 为目标设计，不能将 test 来源文件可访问视作已获上游训练/逐题分析许可；不修改 execution_v6 System Prompt、旧实验或模型权重。本门禁不进入模型输入。
+> **当前开发门禁（2026-10-28）**：Stage 1、execution_v6 Student 兼容修复和 Stage 2 初态/合法终态评分诊断已完成（Stage 2 旧封存 Teacher 终态重评仅2/3通过）。接下来**只允许在用户向 Codex 下达单独执行指令后开展 Stage 2B**，阅读 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md) 和 [docs/P4_STAGE2B_SNAPSHOT_INTEGRITY.md](docs/P4_STAGE2B_SNAPSHOT_INTEGRITY.md)：在固定合法 train 范围追查快照 model_hashes 元数据与官方评分的保存/恢复一致性。完成立即提交、报告、停止；不得提前执行 Stage 3–6、Teacher/GPU/训练或原 test 来源逐题开发。Full732 A244/B244/C244 设计和 execution_v6 原始 System Prompt、旧权重/报告/源码锁保持不变。本门禁不进入 Actor 输入。
 
 > 工作约定 v0.21 · 2026-10-27
 > 适用范围：本项目及子目录。需求与完整验收见 `PROJECT_PLAN.md`。  
