@@ -1,6 +1,6 @@
 # AGENTS.md — RecoverAgent-RL
 
-> **当前开发门禁（最新用户指示）**：请先阅读 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md)。当前只授权其中 **Stage 1** 的离线工程与单个允许的 train/合成探针；完成后提交、报告、停止，后续 Stage 2–6 必须等待用户逐阶段授权。文档目标为独立 Full732 A244/B244/C244 方案，但不得将 test 来源文件可访问视为获得上游训练/逐题分析许可。保持用户已确定的 execution_v6 原始 System Prompt 字节不变；本门禁不进入模型输入。
+> **当前开发门禁（2026-10-28）**：先阅读 [docs/P4_STAGE_GATES.md](docs/P4_STAGE_GATES.md) 和 [docs/P4_STAGE2_SCORING.md](docs/P4_STAGE2_SCORING.md)。Stage 1 与 Student v6 初始化兼容修复已完成；接下来**只允许在用户交给 Codex 单独执行指令后完成 Stage 2**：固定三个允许的 train 任务，验证初态 unknown 与合法终态评分的边界，完毕提交、报告、停止。Stage 3–6 不得提前实施。Full732 A244/B244/C244 为目标设计，不能将 test 来源文件可访问视作已获上游训练/逐题分析许可；不修改 execution_v6 System Prompt、旧实验或模型权重。本门禁不进入模型输入。
 
 > 工作约定 v0.21 · 2026-10-27
 > 适用范围：本项目及子目录。需求与完整验收见 `PROJECT_PLAN.md`。  
