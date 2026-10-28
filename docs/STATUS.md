@@ -2,7 +2,7 @@
 
 - 最后更新：2026-10-28（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
-- 当前状态：**Stage 3A真实Teacher采集PARTIAL，已停止**。固定A244中实际5任务：4官方成功且跨进程复评一致，3条合格/28监督样本/3540监督token，1条超长deferred；第5题Provider超出生成上限引发主链UNKNOWN，停后无模型官方诊断为有效失败2/7。239题未执行。全部91请求/140工具已留证，已保存候选私有SHA包，不启动训练。新报告`reports/full732_a244_teacher_live_20261028.md/json`；旧零采集报告保留为历史。
+- 当前状态：**Stage 3A按最新要求串行续采A244中**。并行控制器停止新派发，在途任务正常结束，共35项封存（15官方成功、12合格、3超长暂缓、7有效失败、13原始未知）。独立serial配置继承全部35项，剩余209项逐项执行、不重试旧题。每项错误分类和未知费用保留；当前实时证据`runs/full732_a244_serial_20261028/`。原thinking清理/32768长度门槛不变，042a9fc_1仍超长。全量尚未验收，不训练。
 - P0–P2旧自然失败/四分支及原源码锁保留；当前state.py增加默认v1兼容的可选batch v2。新源码有新锁，复现旧实验使用其原commit，不改历史哈希。
 - GitHub：<https://github.com/WYXeva/RecoverAgent-RL>；开发分支 `codex/p0-p2-recovery`，本轮Stage 3A基线 `29216c7516d9604838ca499f04327997001f2e84`（Stage 2B基线25e6dac）（Stage 2基线def1578）（此前兼容修复e715bf1）（此前Harness 29k基线23a7d41）（此前v2.1基线a2dbcb2）（初版v2基线091b8f1）（历史A100基线6008542、P3-C基线5aed1fb保留）。本轮独立克隆 `/tmp/recoveragent-provider-publish-20261028`（此前克隆路径保留在历史报告），主工作区 `.git` 仍为空且只读。没有更改公开可见性、覆盖提交或强制推送。
 
