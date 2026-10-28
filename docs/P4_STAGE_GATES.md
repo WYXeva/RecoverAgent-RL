@@ -1,6 +1,6 @@
 # RecoverAgent-RL · 分阶段实施门禁（2026-10-27）
 
-> **当前唯一后续任务：Stage 3A — Full732 A244 Base-SFT 离线数据来源准入与补采集规划。** Stage 2B 单个合法train任务的兼容环境快照往返/独立评分已实测PASS，旧快照不修补，Full732用途限制未解除。用户另行给出执行Prompt后只按 [P4_STAGE3A_BASE_SFT_READINESS.md](P4_STAGE3A_BASE_SFT_READINESS.md) 执行；结束报告并停止，不允许直接进入模型训练。
+> **当前唯一后续任务：Stage 3A — A244 全部任务重新采集 Teacher 正常轨迹，不复用任何旧 Teacher 示范。** 最新用户决定覆盖旧版「历史数据盘点/补采计划」。按 [P4_STAGE3A_BASE_SFT_READINESS.md](P4_STAGE3A_BASE_SFT_READINESS.md) 运行完整 A244 采集 campaign（真实执行需先有可验证数据使用权限及总费用硬上限）；结束报告并停止，**不训练 M1**。
 > 本文是面向 Codex 的**工作范围控制文件**，不是 Student/Teacher 的 System Prompt。
 > 业务执行 System Prompt 唯一源码保持 `src/recoveragent/execution_v6.py`，不得修改其文本、拼接额外段落或悄悄切回 v5。
 > 原始 AppWorld 官方划分、历史实验与发布 checkpoint 均保持不变。每一阶段只有用户明确下达下一阶段指令才可推进。
@@ -22,8 +22,8 @@
 | Stage 1（完成） | Full732 元数据契约、来源权限门禁、可测试的统一入口最小垂直切片 | 当前用户指令 | 代码/配置/最小 train 探针、拒绝测试、报告；受限执行正确阻断 |
 | Stage 2（已完成诊断） | train 初态unknown与合法终态评分边界 | 用户已授权且已运行 | PASS；旧封存成功终态跨进程复评PARTIAL |
 | Stage 2B（已完成） | 固定train写入任务的快照变更元数据与评分等价性 | 已按用户指令执行 | 新兼容环境单任务往返5/5 PASS；旧快照未修复 |
-| **Stage 3A（下一项）** | Full732 A244 Teacher成功示范的来源/权限/评分证据审计和补采集计划，不付费、不训练 | 用户另行下发指令 | 脱敏来源清单、准入统计、成本/阻塞计划、最小回归 |
-| Stage 3 | A 侧 Teacher 正常任务示范与新 Base-SFT M1 | Stage 2 完成；Teacher/GPU/额度单独授权 | 真实成功示范、Assistant-only mask、权重更新/保存/重载 |
+| **Stage 3A（下一项）** | A244 全部从干净初态新采 Teacher；新成功轨迹严格评分及跨进程恢复验收；不读旧 Teacher | 独立研究数据许可与付费费用上限/实际资源就绪 | 244 行尝试/成功/失败/阻断真实分母，完整回执、成本与新候选数据，结束即停 |
+| Stage 3B | 仅用 Stage 3A 新合格示范训练新 Base-SFT M1 | Stage 3A 验收、新数据可用、GPU及训练授权 | 真正梯度更新、checkpoint保存重载，再停 |
 | Stage 4 | B 侧 Student 新自然失败、真实 Teacher 检查点接管、Recovery-SFT M2 | 新 M1 已验收；Teacher/训练授权 | 真实成功恢复后缀、正确训练掩码、新权重可重载 |
 | Stage 5 | B 侧当前策略在线 GRPO，产出 M3 | M2 已验收，奖励有效，GPU 单独授权 | 同起点 G=4、行为 logprobs/mask、有效奖励、真实参数更新 |
 | Stage 6 | **唯一 C244** 上从原任务初态评测 M1/M2/M3 | 三个 checkpoint 验收；C 的合法测试用途与统一评分可用 | 244 行逐任务配对矩阵、完整分母和失败/未知/成本；仅在全套有效时给 TGC 增量 |
@@ -32,7 +32,7 @@
 
 ## Stage 3A 当前工作与 Stage 1–2B 历史记录
 
-**本轮唯一可新执行文档：[docs/P4_STAGE3A_BASE_SFT_READINESS.md](P4_STAGE3A_BASE_SFT_READINESS.md)。** Stage 2B 报告见 `reports/full732_stage2b_snapshot_integrity.md`，兼容环境往返PASS但旧快照和Full732非train用途受限不变。此处以下 Stage 1–2B 均是历史，不得重跑或提前执行 Stage3真实采集。
+**当前唯一新执行文档：[docs/P4_STAGE3A_BASE_SFT_READINESS.md](P4_STAGE3A_BASE_SFT_READINESS.md)。** 本文件同名但已经替换为全 A244 从零 Teacher 采集规范。Stage 1–2B 均为历史，不要反复审计旧轨迹，也不要提前训练 M1。
 
 Stage 2B 已完成；旧版Stage 2B执行提示是历史记录，不属于当前任务。
 
