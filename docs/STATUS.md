@@ -1,5 +1,21 @@
 # 项目状态
 
+## 官方134专项复试与最终成功包（2026-10-29，已完成并停止）
+
+- **实际结果**：134/134记录已封存，调度器独占锁已释放；34成功、77官方失败、22未知、1启动中断。133任务发出模型请求、126收到回复并执行真实工具；34成功终态独立恢复10项一致全部PASS。原40失败复试8成功，原94未知复试26成功，按结果选择的清单不作无偏渠道比较。
+- **最终数据**：首轮110+官方34=144成功/144任务/144场景；130原样候选，14超长中8仅去JSON字符串外空白后合格，6仍deferred，未删调用/字段/目标。最终138候选/2070Assistant样本/338413监督token/22444500屏蔽token，最长32693。旧102首轮包和131成功/126候选暂停快照全部文件SHA不变。
+- **交接**：最终私有目录`data/full732_teacher_successes_complete_20261029/`，manifest SHA `96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f`；同名归档18,479,899字节，SHA `64c2a5854f0a3a9cfab72f71e13682dce5e535ff0b885768b98dc0073d6a7a48`。清单`configs/teacher_success_inventory_complete_20261029.json`。原始官方专项包另存`data/full732_official_retry_20261029/`，后续token精确复现使用最终统一包。
+- **成本**：官方任务2058请求+1合成连接诊断=2059，已知输入39107949/输出1458073Token，4320真实工具调用；峰值估价CNY33.08476232，未知费用预留CNY27.68896并非实际扣款。结束余额首次SSL失败，独立只读复查200；账户快照净增加CNY0.65，原因/其他活动未核验，实际采集账单仍未知，不混算relay费用。
+- **验证**：535pytest/145文件Ruff format/Ruff check通过；完整源文件/旧包SHA核验，2070样本新进程重新分词全部token IDs/mask一致，最终归档解压验证PASS。已有真实Teacher/AppWorld证据与CPU数据编码分开，本轮不使用Student推理/GPU、不训练。
+- **报告**：`reports/full732_official_retry_20261029.md/json`、`_metrics.json`、`_comparison.csv`保留134项结果/错误/成本；`reports/full732_teacher_dataset_complete_20261029.md/json/csv`保留144成功及14超长实测。私有复验/成本/恢复receipt位于`runs/full732_official_retry_20261029_setup/`。
+- **命令/边界**：原`recoveragent.official_retry`完成后退出；导出用`scripts/export_fresh_parallel.py`，统一包用`python -m recoveragent.teacher_inventory --config configs/teacher_success_inventory_complete_20261029.json --output <new-dir>`，迁移用`scripts/verify_teacher_inventory.py --expected-manifest-sha256 <trusted-sha> --retokenize`。数据格式通过不等于训练通过；新M1需另行配置/授权/烟测，失败、未知、中断与6超长本轮不再自动重采。
+
+## 官方专项复试继续（2026-10-29）
+
+- 用户明确恢复采集。原7e1be84_3的第23份回复在恢复worker后成功读取，无重发、无新增模型请求；协议纠错耗尽，真实官方失败。原13908.924秒墙钟包含用户暂停，单独披露，不与正常600秒执行等同。
+- 原controller在worker退出后才恢复，暂停标记归档、用户暂停receipt不改；70/134已封存后继续余64未领取任务，源码/配置/预算不变。已成功131条整理包及原126候选manifest保持冻结。
+- 续跑证据：`runs/full732_official_retry_20261029_setup/resume_worker_20261029.json`、`resume_controller_20261029.json`与原current队列；不会重跑已领取任务，不训练/运行B/C。
+
 ## 已成功Teacher统一整理（2026-10-29，离线完成）
 
 - **范围**：首轮110成功+暂停官方复试21成功=131轨迹/131任务/131场景；只读核验封存review、源文件SHA及原独立恢复10项检查，不读旧95，不纳入暂停中的7e1be84_3，不恢复采集。

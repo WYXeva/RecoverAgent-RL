@@ -1,0 +1,160 @@
+{
+  "selection": {
+    "prior_failed": 40,
+    "prior_unknown": 94,
+    "original_successes_not_rerun": 110,
+    "outcome_conditioned": true
+  },
+  "official_retry": {
+    "planned_tasks": 134,
+    "response_model_labels": {
+      "deepseek-flash": 2045
+    },
+    "attempted_tasks": 134,
+    "official_successes": 34,
+    "official_failures": 77,
+    "unknown_original_results": 23,
+    "trainable_candidates": 28,
+    "clean_successes_including_deferred": 34,
+    "not_run": 0,
+    "tasks_with_any_error": 120,
+    "successes_with_corrected_or_business_errors": 20,
+    "error_types": {
+      "provider_usage_unknown": 13,
+      "official_task_failure": 77,
+      "protocol_correction": 93,
+      "evaluation_runtime": 10,
+      "business_api_error": 42,
+      "worker_environment": 1,
+      "execution_budget_exhausted": 29,
+      "training_format_deferred": 6
+    },
+    "statuses": {
+      "UNKNOWN": 22,
+      "FAILED": 77,
+      "SUCCEEDED": 28,
+      "INTERRUPTED": 1,
+      "DEFERRED": 6
+    },
+    "assistant_samples": 343,
+    "supervised_tokens": 68008,
+    "longest_eligible_sequence": 30141,
+    "post_stop_diagnostics": {
+      "valid_success": 0,
+      "valid_failure": 12,
+      "unknown": 10,
+      "original_results_unchanged": true
+    },
+    "usage_including_inherited_tasks_excluding_setup_diagnostics": {
+      "requests": 2058,
+      "inputs": 39107912,
+      "outputs": 1458061,
+      "cached": 28977408,
+      "cost": 33.08459232,
+      "unknown_cost": 27.688959999999998
+    },
+    "setup_diagnostics": [
+      {
+        "path": "runs/full732_official_retry_20261029_setup/connection_probe/receipt.json",
+        "sha256": "699a8483aa3330d12211a595f01d2225ae658b3d337adb9c434b11fc7a9c5f1d",
+        "requests": 1,
+        "input_tokens": 37,
+        "output_tokens": 12,
+        "priced_cost_estimate": 0.00017,
+        "currency": "CNY",
+        "teacher_demonstration": false
+      }
+    ],
+    "tool_calls_excluding_setup_diagnostics": 4320
+  },
+  "original_unchanged": {
+    "qualified": 102,
+    "official_successes": 110,
+    "manifest_sha256": "53dd9f3ae950346cd2c4428648085475d3f3f066543e2c39f41e2532746ae4bf"
+  },
+  "combined_coverage_only_not_a_new_merged_dataset": {
+    "qualified_unique_tasks": 130,
+    "officially_successful_unique_tasks": 144
+  },
+  "paired_cohorts": {
+    "FAILED": {
+      "UNKNOWN": 5,
+      "FAILED": 26,
+      "INTERRUPTED": 1,
+      "SUCCEEDED": 6,
+      "DEFERRED": 2
+    },
+    "UNKNOWN": {
+      "UNKNOWN": 17,
+      "FAILED": 51,
+      "SUCCEEDED": 22,
+      "DEFERRED": 4
+    }
+  },
+  "success_snapshot_checks_passed": {
+    "rows_and_tracking_equal": 34,
+    "metadata_persisted": 34,
+    "snapshot_files_equal": 34,
+    "export_unchanged": 34,
+    "evaluation_db_unchanged": 34,
+    "complete_official_results": 34,
+    "official_results_equal": 34,
+    "independent_process": 34,
+    "trusted_live_receipt": 34,
+    "write_metadata_present": 34
+  },
+  "all_successes_verified_in_independent_process": true,
+  "model_request_record_tasks": 133,
+  "received_model_response_tasks": 126,
+  "tool_execution_tasks": 126,
+  "total_model_request_attempts_including_one_probe": 2059,
+  "known_input_tokens_including_probe": 39107949,
+  "known_output_tokens_including_probe": 1458073,
+  "peak_price_estimate_cny_including_probe": 33.084762319999996,
+  "unknown_cost_reservation_cny_not_actual_cost": 27.688959999999998,
+  "per_task_actual_bill": null,
+  "recorded_episode_wall_seconds_sum": 29110.79407288796,
+  "runtime_lock_verification": "reports/full732_official_retry_runtime_locks.json",
+  "dataset_manifest_sha256": "fd9ac317feba10945692ff6dc0e08ee73ab36ef1d07bd45893411f632ca6369d",
+  "original_report_sha256": "6623f4ecef7238fa911a93ef6d20cd527edd291a2516dc952ec07842c128454e",
+  "retry_report_sha256": "690718bc023ec94e42bc230c0ff8777375847f24ac2d831ae320fba466b91e4b",
+  "runtime_commits": {
+    "initial": "fe94e7271a9d381992a0e80ace06080d91a6d3a2",
+    "diagnostics": "aac700a986aa26ce6823b8d504839c1477eeb225",
+    "pooled": "d2ec319fcc00da6f1f9ca623e0d5bf6ad7c422a4",
+    "stable": "5a84d330c5088fd56ba2156e2718553efaf581d2",
+    "current": "63bb76137b0cfb039e1970ec7ef24804f12b68c6"
+  },
+  "tests": {
+    "pytest_passed": 535,
+    "ruff_check": "PASS",
+    "ruff_format_check": "PASS"
+  },
+  "user_pause_resume": {
+    "authorization": "User: 继续采集",
+    "resumed_utc": "2026-10-29T10:37:58.095478+00:00",
+    "controller_pid": 20323,
+    "settled_task": "7e1be84_3",
+    "settled_response_count": 23,
+    "settled_trajectory_sha256": "8b023956c20558f8142cfd1f7274b29291b3274ef16aeffb645b0de81957ca8b",
+    "settled_termination": "protocol_correction_exhausted",
+    "original_official_reward": 0,
+    "original_wall_seconds_includes_user_pause": 13908.924018334998,
+    "new_requests_after_worker_resume": 0,
+    "next_scope": "Only remaining64 unclaimed tasks; existing reviews/claims not reissued."
+  },
+  "student_training_started": false,
+  "observed_account_balance_decrease_cny": "-0.65",
+  "balance_evidence_sha256": {
+    "before": "e3b8089448756d4e2de419bd45668b581b922c4ac566ee67ec00027e9ce27208",
+    "after": "6db9e1b6ead01de4c07bfadb0afd27373ec075c32d88019980d885fb07538fce"
+  },
+  "balance_interpretation": "Account snapshot increased by CNY0.65 over the interval. Cause unverified; no exclusive-account activity proof or per-request invoice. This does not measure campaign spending.",
+  "actual_campaign_billed_cost_cny": null,
+  "balance_delta_supports_campaign_cost": false,
+  "confirmed_success_fraction_of_planned": 0.2537313432835821,
+  "valid_official_results": 111,
+  "unknown_results_not_assigned_zero": 23,
+  "final_unified_dataset": "data/full732_teacher_successes_complete_20261029",
+  "final_unified_manifest_sha256": "96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f"
+}
