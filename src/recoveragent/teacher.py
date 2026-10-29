@@ -254,6 +254,9 @@ class TeacherPolicy:
         self.key = credentials[self.config["api_key_env"]]
         self.transport = transport or self._post
         self.reasoning_by_index = {}
+        self._http_session = None
+        if self.config.get("http_transport") not in {None, "requests_session_v1"}:
+            raise ValueError("Unsupported Teacher HTTP transport")
 
     def remember_response(self, index, response):
         if reasoning_enabled(self.config):
@@ -264,6 +267,8 @@ class TeacherPolicy:
                 self.reasoning_by_index[index] = reasoning
 
     def _post(self, payload):
+        if self.config.get("http_transport") == "requests_session_v1":
+            return self._post_session(payload)
         headers = {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + self.key,
@@ -301,6 +306,61 @@ class TeacherPolicy:
                     "transport_reason_type": type(
                         getattr(exc, "reason", None)
                     ).__name__,
+                    "transport_phase": phase,
+                    "response_status": status,
+                }
+            raise TeacherTransportError(
+                f"Teacher {type(exc).__name__}; usage unknown", diagnostic=diagnostic
+            ) from None
+
+    def _post_session(self, payload):
+        """Reuse TLS connections; no redirect, automatic retry or payload changes."""
+        import weakref
+        import requests
+
+        if self._http_session is None:
+            self._http_session = requests.Session()
+            self._http_session.mount(
+                "https://", requests.adapters.HTTPAdapter(max_retries=0)
+            )
+            # A worker owns one policy. Also close on object/process teardown.
+            weakref.finalize(self, self._http_session.close)
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self.key,
+        }
+        if self.config.get("http_user_agent"):
+            headers["User-Agent"] = self.config["http_user_agent"]
+        phase, status = "request_open", None
+        try:
+            with self._http_session.post(
+                self.config["base_url"].rstrip("/") + "/chat/completions",
+                data=canonical(payload).encode(),
+                headers=headers,
+                timeout=self.config["timeout_seconds"],
+                allow_redirects=False,
+                verify=True,
+                stream=True,
+            ) as response:
+                # HTTP body streaming bounds error reads; payload.stream remains False.
+                phase, status = "response_json", response.status_code
+                if not 200 <= status < 300:
+                    diagnostic = None
+                    if self.config.get("http_error_diagnostics") == "keyword_hash_v1":
+                        diagnostic = http_error_diagnostic(
+                            response.raw.read(65537, decode_content=True)
+                        )
+                    raise TeacherTransportError(
+                        f"Teacher HTTP {status}; usage unknown", diagnostic=diagnostic
+                    )
+                return response.json()
+        except TeacherTransportError:
+            raise
+        except Exception as exc:
+            diagnostic = None
+            if self.config.get("http_error_diagnostics") == "keyword_hash_v1":
+                diagnostic = {
+                    "transport_error_type": type(exc).__name__,
                     "transport_phase": phase,
                     "response_status": status,
                 }
