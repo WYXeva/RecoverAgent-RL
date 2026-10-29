@@ -347,9 +347,12 @@ class TeacherPolicy:
                 if not 200 <= status < 300:
                     diagnostic = None
                     if self.config.get("http_error_diagnostics") == "keyword_hash_v1":
-                        diagnostic = http_error_diagnostic(
-                            response.raw.read(65537, decode_content=True)
-                        )
+                        try:
+                            diagnostic = http_error_diagnostic(
+                                response.raw.read(65537, decode_content=True)
+                            )
+                        except Exception:
+                            diagnostic = {"error_body_unavailable": True}
                     raise TeacherTransportError(
                         f"Teacher HTTP {status}; usage unknown", diagnostic=diagnostic
                     )

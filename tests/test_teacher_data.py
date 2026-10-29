@@ -690,3 +690,104 @@ def test_http_error_diagnostics_keep_only_hash_and_flags(config, monkeypatch):
     assert str(new.value) == "Teacher HTTP 400; usage unknown"
     assert new.value.diagnostic == diagnostic
     assert "secret" not in str(new.value)
+
+
+@pytest.mark.parametrize("decode", [False, True])
+def test_transport_diagnostics_keep_types_not_sensitive_error_text(
+    config, monkeypatch, decode
+):
+    import io
+    import urllib.request
+    import urllib.error
+
+    class Opener:
+        def open(self, *args, **kwargs):
+            if decode:
+                return io.BytesIO(b"synthetic-private-provider-body")
+            raise urllib.error.URLError("synthetic-private-network-message")
+
+    monkeypatch.setattr(urllib.request, "build_opener", lambda *args: Opener())
+    policy = TeacherPolicy(config, {config["teacher"]["api_key_env"]: "synthetic-key"})
+    with pytest.raises(TeacherTransportError) as old:
+        policy._post({})
+    assert old.value.diagnostic is None
+    config["teacher"]["http_error_diagnostics"] = "keyword_hash_v1"
+    with pytest.raises(TeacherTransportError) as new:
+        policy._post({})
+    assert new.value.diagnostic["transport_error_type"] == (
+        "JSONDecodeError" if decode else "URLError"
+    )
+    assert new.value.diagnostic["transport_phase"] == (
+        "response_json" if decode else "request_open"
+    )
+    assert "private" not in str(new.value.diagnostic)
+    assert "private" not in str(new.value)
+
+
+@pytest.mark.parametrize("failure", [None, "http", "tls", "http_body"])
+def test_pooled_transport_reuses_client_preserves_payload_and_never_retries(
+    config, monkeypatch, failure
+):
+    import requests
+    from types import SimpleNamespace
+
+    calls, sessions = [], []
+    payload = {"model": config["teacher"]["model"], "stream": False, "synthetic": True}
+
+    class Response:
+        status_code = (
+            401 if failure == "http_body" else 302 if failure == "http" else 200
+        )
+        raw = SimpleNamespace(read=lambda *a, **kw: b"synthetic-private-body")
+
+        def __enter__(self):
+            if failure == "http_body":
+
+                def fail_read(*args, **kwargs):
+                    raise requests.exceptions.SSLError("synthetic-private-body-error")
+
+                self.raw = SimpleNamespace(read=fail_read)
+            return self
+
+        def __exit__(self, *args):
+            pass
+
+        def json(self):
+            return {"synthetic_response": True}
+
+    class Session:
+        def __init__(self):
+            sessions.append(self)
+
+        def mount(self, prefix, adapter):
+            assert prefix == "https://" and adapter.max_retries.total == 0
+
+        def close(self):
+            pass
+
+        def post(self, url, **kwargs):
+            calls.append((url, kwargs))
+            assert kwargs["verify"] is True and kwargs["allow_redirects"] is False
+            assert kwargs["headers"]["Authorization"] == "Bearer synthetic-key"
+            assert json.loads(kwargs["data"]) == payload
+            if failure == "tls":
+                raise requests.exceptions.SSLError("synthetic-private-network")
+            return Response()
+
+    monkeypatch.setattr(requests, "Session", Session)
+    config["teacher"].update(
+        http_transport="requests_session_v1", http_error_diagnostics="keyword_hash_v1"
+    )
+    policy = TeacherPolicy(config, {config["teacher"]["api_key_env"]: "synthetic-key"})
+    if failure:
+        with pytest.raises(TeacherTransportError) as caught:
+            policy._post(payload)
+        assert len(calls) == 1
+        if failure == "http_body":
+            assert str(caught.value) == "Teacher HTTP 401; usage unknown"
+            assert caught.value.diagnostic == {"error_body_unavailable": True}
+        assert "private" not in str(caught.value) + str(caught.value.diagnostic)
+    else:
+        assert policy._post(payload) == {"synthetic_response": True}
+        assert policy._post(payload) == {"synthetic_response": True}
+        assert len(sessions) == 1 and len(calls) == 2

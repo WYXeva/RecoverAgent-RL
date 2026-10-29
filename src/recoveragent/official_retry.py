@@ -19,7 +19,7 @@ from .protocol_lock import verify_lock
 from .research_access import ROOT, a_tasks, authorize_task
 from .teacher import read_credentials
 
-DEFAULT = ROOT / "configs/full732_official_retry_pooled_20261029.json"
+DEFAULT = ROOT / "configs/full732_official_retry_stable_20261029.json"
 
 
 def load_config(path):
