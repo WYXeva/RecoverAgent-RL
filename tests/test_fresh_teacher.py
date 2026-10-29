@@ -12,6 +12,9 @@ from recoveragent.io import digest, files_manifest, write_json
 from recoveragent.teacher import preflight
 
 
+pytestmark = pytest.mark.usefixtures("current_fresh_campaign_unit_locks")
+
+
 def test_frozen_a244_provenance_and_no_repartition():
     plan, rows = access.a_tasks()
     assert (

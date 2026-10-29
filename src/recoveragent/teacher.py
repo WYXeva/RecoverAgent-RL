@@ -275,10 +275,12 @@ class TeacherPolicy:
             canonical(payload).encode(),
             headers,
         )
+        phase, status = "request_open", None
         try:
             with urllib.request.build_opener(NoRedirect).open(
                 request, timeout=self.config["timeout_seconds"]
             ) as response:
+                phase, status = "response_json", getattr(response, "status", None)
                 return json.load(response)
         except urllib.error.HTTPError as exc:
             # Never persist provider error text: it can echo prompts or credentials.
@@ -292,8 +294,18 @@ class TeacherPolicy:
                 f"Teacher HTTP {exc.code}; usage unknown", diagnostic=diagnostic
             ) from None
         except Exception as exc:
+            diagnostic = None
+            if self.config.get("http_error_diagnostics") == "keyword_hash_v1":
+                diagnostic = {
+                    "transport_error_type": type(exc).__name__,
+                    "transport_reason_type": type(
+                        getattr(exc, "reason", None)
+                    ).__name__,
+                    "transport_phase": phase,
+                    "response_status": status,
+                }
             raise TeacherTransportError(
-                f"Teacher {type(exc).__name__}; usage unknown"
+                f"Teacher {type(exc).__name__}; usage unknown", diagnostic=diagnostic
             ) from None
 
     def build_request(self, messages, tools, max_tokens):

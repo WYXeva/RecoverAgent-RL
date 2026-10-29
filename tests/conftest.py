@@ -47,3 +47,35 @@ def current_teacher_unit_lock(tmp_path):
         return config
 
     return bind
+
+
+@pytest.fixture
+def current_fresh_campaign_unit_locks(tmp_path, monkeypatch):
+    """Exercise legacy scheduling with synthetic locks, not historical runtime claims."""
+    from recoveragent import fresh_teacher as fresh
+
+    original = fresh.campaign_config
+    bound = {}
+
+    def current(path=fresh.DEFAULT):
+        key = str(Path(path).resolve())
+        if key not in bound:
+            config = read_json(path)
+            lock = read_json(config["protocol_lock"])
+            # Only the deliberately revised transport diagnostics may differ.
+            changed = {
+                name
+                for name, expected in lock["files"].items()
+                if sha256(name) != expected
+            }
+            assert changed <= {"src/recoveragent/teacher.py"}
+            lock["files"] = {name: sha256(name) for name in lock["files"]}
+            lock["revision"] = "SYNTHETIC_UNIT_TEST_ONLY"
+            home = tmp_path / "synthetic_campaign_locks" / str(len(bound))
+            write_json(home / "lock.json", lock)
+            config["protocol_lock"] = str(home / "lock.json")
+            write_json(home / "config.json", config)
+            bound[key] = home / "config.json"
+        return original(bound[key])
+
+    monkeypatch.setattr(fresh, "campaign_config", current)

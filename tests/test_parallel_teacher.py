@@ -11,6 +11,9 @@ from recoveragent import fresh_teacher as fresh, parallel_teacher as parallel
 from recoveragent.io import files_manifest, read_json, write_json
 
 
+pytestmark = pytest.mark.usefixtures("current_fresh_campaign_unit_locks")
+
+
 def test_clean_training_length_already_excludes_provider_reasoning():
     from recoveragent.teacher import normalize_message
     from test_teacher_data import response

@@ -7,6 +7,7 @@ round is read-only; this queue never inherits an old result as its new outcome.
 import argparse
 import fcntl
 import os
+import shutil
 from pathlib import Path
 from urllib.parse import urlsplit
 
@@ -18,7 +19,7 @@ from .protocol_lock import verify_lock
 from .research_access import ROOT, a_tasks, authorize_task
 from .teacher import read_credentials
 
-DEFAULT = ROOT / "configs/full732_official_retry_20261029.json"
+DEFAULT = ROOT / "configs/full732_official_retry_diagnostics_20261029.json"
 
 
 def load_config(path):
@@ -80,6 +81,32 @@ def load_config(path):
     return config, rows
 
 
+def inherit_reviews(config, rows, output):
+    prior = config.get("official_continuation")
+    if prior is None:
+        return
+    source = Path(prior["campaign"])
+    if sha256(source / "campaign.json") != prior["campaign_sha256"]:
+        raise ValueError("Official continuation campaign changed")
+    allowed = {r["task_id"]: r for r in rows}
+    for task, expected in prior["reviews"].items():
+        home = source / "reviews" / task
+        if task not in allowed or sha256(home / "review.json") != expected:
+            raise ValueError("Official continuation review changed")
+        record = read_review(home)
+        if any(
+            record[k] != allowed[task][k]
+            for k in ("task_id", "scenario_id", "official_split")
+        ):
+            raise ValueError("Official continuation identity changed")
+        target = output / "reviews" / task
+        if target.exists():
+            if read_review(target) != record:
+                raise ValueError("Official continuation replaced old result")
+        else:
+            shutil.copytree(home, target)
+
+
 def official_credentials(config, path):
     """Select only the explicitly authorized second credential group."""
     credentials = read_credentials(path)
@@ -120,6 +147,7 @@ def collect(config_path, output, credentials_file, max_new=None):
             write_json(anchor, config)
         if (output / "global_stop.json").exists():
             return
+        inherit_reviews(config, rows, output)
         previous_env = {
             k: os.environ.get(k) for k in ("DEEPSEEK_BASE_URL", "DEEPSEEK_MODEL")
         }
@@ -144,6 +172,8 @@ def collect(config_path, output, credentials_file, max_new=None):
                         existing,
                     )
                     continue
+                if (output / "stop_requested.json").exists():
+                    break
                 if max_new is not None and submitted >= max_new:
                     break
                 spent = {
