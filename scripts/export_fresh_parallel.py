@@ -16,7 +16,12 @@ from recoveragent.parallel_teacher import DEFAULT, read_review
 
 
 def export(config_path, campaign, destination, public_json):
-    config, plan = campaign_config(config_path)
+    if "retry_selection" in read_json(config_path):
+        from recoveragent.official_retry import load_config
+
+        config, plan = load_config(config_path)
+    else:
+        config, plan = campaign_config(config_path)
     if read_json(campaign / "campaign.json") != config:
         raise ValueError("Campaign source configuration differs")
     with (campaign / "campaign.lock").open("r") as lock:
@@ -215,7 +220,9 @@ def export(config_path, campaign, destination, public_json):
             "sources": sources,
             "files": files_manifest(destination),
             "training_started": False,
-            "complete_a244": summary["attempted_tasks"] == len(plan),
+            "complete_campaign": summary["attempted_tasks"] == len(plan),
+            "complete_a244": len(plan) == 244 and summary["attempted_tasks"] == 244,
+            "retry_selection": config.get("retry_selection"),
             "visibility": "Student messages exclude provider reasoning and controller evaluation. successful_clean includes deferred; only trainable_candidates passed current32768/4096 encoding and parser.",
         }
         write_json(destination / "manifest.json", manifest)
