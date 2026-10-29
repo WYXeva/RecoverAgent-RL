@@ -588,3 +588,36 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 新私有数据包`data/full732_a244_fresh_20261028_round1/`，manifest SHA `53dd9f3ae950346cd2c4428648085475d3f3f066543e2c39f41e2532746ae4bf`，成功Clean/合格候选/错误登记三文件逐项校验；源原件与快照仍外置私有且引用SHA，不上传隐藏数据/凭据。公开完整244项JSON、错误CSV、最终MD报告。
 - 总共3955模型请求（任务3949+诊断6）、6354实际AppWorld工具调用（任务6349+旧接入5）；已知输入57845122、输出1992837。Key最终聚合actual_cost=9.98618688，接口unit=USD；公开费率UI为CNY，币种标签和token/请求账单差异未自行换算/归因。仍保留未知费用预留11.1783144，不能把保守预留当成实际扣费或自动分摊。
 - 完整501pytest/Ruff check/140文件format通过；真实Task/工具/评分/恢复与2次合成接口探针明确分开，数据编码不是训练成功。最后193项串行墙钟10:07:27，无GPU/Student推理或训练。阶段完成后停止，不自动采第二轮/恢复Teacher/Base-SFT/GRPO/C244评价。下一步需要单独审查错误与新训练授权。
+
+## D069 · 2026-10-29 · 官方DeepSeek第二凭据对134失败/未知任务独立复试
+
+- 用户明确授权首轮40 FAILED +94 UNKNOWN使用`.env`第二组官方API重跑；原110成功（包括8超长暂缓）不在新队列。按原公开报告与封存review/SHA冻结134身份/顺序，不按后续成绩换题；这是结果条件化复试，不是完整随机渠道比较。原首轮奖励、102候选及全部旧锁保持不可变。
+- 官方专用入口隔离凭据、endpoint和model，禁止回退第一组relay。只读models/balance返回200，官方请求`deepseek-flash`对应公开V4.1-Flash更新说明，实际回执模型与fingerprint保存；不把relay任意响应名策略带到官方。真实Teacher reasoning继续仅审计/续传，训练候选保持Qwen3-4B non-thinking。
+- 复用现有fresh worker/共享Harness/官方评分/独立进程终态恢复/完整分词验收；仅新建冻结队列与必要导出适配。claim在付费前落盘，断点续跑不重发已领取尝试；未知费用和部分执行如实留存。每项从干净初态串行一次，80请求/16384生成/4096单回复/600秒，工具不限。
+- 用户此前无金额上限授权继续适用于本次明确付费请求；保留请求/token/时间有限预算，按官方CNY峰值费率计算保守成本，不把峰值估价当账单。账户前后余额作为独立扣款证据，若存在其他活动或优惠不能冒称精确分摊。官方峰/谷费率文档与读取回执保存在私有setup并绑定SHA。
+- 原worker只读旧env元数据名称，新进程仅映射endpoint/model，不复制Key、不改`.env`；实际Teacher严格取KEY1。独立配置锁冻结新增入口、配置及原报告，原协议源码不改。导出区分complete_campaign与complete_a244，134项完成不冒充新244项。
+- 初始软件506pytest/Ruff通过；真实任务结果另行逐项报告，不以接入200或软件测试代替Teacher成功。本轮不启动GPU、Student、任何训练或B/C，也不读取旧95条Teacher。
+
+- 执行中暂停诊断：前9项为1有效失败/8未知，旧日志未保留底层传输类型；保留在途worker直到退出后才停止调度器，离线封存第9项。1次独立合成连接探针真实37输入/12输出、峰值估价CNY0.00017，不作Teacher示范，计入全局请求/token/费用。后续diagnostics版本继承9项，3项后共12项；其中一次明确`URLError/SSLEOFError`在request_open阶段失败，尚无HTTP响应，不能归为任务/Token失败。新任务边界stop_requested机制暂停派发，不中断在途请求。
+- 只读网络检查：原环境HTTPS代理127.0.0.1:17890；官方models/balance200，直接官方连接在本机DNS失败，未修改系统代理或禁用证书。Requests持久连接探针首次SSLError，随后5次models200。此证据支持尝试连接复用，尚不能证明根因位于代理、上游或网络的哪一段，也不能回填旧未知费用。
+- 新`requests_session_v1`仅显式配置启用；保留原urllib路径，复用官方HTTPS连接、严格证书验证、禁止重定向、HTTPAdapter重试0，模型payload和`stream:false`原样。HTTP客户端按流读取仅为限制错误体大小，不是改为模型SSE；原始模型JSON/usage不修补。网络异常只留阶段/类型/状态，不落异常原文/Key。会话在Policy/worker生命周期结束时关闭。官方Requests说明：https://requests.readthedocs.io/en/latest/user/advanced/ 与 https://requests.readthedocs.io/en/latest/api/ 。
+- 配置/源码分initial、diagnostics、pooled三版各自冻结，pooled继承12封存review、只派发余122，不重签前版锁。原A244历史入口在改过transport源码的checkout应拒绝，历史复现使用a15cedd或原私有源码包；两份历史调度软件测试使用明确标记的临时测试锁，仅允许teacher.py已知变更，另测生产旧锁仍拒绝。514pytest/Ruff通过，不伪称历史源码锁在当前checkout通过，也不把软件或只读连接测试当Teacher能力。
+
+- pooled两项真实Teacher试点完成多轮调用，未发生传输故障，分别为官方失败和评价异常；这不证明成功率提升。共14项封存后，修正新持久客户端读取HTTP错误体失败时仍须保留401/402/403状态的边界；新增stable配置/锁，继承14项，只执行余120项。515pytest、Ruff check/format通过，旧三版源码包与锁不改。网络错误不重试，unknown不当0；同一payload、原Prompt、80/16384/600预算及验收不改。
+
+- 用户再次要求核对进度并继续时，已封存19项（2合格成功/4失败/13未知），原controller/worker不存在、旧工具会话及临时Git副本已消失；未推断停止原因。第20项258796c_1只有启动claim、无模型请求/回执或工具记录，按原断点规则保留INTERRUPTED，不重发。新独立进程在同一stable目录和独占锁下继续其余未领取任务，新日志另存、不覆盖旧log。此中断不计Teacher策略失败。
+- 为便于精确复现，已在独立Git副本依次保存initial、diagnostics、pooled源码提交；分别逐Git对象核验34个锁文件全部相符。原baseline a15cedd及所有已有提交未变，阶段报告会绑定各真实版本；stable与最终结果在完成时另提交。API数据、凭据和原始任务不进入Git。
+
+- 32项后只做来源说明修正：审查确认此前官方配置`teacher.base_url/api_key_env/pricing`始终为官方，但复制来的未使用字段`fresh_campaign.price_evidence/provider_use_evidence`仍是旧relay链接，connection_source也仍描述旧env名。生产源码没有读取这些说明字段，真实HTTP回执不受影响；不把旧relay条款当官方权限证据。保留四版已执行配置原件，在完整任务边界创建current新锁，删除不适用说明、将价格与第二组env来源写准确；任务/模型/实际计费/Prompt/预算/过滤完全不变，继承32项、仅余102项付费。
+- current仍为原134项的同一官方复试，不是第三轮新尝试。515pytest/Ruff通过，源码单独封存；新增连接诊断/试点都是本轮实际成本，不能以“调试”删掉失败或未知。新模型样本资格只指真实评分、恢复、结构和长度验收，不把配置说明错误改写为历史接入事实。
+
+
+## D070 · 2026-10-29 · 采集暂停、成功数据统一整理与无损工具JSON压缩
+
+- 用户先要求暂停，controller20323及worker63403所在独立进程组SIGSTOP，stop_requested已写，暂停receipt外置不可变；69封存结果保持21成功/30失败/17未知/1启动中断，当前7e1be84_3未完成，不新增请求。随后授权只汇总成功数据并研究超长缩减，不视为续跑授权。
+- 首轮110+官方21共131真实成功逐项核验source/review SHA、原奖励和终态跨进程10项一致；不读旧95、不改A身份、split/Prompt/源码锁。冻结清单引用不可变暂停receipt及原源manifest，后续采集不改变这一快照。
+- 超长不等于任务失败。120原样长度合格；11超长以唯一确定性json-tool-whitespace-only-v1处理：只去JSON字符串外空白，保留完整调用/返回/Schema、所有键/数值词法/转义/字符串/错误。先验证原始历史，再用独立渲染器形成派生输入，保存新旧history hash和逐消息变换引用；不得重写原provider历史或伪装成新成功。
+- 6条仅靠无损表示压缩达到32768/4096，全部Assistant目标token与原文相同，新增99监督样本/17405监督token，累计输入前缀减少437182token；剩5继续deferred，未删业务调用/字段或静默丢回合。126候选合计1900样本/306947监督token/20398740屏蔽token、最长32693。成功事实131不因压缩变成137。
+- 真实复验发现初次导出canonical(sort_keys)会重新排序嵌套Schema，导致再分词不一致；保留失败试包和源码，修正新离线序列化为原字段顺序。最终独立重读1900样本逐token、mask和parser一致，归档解压完整性PASS；535pytest/Ruff/145文件format通过。
+- 最终私有包data/full732_teacher_successes_20261029，manifest SHA 05371767befbeca451c2a87a4f6fc94893653166fef935727f657d642b7f7a11；120native原文、6派生引用、5deferred、131全clean和tokenized gzip均保留，原provider/评价/数据库证据外置引用。只公开统计、代码、清单与SHA，不公开原始内容。
+- 原始官方split来源保留，本包仍为已批准Full732自定义研究A侧资料，不冒称train-only或官方排行榜。新编译策略与旧95数据/历史锁分开，新M1需新recipe绑定本manifest并做真实训练烟测；此次未改线上Student、未用GPU、未训练或运行B/C。采集继续暂停，5超长后续单独考虑有依据的投影/新采样，不盲目删证据。

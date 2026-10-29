@@ -1,5 +1,25 @@
 # 项目状态
 
+## 已成功Teacher统一整理（2026-10-29，离线完成）
+
+- **范围**：首轮110成功+暂停官方复试21成功=131轨迹/131任务/131场景；只读核验封存review、源文件SHA及原独立恢复10项检查，不读旧95，不纳入暂停中的7e1be84_3，不恢复采集。
+- **数据**：120条原样合格；11超长仅去掉Tool JSON字符串外空白，6条重新达到32768/4096且所有原Assistant目标token相同、0调用/字段删除，余5继续deferred。最终126候选、1900监督样本、306947监督token、20398740屏蔽token、最长32693。
+- **产物**：`data/full732_teacher_successes_20261029/`及同名tar.gz为最终私有交接包，manifest SHA `05371767befbeca451c2a87a4f6fc94893653166fef935727f657d642b7f7a11`。包括全131clean原件、120native、6派生引用、5暂缓索引、gzip编码样本和逐项来源/校验；公开报告`reports/teacher_success_inventory_20261029.md/json/csv`。
+- **修复/验证**：初次试导出canonical排序改变嵌套Schema键序，重分词不一致；保留该失败试包，改为保持原键序后独立重读1900样本全部token IDs/mask一致，压缩包解压验证PASS。最终冻结计划使用不可变暂停receipt，未来续跑不改变清单。535 pytest、Ruff check及145文件format通过。
+- **命令**：`python -m recoveragent.teacher_inventory --config configs/teacher_success_inventory_20261029_frozen.json --output <new-private-directory>`；用缓存Qwen tokenizer的CPU环境执行。迁移后`python scripts/verify_teacher_inventory.py <directory> --expected-manifest-sha256 <trusted-sha> --retokenize`；详细命令与失败/成功日志见报告及`runs/teacher_success_inventory_20261029/`。
+- **限制/下一步**：原131成功分数不变；派生输入只是lossless格式候选，线上Student未改压缩协议，也未完成新M1训练配置接入、GPU烟测或训练。原始131保留，5暂缓不混入32k候选；任何字段裁剪/调用删除/新采集需单独方案。本轮模型请求0，采集继续保持暂停。
+
+## 官方 DeepSeek 134项专项复试（2026-10-29，用户暂停）
+
+- **授权与范围**：用户要求将首轮40失败、94未知改用第二组官方Key各重跑一次。134项按原报告顺序预先冻结、来源SHA及封存review双重核验；110成功不重采，不改原奖励/快照/数据。
+- **接入**：第二组凭据只连 `https://api.deepseek.com`，请求模型 `deepseek-flash`；models和balance真实HTTP200。官方目录与更新日志确认Flash为V4.1-Flash-1017；实际响应名/ID/fingerprint原样留存，不沿用中转站任意别名策略。不公开凭据、余额或任务内容。
+- **工程**：新轻量 `official_retry.py` 复用原worker、评分、独立终态恢复和分词验收；新配置/源码锁及私有源码包独立。进程内仅映射旧worker需要的endpoint/model元数据，实际凭据始终读KEY1。`export_fresh_parallel.py`支持独立134清单，不冒充完成新244轮。
+- **预算/费用**：串行、每项80请求/16384生成/600秒、单回复4096，工具不限；无独立金额上限授权沿用。保守按官方人民币峰值费率估算，费用上界来自有限请求/上下文预算；估价与实际账户扣款分开，缺回执保留未知费用/用量。HTTP401/402/403及环境全局故障仍停派发，不自动重试可能计费请求。
+- **当前证据**：`runs/full732_official_retry_20261029_setup/`保存接入、价格、五版源码及测试；`runs/full732_official_retry_current_20261029/`为当前串行队列（继承32项）。恢复时核对19项已封存、原controller和worker均不存在，第20项只有claim且无模型request/response，保留为INTERRUPTED；独立后台进程继续未执行项。32项为此前中间记录。用户暂停时已封存69/134：21官方成功（18原样合格、3超长）、30官方失败、17UNKNOWN、1启动中断；第70项7e1be84_3暂停中，不入完成分母。已写stop_requested并SIGSTOP独立controller/worker进程组，不再发起请求；须用户明确继续后才处理现场及余64未领取项。
+- **诊断/修订**：12项后暂停（3有效失败/9未知）。确认一次HTTPS request_open发生SSLEOFError，不能归为Teacher任务失败；本机代理路径只读检查见D069。新增可选持久连接、证书验证/零重试/禁止重定向，pooled两任务试点连接正常后，stable独立配置继承14项，仅执行余120项；原数据和五版源码包不改。另一次37输入/12输出合成连接探针单列成本，不计Teacher示范。
+- **验证**：515项pytest通过、Ruff check及142文件format通过；软件回执测试不算Teacher成绩。历史锁按原commit复现，新生产锁单独验证；正式数据与报告在队列结束后生成，本轮无GPU/Student/训练/B/C。
+
+
 - 最后更新：2026-10-29（Asia/Shanghai）
 - 当前需求：`PROJECT_PLAN.md` / `AGENTS.md` v0.21；正式 Student `Qwen/Qwen3-4B`。
 - 当前状态：**Stage 3A A244首轮244/244已全部尝试并封存**。官方成功110、有效失败40、主链未知94；102条合格完整候选/102任务/102场景，8条超长暂缓，1588监督样本/244187监督token。110成功终态独立恢复10项一致全部通过。501测试/Ruff通过，最终数据与全部错误已导出；详见`reports/full732_a244_collection_20261028.md/json`及错误CSV。采集结束，未开启第二轮、GPU/Student/训练/B/C。
