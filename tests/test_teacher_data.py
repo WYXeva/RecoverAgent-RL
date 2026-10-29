@@ -657,3 +657,36 @@ def test_user_asserted_relay_names_are_audit_only_without_weakening_receipts(con
         old = copy.deepcopy(teacher)
         old.pop(key)
         assert not response_model_matches(old, raw["model"])
+
+
+def test_http_error_diagnostics_keep_only_hash_and_flags(config, monkeypatch):
+    import io
+    import urllib.error
+    import urllib.request
+    from recoveragent.teacher import http_error_diagnostic
+
+    body = (
+        b'{"error":{"message":"missing reasoning_content; synthetic-secret task text"}}'
+    )
+    diagnostic = http_error_diagnostic(body)
+    assert diagnostic["keyword_matches_only"]["reasoning_content"]
+    assert "synthetic-secret" not in str(diagnostic)
+    assert not diagnostic["raw_text_retained"]
+
+    class Opener:
+        def open(self, *args, **kwargs):
+            raise urllib.error.HTTPError(
+                "https://synthetic.invalid", 400, "secret", {}, io.BytesIO(body)
+            )
+
+    monkeypatch.setattr(urllib.request, "build_opener", lambda *args: Opener())
+    policy = TeacherPolicy(config, {config["teacher"]["api_key_env"]: "synthetic-key"})
+    with pytest.raises(TeacherTransportError) as old:
+        policy._post({})
+    assert old.value.diagnostic is None
+    config["teacher"]["http_error_diagnostics"] = "keyword_hash_v1"
+    with pytest.raises(TeacherTransportError) as new:
+        policy._post({})
+    assert str(new.value) == "Teacher HTTP 400; usage unknown"
+    assert new.value.diagnostic == diagnostic
+    assert "secret" not in str(new.value)

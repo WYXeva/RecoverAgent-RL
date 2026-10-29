@@ -1,6 +1,7 @@
 """Explicitly authorized, native structured Teacher function calling (no SDK retries)."""
 
 import copy
+import hashlib
 import json
 import math
 import os
@@ -59,6 +60,31 @@ class TeacherBlocked(ValueError):
 
 class TeacherTransportError(RuntimeError):
     """Response/usage is unknown. Do not retry or silently assign zero cost."""
+
+    def __init__(self, message, *, diagnostic=None):
+        super().__init__(message)
+        self.diagnostic = diagnostic
+
+
+def http_error_diagnostic(body):
+    """Bounded evidence, never provider text, credentials or request content."""
+    text = body.decode("utf-8", errors="replace").lower()
+    fields = {
+        "reasoning_content": "reasoning_content" in text,
+        "tool_call_id": "tool_call_id" in text,
+        "tool_messages": "tool messages" in text or "tool result" in text,
+        "max_tokens": "max_tokens" in text,
+        "context_length": "context length" in text or "context_length" in text,
+        "schema": "schema" in text,
+        "rate_limit": "rate limit" in text or "rate_limit" in text,
+    }
+    return {
+        "body_prefix_sha256": hashlib.sha256(body).hexdigest(),
+        "body_bytes_read": len(body),
+        "body_may_be_truncated": len(body) == 65537,
+        "keyword_matches_only": fields,
+        "raw_text_retained": False,
+    }
 
 
 def read_credentials(path=None):
@@ -255,9 +281,15 @@ class TeacherPolicy:
             ) as response:
                 return json.load(response)
         except urllib.error.HTTPError as exc:
-            # Provider bodies may contain request text or credentials. Retain status only.
+            # Never persist provider error text: it can echo prompts or credentials.
+            diagnostic = None
+            if self.config.get("http_error_diagnostics") == "keyword_hash_v1":
+                try:
+                    diagnostic = http_error_diagnostic(exc.read(65537))
+                except Exception:
+                    diagnostic = {"error_body_unavailable": True}
             raise TeacherTransportError(
-                f"Teacher HTTP {exc.code}; usage unknown"
+                f"Teacher HTTP {exc.code}; usage unknown", diagnostic=diagnostic
             ) from None
         except Exception as exc:
             raise TeacherTransportError(

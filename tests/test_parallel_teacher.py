@@ -288,7 +288,7 @@ def test_serial_config_and_dispatch_preserve_scope_without_overlap(
     assert serial["parallel_collection"]["workers"] == 1
     for key in ("limits", "student", "actor_prompt_variant", "tool_mode"):
         assert serial[key] == original[key]
-    assert len(serial["parallel_collection"]["continuation_reviews"]["reviews"]) == 39
+    assert len(serial["parallel_collection"]["continuation_reviews"]["reviews"]) == 51
     state, done, rows = simulate(monkeypatch, tmp_path, workers=1)
     assert state["peak"] == 1 and len(done) == len(rows) == 6
     assert state["started"] == [r["task_id"] for r in rows]

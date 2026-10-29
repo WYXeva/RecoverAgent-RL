@@ -674,6 +674,11 @@ def run_teacher_episode(config, task_id, output, credentials):
         if harness:
             if isinstance(exc, TeacherTransportError):
                 trajectory["provider_error"] = provider_error_record(exc)
+                if (
+                    config["teacher"].get("http_error_diagnostics") == "keyword_hash_v1"
+                    and exc.diagnostic is not None
+                ):
+                    trajectory["provider_error"]["diagnostic"] = exc.diagnostic
             if batch_open:
                 event.update(status="interrupted_batch", error_type=type(exc).__name__)
                 event["failure_category"] = failure_category(event)

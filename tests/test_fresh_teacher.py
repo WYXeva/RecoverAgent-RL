@@ -85,12 +85,21 @@ def test_schedule_budget_and_smoke_are_fixed():
         {
             "cost": settings["total_cost_cap"] - 0.5,
             "requests": settings["total_requests"] - 24,
-            "outputs": 3997206,
+            "outputs": 3997206
+            - sum(
+                v.get("outputs", 0)
+                for k, v in settings["reconciled_setup_usage"].items()
+                if k != rows[0]["task_id"]
+            ),
         },
     )
-    assert worker["remaining_cost"] == pytest.approx(0.5 - 0.0049605)
+    assert worker["remaining_cost"] == pytest.approx(
+        0.5 - sum(v["cost"] for v in settings["reconciled_setup_usage"].values())
+    )
     assert (
-        worker["remaining_requests"] == 20 and worker["remaining_generated_tokens"] == 6
+        worker["remaining_requests"]
+        == 24 - sum(v["requests"] for v in settings["reconciled_setup_usage"].values())
+        and worker["remaining_generated_tokens"] == 6
     )
     missing = copy.deepcopy(config)
     missing["authorization"]["max_cost"] = None

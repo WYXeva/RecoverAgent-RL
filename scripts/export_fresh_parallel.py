@@ -40,6 +40,11 @@ def export(config_path, campaign, destination, public_json):
                 continue
             review = read_review(home)
             source = Path(review["directory"])
+            source_trajectory = (
+                read_json(source / "trajectory.json")
+                if (source / "trajectory.json").exists()
+                else {}
+            )
             for receipt in (source / "requests").glob("*.response.json"):
                 response_names[str(read_json(receipt).get("model"))] += 1
             if (source / "evidence_manifest.json").exists():
@@ -72,6 +77,13 @@ def export(config_path, campaign, destination, public_json):
                 if source.with_suffix(".config.json").exists()
                 else None,
                 business_api_errors=review.get("business_api_errors"),
+                provider_http_status=review.get("provider_http_status"),
+                provider_diagnostic=source_trajectory.get("provider_error", {}).get(
+                    "diagnostic"
+                ),
+                episode_wall_seconds=source_trajectory.get("usage", {}).get(
+                    "wall_seconds"
+                ),
                 post_stop_diagnostic=review.get("post_stop_diagnostic"),
                 source=str(source),
                 review_sha256=sha256(home / "review.json"),
