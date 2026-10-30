@@ -1,0 +1,61 @@
+{
+  "format": "m1-inference-hardware-readiness-plan-v1",
+  "status": "USER_SELECTED_CANDIDATE_NOT_RENTED_OR_TESTED_BY_AGENT",
+  "planning_only_not_runtime_configuration": true,
+  "user_reported_hardware": {
+    "listing": "vGPU-32GB / 32 GB",
+    "nominal_GPU_memory_GB": 32,
+    "FP32_TFLOPS": 52.22,
+    "half_precision_Tensor_TFLOPS_approximate": 103,
+    "half_precision_format_verified": false,
+    "physical_GPU_model": null,
+    "provider": null,
+    "sharing_policy": null,
+    "hourly_price": null,
+    "host_CPU": null,
+    "host_RAM_GB": null
+  },
+  "inference_plan": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "M1_adapter_parameter_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c",
+    "GPU_count": 1,
+    "model_processes": 1,
+    "dtype": "bfloat16",
+    "quantization": null,
+    "retraining": false,
+    "max_context_tokens": 32768,
+    "silent_truncation": false,
+    "generation_probe_config": "configs/m1_inference_probe_20261030.json",
+    "maximum_synthetic_probe_wall_seconds": 300,
+    "synthetic_input_token_counts": [
+      2073,
+      16409,
+      32633
+    ],
+    "synthetic_output_tokens": 128
+  },
+  "before_real_task_dispatch": [
+    "Record actual GPU model, driver, available memory and any exposed virtualization/profile information",
+    "Verify CUDA and native BF16 compatibility with pinned inference dependencies",
+    "Verify the returned M1 checkpoint files and LoRA tensor hash",
+    "Run bounded synthetic short/long/near-32K probe and record numerical checks, speed, peak allocated/reserved/device memory",
+    "Measure time and confirm task/cost limits before any separately controlled real evaluation continuation"
+  ],
+  "existing_evidence": {
+    "observed_task_snapshot_count": 34,
+    "maximum_single_process_inference_allocated_bytes": 16631590912,
+    "complete_C244_worst_case": false
+  },
+  "remote_connection_attempted": false,
+  "GPU_started": false,
+  "rental_or_payment_performed": false,
+  "automatic_C244_resume": false,
+  "C244_attempted_unchanged": 46,
+  "caveats": [
+    "TFLOPS alone does not establish LLM throughput or cost per task",
+    "The vGPU product name alone does not establish whether compute is shared",
+    "32GB is a capacity estimate, not a measured compatibility or worst-case-memory pass",
+    "The 300-second supervisor stops probe processes, not cloud billing"
+  ]
+}
