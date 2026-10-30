@@ -1,0 +1,38 @@
+{
+  "status": "SINGLE_BACKEND_READY",
+  "observed_unix": 1793350222.0817852,
+  "started": {
+    "status": "RUNNING",
+    "started_unix": 1793350029.9036076,
+    "source_lock_sha256": "39f80153499fa0605a43cfeca3cda3917c1bddee45ec77b83d4f9b091cf1f67a",
+    "inherited_tasks": 44,
+    "max_concurrent_tasks": 1,
+    "training": false,
+    "checkpoint_selection": false,
+    "m1_parameter_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c"
+  },
+  "identity": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+    "checkpoint_id": "adapter:3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c"
+  },
+  "claims": [
+    {
+      "task_id": "31dc501_2",
+      "case_index": 44,
+      "started_unix": 1793350038.9585464,
+      "saved_requests": 10,
+      "saved_responses": 10
+    },
+    {
+      "task_id": "321ec38_1",
+      "case_index": 45,
+      "started_unix": 1793350129.805178,
+      "saved_requests": 14,
+      "saved_responses": 13
+    }
+  ],
+  "gpu": "16439, 39"
+}

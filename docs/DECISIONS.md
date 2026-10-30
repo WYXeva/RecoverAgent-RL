@@ -687,3 +687,5 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 独立`full732_c244_serial_fallback.py`与配置锁绑定前一总结SHA `acb16f3e95cc5eb4f19e796f03945c8d74186869b37997dbf7aa2728a313dd89`、44项前缀及两条允许的传输错误；原串行、双路源码及锁不改。调用原`full732_m1_backend`和原`full732_c244 worker`，从第45项起仅尝试未执行200项。
 - 软件验证：27项针对性测试通过、全套587 passed in 10.80s、Ruff通过；新锁SHA `39f80153499fa0605a43cfeca3cda3917c1bddee45ec77b83d4f9b091cf1f67a`。本条提交时为串行续跑准备完成，实际启动以回执为准；若新串行再发生基础设施错误，保持停止并报告，不自动循环恢复。
 - 双路停止证据：`reports/full732_c244_parallel_stop_20261030.json`。当前只有44/244尝试，未知不记失败，不能报告完整TGC；M1训练/重载/本地回传验收保持PASS。
+
+- 串行续跑已启动：实际源码`3a13935cae9e6ad0da8cb85d3dc4721eac8cf1f5`，归档SHA `1b56d0acc0586d8778fb63a8969ebfb48ed2670aad3fbf28fd135580e3ce5cac`，独立`runs/c244_serial_003/`继承全部44项。单后端真实M1哈希与已验收权重一致；第45项10请求/10回复后完成，第46项已保存真实请求/回复。原44项未重跑，完整244尚未完成。启动证据`reports/full732_c244_serial_fallback_launch_20261030.json`。
