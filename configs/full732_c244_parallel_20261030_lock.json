@@ -1,0 +1,19 @@
+{
+  "scope": "custom_full732_C244_M1_parallel2_20261030",
+  "base_commit": "ffd9a8522f7ea2537606dcee162354775d231721",
+  "serial_lock_sha256": "22545181f0701aaff9c5e71cf83cdb431717b982287f720d1f17b5baf294eb6a",
+  "concurrent_tasks": 2,
+  "ports": [
+    8768,
+    8769
+  ],
+  "model_generation_implementation": "unchanged full732_m1_backend.main in isolated namespace; socket binding only",
+  "task_and_scoring_implementation": "unchanged full732_c244.engine/run_episode",
+  "old_results": "sealed ordered prefix copied and SHA checked; no retries",
+  "budgets_changed": false,
+  "historical_locks_modified": false,
+  "files": {
+    "src/recoveragent/full732_c244_parallel.py": "e859891a9df6f647ec22f68fa4d7f80068ba22e360342068edae98a70a606300",
+    "tests/test_full732_c244_parallel.py": "26c59adf8ca39cbbe6a6876a7304624bfdf54d4a44558eef845011100f8ae6ac"
+  }
+}

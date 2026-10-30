@@ -120,6 +120,7 @@ def evaluation_report(root):
                 "usage",
                 "wall_seconds",
                 "error_type",
+                "evaluation_exception_types",
                 "policy",
             )
             if k in original
@@ -132,6 +133,19 @@ def evaluation_report(root):
             ):
                 raise ValueError("Scoring receipt differs from controller result")
             row["official_evidence_sha256"] = sha(path / "official_evaluation.json")
+            terminal = path / "terminal"
+            manifest = read(terminal / "manifest.json")
+            for file, expected in manifest["files"].items():
+                if (
+                    Path(file).is_absolute()
+                    or ".." in Path(file).parts
+                    or sha(terminal / file) != expected
+                ):
+                    raise ValueError("Evaluation terminal evidence differs: " + file)
+            row["terminal_manifest_sha256"] = sha(terminal / "manifest.json")
+            row["terminal_files_verified"] = len(manifest["files"])
+            row["terminal_logical_state_hash"] = manifest["logical_state_hash"]
+            row["terminal_history_hash"] = manifest["history_hash"]
         requests = sorted((path / "session/requests").glob("*.request.json"))
         responses = sorted((path / "session/requests").glob("*.response.json"))
         if requests:
