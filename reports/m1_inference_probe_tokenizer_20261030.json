@@ -1,0 +1,13 @@
+{
+  "status": "TOKENIZER_ONLY_PASS",
+  "actual_model_inference": false,
+  "source_lock_sha256": "33c401e1c86e86fc0997adb234a4e8bcc873dcd82837c97cd93383c97f998818",
+  "template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+  "input_tokens": [
+    2073,
+    16409,
+    32633
+  ],
+  "max_new_tokens": 128,
+  "raw_task_data_used": false
+}

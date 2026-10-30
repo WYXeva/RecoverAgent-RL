@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "scope": "tiny_random_Qwen3_CPU_only",
+  "actual_M1_tested": false,
+  "GPU_speedup_measured": false,
+  "CUDA_initialized": false,
+  "rows": [
+    {
+      "dtype": "torch.float32",
+      "max_abs_logit_error": 1.4901161193847656e-07,
+      "tolerance": 1e-05,
+      "adapter_effect_nonzero": true,
+      "original_adapter_files_unchanged": true
+    },
+    {
+      "dtype": "torch.bfloat16",
+      "max_abs_logit_error": 0.0029296875,
+      "tolerance": 0.02,
+      "adapter_effect_nonzero": true,
+      "original_adapter_files_unchanged": true
+    }
+  ]
+}

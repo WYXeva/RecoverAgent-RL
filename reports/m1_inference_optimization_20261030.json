@@ -1,0 +1,24 @@
+{
+  "status": "LOCAL_SOFTWARE_PREPARATION_PASS_GPU_NOT_RUN",
+  "source_lock_sha256": "33c401e1c86e86fc0997adb234a4e8bcc873dcd82837c97cd93383c97f998818",
+  "remote_actions": false,
+  "production_runtime_changed": false,
+  "M1_GPU_speedup_measured": false,
+  "L40_GPU_tested": false,
+  "C244_attempted_unchanged": 46,
+  "C244_status": "STOPPED_INCOMPLETE",
+  "observed_inference_memory": {
+    "snapshot_task_count": 34,
+    "maximum_allocated_bytes": 16631590912,
+    "maximum_allocated_GiB": 15.489376068115234,
+    "complete_C244_worst_case": false
+  },
+  "validation": {
+    "suite_passed": 602,
+    "suite_seconds": 10.45,
+    "final_targeted_tests_passed": 15,
+    "CPU_real_Peft_tiny_model": "reports/m1_inference_merge_cpu_20261030.json",
+    "synthetic_tokenizer": "reports/m1_inference_probe_tokenizer_20261030.json"
+  },
+  "next_gpu_work": "Only after user provides an available authorized device: bounded synthetic probe first; no automatic C244 dispatch."
+}

@@ -1,0 +1,11 @@
+{
+  "format": "m1-merged-lora-probe-source-lock-v1",
+  "scope": "offline preparation; opt-in synthetic benchmark only",
+  "files": {
+    "src/recoveragent/m1_inference_probe.py": "53b173eb084f26e8a2489db93b8d0ce998375618c7b65d2a91ce814a2524f402",
+    "configs/m1_inference_probe_20261030.json": "b3994d2bab8f920db12acb5a0e6eff9548e966da3adec9f92a6d1839287814fb",
+    "scripts/check_m1_merge_cpu.py": "f5027935c3f0c3c1b133337bc96078d9eab10f230117b3bdd92293bcc0a44d08",
+    "tests/test_m1_inference_probe.py": "fbf4b5abe00845c8ada4c92c8301727947dc9b4c8a6141a4f3dcecf8ede03951",
+    "configs/full732_c244_20261030_lock.json": "22545181f0701aaff9c5e71cf83cdb431717b982287f720d1f17b5baf294eb6a"
+  }
+}
