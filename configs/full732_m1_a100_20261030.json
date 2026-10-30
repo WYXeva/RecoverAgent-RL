@@ -1,0 +1,17 @@
+{
+  "hardware_contract": "full732_m1_a100_20261030",
+  "user_authorized_existing_machine": true,
+  "gpu_name_contains": "A100",
+  "minimum_vram_gib": 75,
+  "gpu_count": 1,
+  "bf16_required": true,
+  "raw_base_initialization": true,
+  "runtime_module": "recoveragent.full732_sft_a100_runtime",
+  "stage_configs": [
+    "configs/full732_m1_short_smoke.json",
+    "configs/full732_m1_long_smoke.json",
+    "configs/full732_m1_formal.json"
+  ],
+  "training_parameters_changed": false,
+  "C244_after_M1_acceptance": true
+}

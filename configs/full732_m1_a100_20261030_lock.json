@@ -1,0 +1,11 @@
+{
+  "hardware_contract": "full732_m1_a100_20261030",
+  "base_commit": "ce0f98aced59f818fe786099180befb04db51064",
+  "base_runtime_lock_sha256": "d4b3941348a71570b0b093f929e1dac1869935a04c05777c8becefb7182c1959",
+  "files": {
+    "src/recoveragent/full732_sft_a100_runtime.py": "6948deeeca352b4f6fa67abe0d980384f8e58167be73b1b41236422404540ed9",
+    "scripts/run_full732_m1_a100_training.py": "c62ff6d549b1eb0273c78ee3a270e946249c1a0720051bc477243b3f39d0e8b8",
+    "configs/full732_m1_a100_20261030.json": "86a036f38e62d0959f8b9fa10985927700a25132ad05c64cce435be25a8f0751",
+    "tests/test_full732_sft_a100.py": "4ba5d4e44ebd80df2b2269ff39cdaf4eba28e48a06b594bd4211005778ff36c1"
+  }
+}
