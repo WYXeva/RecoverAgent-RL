@@ -1,8 +1,8 @@
 # RecoverAgent-RL · 分阶段实施门禁（2026-10-27）
 
-> **2026-10-30 用户补充覆盖范围**：本轮授权 M1 验收后运行固定 C244。先完成短/长烟测和全量一轮训练重载，随后独立评估，不让C进入训练loss或checkpoint选择；本条覆盖下文历史“不运行C244”的范围限制。当前仅本地数据和软件准备通过，SSH被会话socket权限阻断，未训练、未评估。Recovery-SFT/GRPO仍不在本轮范围。
+> **2026-10-30 用户补充覆盖范围**：本轮授权 M1 验收后运行固定 C244。先完成短/长烟测和全量一轮训练重载，随后独立评估，不让C进入训练loss或checkpoint选择；本条覆盖下文历史“不运行C244”的范围限制。SSH已恢复，当前实际A100 80GB经用户确认启用；远程数据及两次真实烟测通过，正式2070样本一轮训练/259步及保存重载验收PASS，固定C244正在运行。Recovery-SFT/GRPO仍不在本轮范围。
 
-> **当前唯一工作：Stage 3B — 使用冻结的138条Teacher候选训练新的Base-SFT M1。** 用户已确认数据可用于训练；不再重复做历史数据/服务条款审查。严格按 [docs/P4_STAGE3B_BASE_SFT_TRAINING.md](P4_STAGE3B_BASE_SFT_TRAINING.md) 先数据复验，再短烟测、最长样本烟测、正式训练，结束即停。C244是唯一验证集；本阶段不得创建第二个validation split或执行C244评估，不得开始Recovery-SFT/GRPO。
+> **当前唯一工作：Stage 3B — 使用冻结的138条Teacher候选训练新的Base-SFT M1。** 用户已确认数据可用于训练；不再重复做历史数据/服务条款审查。严格按 [docs/P4_STAGE3B_BASE_SFT_TRAINING.md](P4_STAGE3B_BASE_SFT_TRAINING.md) 先数据复验，再短烟测、最长样本烟测、正式训练，M1通过后按本轮补充授权执行固定C244，再停止等待审查。C244是唯一验证集；不得创建第二个validation split或以C选checkpoint，不得开始Recovery-SFT/GRPO。
 > 本文是面向 Codex 的**工作范围控制文件**，不是 Student/Teacher 的 System Prompt。
 > 业务执行 System Prompt 唯一源码保持 `src/recoveragent/execution_v6.py`，不得修改其文本、拼接额外段落或悄悄切回 v5。
 > 原始 AppWorld 官方划分、历史实验与发布 checkpoint 均保持不变。每一阶段只有用户明确下达下一阶段指令才可推进。

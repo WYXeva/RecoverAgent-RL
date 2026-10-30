@@ -655,3 +655,13 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 远程138/2070/338413重新分词、Assistant-only mask、全部SHA与A/B/C隔离PASS。短4样本2步和最长32693 Token1步真实训练均PASS：梯度有限非零，LoRA变化，保存重载参数hash同一、logits误差0；最长峰值allocated24866828288 bytes。正式2070样本1 epoch启动，dataloader预期259优化步，不把正在运行当完成。
 - C244单独新入口复用原Student函数，绑定当前源代码及旧v6会话契约，保留旧C30入口和旧锁；C244任务和原split清单均固定。需要正式M1最终回执、文件哈希和参数重载验收后才能加载后端。当前未启动C任务，未知不记0，不以C选checkpoint，不执行Recovery-SFT/GRPO。
 - 软件全套571 passed，新增文件Ruff通过。M1训练与C244最终状态仍以报告后续真实证据为准。
+
+## D075 · 2026-10-30 · 新Full732 M1完整一轮验收与固定C244启动
+
+- 短4样本2步、最长完整32693 Token样本1步均PASS后，独立从raw Qwen3-4B初始化正式M1；2070样本完整消费一次，实际259 optimizer steps，epoch1.0，259次梯度检查均有限非零。训练loss0.17856314776889606不是验证成绩，训练时间7730.1125秒；不建立A内部validation。
+- 正式LoRA初始hash029b8418…变为3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c；保存重载后hash完全相同，logits最大误差0，最终回执SHA e3ed1f2c343f71552cdb2965d36492ae5b81c3835eb9e544ce6be14dbbdcd895。峰值allocated25125226496、reserved36438016000 bytes，GPU实际A100 80GB。
+- 50/100/150/200/250 checkpoint观察与第100步真实参数变化另存；按冻结save_total_limit保留最终250/259状态。两次烟测产物已回传、50/35文件SHA全部验证；正式归档883090152 bytes，SHA405c33479df36d31471f26376d2d5411ee12018b5fe34dae116482ba5cc4c0bf，回传进行中，不提前宣称本地正式权重验证完成。
+- 训练后只读源包复验仍PASS，原manifest96265f67…及138/2070/338413未变。期间SSH MaxStartups临时中断监控，认证连接复用后恢复；训练连续运行，没有重发训练、续训或重复优化步。
+- 用户已明确追加本轮C244。守卫仅在M1整体PASS后启动独立C244；后端真实参数hash与最终M1绑定，首项真实模型/官方评分回执已经产生。固定全244，未知不记0，不以C选checkpoint，不执行M2/M3、Recovery-SFT、GRPO或B侧采集。C244当前未完成，最终成绩和完整分母待全部实际结果后报告。
+
+- 补充只读验收：正式checkpoint的50文件远端SHA全部匹配冻结回执；配置、259步loss/梯度和观察证据汇总到`reports/full732_m1_verified_training_20261030.json`，曲线为`reports/full732_m1_training_curve_20261030.svg`。首次归档SCP因连接重置中断，已核对下载前缀SHA后按字节续传；不重启训练或C244。

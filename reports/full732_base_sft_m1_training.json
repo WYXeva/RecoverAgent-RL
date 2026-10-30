@@ -1,5 +1,5 @@
 {
-  "status": "FORMAL_TRAINING_RUNNING",
+  "status": "M1_PASS_C244_RUNNING",
   "source_commit": "a6cae3569bf715b1e7854a286b9e2415f0a61702",
   "hardware": "NVIDIA A100-SXM4-80GB",
   "hardware_change_user_confirmed": true,
@@ -31,9 +31,36 @@
     }
   },
   "formal_expected_optimizer_steps": 259,
-  "formal_final_optimizer_steps": null,
-  "M1_accepted": false,
-  "C244_tasks_attempted": 0,
+  "formal_final_optimizer_steps": 259,
+  "M1_accepted": true,
+  "C244_tasks_attempted": 1,
   "training_validation": null,
-  "previous_network_blocked_report": "reports/full732_m1_network_blocked_20261030.json"
+  "previous_network_blocked_report": "reports/full732_m1_network_blocked_20261030.json",
+  "formal_acceptance": {
+    "status": "PASS",
+    "optimizer_steps": 259,
+    "checkpoint_reloaded": true,
+    "parameter_update_and_reload_pass": true,
+    "trainable_before_hash": "029b841888928835aab325ecfa0f304f271829422a58776f5a0daa6dcd1f9f49",
+    "trainable_after_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c",
+    "restored_trainable_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c",
+    "peak_allocated_bytes": 25125226496,
+    "peak_reserved_bytes": 36438016000,
+    "training_wall_seconds": 7730.112522464246,
+    "total_wall_seconds": 7757.609956134111,
+    "reload_max_abs_error": 0.0,
+    "metrics": {
+      "train_runtime": 7729.3062,
+      "train_samples_per_second": 0.268,
+      "train_steps_per_second": 0.034,
+      "total_flos": 5.0120705531687424e+17,
+      "train_loss": 0.17856314776889606,
+      "epoch": 1.0
+    }
+  },
+  "C244_complete": false,
+  "formal_backup_status": "TRANSFERRING",
+  "training_evidence": "reports/full732_m1_verified_training_20261030.json",
+  "training_curve": "reports/full732_m1_training_curve_20261030.svg",
+  "formal_remote_checkpoint_files_verified": 50
 }

@@ -1,13 +1,13 @@
 # 项目状态
 
-## Stage 3B：A100两次烟测通过，正式M1训练中（2026-10-30）
+## Stage 3B：M1训练及重载PASS，C244执行中（2026-10-30）
 
-- SSH/git网络已恢复；当前既有GPU实际为A100-SXM4-80GB，用户确认后使用独立A100补充配置/源码锁，原PRO6000/P3-B锁和checkpoint不改。
-- 远程原始包SHA、2070样本重新分词/338413监督token/Assistant-only mask和A/B/C隔离PASS，旧95未读取。
-- 短烟测4样本/2步PASS；最长32693 Token样本/1步PASS，峰值23.159 GiB。两者有限非零梯度、真实参数变化、保存重载hash相同，logits误差0。
-- 正式全量1 epoch已启动，dataloader2070 batch、259预期优化步，尚未完成最终验收。不建A内部验证集，不以训练loss冒充验证。
-- 固定C244是M1验收后的下一步，当前0任务；新独立入口及锁准备，571项软件测试通过。不启动Recovery-SFT/GRPO或B侧采集。
-- 证据：`reports/full732_base_sft_m1_training.md/json`、`reports/full732_m1_a100_smoke_evidence_20261030.json`；私有远程目录`recoveragent_full732_m1_20261030/runs/run_001`。历史网络阻塞记录另存，不能再解释为当前未连接。
+- 既有A100 80GB已由用户确认；远程数据SHA/全部2070样本重新分词/Assistant-only mask/A-B-C隔离通过，原始包不变，旧95未读取。
+- 两次真实烟测PASS并已回传完整产物，50/35文件SHA逐一匹配；正式138候选、2070样本完整1 epoch，实际259步，梯度全部有限非零。
+- 正式训练loss 0.1785631（训练指标），耗时7730.11秒；峰值allocated23.400 GiB、reserved33.936 GiB。最终LoRA参数hash `3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c`，真实变化且重载hash完全一致，logits误差0。
+- 固定C244已在M1验收后启动；当前未完成，不能给完整TGC。只加载最终M1，execution_v6/动态发现/固定预算/Memory关闭，无A内部验证集，无C选checkpoint，无Recovery-SFT/GRPO。
+- 正式训练归档已封存、正在续传；远端正式checkpoint50文件SHA复核通过，训练loss/梯度曲线已生成，本地完整归档验收待传输完成。训练期间SSH曾触发MaxStartups，连接复用恢复监控，训练未重启。
+- 证据：`reports/full732_base_sft_m1_training.md/json`、`reports/full732_m1_formal_acceptance_20261030.json`；完整私有产物目录`runs/full732_m1_remote_20261030/`。C244完成后更新最终报告并停止等待审查。
 
 ## 官方134专项复试与最终成功包（2026-10-29，已完成并停止）
 
