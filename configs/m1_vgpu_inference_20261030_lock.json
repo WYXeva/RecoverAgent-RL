@@ -1,0 +1,13 @@
+{
+  "format": "m1-vgpu32-inference-source-lock-v1",
+  "runtime_variant": "m1_vgpu32_session_deadline_20261030",
+  "original_C244_lock_sha256": "22545181f0701aaff9c5e71cf83cdb431717b982287f720d1f17b5baf294eb6a",
+  "files": {
+    "src/recoveragent/m1_vgpu_inference.py": "38741ed0b7cea79df2682062fa7164fad512f98b219475020f61809639c5f243",
+    "src/recoveragent/m1_vgpu_resume.py": "90845428a7b0899148aaf65b11b22f02ec55fb50a854fe18fd64286b9e725787",
+    "tests/test_m1_vgpu_inference.py": "655d3e06ee4fef9f42f76fe7842e7da386d63eb2f0d6a17471e0a6951bc80f7f",
+    "configs/m1_inference_probe_20261030_lock.json": "33c401e1c86e86fc0997adb234a4e8bcc873dcd82837c97cd93383c97f998818",
+    "reports/full732_c244_final_stop_20261030.json": "07cd88316e3e12e677227d08ba0786fee4f73065f31b0f44e777f67cd86a422b",
+    "configs/m1_vgpu32_readiness_20261030.json": "c56667d80947c3dd86cc02075e585c3bb0d33c25726d5970d76cbb83e58a3ecc"
+  }
+}
