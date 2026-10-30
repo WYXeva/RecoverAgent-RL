@@ -1,0 +1,62 @@
+{
+  "status": "RUNNING",
+  "updated_unix": 1793357998.0553918,
+  "GPU": "NVIDIA GeForce RTX 4080 SUPER",
+  "memory_MiB": 32760,
+  "BF16": true,
+  "M1_parameter_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c",
+  "model_revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+  "training_repeated": false,
+  "probe001": "FAILED_SOFTWARE_EXCLUSIVE_PROGRESS_WRITE",
+  "probe002": "MERGE_REJECTED_NUMERICAL_ERROR",
+  "merge_error": 0.5,
+  "frozen_merge_error_threshold": 0.25,
+  "merge_optimization_enabled": false,
+  "original_unmerged_reference_memory_gate": "PASS",
+  "reference_measurements": [
+    {
+      "input_tokens": 2073,
+      "output_tokens": 128,
+      "repeats": 3,
+      "median_seconds": 9.994681943906471,
+      "peak_allocated_bytes": 8774185984,
+      "peak_reserved_bytes": 8948547584
+    },
+    {
+      "input_tokens": 16409,
+      "output_tokens": 128,
+      "repeats": 3,
+      "median_seconds": 12.740897123934701,
+      "peak_allocated_bytes": 12452115456,
+      "peak_reserved_bytes": 13883146240
+    },
+    {
+      "input_tokens": 32633,
+      "output_tokens": 128,
+      "repeats": 3,
+      "median_seconds": 17.57508910400793,
+      "peak_allocated_bytes": 16615472640,
+      "peak_reserved_bytes": 18966642688
+    }
+  ],
+  "new_runtime_variant": "m1_vgpu32_reference_lora_deadline_20261030",
+  "runtime_lock_sha256": "ab9b801438ae361733384857929c7b21f5b4a6695d021355ab2b67a16c838d06",
+  "source_commit": "e8bfbe7de1c4df4da2617fa8655de17308718ce9",
+  "software_tests": "633 passed in 10.28s; Ruff PASS",
+  "historical_C244": {
+    "attempted": 46,
+    "success": 5,
+    "failure": 37,
+    "unknown": 4,
+    "raw_artifact_return_complete": false
+  },
+  "new_task_count_completed": 0,
+  "first_new_task": "325d6ec_3",
+  "ordered_remaining_tasks": 198,
+  "TGC": null,
+  "shutdown_authorized": true,
+  "shutdown_configured_after_backup": true,
+  "shutdown_executed": false,
+  "local_evidence": "runs/m1_vgpu32_20261030/",
+  "original_training_evidence_unchanged": true
+}
