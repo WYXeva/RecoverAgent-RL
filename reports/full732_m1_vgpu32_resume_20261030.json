@@ -1,6 +1,6 @@
 {
   "status": "RUNNING",
-  "updated_unix": 1793357998.0553918,
+  "updated_unix": 1793358338.880704,
   "GPU": "NVIDIA GeForce RTX 4080 SUPER",
   "memory_MiB": 32760,
   "BF16": true,
@@ -50,7 +50,7 @@
     "unknown": 4,
     "raw_artifact_return_complete": false
   },
-  "new_task_count_completed": 0,
+  "new_task_count_completed": 1,
   "first_new_task": "325d6ec_3",
   "ordered_remaining_tasks": 198,
   "TGC": null,
@@ -58,5 +58,18 @@
   "shutdown_configured_after_backup": true,
   "shutdown_executed": false,
   "local_evidence": "runs/m1_vgpu32_20261030/",
-  "original_training_evidence_unchanged": true
+  "original_training_evidence_unchanged": true,
+  "current_C244_counts": {
+    "attempted": 47,
+    "new_attempted": 1,
+    "success": 6,
+    "failure": 37,
+    "unknown": 4
+  },
+  "local_return_verified_tasks": [
+    "325d6ec_3"
+  ],
+  "first_new_task_official_success": true,
+  "first_new_task_wall_seconds": 260.6733720418997,
+  "first_new_task_archive_sha256": "f0dac551cf3d6080a4728916de971bb05a97ef126d5568adbfc4ef4594a1f2a0"
 }
