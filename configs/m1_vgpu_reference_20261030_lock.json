@@ -1,0 +1,10 @@
+{
+  "format": "m1-vgpu-original-reference-source-lock",
+  "scope": "original unmerged PEFT model; rejected merge retained; independent reference memory gate",
+  "files": {
+    "src/recoveragent/m1_vgpu_reference_backend.py": "0e07d3a07af0f69a8a582b63af7379af1ae0931a254b572fb2def2af503647f0",
+    "src/recoveragent/m1_vgpu_reference_resume.py": "3358069d634633ef69973960e0c4fb8373c409ec743d71be9b9d90b668ab5402",
+    "tests/test_m1_vgpu_reference.py": "199b8511f33705509e202da26d44566b45e2375f754f0fc44b8ca070d5005a40",
+    "configs/m1_vgpu_runtime_v2_20261030_lock.json": "1ce5f86d857141f094452665666fc75716b2c76183646aa722cb5b22fcfe9c9f"
+  }
+}
