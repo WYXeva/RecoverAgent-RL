@@ -121,6 +121,9 @@ def evaluation_report(root):
                 "wall_seconds",
                 "error_type",
                 "evaluation_exception_types",
+                "parallel_scheduler",
+                "serial_continuation",
+                "config_hash",
                 "policy",
             )
             if k in original
@@ -162,6 +165,10 @@ def evaluation_report(root):
         unattempted_task_ids=[r["task_id"] for r in summary["unattempted"]],
         terminations=dict(Counter(r.get("termination", "no_session") for r in rows)),
         policy=read(root / "backend_identity.json"),
+        run_started=read(root / "started.json"),
+        run_finished=read(root / "summary.json")
+        if (root / "summary.json").exists()
+        else None,
         tasks_with_saved_model_requests=sum(r["saved_requests"] > 0 for r in rows),
         tasks_with_saved_model_responses=sum(r["saved_responses"] > 0 for r in rows),
         tasks_with_tool_dispatch_attempts=sum(

@@ -1,0 +1,97 @@
+{
+  "status": "STOPPED",
+  "driver": {
+    "status": "STOPPED",
+    "started_unix": 1793346403.574565,
+    "inherited_tasks": 26,
+    "source_lock_sha256": "35be8e18189da6201a0db0c9eed45356fab35515f5c67defb3b1f86bf2c2e043",
+    "max_concurrent_tasks": 2,
+    "checkpoint_selection": false,
+    "training": false,
+    "m1_parameter_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c",
+    "stop_reason": "worker_infrastructure_failure",
+    "attempted": 44,
+    "valid": 41,
+    "success": 4,
+    "unknown": 3,
+    "TGC": null,
+    "finished_unix": 1793349077.4848616
+  },
+  "counts": {
+    "attempted": 44,
+    "valid": 41,
+    "success": 4,
+    "failure": 37,
+    "unknown": 3,
+    "infrastructure_error": 2,
+    "TGC": null
+  },
+  "unknown_rows": [
+    {
+      "task_id": "16be9ce_3",
+      "status": "evaluation_error",
+      "evaluation_exception_types": [
+        "TypeError"
+      ],
+      "usage": {
+        "model_requests": 9,
+        "generated_tokens": 367,
+        "prompt_tokens": 48176,
+        "tool_calls": 9,
+        "unknown_generation_reservation": 0,
+        "tool_requests": 9,
+        "harness_rejections": 0,
+        "protocol_rejections": 0,
+        "harness_notices": 0
+      },
+      "termination": "completion_claim",
+      "wall_seconds": 80.9788967333734,
+      "saved_requests": 9,
+      "saved_responses": 9
+    },
+    {
+      "task_id": "2ff4dfb_1",
+      "status": "infrastructure_error",
+      "error_type": "TimeoutError",
+      "usage": {
+        "model_requests": 23,
+        "generated_tokens": 2806,
+        "prompt_tokens": 318046,
+        "tool_calls": 35,
+        "unknown_generation_reservation": 4096,
+        "tool_requests": 35,
+        "harness_rejections": 0,
+        "protocol_rejections": 0,
+        "harness_notices": 2
+      },
+      "termination": "infrastructure_error",
+      "wall_seconds": 493.32134937494993,
+      "saved_requests": 23,
+      "saved_responses": 22
+    },
+    {
+      "task_id": "30e8586_3",
+      "status": "infrastructure_error",
+      "error_type": "RemoteDisconnected",
+      "usage": {
+        "model_requests": 3,
+        "generated_tokens": 73,
+        "prompt_tokens": 10624,
+        "tool_calls": 3,
+        "unknown_generation_reservation": 4096,
+        "tool_requests": 3,
+        "harness_rejections": 0,
+        "protocol_rejections": 0,
+        "harness_notices": 0
+      },
+      "termination": "infrastructure_error",
+      "wall_seconds": 39.07707741856575,
+      "saved_requests": 3,
+      "saved_responses": 2
+    }
+  ],
+  "summary_sha256": "acb16f3e95cc5eb4f19e796f03945c8d74186869b37997dbf7aa2728a313dd89",
+  "backend_error_records": [],
+  "causal_attribution_to_parallelism_established": false,
+  "automatic_retries": false
+}

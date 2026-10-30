@@ -1,0 +1,15 @@
+{
+  "scope": "custom_full732_C244_M1_serial_fallback_20261030",
+  "reason": "User requested optional parallelism; retain the recorded 44 attempts and return to serial for the remaining 200",
+  "prior_summary_sha256": "acb16f3e95cc5eb4f19e796f03945c8d74186869b37997dbf7aa2728a313dd89",
+  "inherited_count": 44,
+  "allowed_prior_transport_errors": {
+    "2ff4dfb_1": "TimeoutError",
+    "30e8586_3": "RemoteDisconnected"
+  },
+  "max_concurrent_tasks": 1,
+  "retry_existing_attempts": false,
+  "budgets_changed": false,
+  "http_request_timeout_seconds": 180,
+  "historical_locks_modified": false
+}

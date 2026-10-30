@@ -1,0 +1,11 @@
+{
+  "scope": "custom_full732_C244_M1_serial_fallback_20261030",
+  "base_commit": "65c8f1007849eb2421df5364f9ad40dab3641056",
+  "parallel_lock_sha256": "35be8e18189da6201a0db0c9eed45356fab35515f5c67defb3b1f86bf2c2e043",
+  "historical_locks_modified": false,
+  "files": {
+    "src/recoveragent/full732_c244_serial_fallback.py": "d1453f3c39222b048529281445bacd133b860a4528103a5712ee2c380c229a42",
+    "configs/full732_c244_serial_fallback_20261030.json": "230c3c57041e8648bb65fe78a38b859067d48b65fbb9137a2a88579330b02a67",
+    "tests/test_full732_c244_serial_fallback.py": "a73e86c3eee77b9a523ae70201e744dd87fd5da5384536650a0bfe3a4f927682"
+  }
+}
