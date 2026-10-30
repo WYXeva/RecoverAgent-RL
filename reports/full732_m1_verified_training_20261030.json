@@ -3917,7 +3917,7 @@
       "trainer_state_sha256": "ed34f319121530c5b401fb77113eab78f66b7381192fe87e563e62cb48753e16"
     }
   ],
-  "verification_location": "remote immutable completed run; checkpoint archive still transferring to local",
+  "verification_location": "Remote immutable completed run and locally returned complete artifacts; all stage files match",
   "source_commits": {
     "requested_ancestor": "88836690c2ada2a14fc254a2f480ce2e44562773",
     "training": "a6cae3569bf715b1e7854a286b9e2415f0a61702",
@@ -3926,5 +3926,6 @@
   "source_archives_sha256": {
     "training": "1d0732b05ea6fb54bf8036ba9c370d14eada1b2f9381cc83360da13c72aaef1e",
     "evaluation": "8ba7e14855a97a2d4f71f45767fbd4058e72e57c9c228bf058de29d68e0cf776"
-  }
+  },
+  "artifact_return_evidence": "reports/full732_m1_artifact_return_20261030.json"
 }

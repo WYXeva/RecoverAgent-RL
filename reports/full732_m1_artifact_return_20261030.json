@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "archive": {
+    "archive_sha256": "405c33479df36d31471f26376d2d5411ee12018b5fe34dae116482ba5cc4c0bf",
+    "bytes": 883090152,
+    "verified_unix": 1793347221.7834413,
+    "transport": "SSH byte-range resume; verified prefix and complete archive",
+    "extracted": true
+  },
+  "local_parameter_verification": {
+    "status": "PASS",
+    "adapter_parameter_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c",
+    "tensor_count": 504,
+    "device": "cpu",
+    "verified_unix": 1793347267.3228095,
+    "matches_remote_training_and_reload": true
+  },
+  "checkpoint_files_verified": {
+    "short_smoke": 50,
+    "long_smoke": 35,
+    "formal": 50
+  },
+  "local_evidence_identical_to_remote": true,
+  "pipeline_summary_sha256": "7e5a4948b4a6adf3d91ab8755a2c6c8cd73973298bd6fec389ab0693b2a00b16",
+  "formal_receipt_sha256": "e3ed1f2c343f71552cdb2965d36492ae5b81c3835eb9e544ce6be14dbbdcd895",
+  "private_artifact_directory": "runs/full732_m1_remote_20261030",
+  "raw_weights_or_task_contents_published": false
+}

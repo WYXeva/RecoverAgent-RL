@@ -17,8 +17,10 @@
   "remote_checkpoint": "/root/gpufree-data/recoveragent_full732_m1_20261030/runs/run_001/formal",
   "raw_weights_included": false,
   "complete_archive_sha256": "405c33479df36d31471f26376d2d5411ee12018b5fe34dae116482ba5cc4c0bf",
-  "local_complete_archive_verified": false,
+  "local_complete_archive_verified": true,
   "source_provenance": "Fresh raw Qwen3-4B with Full732 A244 qualified Teacher data; smoke checkpoints are not parents",
   "historical_checkpoint_parent": false,
-  "optimizer_resume_verified": false
+  "optimizer_resume_verified": false,
+  "local_adapter_tensor_hash_verified": true,
+  "artifact_return_evidence": "reports/full732_m1_artifact_return_20261030.json"
 }

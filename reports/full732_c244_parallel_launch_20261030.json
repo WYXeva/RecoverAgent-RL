@@ -1,0 +1,43 @@
+{
+  "status": "TWO_BACKENDS_READY",
+  "observed_unix": 1793346564.0750852,
+  "inherited_count": 26,
+  "handoff_sha256": "e86a82b9e539749b70c567be834300671c155e01ba2d7d709db24ed6a4f0a12b",
+  "source_commit": "2bb9200ee14133baf9373346863cecb7937afe68",
+  "source_lock_sha256": "35be8e18189da6201a0db0c9eed45356fab35515f5c67defb3b1f86bf2c2e043",
+  "identities": [
+    {
+      "model": "Qwen/Qwen3-4B",
+      "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "thinking": false,
+      "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+      "checkpoint_id": "adapter:3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c"
+    },
+    {
+      "model": "Qwen/Qwen3-4B",
+      "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+      "thinking": false,
+      "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+      "checkpoint_id": "adapter:3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c"
+    }
+  ],
+  "claims": [
+    {
+      "task_id": "22cc237_3",
+      "case_index": 26,
+      "lane": 0,
+      "started_unix": 1793346425.7215502,
+      "saved_requests": 18,
+      "saved_responses": 17
+    },
+    {
+      "task_id": "23cf851_3",
+      "case_index": 27,
+      "lane": 1,
+      "started_unix": 1793346425.7227862,
+      "saved_requests": 20,
+      "saved_responses": 19
+    }
+  ],
+  "gpu": "31945, 100"
+}

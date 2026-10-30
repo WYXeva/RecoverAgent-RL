@@ -1,5 +1,5 @@
 {
-  "status": "M1_PASS_C244_RUNNING",
+  "status": "M1_PASS_C244_PARALLEL_RUNNING",
   "source_commit": "a6cae3569bf715b1e7854a286b9e2415f0a61702",
   "hardware": "NVIDIA A100-SXM4-80GB",
   "hardware_change_user_confirmed": true,
@@ -33,7 +33,7 @@
   "formal_expected_optimizer_steps": 259,
   "formal_final_optimizer_steps": 259,
   "M1_accepted": true,
-  "C244_tasks_attempted": 1,
+  "C244_tasks_attempted": 31,
   "training_validation": null,
   "previous_network_blocked_report": "reports/full732_m1_network_blocked_20261030.json",
   "formal_acceptance": {
@@ -59,8 +59,32 @@
     }
   },
   "C244_complete": false,
-  "formal_backup_status": "TRANSFERRING",
+  "formal_backup_status": "VERIFIED",
   "training_evidence": "reports/full732_m1_verified_training_20261030.json",
   "training_curve": "reports/full732_m1_training_curve_20261030.svg",
-  "formal_remote_checkpoint_files_verified": 50
+  "formal_remote_checkpoint_files_verified": 50,
+  "parallel_evaluation": {
+    "status": "RUNNING",
+    "inherited_serial_tasks": 26,
+    "max_concurrent_tasks": 2,
+    "source_commit": "2bb9200ee14133baf9373346863cecb7937afe68",
+    "source_lock_sha256": "35be8e18189da6201a0db0c9eed45356fab35515f5c67defb3b1f86bf2c2e043",
+    "launch_evidence": "reports/full732_c244_parallel_launch_20261030.json",
+    "task_budgets_unchanged": true,
+    "speedup_measured": false,
+    "scheduled_parallel_tasks": 218
+  },
+  "artifact_return_evidence": "reports/full732_m1_artifact_return_20261030.json",
+  "C244_progress_snapshot": {
+    "observed_unix": 1793347358.3486736,
+    "attempted": 31,
+    "valid": 30,
+    "success": 4,
+    "failure": 26,
+    "unknown": 1,
+    "infrastructure_error": 0,
+    "TGC": null,
+    "complete_valid_evaluation": false
+  },
+  "formal_local_checkpoint_files_verified": 50
 }
