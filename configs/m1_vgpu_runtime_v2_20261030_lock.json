@@ -1,0 +1,9 @@
+{
+  "format": "m1-vgpu-runtime-v2-source-lock",
+  "reason": "atomic live status pointers with immutable history; preserve original failed probe",
+  "files": {
+    "src/recoveragent/m1_vgpu_runtime_v2.py": "6e927452de958863baaa644f543acc590b7e97a726541d00870707c24f472e86",
+    "tests/test_m1_vgpu_runtime_v2.py": "df184fc86ed8a34867f757522c8649aa7a4ef2425c5fa662654a1bca46399c0a",
+    "configs/m1_vgpu_inference_20261030_lock.json": "832d4e1a550bea56ce82cb90e8a01905762dd4097c4a6a318c830a1db7d64a4a"
+  }
+}
