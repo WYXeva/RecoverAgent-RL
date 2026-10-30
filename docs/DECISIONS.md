@@ -639,3 +639,11 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 最终私有包data/full732_teacher_successes_complete_20261029及同名tar.gz，manifest SHA96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f，归档SHA64c2a5854f0a3a9cfab72f71e13682dce5e535ff0b885768b98dc0073d6a7a48。新源码清单/模型revision/template与原/新history哈希保留。2070样本新进程重新分词逐token一致，归档解压验证PASS；旧102包与暂停时126候选包所有文件SHA不变。
 - 官方本轮2059模型请求尝试（含1合成连接探针）、已知输入39107949/输出1458073、4320实际工具。峰值费率估算CNY33.08476232，未知预留CNY27.68896不是账单。余额只读查询先SSL失败、后200；期末比期初净增加CNY0.65，原因未核验，不能由余额差推出本轮实际扣款。逐请求账单未知、relay币种/费用不混算。
 - 535pytest及Ruff/145文件format通过。新增结果报告/最终清单与包，不变更正在执行源码/Prompt/官方评分，不放宽过滤。采集范围已经结束，无新付费重试、Student/GPU、Base-SFT、Recovery-SFT、GRPO或B/C；新训练仍须独立recipe绑定最终manifest和真实烟测。
+
+## D073 · 2026-10-30 · Full732 M1训练授权、独立适配与会话网络阻塞
+
+- 用户明确确认最终138条Teacher候选可用于训练，指定RTX PRO 6000 96GB、原始固定Qwen3-4B、BF16+LoRA、最多2步/4短样本烟测、最长完整样本1步烟测、全部2070样本单epoch；不重新审查许可或历史95。最后一句“本轮需要进行C244评估”覆盖同一请求较早的“不进行C244”，按M1验收后独立C244解释，非训练validation或checkpoint选择；不授权Recovery-SFT/GRPO。
+- 远端分支HEAD为88836690c2ada2a14fc254a2f480ce2e44562773，637受控文件与该树逐blob一致。本地.git只读且空、终端clone禁止socket，因此使用GitHub连接器同步/发布，未声称终端pull/push成功。SSH读取系统配置首先因所有权校验失败；显式空客户端配置后两次在socket创建阶段被拒绝，第二次发生在用户说明已主动开机之后；无法推出远端离线、凭据失效或GPU不符，不绕过会话权限。
+- 新Full732适配器只读最终源包，复用封存verify_teacher_inventory重新渲染；新训练表示仅增加轨迹均衡weight=2070/(138*n_t)，保留全部token/标签/mask/Schema与来源哈希。固定A/B/C元数据检查、130native+8derived/6deferred、2070/338413均通过；每轨迹总权重15，平均样本权重1。原归档、包、95条历史数据和旧配置/源码锁/checkpoint均未修改，旧95未读取。
+- 新runtime复用原selected_token_loss、collate、gradient_health、tensor_hash和Trainer，单独删除内部validation路径，eval_strategy=no，eval_dataset=None并拒绝evaluate。新三配置及65文件锁绑定全部新旧调用源码；每次从raw base初始化，smoke receipt绑定数据/源码/配置与产物SHA，失败停止。记录逐步loss/梯度、dataloader计数、保存状态、GPU telemetry及重载哈希/logits；259仅预期，不能填成实测。
+- 本地数据和558项软件测试PASS，不等于训练通过。实际训练0步、无新checkpoint/参数变化/显存测量，无C244模型执行。远端环境、数据迁移/重新分词、两烟测、正式训练和C244仍待SSH可用后完成。当前共享验证旧入口绑定C30，后续C244须显式绑定完整冻结C和新M1，不能复用旧checkpoint或用C30代替。

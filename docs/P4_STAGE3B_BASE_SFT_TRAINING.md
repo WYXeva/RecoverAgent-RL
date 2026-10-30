@@ -1,5 +1,7 @@
 # Stage 3B — Train the new Full732 Base-SFT M1
 
+> **2026-10-30 user amendment:** the user's final instruction explicitly requests C244 evaluation in this run. After all M1 training/reload gates pass, evaluate the frozen C244 independently; never use C244 for Trainer loss, checkpoint selection, or early stopping. This amendment overrides the older no-C244 scope statements below. Recovery-SFT and GRPO remain excluded. The current SSH-capability blocker and unexecuted stages are recorded in `reports/full732_base_sft_m1_training.md`.
+
 > The user has explicitly approved using the completed fresh Teacher dataset for training. Do not reopen provider-terms or historical-data-reuse audits as a blocker. This is a custom RecoverAgent-RL experiment, not an official AppWorld leaderboard result.
 > **Only execute Stage 3B.** Do not collect more Teacher data, run Recovery-SFT, GRPO, or C244 evaluation in this stage.
 

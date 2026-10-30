@@ -1,5 +1,7 @@
 # AGENTS.md — RecoverAgent-RL
 
+> **2026-10-30 最新执行范围**：用户明确授权 Stage 3B 新 M1，最后补充“本轮需要进行C244评估”，因此在 M1 两次真实烟测、全量一轮训练和重载验收通过后，执行固定 C244 的独立端到端评估；不以 C 选择 checkpoint，不建 A 内部验证集，不启动 Recovery-SFT/GRPO。用户确认已主动开机；当前会话 SSH 在创建 socket 时被拒绝，尚未连接远端。现阶段仅本地数据/软件准备通过，0 训练步、0 C244 任务。详见 D073 和 `reports/full732_base_sft_m1_training.md`。下条及阶段文档中的旧“不运行C244”已被本次明确要求覆盖。
+
 > **当前任务（优先于以下历史记录）**：执行 [docs/P4_STAGE3B_BASE_SFT_TRAINING.md](docs/P4_STAGE3B_BASE_SFT_TRAINING.md)，用用户已确认可训练的最终138条Teacher候选训练新Base-SFT M1。不要再做数据使用许可审查或历史95条复用审计。只做数据哈希/重分词、短烟测、最长样本烟测、正式一轮训练；C244是唯一验证集，不新增内部验证集。完成M1后停止，不运行Student评估、C244、Recovery-SFT或GRPO。
 
 > **官方134复试完成与最终数据冻结（2026-10-29）**：134项已封存、调度器退出；34官方成功（28原样候选/6超长）、77官方失败、22UNKNOWN、1启动中断。实际133任务发出请求、126收到回复并执行工具，不伪称134均有完整模型执行。两轮共144成功/144任务/144场景，统一整理后130原样+8无损JSON派生=138长度合格候选，6暂缓；2070样本/338413监督token。最终包`data/full732_teacher_successes_complete_20261029/`，manifest `96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f`。旧包/奖励/锁保持不变；费用峰值估算33.08476232元，账户余额净增加0.65元不能证明实际扣费。无自动新采/重试、训练或B/C。报告见`reports/full732_official_retry_20261029.md`、`reports/full732_teacher_dataset_complete_20261029.md`及D072。

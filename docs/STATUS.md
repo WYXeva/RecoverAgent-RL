@@ -1,5 +1,14 @@
 # 项目状态
 
+## Stage 3B 新 M1：本地准备通过，远程执行 BLOCKED（2026-10-30）
+
+- **最新授权**：最终138候选的新M1短烟测→最长样本烟测→单epoch训练，随后按用户最后补充执行固定C244；不建A内部validation，不以C选checkpoint，不运行Recovery-SFT/GRPO。用户说明已主动开机。
+- **源码同步**：GitHub确认`codex/p0-p2-recovery`最新为`88836690c2ada2a14fc254a2f480ce2e44562773`；工作区637个受控文件逐Git blob匹配。根目录`.git`为空且只读；终端clone/SSH均在创建socket时失败，通过GitHub连接器完成文件同步和提交，不宣称终端git pull成功。
+- **本地数据PASS**：原manifest/归档及每个包内文件SHA正确；固定Qwen revision/template重新分词2070样本逐token/mask/可见schema一致，338413监督token、最长32693。138任务全部A，B/C无交集；新私有派生文件只增加`2070/(138*n_trajectory)`权重，每条轨迹总权重15、样本平均1，源包不变；旧95未读取。
+- **实现/软件**：新增Full732数据适配器、BF16 runtime、串行三阶段driver和独立3配置/65文件源码锁；复用原loss/collator/梯度/LoRA逻辑，禁用Trainer评估，前置烟测回执绑定数据/配置/源码和checkpoint哈希。558 pytest、相关Ruff通过；软件测试不替代GPU验收。
+- **实际阻塞/资源**：SSH原系统配置所有权检查先失败，使用显式空客户端配置后两次均为`socket: Operation not permitted`，未到认证。远端GPU型号、路径、缓存、数据及实际开机状态未核验。短/长烟测、正式训练、C244均NOT_RUN，实际optimizer steps=0；无新增模型/Teacher调用，不推断实例账单或关机。
+- **证据/下一步**：`reports/full732_base_sft_m1_training.md/json`；本地派生数据`runs/full732_m1_local_preparation_20261030/dataset/`。在允许SSH的会话连接既定实例，核实环境/私有数据并执行已授权入口；两烟测通过才训练，再绑定新M1执行完整C244。旧共享入口默认C30，不能直接将其当作C244结果。
+
 ## 官方134专项复试与最终成功包（2026-10-29，已完成并停止）
 
 - **实际结果**：134/134记录已封存，调度器独占锁已释放；34成功、77官方失败、22未知、1启动中断。133任务发出模型请求、126收到回复并执行真实工具；34成功终态独立恢复10项一致全部PASS。原40失败复试8成功，原94未知复试26成功，按结果选择的清单不作无偏渠道比较。
