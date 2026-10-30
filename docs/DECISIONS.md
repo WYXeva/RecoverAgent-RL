@@ -647,3 +647,11 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 - 新Full732适配器只读最终源包，复用封存verify_teacher_inventory重新渲染；新训练表示仅增加轨迹均衡weight=2070/(138*n_t)，保留全部token/标签/mask/Schema与来源哈希。固定A/B/C元数据检查、130native+8derived/6deferred、2070/338413均通过；每轨迹总权重15，平均样本权重1。原归档、包、95条历史数据和旧配置/源码锁/checkpoint均未修改，旧95未读取。
 - 新runtime复用原selected_token_loss、collate、gradient_health、tensor_hash和Trainer，单独删除内部validation路径，eval_strategy=no，eval_dataset=None并拒绝evaluate。新三配置及65文件锁绑定全部新旧调用源码；每次从raw base初始化，smoke receipt绑定数据/源码/配置与产物SHA，失败停止。记录逐步loss/梯度、dataloader计数、保存状态、GPU telemetry及重载哈希/logits；259仅预期，不能填成实测。
 - 本地数据和558项软件测试PASS，不等于训练通过。实际训练0步、无新checkpoint/参数变化/显存测量，无C244模型执行。远端环境、数据迁移/重新分词、两烟测、正式训练和C244仍待SSH可用后完成。当前共享验证旧入口绑定C30，后续C244须显式绑定完整冻结C和新M1，不能复用旧checkpoint或用C30代替。
+
+## D074 · 2026-10-30 · 网络恢复、A100明确确认与真实M1训练启动
+
+- 会话网络权限恢复后SSH与临时Git clone/fetch成功，确认分支包含88836690。实际既有GPU为A100-SXM4-80GB而非PRO6000；用户收到硬件差异说明后回复“确认开始把”，授权当前机器。未新增/启动实例，凭据不进入报告。
+- 新独立A100补充复用Full732训练主体和已有A100硬件校验，锁SHA76a33ff0ac5c8b6e06062d44607f1cad99d9ab12bc6ecc19eff12901a9ebed6a；训练commit a6cae3569bf715b1e7854a286b9e2415f0a61702。原P3-B/96GB/Full732源码锁、原始包和历史checkpoint不改；旧95未读取。
+- 远程138/2070/338413重新分词、Assistant-only mask、全部SHA与A/B/C隔离PASS。短4样本2步和最长32693 Token1步真实训练均PASS：梯度有限非零，LoRA变化，保存重载参数hash同一、logits误差0；最长峰值allocated24866828288 bytes。正式2070样本1 epoch启动，dataloader预期259优化步，不把正在运行当完成。
+- C244单独新入口复用原Student函数，绑定当前源代码及旧v6会话契约，保留旧C30入口和旧锁；C244任务和原split清单均固定。需要正式M1最终回执、文件哈希和参数重载验收后才能加载后端。当前未启动C任务，未知不记0，不以C选checkpoint，不执行Recovery-SFT/GRPO。
+- 软件全套571 passed，新增文件Ruff通过。M1训练与C244最终状态仍以报告后续真实证据为准。

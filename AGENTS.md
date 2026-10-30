@@ -1,5 +1,7 @@
 # AGENTS.md — RecoverAgent-RL
 
+> **2026-10-30 最新进度（覆盖下文旧网络阻塞）**：SSH已恢复；既有机器实测A100 80GB，用户确认开始后采用独立A100补充锁。远程全量数据/重分词/掩码/隔离PASS，短烟测2步及最长32693 Token烟测1步均更新并重载PASS。正式全量1 epoch正在运行，dataloader期望259步，尚未最终验收；C244仍0任务，待M1通过后执行。原PRO6000/P3-B配置与旧锁不改，不训练Recovery-SFT/GRPO。详见D074与当前M1报告。
+
 > **2026-10-30 最新执行范围**：用户明确授权 Stage 3B 新 M1，最后补充“本轮需要进行C244评估”，因此在 M1 两次真实烟测、全量一轮训练和重载验收通过后，执行固定 C244 的独立端到端评估；不以 C 选择 checkpoint，不建 A 内部验证集，不启动 Recovery-SFT/GRPO。用户确认已主动开机；当前会话 SSH 在创建 socket 时被拒绝，尚未连接远端。现阶段仅本地数据/软件准备通过，0 训练步、0 C244 任务。详见 D073 和 `reports/full732_base_sft_m1_training.md`。下条及阶段文档中的旧“不运行C244”已被本次明确要求覆盖。
 
 > **当前任务（优先于以下历史记录）**：执行 [docs/P4_STAGE3B_BASE_SFT_TRAINING.md](docs/P4_STAGE3B_BASE_SFT_TRAINING.md)，用用户已确认可训练的最终138条Teacher候选训练新Base-SFT M1。不要再做数据使用许可审查或历史95条复用审计。只做数据哈希/重分词、短烟测、最长样本烟测、正式一轮训练；C244是唯一验证集，不新增内部验证集。完成M1后停止，不运行Student评估、C244、Recovery-SFT或GRPO。

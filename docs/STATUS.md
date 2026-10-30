@@ -1,13 +1,13 @@
 # 项目状态
 
-## Stage 3B 新 M1：本地准备通过，远程执行 BLOCKED（2026-10-30）
+## Stage 3B：A100两次烟测通过，正式M1训练中（2026-10-30）
 
-- **最新授权**：最终138候选的新M1短烟测→最长样本烟测→单epoch训练，随后按用户最后补充执行固定C244；不建A内部validation，不以C选checkpoint，不运行Recovery-SFT/GRPO。用户说明已主动开机。
-- **源码同步**：GitHub确认`codex/p0-p2-recovery`最新为`88836690c2ada2a14fc254a2f480ce2e44562773`；工作区637个受控文件逐Git blob匹配。根目录`.git`为空且只读；终端clone/SSH均在创建socket时失败，通过GitHub连接器完成文件同步和提交，不宣称终端git pull成功。
-- **本地数据PASS**：原manifest/归档及每个包内文件SHA正确；固定Qwen revision/template重新分词2070样本逐token/mask/可见schema一致，338413监督token、最长32693。138任务全部A，B/C无交集；新私有派生文件只增加`2070/(138*n_trajectory)`权重，每条轨迹总权重15、样本平均1，源包不变；旧95未读取。
-- **实现/软件**：新增Full732数据适配器、BF16 runtime、串行三阶段driver和独立3配置/65文件源码锁；复用原loss/collator/梯度/LoRA逻辑，禁用Trainer评估，前置烟测回执绑定数据/配置/源码和checkpoint哈希。558 pytest、相关Ruff通过；软件测试不替代GPU验收。
-- **实际阻塞/资源**：SSH原系统配置所有权检查先失败，使用显式空客户端配置后两次均为`socket: Operation not permitted`，未到认证。远端GPU型号、路径、缓存、数据及实际开机状态未核验。短/长烟测、正式训练、C244均NOT_RUN，实际optimizer steps=0；无新增模型/Teacher调用，不推断实例账单或关机。
-- **证据/下一步**：`reports/full732_base_sft_m1_training.md/json`；本地派生数据`runs/full732_m1_local_preparation_20261030/dataset/`。在允许SSH的会话连接既定实例，核实环境/私有数据并执行已授权入口；两烟测通过才训练，再绑定新M1执行完整C244。旧共享入口默认C30，不能直接将其当作C244结果。
+- SSH/git网络已恢复；当前既有GPU实际为A100-SXM4-80GB，用户确认后使用独立A100补充配置/源码锁，原PRO6000/P3-B锁和checkpoint不改。
+- 远程原始包SHA、2070样本重新分词/338413监督token/Assistant-only mask和A/B/C隔离PASS，旧95未读取。
+- 短烟测4样本/2步PASS；最长32693 Token样本/1步PASS，峰值23.159 GiB。两者有限非零梯度、真实参数变化、保存重载hash相同，logits误差0。
+- 正式全量1 epoch已启动，dataloader2070 batch、259预期优化步，尚未完成最终验收。不建A内部验证集，不以训练loss冒充验证。
+- 固定C244是M1验收后的下一步，当前0任务；新独立入口及锁准备，571项软件测试通过。不启动Recovery-SFT/GRPO或B侧采集。
+- 证据：`reports/full732_base_sft_m1_training.md/json`、`reports/full732_m1_a100_smoke_evidence_20261030.json`；私有远程目录`recoveragent_full732_m1_20261030/runs/run_001`。历史网络阻塞记录另存，不能再解释为当前未连接。
 
 ## 官方134专项复试与最终成功包（2026-10-29，已完成并停止）
 

@@ -1,0 +1,58 @@
+{
+  "status": "BLOCKED_REMOTE_SOCKET",
+  "code_base_commit": "88836690c2ada2a14fc254a2f480ce2e44562773",
+  "source_snapshot_blob_files_verified": 637,
+  "runtime_lock_sha256": "d4b3941348a71570b0b093f929e1dac1869935a04c05777c8becefb7182c1959",
+  "source_manifest_sha256": "96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f",
+  "source_archive_sha256": "64c2a5854f0a3a9cfab72f71e13682dce5e535ff0b885768b98dc0073d6a7a48",
+  "local_data_gate": "PASS",
+  "remote_data_gate": "NOT_RUN",
+  "prepared_manifest_sha256": "32c868d7035eb3bddf299f2e9c4e8220d1b6a5cd37a2b8b9945b477c6a5020aa",
+  "accepted_task_ids_sha256": "b8d6b3f7440da27ca6af07c1606456460f84d27761a1b661a69ba6348db4ba20",
+  "counts": {
+    "samples": 2070,
+    "supervised_tokens": 338413
+  },
+  "trajectories": 138,
+  "representations": {
+    "native": 130,
+    "compact_derived": 8
+  },
+  "longest_sequence": 32693,
+  "retokenization": {
+    "status": "PASS",
+    "manifest_sha256": "96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f",
+    "counts": {
+      "assistant_samples": 2070,
+      "supervised_tokens": 338413,
+      "masked_tokens": 22444500,
+      "accepted_tokenized_candidates": 138
+    },
+    "retokenized": true,
+    "model_inference": false,
+    "training": false
+  },
+  "derived_examples_identical_except_weight": 2070,
+  "source_package_unchanged": true,
+  "A_B_C_disjoint": true,
+  "training_validation": null,
+  "expected_formal_optimizer_steps": 259,
+  "actual_optimizer_steps": 0,
+  "short_smoke": "NOT_RUN",
+  "long_smoke": "NOT_RUN",
+  "formal": "NOT_RUN",
+  "checkpoint": null,
+  "training_loss": null,
+  "gpu_peak_bytes": null,
+  "training_elapsed_seconds": null,
+  "lora_before_hash": null,
+  "lora_after_hash": null,
+  "reload_result": null,
+  "C244_authorized_by_latest_user_sentence": true,
+  "C244_evaluated": false,
+  "remote_host_state": "UNKNOWN_USER_REPORTED_POWERED_ON",
+  "connection_failure": "socket: Operation not permitted",
+  "model_inference_requests": 0,
+  "paid_teacher_requests": 0,
+  "gpu_training_started": false
+}

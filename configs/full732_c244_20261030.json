@@ -1,0 +1,49 @@
+{
+  "model_identity": {
+    "model": "Qwen/Qwen3-4B",
+    "revision": "1cfa9a7208912126459214e8b04321603b3df60c",
+    "thinking": false,
+    "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8"
+  },
+  "execution": {
+    "runtime_revision": "student_execution_v6_20261028",
+    "model": "Qwen/Qwen3-4B",
+    "actor_prompt_variant": "execution_v6",
+    "tool_mode": "dynamic_discovery",
+    "harness_runtime_revision": "shared_execution_20261025",
+    "appworld_root": "data/appworld",
+    "student_limits": {
+      "max_input_tokens": 32768,
+      "max_new_tokens": 4096,
+      "max_requests": 40,
+      "max_generated_tokens": 16384,
+      "wall_seconds": 600,
+      "seed": 42,
+      "temperature": 0.8,
+      "top_p": 0.95
+    },
+    "memory": {
+      "enabled": false,
+      "version": "egtm-harness-memory-29k-v1",
+      "trigger_tokens": 29000,
+      "recent_batches": 2,
+      "max_facts": 48,
+      "retrieval_limit": 3
+    },
+    "system_prompt_sha256": "5ef2bb774a258ba0a0e00d94284a29720bad3d2578c9a2a54ec94a594272dbba"
+  },
+  "start_kind": "clean_original_task",
+  "comparison_requirements": [
+    "all_C_tasks_for_all_3_stages",
+    "same_initial_DB",
+    "same_first_token_ids",
+    "same_prompt_schema_seed_budget_memory",
+    "validated_checkpoint_lineage"
+  ],
+  "scope": "custom_full732_C244_M1_development_20261030",
+  "stage": "M1",
+  "fixed_denominator": 244,
+  "training": false,
+  "checkpoint_selection": false,
+  "official_benchmark_claim": false
+}
