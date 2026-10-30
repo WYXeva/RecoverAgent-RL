@@ -1,0 +1,114 @@
+{
+  "status": "STOPPED_INCOMPLETE",
+  "date": "2026-10-30",
+  "provenance": {
+    "counts": "Local copy of final remote monitor, observed before user-reported shutdown",
+    "monitor_observed_unix": 1793350474.8149757,
+    "monitor_sha256": "aa6e2082a101cc84a3cfb40287529607b32f7376f46105147c76a01708d99eec",
+    "serial_failure_details": "Remote read-only diagnostic output observed before shutdown; summarized here, not a complete raw-log archive"
+  },
+  "machine": {
+    "state": "OFF_USER_REPORTED",
+    "reason": "User reports shutdown due to arrears",
+    "independently_rechecked_after_report": false,
+    "billing_amount_verified": false
+  },
+  "M1_status": "PASS",
+  "M1_local_backup": "COMPLETE_VERIFIED",
+  "M1_parameter_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c",
+  "C244": {
+    "attempted": 46,
+    "valid": 42,
+    "success": 5,
+    "failure": 37,
+    "unknown": 4,
+    "infrastructure_error": 3,
+    "TGC": null,
+    "complete_valid_evaluation": false
+  },
+  "unattempted_tasks": 198,
+  "driver": {
+    "status": "STOPPED",
+    "attempted": 46,
+    "valid": 42,
+    "success": 5,
+    "unknown": 4,
+    "TGC": null
+  },
+  "last_remote_gpu_observation": "0, 0",
+  "serial_fallback": {
+    "status": "STOPPED",
+    "inherited_attempts": 44,
+    "new_attempts": 2,
+    "started_unix": 1793350029.9036076,
+    "finished_unix": 1793350458.0878375,
+    "stop_reason": "new_serial_infrastructure_failure",
+    "last_task_id": "321ec38_1",
+    "error_type": "TimeoutError",
+    "requests": 25,
+    "responses": 24,
+    "wall_seconds": 326.025206,
+    "http_timeout_seconds": 180,
+    "student_session_budget_seconds": 600,
+    "last_request_input_tokens": 17994,
+    "last_request_max_new_tokens": 4096
+  },
+  "unknown_tasks": [
+    {
+      "task_id": "16be9ce_3",
+      "category": "evaluation_error",
+      "error_type": "TypeError"
+    },
+    {
+      "task_id": "2ff4dfb_1",
+      "category": "infrastructure_error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "task_id": "30e8586_3",
+      "category": "infrastructure_error",
+      "error_type": "RemoteDisconnected"
+    },
+    {
+      "task_id": "321ec38_1",
+      "category": "infrastructure_error",
+      "error_type": "TimeoutError"
+    }
+  ],
+  "timing": {
+    "training_wall_seconds": 7730.112522464246,
+    "C244_first_start_unix": 1793340789.8066168,
+    "C244_final_stop_unix": 1793350458.0878375,
+    "C244_elapsed_including_handoffs_and_waiting_seconds": 9668.281220674515,
+    "billing_duration_or_amount": null
+  },
+  "inference_diagnostics": {
+    "engine": "Transformers + PEFT model.generate",
+    "parallel_mode": "Two independent backend processes, not continuous batching",
+    "speedup_verified": false,
+    "http_timeout_found_in": "src/recoveragent/student_evaluation.py:153",
+    "recent_serial_response_examples": [
+      {
+        "tokens": 31,
+        "generation_seconds": 3.382275275886059
+      },
+      {
+        "tokens": 161,
+        "generation_seconds": 12.216163117438555
+      }
+    ],
+    "timing_note": "End-to-end generation timings include prefill; not isolated decode throughput. No OOM was recorded; timeout causality is not fully established."
+  },
+  "C244_full_raw_artifact_return_complete": false,
+  "C244_local_evidence": "Final count/status monitor, launch/stop summaries, 19/34-task metadata snapshots and verified 23-file handoff/config archive; full task traces are not all returned.",
+  "remote_storage_retention_after_shutdown": "UNKNOWN",
+  "actions_after_user_report": {
+    "remote_connection": false,
+    "compute_launch": false,
+    "power_on_or_payment": false,
+    "automatic_resume": false,
+    "work": "Local documentation and repository commit only"
+  },
+  "TGC": null,
+  "training_or_checkpoint_selection_on_C": false
+}

@@ -1,5 +1,5 @@
 {
-  "status": "M1_PASS_C244_SERIAL_FALLBACK_RUNNING",
+  "status": "M1_PASS_C244_STOPPED_INCOMPLETE",
   "source_commit": "a6cae3569bf715b1e7854a286b9e2415f0a61702",
   "hardware": "NVIDIA A100-SXM4-80GB",
   "hardware_change_user_confirmed": true,
@@ -33,7 +33,7 @@
   "formal_expected_optimizer_steps": 259,
   "formal_final_optimizer_steps": 259,
   "M1_accepted": true,
-  "C244_tasks_attempted": 45,
+  "C244_tasks_attempted": 46,
   "training_validation": null,
   "previous_network_blocked_report": "reports/full732_m1_network_blocked_20261030.json",
   "formal_acceptance": {
@@ -77,25 +77,33 @@
   },
   "artifact_return_evidence": "reports/full732_m1_artifact_return_20261030.json",
   "C244_progress_snapshot": {
-    "observed_unix": 1793350374.8055246,
-    "attempted": 45,
+    "observed_unix": 1793350474.8149757,
+    "attempted": 46,
     "valid": 42,
     "success": 5,
     "failure": 37,
-    "unknown": 3,
-    "infrastructure_error": 2,
+    "unknown": 4,
+    "infrastructure_error": 3,
     "TGC": null,
     "complete_valid_evaluation": false
   },
   "formal_local_checkpoint_files_verified": 50,
   "serial_fallback": {
-    "status": "RUNNING",
+    "status": "STOPPED",
     "inherited_attempts": 44,
-    "unattempted_tasks": 200,
+    "unattempted_tasks": 198,
     "source_lock_sha256": "39f80153499fa0605a43cfeca3cda3917c1bddee45ec77b83d4f9b091cf1f67a",
     "budgets_changed": false,
     "retry_existing_attempts": false,
     "source_commit": "3a13935cae9e6ad0da8cb85d3dc4721eac8cf1f5",
-    "launch_evidence": "reports/full732_c244_serial_fallback_launch_20261030.json"
-  }
+    "launch_evidence": "reports/full732_c244_serial_fallback_launch_20261030.json",
+    "unattempted_tasks_at_launch": 200,
+    "new_attempts": 2,
+    "stop_evidence": "reports/full732_c244_final_stop_20261030.json"
+  },
+  "C244_unattempted_tasks": 198,
+  "machine_state": "OFF_USER_REPORTED",
+  "automatic_resume": false,
+  "final_stop_evidence": "reports/full732_c244_final_stop_20261030.json",
+  "C244_full_raw_artifact_return_complete": false
 }
