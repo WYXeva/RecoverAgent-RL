@@ -1,0 +1,430 @@
+{
+  "format": "full732-M1-readonly-failure-diagnosis-v1",
+  "date": "2026-10-31",
+  "scope": "posthoc audit of existing C244 receipts; no new execution, training or rescoring",
+  "counts": {
+    "attempted": 244,
+    "valid": 234,
+    "success": 16,
+    "failure": 218,
+    "unknown": 10
+  },
+  "failure_termination_counts_known210": {
+    "completion_claim": 62,
+    "context_budget_exhausted": 41,
+    "budget_exhausted": 85,
+    "protocol_correction_exhausted": 22
+  },
+  "known_failure_termination_metadata_count": 210,
+  "old_failures_without_terminal_detail": 8,
+  "detailed_raw_log_scope": {
+    "new_tasks": 198,
+    "new_valid_failures": 181,
+    "old_tasks_with_metadata": 34,
+    "old_failures_with_metadata": 29,
+    "old46_full_raw_logs_available": false
+  },
+  "failure_type_counts_not_root_cause_partition": true,
+  "new_groups": {
+    "protocol_correction_exhausted": {
+      "tasks": 20,
+      "with_repeated_doc_call": 15,
+      "with3plus_repeated_doc_calls": 10,
+      "with_consecutive_identical_streak3plus": 0,
+      "with_any_tool_error": 12,
+      "with_any_protocol_rejection": 20,
+      "no_business_calls": 1,
+      "doc_calls": 265,
+      "tool_calls": 477,
+      "median_last_input_tokens": 16603.0,
+      "median_last_tools_count": 18.0
+    },
+    "budget_exhausted": {
+      "tasks": 76,
+      "with_repeated_doc_call": 74,
+      "with3plus_repeated_doc_calls": 67,
+      "with_consecutive_identical_streak3plus": 18,
+      "with_any_tool_error": 64,
+      "with_any_protocol_rejection": 41,
+      "no_business_calls": 0,
+      "doc_calls": 1632,
+      "tool_calls": 3162,
+      "median_last_input_tokens": 24337.5,
+      "median_last_tools_count": 20.0
+    },
+    "completion_claim": {
+      "tasks": 52,
+      "with_repeated_doc_call": 31,
+      "with3plus_repeated_doc_calls": 13,
+      "with_consecutive_identical_streak3plus": 5,
+      "with_any_tool_error": 17,
+      "with_any_protocol_rejection": 19,
+      "no_business_calls": 0,
+      "doc_calls": 519,
+      "tool_calls": 1245,
+      "median_last_input_tokens": 15794.0,
+      "median_last_tools_count": 16.0
+    },
+    "context_budget_exhausted": {
+      "tasks": 33,
+      "with_repeated_doc_call": 31,
+      "with3plus_repeated_doc_calls": 26,
+      "with_consecutive_identical_streak3plus": 5,
+      "with_any_tool_error": 20,
+      "with_any_protocol_rejection": 13,
+      "no_business_calls": 0,
+      "doc_calls": 689,
+      "tool_calls": 1129,
+      "median_last_input_tokens": 31915,
+      "median_last_tools_count": 19
+    }
+  },
+  "new_failure_behavior_metrics": {
+    "tasks": 181,
+    "with_repeated_doc_call": 151,
+    "with3plus_repeated_doc_calls": 116,
+    "with_consecutive_identical_streak3plus": 28,
+    "with_any_tool_error": 113,
+    "with_any_protocol_rejection": 93,
+    "no_business_calls": 1,
+    "doc_calls": 3105,
+    "tool_calls": 6013,
+    "median_last_input_tokens": 23779,
+    "median_last_tools_count": 18
+  },
+  "new_success_behavior_metrics": {
+    "tasks": 11,
+    "with_repeated_doc_call": 6,
+    "with3plus_repeated_doc_calls": 5,
+    "with_consecutive_identical_streak3plus": 0,
+    "with_any_tool_error": 2,
+    "with_any_protocol_rejection": 3,
+    "no_business_calls": 0,
+    "doc_calls": 95,
+    "tool_calls": 211,
+    "median_last_input_tokens": 12741,
+    "median_last_tools_count": 14
+  },
+  "exact_repeat_documentation_calls_in_new181_failures": 1145,
+  "protocol_rejection_events_all_new198": {
+    "invisible_tool": 50,
+    "invalid_arguments": 85,
+    "truncated_output": 4,
+    "malformed_output": 11,
+    "unobserved_access_token": 11
+  },
+  "schema_rejection_rules": {
+    "additionalProperties": 48,
+    "maximum": 11,
+    "required": 3,
+    "type": 22,
+    "exclusiveMinimum": 1
+  },
+  "all_new198_API_error_response_counts": {
+    "422": 435,
+    "401": 77,
+    "409": 17
+  },
+  "documentation_API_error_count": 245,
+  "password_as_access_token": {
+    "call_count": 12,
+    "task_count": 7,
+    "task_ids": [
+      "8a13317_3",
+      "a3ba388_1",
+      "adb1060_1",
+      "cb4ee7a_1",
+      "d6d8cb6_2",
+      "e70b117_3",
+      "f6be291_3"
+    ],
+    "examples": [
+      {
+        "task_id": "8a13317_3",
+        "call_id": "006_001",
+        "function": "phone__search_contacts",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "a3ba388_1",
+        "call_id": "006_001",
+        "function": "file_system__show_directory",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "adb1060_1",
+        "call_id": "008_001",
+        "function": "phone__search_contacts",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "cb4ee7a_1",
+        "call_id": "014_001",
+        "function": "amazon__show_account",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "cb4ee7a_1",
+        "call_id": "019_001",
+        "function": "amazon__show_recommended_products",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "cb4ee7a_1",
+        "call_id": "026_001",
+        "function": "amazon__add_product_to_cart",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "cb4ee7a_1",
+        "call_id": "029_001",
+        "function": "amazon__show_addresses",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "cb4ee7a_1",
+        "call_id": "031_001",
+        "function": "amazon__add_payment_card",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "cb4ee7a_1",
+        "call_id": "033_001",
+        "function": "amazon__show_addresses",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "d6d8cb6_2",
+        "call_id": "038_001",
+        "function": "gmail__show_inbox_threads",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "e70b117_3",
+        "call_id": "018_001",
+        "function": "file_system__show_file",
+        "prior_same_app_login_token_observed": false
+      },
+      {
+        "task_id": "f6be291_3",
+        "call_id": "018_001",
+        "function": "file_system__show_account",
+        "prior_same_app_login_token_observed": false
+      }
+    ]
+  },
+  "nullable_schema_issue": {
+    "description": "Read-only saved-schema null-compatibility counterexample. No AppWorld call or runtime change.",
+    "optional_null_call_count": 18,
+    "optional_null_rejected_round_count": 17,
+    "affected_task_count": 12,
+    "affected_task_ids": [
+      "383a053_3",
+      "4ac4a8d_2",
+      "4d12842_1",
+      "4fab96f_3",
+      "522e5e5_1",
+      "690d51b_3",
+      "c77c005_3",
+      "ce73d68_3",
+      "d037dc8_3",
+      "e0fe09c_1",
+      "f6f2e67_1",
+      "ff58e36_3"
+    ],
+    "terminal_last_rejection_task_ids": [
+      "4d12842_1",
+      "690d51b_3",
+      "e0fe09c_1"
+    ],
+    "explicit_default_null_but_schema_rejects_null_all": true,
+    "field_level_null_union_accepts_all": true,
+    "whole_batch_acceptance_not_claimed": true,
+    "task_success_after_fix_not_tested": true,
+    "saved_type_audit_sha256": "3043b77569b5becdbc53b0cca2653c5c3cb654f7e48fe4f6ca7ebcd5b82d87ad",
+    "public_source_evidence": {
+      "appworld_api_docs_converter": {
+        "path": ".venv/lib/python3.14/site-packages/appworld/api_docs.py",
+        "lines": "536-540",
+        "behavior": "removes null from anyOf and retains default None",
+        "sha256": "58671e9e4b7ba94060c9af7be0c5c2fc3ac936ea5129729d194d0dabbaa58e51"
+      },
+      "gmail_public_API_signature": {
+        "path": ".venv/lib/python3.14/site-packages/appworld/apps/gmail/apis.py",
+        "line": 1040,
+        "signature_excerpt": "read: bool | None = Query(None, ...)",
+        "sha256": "fab69586994ff5471dc8a7b4e1e002844cfa74002e6b40c41e30b41e1fe70932"
+      },
+      "strict_local_validator": {
+        "path": "src/recoveragent/adapter.py",
+        "line": 32,
+        "behavior": "Draft202012Validator validates function-calling schema before dispatch"
+      }
+    }
+  },
+  "context_retokenization": {
+    "all_context_stops": 35,
+    "valid_failure_context_stops": 33,
+    "all_valid33_retokenized_atleast32768": true,
+    "min_next_tokens": 32771,
+    "median_next_tokens": 33449,
+    "max_next_tokens": 41539,
+    "model_loaded": false,
+    "GPU_used": false,
+    "tokenizer_revision": "1cfa9a7208912126459214e8b04321603b3df60c"
+  },
+  "training_metadata": {
+    "candidate_trajectories": 138,
+    "assistant_targets": 2070,
+    "supervised_tokens": 338413,
+    "teacher_turns_total": 2128,
+    "teacher_mean_turns": 15.420289855072463,
+    "teacher_max_turns": 37,
+    "teacher_over40_turns": 0,
+    "all138_system_prompts_equal_eval_first_request": true,
+    "supervision_is_teacher_assistant_only": true,
+    "M1_optimizer_steps": 259,
+    "epochs": 1
+  },
+  "training_source_inspection": {
+    "selected_labels_shift_to_prior_logits": true,
+    "trainer_model_accepts_loss_kwargs_explicitly_false": true,
+    "does_not_prove_training_hyperparameters_optimal": true
+  },
+  "examples": [
+    {
+      "task_id": "33e202d_1",
+      "finding": "API discovery and repeated documentation displaced business work",
+      "observations": {
+        "model_requests": 40,
+        "executed_tool_calls": 42,
+        "documentation_calls": 32,
+        "exact_repeat_documentation_calls": 23,
+        "CSV_created_with_header_only": true,
+        "attachment_download_calls": 0
+      },
+      "evidence_scope": "public task, call intents and tool responses only; no hidden expected answer",
+      "final_turn_path": "runs/m1_vgpu32_20261030/c244_vgpu_001/tasks/33e202d_1/session/turns/040.json",
+      "final_turn_sha256": "e9f7d09ce1b6290f17542d7d2091866f5f53c35dfe3e1a030f6aa980c14a71bc"
+    },
+    {
+      "task_id": "365e0a3_1",
+      "finding": "Submitted one payment instead of aggregating visible payments",
+      "observations": {
+        "visible_payment_records": 8,
+        "each_paid_amount": 15,
+        "visible_sum": 120,
+        "submitted_answer": 15
+      },
+      "evidence_scope": "sum recomputed exclusively from model-visible tool output",
+      "final_turn_path": "runs/m1_vgpu32_20261030/c244_vgpu_001/tasks/365e0a3_1/session/turns/007.json",
+      "final_turn_sha256": "bb57d5d2b2c5518b9ff2662ef15c55194adda13331b1e4f5968c324f0250c4a0"
+    },
+    {
+      "task_id": "3ab5b8b_3",
+      "finding": "Marked success without requested download operations",
+      "observations": {
+        "observed_liked_songs_in_observed_liked_albums_not_already_downloaded": 5,
+        "download_action_calls": 0,
+        "completion_status": "success"
+      },
+      "evidence_scope": "public tool-observed set intersection/difference; no hidden expected answer",
+      "final_turn_path": "runs/m1_vgpu32_20261030/c244_vgpu_001/tasks/3ab5b8b_3/session/turns/015.json",
+      "final_turn_sha256": "655e9f1a6536928b4b573c73156fa376186414f932390a2ccddc8c1a61d45651"
+    },
+    {
+      "task_id": "32616b5_1",
+      "finding": "Confused schema lookup parameters with business/search parameters",
+      "observations": {
+        "rejected_function": "api_docs__show_api_doc",
+        "repeated_unknown_fields": [
+          "page_limit",
+          "query"
+        ],
+        "explicit_schema_feedback_seen": true
+      },
+      "evidence_scope": "saved schema and harness rejection records",
+      "final_turn_path": "runs/m1_vgpu32_20261030/c244_vgpu_001/tasks/32616b5_1/session/turns/019.json",
+      "final_turn_sha256": "cfece1384b86481e94ff7062df029d5e985dcbed698984662413e09d792b6505"
+    },
+    {
+      "task_id": "4d12842_1",
+      "finding": "Nullable API/schema mismatch directly consumed the last correction",
+      "observations": {
+        "function": "gmail__show_category_sizes",
+        "field": "read",
+        "public_signature_allows_None": true,
+        "saved_schema_type": "boolean",
+        "saved_schema_default": null,
+        "explicit_null_rejected_rounds": [
+          "015",
+          "016",
+          "017"
+        ],
+        "terminal": "protocol_correction_exhausted"
+      },
+      "evidence_scope": "saved raw-token decoding, actual request schema, public signature; no task rerun",
+      "final_turn_path": "runs/m1_vgpu32_20261030/c244_vgpu_001/tasks/4d12842_1/session/turns/017.json",
+      "final_turn_sha256": "1f5cacebc2fd2d6827a436f7b72f35e7a770c3fa446e792fa90e8e8445ecf266"
+    }
+  ],
+  "unknown_breakdown": {
+    "evaluation_errors": 7,
+    "old_infrastructure_errors": 3,
+    "unknown_not_counted_as_failure": true
+  },
+  "interpretation": {
+    "directly_observed": [
+      "inefficient repeated API discovery",
+      "incorrect aggregation of observed evidence",
+      "completion before requested actions",
+      "confused API names and parameters",
+      "credential provenance mistakes",
+      "nullable function-call schema and public API contract inconsistency",
+      "full uncompressed history crossing32768"
+    ],
+    "not_proven": [
+      "exact number of tasks rescued by each prospective fix",
+      "that larger request budgets resolve loops",
+      "that more training epochs improve the final policy",
+      "M1 gain or loss versus raw M0 on identical tasks",
+      "that all low success is caused by challenge distribution or GPU choice"
+    ]
+  },
+  "recommended_order_for_later_review": [
+    "Fix/version nullable schema compatibility and verify public-schema-only regression cases without changing sealed scores.",
+    "Audit correction handling, API discovery repetition and context growth using separate A/B development tasks.",
+    "Compare frozen M0/M1 on separately authorized fixed development tasks before selecting training changes.",
+    "Diagnose the10 UNKNOWN separately; preserve UNKNOWN until valid evidence exists."
+  ],
+  "artifacts_unchanged": {
+    "old_source_locks": true,
+    "M1_checkpoint": true,
+    "teacher_dataset": true,
+    "C244_scores_and_limits": true
+  },
+  "model_requests": 0,
+  "new_AppWorld_calls": 0,
+  "SSH": false,
+  "GPU": false,
+  "C244_inputs_or_evaluator_data_used_for_training": false,
+  "hidden_ground_truth_source_files_read": false,
+  "hidden_answers_used_for_diagnosis_or_training": false,
+  "official_evaluation_receipts_scope": "Aggregate status/counts only; concrete task diagnoses use model-visible requests and tool responses.",
+  "official_evaluator_trace_answers_exported": false,
+  "provenance": {
+    "runs/m1_vgpu32_20261030/failure_analysis_20261031/analysis.json": "c108830a4cfa41addd342aea838ac2e1360040c53c6218ec1ae9a0eb8a3c67da",
+    "runs/m1_vgpu32_20261030/failure_analysis_20261031/context_audit.json": "d5054c202ba15df9846980e703008402bab797eb669b70dc70cc6b188b6f93f1",
+    "runs/m1_vgpu32_20261030/failure_analysis_20261031/type_audit.json": "3043b77569b5becdbc53b0cca2653c5c3cb654f7e48fe4f6ca7ebcd5b82d87ad",
+    "runs/m1_vgpu32_20261030/failure_analysis_20261031/nullable_schema_finding.json": "e18559d381c18121b4f5de8c447691314d07c70c0ea26dcdf8d509fd9da3e939",
+    "runs/m1_vgpu32_20261030/failure_analysis_20261031/supplement.json": "ae0578bccc12edb84d49a90837d8c188fbdb434919b4350e8cb0b7c292c2dd04",
+    "runs/m1_vgpu32_20261030/failure_analysis_20261031/analyze_m1_failures.py": "6390bb02d2c27d53d4079fb8df23283382f6e061b0b1aff95287057e994c8a60",
+    "runs/m1_vgpu32_20261030/failure_analysis_20261031/m1_context_audit.py": "453a9475ef0cc7dc0542bfd44e0b067be5d39a0262f1ef6326a52e895f13795a",
+    "runs/m1_vgpu32_20261030/failure_analysis_20261031/m1_type_error_audit.py": "7fbf8d996b5fa3945e7880dc1c44c5f81b056923e5f0472fe36618a900a73bda",
+    "reports/full732_c244_final_20261031.json": "29fb27aa06c78cb483f3dc74c0d130f56b4b9d76efa7308f6672ded06a73c168",
+    "src/recoveragent/adapter.py": "57543a680e2c488043180651cc9def55d8ff09843cdcc7959df1e5b42094e2b8",
+    "src/recoveragent/harness.py": "6a4e4115db318178fff4075fa6cca49c738240c2ebe6aa3ddc086949c73a7b33",
+    "src/recoveragent/full732_sft_runtime.py": "f67b8da1ef57b43f0a23389a00fe424c43cc98bd377ff5ef18fd2cb82f52ab84",
+    "src/recoveragent/sft_recipe.py": "12304cb55e8197d2d1509ee2c87219bcc7974b7b37570972577d6a9d86d4c132"
+  }
+}
