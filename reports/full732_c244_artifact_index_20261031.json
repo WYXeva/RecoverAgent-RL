@@ -1,0 +1,1196 @@
+{
+  "format": "C244-new198-returned-archive-index-v1",
+  "local_root": "runs/m1_vgpu32_20261030/c244_vgpu_001",
+  "summary_sha256": "4b07f4f9d28c6320eae5c4fee621bd8af7c8186a4036e39eb3f3253338faf749",
+  "metadata_archive_sha256": "4ec07285b642e6bb167fac3e3464c199b1b22fe8d2efe08d2e721ab4c7cc0636",
+  "archives": [
+    {
+      "task_id": "325d6ec_3",
+      "path": "task_archives/325d6ec_3.tar.gz",
+      "bytes": 683653,
+      "sha256": "f0dac551cf3d6080a4728916de971bb05a97ef126d5568adbfc4ef4594a1f2a0"
+    },
+    {
+      "task_id": "32616b5_1",
+      "path": "task_archives/32616b5_1.tar.gz",
+      "bytes": 697511,
+      "sha256": "7b13ae382381c98ca54bee06585a8482f4a9193f7e7e14e5393dc5c3c6c2c118"
+    },
+    {
+      "task_id": "33e202d_1",
+      "path": "task_archives/33e202d_1.tar.gz",
+      "bytes": 1631422,
+      "sha256": "6fb7905126939ad1f4d40f72b3a450e7003b36b3877293fc023de8aae21464ff"
+    },
+    {
+      "task_id": "34d9492_2",
+      "path": "task_archives/34d9492_2.tar.gz",
+      "bytes": 1033083,
+      "sha256": "2dc6e961deaa6003f80cf3f72235f002c839744e5df355f6cabedfd3889fb077"
+    },
+    {
+      "task_id": "3650990_3",
+      "path": "task_archives/3650990_3.tar.gz",
+      "bytes": 731837,
+      "sha256": "1b6460a5f2df461b21de22a9cbd30e17c01c499c812c696bd84e18b065273074"
+    },
+    {
+      "task_id": "365e0a3_1",
+      "path": "task_archives/365e0a3_1.tar.gz",
+      "bytes": 124355,
+      "sha256": "b8efec50292b78134e48d9b14c2022331ac0291c913c54eac858394b66857e52"
+    },
+    {
+      "task_id": "36705ae_1",
+      "path": "task_archives/36705ae_1.tar.gz",
+      "bytes": 1596644,
+      "sha256": "ef55622424f8227a79344aafec65226deaccdce283c33f952a309fe12713f8d4"
+    },
+    {
+      "task_id": "37a8675_1",
+      "path": "task_archives/37a8675_1.tar.gz",
+      "bytes": 1430242,
+      "sha256": "4289149fd1c36515e6007b63eaac13e156998ec7552ffc882dc3d2f8038bd940"
+    },
+    {
+      "task_id": "383a053_3",
+      "path": "task_archives/383a053_3.tar.gz",
+      "bytes": 1471141,
+      "sha256": "1f0ed493f3accbed0768364709d9f1153306c9cab57d1b820c0a0a227d72147f"
+    },
+    {
+      "task_id": "383cbac_3",
+      "path": "task_archives/383cbac_3.tar.gz",
+      "bytes": 1590509,
+      "sha256": "e60f7834fcbe12f58fdaacd80a0ed46d7906328e2cb0eff58c0c2272d9ca0e4d"
+    },
+    {
+      "task_id": "396c5a2_3",
+      "path": "task_archives/396c5a2_3.tar.gz",
+      "bytes": 1523541,
+      "sha256": "d33a83ad42bcb49bac5fa24f5ed7a0c976232ab403c6128f62a2b1ca3f3cea4d"
+    },
+    {
+      "task_id": "3aa1a22_2",
+      "path": "task_archives/3aa1a22_2.tar.gz",
+      "bytes": 1293897,
+      "sha256": "a27ead2c4dc3479f999b49d4f57fca83c1931d0710029fe34fdc0c7e2b7e74ff"
+    },
+    {
+      "task_id": "3ab5b8b_3",
+      "path": "task_archives/3ab5b8b_3.tar.gz",
+      "bytes": 462652,
+      "sha256": "1c0fa892dcfafe1f63e764e9e673985de092fcca013fdfc01b57dea3940d3aa9"
+    },
+    {
+      "task_id": "3b8fb7a_1",
+      "path": "task_archives/3b8fb7a_1.tar.gz",
+      "bytes": 1345950,
+      "sha256": "a89bad1ab5aa2c5a38dd7e32d653675c0defca1d6bb9e9359e616fbf8f5c7185"
+    },
+    {
+      "task_id": "3c13f5a_2",
+      "path": "task_archives/3c13f5a_2.tar.gz",
+      "bytes": 1964842,
+      "sha256": "a75aac35ae5179f7235223e0d36616056144c5d82ea270afd13633897bb4ba41"
+    },
+    {
+      "task_id": "3d9a636_3",
+      "path": "task_archives/3d9a636_3.tar.gz",
+      "bytes": 1219963,
+      "sha256": "7b06727d8a0ab1e9e8c974f9eb80f56afcf59f115909f8a242437aac6be17320"
+    },
+    {
+      "task_id": "3f3c139_1",
+      "path": "task_archives/3f3c139_1.tar.gz",
+      "bytes": 731278,
+      "sha256": "b0d3795427c7aec087d10dda65afc73be9fb4910a7cfe849620bfb276473412b"
+    },
+    {
+      "task_id": "3fcc458_3",
+      "path": "task_archives/3fcc458_3.tar.gz",
+      "bytes": 1552525,
+      "sha256": "d73ce17c9c3429921ddcae95f2c818de2fd36455d8e92edbb352fb49c140e18d"
+    },
+    {
+      "task_id": "4242c97_1",
+      "path": "task_archives/4242c97_1.tar.gz",
+      "bytes": 998595,
+      "sha256": "401305cfd8bcea13608205a143bee2bdf1d7bc0ceb70c0efefc4e23305d55691"
+    },
+    {
+      "task_id": "425a494_3",
+      "path": "task_archives/425a494_3.tar.gz",
+      "bytes": 1367180,
+      "sha256": "15a840523175e74eb9c2c8f9bbbaf7d187e9d286fb7c645ecb17915919216571"
+    },
+    {
+      "task_id": "432dc7a_1",
+      "path": "task_archives/432dc7a_1.tar.gz",
+      "bytes": 1513888,
+      "sha256": "9313590f24e0be3c6ccbbee37e7d25e986ce4f97cc1afcd9f45af5b0737eed70"
+    },
+    {
+      "task_id": "4441ee9_3",
+      "path": "task_archives/4441ee9_3.tar.gz",
+      "bytes": 294711,
+      "sha256": "ea286fc66d6ef0103812157744933538a3c78ea1b0265ac7c510ccba0be6731e"
+    },
+    {
+      "task_id": "476b213_1",
+      "path": "task_archives/476b213_1.tar.gz",
+      "bytes": 437322,
+      "sha256": "ac31f86ba22980c290d43ae6ad733d1bec880c7b50c622b14fac78ba983c00b2"
+    },
+    {
+      "task_id": "4815c06_2",
+      "path": "task_archives/4815c06_2.tar.gz",
+      "bytes": 2203640,
+      "sha256": "8259bfdfc02096f81f836c2510804aea94ac5aa1c43ad2a89deb720f582ca6fe"
+    },
+    {
+      "task_id": "4ac4a8d_2",
+      "path": "task_archives/4ac4a8d_2.tar.gz",
+      "bytes": 1800926,
+      "sha256": "34e35dc7108d4e70efec3d67057256291dd7c42e097375bf7314dc0112d12b04"
+    },
+    {
+      "task_id": "4d12842_1",
+      "path": "task_archives/4d12842_1.tar.gz",
+      "bytes": 409690,
+      "sha256": "5775a8a654922f4e9032d6c14b7866b3051d24d5db75c4c0c5e2b5a2626b75a8"
+    },
+    {
+      "task_id": "4ec8de5_2",
+      "path": "task_archives/4ec8de5_2.tar.gz",
+      "bytes": 1229620,
+      "sha256": "43f6ebe2764d7d892b8650f225c4f264d62e23aee89f6801a305f6e2abcc2277"
+    },
+    {
+      "task_id": "4fab96f_3",
+      "path": "task_archives/4fab96f_3.tar.gz",
+      "bytes": 1118046,
+      "sha256": "b5fdb40e5df8a84fc502cd05a0f229580c3a5206d91fa1f7645b11482a79470a"
+    },
+    {
+      "task_id": "50e1ac9_3",
+      "path": "task_archives/50e1ac9_3.tar.gz",
+      "bytes": 993214,
+      "sha256": "76c2d5107e3c35ca08487bc85be78bf268890574b474047a27f34e1f63ecf9cf"
+    },
+    {
+      "task_id": "522e5e5_1",
+      "path": "task_archives/522e5e5_1.tar.gz",
+      "bytes": 1164888,
+      "sha256": "c9e82e5fa92a30055e0757f6e07e9178389747a0665a2acd0b3184d2224c6409"
+    },
+    {
+      "task_id": "5238afc_2",
+      "path": "task_archives/5238afc_2.tar.gz",
+      "bytes": 1333421,
+      "sha256": "e8ef4e5155f678d5fb8b5ed7c66868ea11345da7ffb02657c5bda03280edaa4c"
+    },
+    {
+      "task_id": "530b157_1",
+      "path": "task_archives/530b157_1.tar.gz",
+      "bytes": 1917844,
+      "sha256": "9079e878602691c1e647ec1a547dd43f6798e8b7574a7363b166475935764565"
+    },
+    {
+      "task_id": "552869a_2",
+      "path": "task_archives/552869a_2.tar.gz",
+      "bytes": 249909,
+      "sha256": "7e225ce94f14982693cd4cabef8c39a45ce717be6fe656f1dee921c43f10f40f"
+    },
+    {
+      "task_id": "57c3486_2",
+      "path": "task_archives/57c3486_2.tar.gz",
+      "bytes": 1258801,
+      "sha256": "f6353d31d1c4e559ca0a02714d884aa54651f77881304ff0fe56c6df8d8efe06"
+    },
+    {
+      "task_id": "5800354_2",
+      "path": "task_archives/5800354_2.tar.gz",
+      "bytes": 1970365,
+      "sha256": "abadea5c59e71d8399e4f24528024c8a60c62e1d97b735d7a45b398178ee040c"
+    },
+    {
+      "task_id": "59bcfc8_2",
+      "path": "task_archives/59bcfc8_2.tar.gz",
+      "bytes": 1823974,
+      "sha256": "5ae1b95efbdcd1ae0d99e2a0b52d1b3964e7806a36cd25a2518d7ea1ce03f2a8"
+    },
+    {
+      "task_id": "59fae45_3",
+      "path": "task_archives/59fae45_3.tar.gz",
+      "bytes": 1732142,
+      "sha256": "aedde65e77d9bb4634af5a11244359cd5f9026b9a3d0406c6013d679d1ec99f2"
+    },
+    {
+      "task_id": "5a83b05_1",
+      "path": "task_archives/5a83b05_1.tar.gz",
+      "bytes": 981380,
+      "sha256": "7e7b4c52b0cab6447eae8293cdea276b897b6909797e5c2c874cb025f9e5b0ad"
+    },
+    {
+      "task_id": "5e27cd7_2",
+      "path": "task_archives/5e27cd7_2.tar.gz",
+      "bytes": 1268850,
+      "sha256": "7de049716d67063cf94fd7601c5649110100e6ddec510644a92d59305af650be"
+    },
+    {
+      "task_id": "60d0b5b_2",
+      "path": "task_archives/60d0b5b_2.tar.gz",
+      "bytes": 1498258,
+      "sha256": "e6967cb25b43248eb070e7e574863036d10eadbb6519f76a14bc85613920f804"
+    },
+    {
+      "task_id": "6104387_1",
+      "path": "task_archives/6104387_1.tar.gz",
+      "bytes": 993712,
+      "sha256": "4feaac0f3e768b7fbe1701c18fc52e7d67f930f902f536a17eda83628dd17b1a"
+    },
+    {
+      "task_id": "6171bbc_1",
+      "path": "task_archives/6171bbc_1.tar.gz",
+      "bytes": 1716711,
+      "sha256": "d12b14479ac98d5daa8e0a6c2748e90518e02539ff943ce47e311940c6b7bc47"
+    },
+    {
+      "task_id": "634f342_2",
+      "path": "task_archives/634f342_2.tar.gz",
+      "bytes": 1284539,
+      "sha256": "3760c7060128ed9d3427bbeb69cad0cf9c979fa9ba49da68bc5323703e317fdd"
+    },
+    {
+      "task_id": "6474048_3",
+      "path": "task_archives/6474048_3.tar.gz",
+      "bytes": 733696,
+      "sha256": "ace0e328aa7ba9a7122083f2d6acf9295c19fb8d758595960192e78a31579b37"
+    },
+    {
+      "task_id": "652485c_2",
+      "path": "task_archives/652485c_2.tar.gz",
+      "bytes": 1604579,
+      "sha256": "7ca2e05b02e9b54fdbefdc1a98298999a14509a2e808b77b80562ada09451281"
+    },
+    {
+      "task_id": "6588a51_1",
+      "path": "task_archives/6588a51_1.tar.gz",
+      "bytes": 189145,
+      "sha256": "6c8318f99a4611bacef86782c03d5bb4a3901331921a9510206bfeecc85dee90"
+    },
+    {
+      "task_id": "66b7899_2",
+      "path": "task_archives/66b7899_2.tar.gz",
+      "bytes": 1602515,
+      "sha256": "4d038a0944823338a02f34d9878b35bd3d5925e93f53f081ae8c04e1db43f3c7"
+    },
+    {
+      "task_id": "68ee2c9_3",
+      "path": "task_archives/68ee2c9_3.tar.gz",
+      "bytes": 971774,
+      "sha256": "04c1d915ec9c55ff1e9ca1292b4b6132fc612489f61c4dc42be8e875d9d11f7f"
+    },
+    {
+      "task_id": "690d51b_3",
+      "path": "task_archives/690d51b_3.tar.gz",
+      "bytes": 1105402,
+      "sha256": "10457f3bc7b02ac0574027d8718262a3ac26eb383903790a23dcb575f61dc93d"
+    },
+    {
+      "task_id": "692c77d_1",
+      "path": "task_archives/692c77d_1.tar.gz",
+      "bytes": 1227408,
+      "sha256": "183df5a8a24c8e036507a07f51caf9da9429d92a1b35eb592523dbae6886c1d3"
+    },
+    {
+      "task_id": "69ba40f_3",
+      "path": "task_archives/69ba40f_3.tar.gz",
+      "bytes": 1973852,
+      "sha256": "56c0eed856c6eb8d83518ddf0c298b2797bf9045d363993c6e537838fce60868"
+    },
+    {
+      "task_id": "6a5e690_1",
+      "path": "task_archives/6a5e690_1.tar.gz",
+      "bytes": 119734,
+      "sha256": "6c6ac1c3b2979ba9273338dbfe8f08bd242c32785aeac63c4d089100a76abb31"
+    },
+    {
+      "task_id": "6b6ca61_3",
+      "path": "task_archives/6b6ca61_3.tar.gz",
+      "bytes": 1686493,
+      "sha256": "10228be0dfb22e6e3460f73574ca43f08f82091b2567a17e4da03d474add1a2a"
+    },
+    {
+      "task_id": "6bdbc26_2",
+      "path": "task_archives/6bdbc26_2.tar.gz",
+      "bytes": 164024,
+      "sha256": "d71dd5938f278cb07929d91d2e6aa17646d6d52500f807a4735eb4a3dd5856e4"
+    },
+    {
+      "task_id": "6c2c621_1",
+      "path": "task_archives/6c2c621_1.tar.gz",
+      "bytes": 1672168,
+      "sha256": "741fd17985b1b22d8abec87685e8020bedd8eb44c90858b496203487042de800"
+    },
+    {
+      "task_id": "6d59d90_2",
+      "path": "task_archives/6d59d90_2.tar.gz",
+      "bytes": 1580923,
+      "sha256": "017d23391d74da5eade7bb512e9760b5927ad0d2b6b0ded07c8babbe57015c14"
+    },
+    {
+      "task_id": "6ea6792_2",
+      "path": "task_archives/6ea6792_2.tar.gz",
+      "bytes": 1326315,
+      "sha256": "6ece59e62091a5d64bd426421712453362c9b26d8a6d7c13b8fcdb37645ae631"
+    },
+    {
+      "task_id": "6f4b9a5_3",
+      "path": "task_archives/6f4b9a5_3.tar.gz",
+      "bytes": 874082,
+      "sha256": "c05d5fa31f250ab4a8b3df3607ef44c33ea66e2a183160348a0c3aaf4e0f3ea7"
+    },
+    {
+      "task_id": "7238049_3",
+      "path": "task_archives/7238049_3.tar.gz",
+      "bytes": 1194244,
+      "sha256": "977e24c73ef4e71e9bf4f7614bb006840216c6daa2f3b2063b287985a2c26276"
+    },
+    {
+      "task_id": "7264edc_3",
+      "path": "task_archives/7264edc_3.tar.gz",
+      "bytes": 865290,
+      "sha256": "46bb0298f9b4cf13333254d37762836df8e00c2ab4fcb2fe4aa73d04b40ec72d"
+    },
+    {
+      "task_id": "7434096_1",
+      "path": "task_archives/7434096_1.tar.gz",
+      "bytes": 479476,
+      "sha256": "07e80fa2b9ffd132b2f6fa5ef4045ef95d0839be74d6c0388a2b49fcb2e3adbb"
+    },
+    {
+      "task_id": "7574325_3",
+      "path": "task_archives/7574325_3.tar.gz",
+      "bytes": 168841,
+      "sha256": "054e5c7600f5c80f68084b099a6924632e3a90491bf2b153986f50e9499cbe02"
+    },
+    {
+      "task_id": "76f2c72_2",
+      "path": "task_archives/76f2c72_2.tar.gz",
+      "bytes": 768778,
+      "sha256": "e22d21498df93f30ed22830605d9e75e097b2e226dc840939a6c2af472770c80"
+    },
+    {
+      "task_id": "771d8fc_1",
+      "path": "task_archives/771d8fc_1.tar.gz",
+      "bytes": 1281243,
+      "sha256": "63028f35476a1e13aee541ffefa4cd6c2322c297d37f21a05bbfc39e08be60cb"
+    },
+    {
+      "task_id": "77bcb81_1",
+      "path": "task_archives/77bcb81_1.tar.gz",
+      "bytes": 1128858,
+      "sha256": "6f8faab3410bd6a1efc49df7187a88c0e925853294dc64365185e9254bac361e"
+    },
+    {
+      "task_id": "7847649_1",
+      "path": "task_archives/7847649_1.tar.gz",
+      "bytes": 184709,
+      "sha256": "804c51baee2ac54ebab68d3b2f4090f7d35373af99c8e811a43faa7d41e38be5"
+    },
+    {
+      "task_id": "7b97e6d_2",
+      "path": "task_archives/7b97e6d_2.tar.gz",
+      "bytes": 1082858,
+      "sha256": "3f482bcdb90c1b09b4cf7c5fdb784498fd9a2dd7fcad10d51cfa91bf570ff7e1"
+    },
+    {
+      "task_id": "7bdaf23_2",
+      "path": "task_archives/7bdaf23_2.tar.gz",
+      "bytes": 1532494,
+      "sha256": "b1c1ce42c21545acb44667c13fc6bc679d2cfbbff7a8f41f66814d11768810dc"
+    },
+    {
+      "task_id": "7d26579_1",
+      "path": "task_archives/7d26579_1.tar.gz",
+      "bytes": 1392188,
+      "sha256": "4c9b8330a68f01b593347841af6a50c980245337014712b28a0eb1369f92e3b6"
+    },
+    {
+      "task_id": "7d7fbf6_2",
+      "path": "task_archives/7d7fbf6_2.tar.gz",
+      "bytes": 965126,
+      "sha256": "1eaf517b0ab35fa4f6be6e34702834ae3f88a315d8b2cb6ad15c03562c75f11f"
+    },
+    {
+      "task_id": "7e1be84_1",
+      "path": "task_archives/7e1be84_1.tar.gz",
+      "bytes": 1513613,
+      "sha256": "edce803980a7dd456b781d2c936ea8081284511076e98b69e807a22f916ff1c0"
+    },
+    {
+      "task_id": "80acbaf_2",
+      "path": "task_archives/80acbaf_2.tar.gz",
+      "bytes": 1351069,
+      "sha256": "09691f11d606673b76168ba360999dafbae6ebd5d00e05122febe83d5496f2c0"
+    },
+    {
+      "task_id": "81be677_1",
+      "path": "task_archives/81be677_1.tar.gz",
+      "bytes": 799716,
+      "sha256": "2d3e05cf36d0bc700ade6424d66df9aad4eeae81ded5747ed2c6b31e12dda8ab"
+    },
+    {
+      "task_id": "82d2e01_1",
+      "path": "task_archives/82d2e01_1.tar.gz",
+      "bytes": 1878686,
+      "sha256": "0869cd0e26fbc7738e71a13dc846f30843d05a7563126a420708bc2abbdda870"
+    },
+    {
+      "task_id": "82e2fac_3",
+      "path": "task_archives/82e2fac_3.tar.gz",
+      "bytes": 648822,
+      "sha256": "867b539d5ab3385777f1311d1f05eacacf6ff90729951e03a5fdc60f6fecd0ac"
+    },
+    {
+      "task_id": "83a7951_1",
+      "path": "task_archives/83a7951_1.tar.gz",
+      "bytes": 431171,
+      "sha256": "77051c5579917f470a62c4262fbf976905375c49b0e2743b5a6345d16b9a6474"
+    },
+    {
+      "task_id": "8749218_2",
+      "path": "task_archives/8749218_2.tar.gz",
+      "bytes": 1448885,
+      "sha256": "d410f677352edc8c435b5850fe6b807e237c4785c1a809b0e8fcb8946f9e4cd6"
+    },
+    {
+      "task_id": "8a13317_3",
+      "path": "task_archives/8a13317_3.tar.gz",
+      "bytes": 1774771,
+      "sha256": "9a2ac171ffa975d9ba26851f0f94f71d5fb397f95d5c4ab3b9749ee23ad62a37"
+    },
+    {
+      "task_id": "8ce6779_3",
+      "path": "task_archives/8ce6779_3.tar.gz",
+      "bytes": 840915,
+      "sha256": "09381dbdedeca117a8ea504a26f8967eae983458c4cf582b6b4ded1d3c37bbae"
+    },
+    {
+      "task_id": "8d42650_2",
+      "path": "task_archives/8d42650_2.tar.gz",
+      "bytes": 1124928,
+      "sha256": "7bac41d5c82f0a0ca44584ad80271c137fddf1538fafb4022e34b960d732f850"
+    },
+    {
+      "task_id": "8f79e35_3",
+      "path": "task_archives/8f79e35_3.tar.gz",
+      "bytes": 1415627,
+      "sha256": "30882fd3d12af88d4f533cbb25c23d3822e76a544ce9fc425067a16da0c3ad08"
+    },
+    {
+      "task_id": "9016950_3",
+      "path": "task_archives/9016950_3.tar.gz",
+      "bytes": 1622187,
+      "sha256": "13d67ce3172de317c1ab1fee8b5d5196793ccefd6f7d4a249f7198e50a6b8469"
+    },
+    {
+      "task_id": "906f2c7_1",
+      "path": "task_archives/906f2c7_1.tar.gz",
+      "bytes": 649976,
+      "sha256": "2866680fc484c99dcddbe5f11f644f6bd55e38f86342d98c04afd3b103d6c770"
+    },
+    {
+      "task_id": "90adc3f_2",
+      "path": "task_archives/90adc3f_2.tar.gz",
+      "bytes": 708632,
+      "sha256": "c735ca59a6ab7a99d68e54767528e6eac65d373540b0591f7d3ecdab48c02c5a"
+    },
+    {
+      "task_id": "9126bf0_2",
+      "path": "task_archives/9126bf0_2.tar.gz",
+      "bytes": 523825,
+      "sha256": "819086b0fd2566f4353eae918b0cadfc270910815e48002e5647dc2df0902b7c"
+    },
+    {
+      "task_id": "92fe421_1",
+      "path": "task_archives/92fe421_1.tar.gz",
+      "bytes": 1538663,
+      "sha256": "b93a65c0f63a7bd2c645472439ff914406e26ea37a5379f3b77861f898ddda78"
+    },
+    {
+      "task_id": "953b296_2",
+      "path": "task_archives/953b296_2.tar.gz",
+      "bytes": 801186,
+      "sha256": "c8469d183807c046fce5effe7698a6bc74e4bb99e7a8ef4d2771d56b3692d1d5"
+    },
+    {
+      "task_id": "96bf160_1",
+      "path": "task_archives/96bf160_1.tar.gz",
+      "bytes": 1042248,
+      "sha256": "fbe8abab51c49d92284c468ef63959eae26c16e4de22f4633a3f141541b56db1"
+    },
+    {
+      "task_id": "986aa4e_1",
+      "path": "task_archives/986aa4e_1.tar.gz",
+      "bytes": 1908830,
+      "sha256": "2dfe3232889be84d66df2c49ab24618235e03d03f93b8290436e6a36c0de689a"
+    },
+    {
+      "task_id": "9871968_2",
+      "path": "task_archives/9871968_2.tar.gz",
+      "bytes": 1368103,
+      "sha256": "b5be6f91839555894adccc125297287816f4fb823d4728042b1b440d52492ed8"
+    },
+    {
+      "task_id": "988af8e_2",
+      "path": "task_archives/988af8e_2.tar.gz",
+      "bytes": 1797289,
+      "sha256": "c937dd15c346fb74447aa12e8feb8b74b287662fe43d1a3034ee5ae2f0f8036c"
+    },
+    {
+      "task_id": "98d2608_1",
+      "path": "task_archives/98d2608_1.tar.gz",
+      "bytes": 1397505,
+      "sha256": "755ae83aa442900df334ceb023aa2e5c05aa4c4b5bb03a85796008b2f61cc1ff"
+    },
+    {
+      "task_id": "998908e_3",
+      "path": "task_archives/998908e_3.tar.gz",
+      "bytes": 1827225,
+      "sha256": "40618ec5e2d53206774c812a8138cd81953d048c56310aa6f1546069da065f2c"
+    },
+    {
+      "task_id": "9a16324_1",
+      "path": "task_archives/9a16324_1.tar.gz",
+      "bytes": 865630,
+      "sha256": "4934ad10daebc8c441ee5e625f00edd6a0d950cc18f8a0fa389575d0afb7f4f5"
+    },
+    {
+      "task_id": "9aae7da_3",
+      "path": "task_archives/9aae7da_3.tar.gz",
+      "bytes": 173135,
+      "sha256": "0c373e0bce948e6673f9131dae202c9abcef55d9cc0463c49bbcbdcb290ed420"
+    },
+    {
+      "task_id": "9b2dc64_3",
+      "path": "task_archives/9b2dc64_3.tar.gz",
+      "bytes": 1740967,
+      "sha256": "3213dc25730beea5eeccc1d731827f99a35c75ab57afcf662fba160e95e2c461"
+    },
+    {
+      "task_id": "9bf2c8a_1",
+      "path": "task_archives/9bf2c8a_1.tar.gz",
+      "bytes": 275291,
+      "sha256": "adb2317f8ec39b866813007ff222f0ee5497a8a904a79f524f76228a923b801f"
+    },
+    {
+      "task_id": "9dabbc9_2",
+      "path": "task_archives/9dabbc9_2.tar.gz",
+      "bytes": 1801048,
+      "sha256": "8e493c275debe3f911ff208feca62e140c745568f6b45e54f62288d26aa56499"
+    },
+    {
+      "task_id": "9ef034e_1",
+      "path": "task_archives/9ef034e_1.tar.gz",
+      "bytes": 1447493,
+      "sha256": "537ef4d02944bbca88977e8b539123ac3bcf4df7228bca49c34fd939936c262c"
+    },
+    {
+      "task_id": "9ef798c_2",
+      "path": "task_archives/9ef798c_2.tar.gz",
+      "bytes": 1112531,
+      "sha256": "789207768ea06e39ad385ddbf316c9c62f1d3c82b796cc3374dc4a819bbf7ecc"
+    },
+    {
+      "task_id": "a132254_2",
+      "path": "task_archives/a132254_2.tar.gz",
+      "bytes": 423333,
+      "sha256": "e7b896d929cb6bb202191d07899c61f0dd0112713ed5bef1f2a1b6cfca08fb05"
+    },
+    {
+      "task_id": "a1d3dfd_3",
+      "path": "task_archives/a1d3dfd_3.tar.gz",
+      "bytes": 1458905,
+      "sha256": "ab40353d09876cd66f336dfe8ea1b73cb4adb7d87d13201a4c0e21d01ee56543"
+    },
+    {
+      "task_id": "a30375d_3",
+      "path": "task_archives/a30375d_3.tar.gz",
+      "bytes": 300353,
+      "sha256": "4bfc6caa8ad602f630f2a7b4f89aff7ebcdd396b2ee92aa876e89bec6a2f98af"
+    },
+    {
+      "task_id": "a3ba388_1",
+      "path": "task_archives/a3ba388_1.tar.gz",
+      "bytes": 528180,
+      "sha256": "e95562e5c0211b21a01b37c2af65ca0b831e9645fed18c7d024104b4c3b56a0e"
+    },
+    {
+      "task_id": "a53a8fd_1",
+      "path": "task_archives/a53a8fd_1.tar.gz",
+      "bytes": 1650802,
+      "sha256": "5a50e4f3c3ec360ca354d2e0a9e1d75a4bee07d206ba376f46cf491c282a1405"
+    },
+    {
+      "task_id": "a5b0084_1",
+      "path": "task_archives/a5b0084_1.tar.gz",
+      "bytes": 767378,
+      "sha256": "e10c2db61c9b311771bf710be610d54a2f5533de3afc8b0a396d8f9385bd3f60"
+    },
+    {
+      "task_id": "a676f2a_2",
+      "path": "task_archives/a676f2a_2.tar.gz",
+      "bytes": 1334104,
+      "sha256": "5a6fcebd164beddc81f685fd57aa7da94344618d5b2d911ab63d2035c69ef36c"
+    },
+    {
+      "task_id": "a7179fa_1",
+      "path": "task_archives/a7179fa_1.tar.gz",
+      "bytes": 1865043,
+      "sha256": "f09fe4125756a2e1e87da714197a0015e17eb2413f320c44d90cd64233372520"
+    },
+    {
+      "task_id": "a8f302f_2",
+      "path": "task_archives/a8f302f_2.tar.gz",
+      "bytes": 1339760,
+      "sha256": "77c1640949ea87e62b608b4f5f816fcc94453522a4085ba176e7429be47e0cd3"
+    },
+    {
+      "task_id": "a97e35d_2",
+      "path": "task_archives/a97e35d_2.tar.gz",
+      "bytes": 998410,
+      "sha256": "4d25c150523ffda26c8bf67c82127264329430a6b95a053e88602ab1eb3b21ca"
+    },
+    {
+      "task_id": "aa8502b_1",
+      "path": "task_archives/aa8502b_1.tar.gz",
+      "bytes": 722759,
+      "sha256": "a162f54fc4c86ca33c5e724e767b50037658d6d688c5f94cce013c82581adc5a"
+    },
+    {
+      "task_id": "aaa25aa_3",
+      "path": "task_archives/aaa25aa_3.tar.gz",
+      "bytes": 1143616,
+      "sha256": "c3957a96af5d87f283d4c4a0640e600dabb230315b31ebfcb897b2897d617988"
+    },
+    {
+      "task_id": "ac62177_1",
+      "path": "task_archives/ac62177_1.tar.gz",
+      "bytes": 1362015,
+      "sha256": "38002f1bd1a809f6c832b20536e7b01fb4f49238c55470c7f011c08e061cf781"
+    },
+    {
+      "task_id": "adb1060_1",
+      "path": "task_archives/adb1060_1.tar.gz",
+      "bytes": 983829,
+      "sha256": "a6e50625334bd996f85520defcba198dab817512696e17b49c041d4958485a1f"
+    },
+    {
+      "task_id": "af84964_3",
+      "path": "task_archives/af84964_3.tar.gz",
+      "bytes": 1632162,
+      "sha256": "e475cfeee3ef45a41388b8869fe3c9927eca7b47dae643955ba7e4fae7b43896"
+    },
+    {
+      "task_id": "afc0fce_3",
+      "path": "task_archives/afc0fce_3.tar.gz",
+      "bytes": 1536714,
+      "sha256": "a14cadf0821dfe8ae979a955941bf2a1355011a6a75218229c5c04693efaa1ca"
+    },
+    {
+      "task_id": "afc4005_2",
+      "path": "task_archives/afc4005_2.tar.gz",
+      "bytes": 1262291,
+      "sha256": "54747a3c1b4acb310c4cc6670d736b99e0fb4c5d0215d65ece15598d710a563d"
+    },
+    {
+      "task_id": "b05f69a_2",
+      "path": "task_archives/b05f69a_2.tar.gz",
+      "bytes": 1963288,
+      "sha256": "9ad1bb741d8bb38a686dc2a01dbd4eff6d391826fbb201ed55fce93202747a18"
+    },
+    {
+      "task_id": "b08d5ef_1",
+      "path": "task_archives/b08d5ef_1.tar.gz",
+      "bytes": 1604265,
+      "sha256": "25c469e3f4c88e89b0f60723832070bcfc14ac1e62336067b8f1a05ac7160bff"
+    },
+    {
+      "task_id": "b0934aa_2",
+      "path": "task_archives/b0934aa_2.tar.gz",
+      "bytes": 1806467,
+      "sha256": "6b3e9f6d5c2e11dc341080e4f31b2172f97b34bfe16b31e6dac7b9150def731f"
+    },
+    {
+      "task_id": "b0a8eae_2",
+      "path": "task_archives/b0a8eae_2.tar.gz",
+      "bytes": 1620912,
+      "sha256": "bf951c15cf93bf064fee69ba172d199f9ae22397e3e0774f2984fb72dd2ecde2"
+    },
+    {
+      "task_id": "b119b1f_1",
+      "path": "task_archives/b119b1f_1.tar.gz",
+      "bytes": 259390,
+      "sha256": "59d15ef13a98690aff2d4c90a891cf62f9f0a23ba3b9875342ce6ffbff07a11c"
+    },
+    {
+      "task_id": "b3bdcc1_2",
+      "path": "task_archives/b3bdcc1_2.tar.gz",
+      "bytes": 1417127,
+      "sha256": "b3d91f3df68989f32519aa57a090930377c6b22ff70cdcc5a012ba367e9bf267"
+    },
+    {
+      "task_id": "b4707e8_3",
+      "path": "task_archives/b4707e8_3.tar.gz",
+      "bytes": 1432531,
+      "sha256": "9b91494002a3326d64bb0b8577577a48d457ec22ee2d34e1186d92cb6297dba2"
+    },
+    {
+      "task_id": "b68eb83_3",
+      "path": "task_archives/b68eb83_3.tar.gz",
+      "bytes": 1202106,
+      "sha256": "af147f310331f7315cd7c2c00f159e678b1accbe15cc659419ee9172bff7284e"
+    },
+    {
+      "task_id": "b6d1104_2",
+      "path": "task_archives/b6d1104_2.tar.gz",
+      "bytes": 479277,
+      "sha256": "1ed4b66aa337b287a00c1c99e5af42978faf1eba69635477369e2f3d4cca8e61"
+    },
+    {
+      "task_id": "b6d1f70_1",
+      "path": "task_archives/b6d1f70_1.tar.gz",
+      "bytes": 1060836,
+      "sha256": "badec1ff9828cfab0cb59fe5ff6d10822899954b9f4428509045239ab6d86f13"
+    },
+    {
+      "task_id": "b71318e_2",
+      "path": "task_archives/b71318e_2.tar.gz",
+      "bytes": 1790878,
+      "sha256": "d17d1d2c7d6fc38799c5c3c40e9113a610c8ef16cb9465fa462265c87b25620e"
+    },
+    {
+      "task_id": "b7a9ee9_3",
+      "path": "task_archives/b7a9ee9_3.tar.gz",
+      "bytes": 1565839,
+      "sha256": "eca1ce2ca384d5e3e8e2a761808cb0c32eb1df61456f6b6a074f0bdd3435b90e"
+    },
+    {
+      "task_id": "b9c5c9a_3",
+      "path": "task_archives/b9c5c9a_3.tar.gz",
+      "bytes": 1514114,
+      "sha256": "15557009caddfa83f78e48735b5126657761bac38fd92b2c98134ad42609bc46"
+    },
+    {
+      "task_id": "ba46d91_1",
+      "path": "task_archives/ba46d91_1.tar.gz",
+      "bytes": 217186,
+      "sha256": "4476d1f32f6f901bb5aaf81377dec8c86889148a735f42c444784706a3e3c745"
+    },
+    {
+      "task_id": "baeb104_1",
+      "path": "task_archives/baeb104_1.tar.gz",
+      "bytes": 878612,
+      "sha256": "bb7d034db6a232169d8bfef4ae9a1f16143299663320c46c9dc60ae4cf348c28"
+    },
+    {
+      "task_id": "bcb9696_3",
+      "path": "task_archives/bcb9696_3.tar.gz",
+      "bytes": 1365207,
+      "sha256": "72aec9d3126cf232698ae1c5f7e0764540e443c79ac85fbc4e0311605fad0a1f"
+    },
+    {
+      "task_id": "bde252e_3",
+      "path": "task_archives/bde252e_3.tar.gz",
+      "bytes": 1107000,
+      "sha256": "59778fc5cbc96a1b08c741828d20c1662f1ad7f56380465642cb5f9e6d937f90"
+    },
+    {
+      "task_id": "c1091c7_3",
+      "path": "task_archives/c1091c7_3.tar.gz",
+      "bytes": 1791567,
+      "sha256": "a07e3920327604f7eba8d7e4fc75a9ad8a79988b224c10ded58d30228c63f196"
+    },
+    {
+      "task_id": "c77c005_3",
+      "path": "task_archives/c77c005_3.tar.gz",
+      "bytes": 1252685,
+      "sha256": "112e2e5e2be417f3b2bce65c6f079d7e67d8cb7aeb0dffade879d75c1fc5892d"
+    },
+    {
+      "task_id": "c8f5f44_1",
+      "path": "task_archives/c8f5f44_1.tar.gz",
+      "bytes": 1774077,
+      "sha256": "4f1c28697814952af4c605a5b8ccd0a8cf2de4dc40d4464b4dfcc195f5a0d2ef"
+    },
+    {
+      "task_id": "c901732_3",
+      "path": "task_archives/c901732_3.tar.gz",
+      "bytes": 627194,
+      "sha256": "b923e0f00082f23ab62a2dac4adb7ad1aaa52c8ec03bf88ab721d4577a49adea"
+    },
+    {
+      "task_id": "c9458ed_1",
+      "path": "task_archives/c9458ed_1.tar.gz",
+      "bytes": 1924264,
+      "sha256": "8be5df3678376b7a5606f8d256d000093dc30213dde4289793edd53330eaf7d7"
+    },
+    {
+      "task_id": "cb4ee7a_1",
+      "path": "task_archives/cb4ee7a_1.tar.gz",
+      "bytes": 1347038,
+      "sha256": "b948714a7311fa806049712c72195c2891801059df177a8a799e14894d70037e"
+    },
+    {
+      "task_id": "ccb4494_3",
+      "path": "task_archives/ccb4494_3.tar.gz",
+      "bytes": 450992,
+      "sha256": "7ad5a67de37791faf4489950aea8b139cc8341e0cdfdeda0fc97acb829e8cf1f"
+    },
+    {
+      "task_id": "ccf4b82_1",
+      "path": "task_archives/ccf4b82_1.tar.gz",
+      "bytes": 1491939,
+      "sha256": "9f996bce80b642352409bea4377be9aa5b0eefe7c5b75fd14b822d12325c2587"
+    },
+    {
+      "task_id": "cdaaea5_1",
+      "path": "task_archives/cdaaea5_1.tar.gz",
+      "bytes": 1108235,
+      "sha256": "95fe9d9584ae91470311198d9c687e82ac38d1ce7b9383acaa78c86ae0e4bcb5"
+    },
+    {
+      "task_id": "cdf61bd_2",
+      "path": "task_archives/cdf61bd_2.tar.gz",
+      "bytes": 1720211,
+      "sha256": "b32ff1d8721aaf54bfbc70236dc071995878ffc89788e0e929a39c0d65aa573d"
+    },
+    {
+      "task_id": "ce359b5_2",
+      "path": "task_archives/ce359b5_2.tar.gz",
+      "bytes": 1204688,
+      "sha256": "57dbb53b7286e45761a594a1ee52fccdbf4056edb80d0434e50fc4822874fe1d"
+    },
+    {
+      "task_id": "ce73d68_3",
+      "path": "task_archives/ce73d68_3.tar.gz",
+      "bytes": 1722718,
+      "sha256": "6449370e61c5deb6ef20a3002b01333c1a119b9b36c88236274463250ff3a4cb"
+    },
+    {
+      "task_id": "cef9191_1",
+      "path": "task_archives/cef9191_1.tar.gz",
+      "bytes": 218575,
+      "sha256": "100233830c25f652d80e4d5d6b429afe174edcc0cfcb67564568c6a8a0b06b2e"
+    },
+    {
+      "task_id": "cf6abd2_1",
+      "path": "task_archives/cf6abd2_1.tar.gz",
+      "bytes": 303714,
+      "sha256": "a32233ff9b6d01b18d1d0eb76b80445a04826652a1e963fc46f8f193dc7acb87"
+    },
+    {
+      "task_id": "d037dc8_3",
+      "path": "task_archives/d037dc8_3.tar.gz",
+      "bytes": 1419441,
+      "sha256": "5c4dcd2861a679d394b4bf3dd65c3485e5e322d2acb7b3c4c4842642cd78a677"
+    },
+    {
+      "task_id": "d0b1f43_2",
+      "path": "task_archives/d0b1f43_2.tar.gz",
+      "bytes": 522455,
+      "sha256": "f1d3d8070786e7e2c213662c041932621c99a4c991d6927a1b5881a7f892fcf5"
+    },
+    {
+      "task_id": "d18139b_1",
+      "path": "task_archives/d18139b_1.tar.gz",
+      "bytes": 1810051,
+      "sha256": "741509afa44f590fa3e1d81ad281d03067ab785c061ec38984ba6b5abe89de04"
+    },
+    {
+      "task_id": "d194965_3",
+      "path": "task_archives/d194965_3.tar.gz",
+      "bytes": 1561207,
+      "sha256": "f08bba99b3bedda6bcc81804139316854e142bbaf1d62db776a94f04688455d1"
+    },
+    {
+      "task_id": "d37c235_1",
+      "path": "task_archives/d37c235_1.tar.gz",
+      "bytes": 1000814,
+      "sha256": "52d5e02328ddca97bede2fd67444a74e642dbb28fe45c1aac32530bf376bbc3b"
+    },
+    {
+      "task_id": "d4e9306_2",
+      "path": "task_archives/d4e9306_2.tar.gz",
+      "bytes": 787417,
+      "sha256": "8f1be4708067a9c33b6b23c225da2c66faa2dac22aa3f9a9619d97438f3a144c"
+    },
+    {
+      "task_id": "d6ac34d_1",
+      "path": "task_archives/d6ac34d_1.tar.gz",
+      "bytes": 792293,
+      "sha256": "e6d87882355b6fbf503794c91b70c749947dcfe637172e601bcacec6a43e6518"
+    },
+    {
+      "task_id": "d6d8cb6_2",
+      "path": "task_archives/d6d8cb6_2.tar.gz",
+      "bytes": 1671198,
+      "sha256": "b072b95b91697aad7a1a307fed8f6c22344ec89446c795d848b23baee276dd6f"
+    },
+    {
+      "task_id": "d8e490b_3",
+      "path": "task_archives/d8e490b_3.tar.gz",
+      "bytes": 1080549,
+      "sha256": "1352950eaeff122e04d1a5e54ac60ddbadc7287fd89e1091969718cb50956cc0"
+    },
+    {
+      "task_id": "d9987f6_3",
+      "path": "task_archives/d9987f6_3.tar.gz",
+      "bytes": 1020536,
+      "sha256": "82fadbad3dcb8878dd98afd822ef6348eefa1ac6b26ef64f57baf3332b94e61c"
+    },
+    {
+      "task_id": "dac78d9_2",
+      "path": "task_archives/dac78d9_2.tar.gz",
+      "bytes": 466305,
+      "sha256": "795279621579b90e220327149ba1f307a95d4121a68a12f964ea020dd2b2ea31"
+    },
+    {
+      "task_id": "dbc0276_1",
+      "path": "task_archives/dbc0276_1.tar.gz",
+      "bytes": 152213,
+      "sha256": "6fc4e10d6e5c962fddf9230bd907d0608a550986368fccac1dc5ee1bc8268407"
+    },
+    {
+      "task_id": "dc5c5c6_3",
+      "path": "task_archives/dc5c5c6_3.tar.gz",
+      "bytes": 1899123,
+      "sha256": "cb64e684660ae5c087d6a099f17f84fd66677d967417f6538145b24febb0eadb"
+    },
+    {
+      "task_id": "dcb2559_1",
+      "path": "task_archives/dcb2559_1.tar.gz",
+      "bytes": 894945,
+      "sha256": "665e7ad920c1f8b9fff6c6c309cb1057e31eaa00e27d23c31181065b1a766118"
+    },
+    {
+      "task_id": "dcbd34b_1",
+      "path": "task_archives/dcbd34b_1.tar.gz",
+      "bytes": 1674147,
+      "sha256": "b8b18b58adca887b7aa7ba6da8537fc70bcb0815caee12620b325ab4e1bbae07"
+    },
+    {
+      "task_id": "df61dc5_2",
+      "path": "task_archives/df61dc5_2.tar.gz",
+      "bytes": 920401,
+      "sha256": "b4bf4e40829f28a3149f40c3c1c8360ed31f674b7393a4c902b8d3f34c86b375"
+    },
+    {
+      "task_id": "e0fe09c_1",
+      "path": "task_archives/e0fe09c_1.tar.gz",
+      "bytes": 148189,
+      "sha256": "f3967214656e82773c88cff2b2862e41fb24da1e87055a09714593e6a4ff538d"
+    },
+    {
+      "task_id": "e201314_3",
+      "path": "task_archives/e201314_3.tar.gz",
+      "bytes": 1616249,
+      "sha256": "5f99ef51594f2d92fb3ba2080c52a69b15a7427ae1ab1492e4cdec948518a771"
+    },
+    {
+      "task_id": "e3d6c94_3",
+      "path": "task_archives/e3d6c94_3.tar.gz",
+      "bytes": 1052461,
+      "sha256": "d1e34b6c2a80cbaa9ba0b0a9206fe3fb4429ce8649410291c164e2439709fa5d"
+    },
+    {
+      "task_id": "e52623a_3",
+      "path": "task_archives/e52623a_3.tar.gz",
+      "bytes": 881169,
+      "sha256": "035003faee58eb1a5ebbf20b2fda4079e01142356108fbbbf58e040d728c6216"
+    },
+    {
+      "task_id": "e70b117_3",
+      "path": "task_archives/e70b117_3.tar.gz",
+      "bytes": 992756,
+      "sha256": "70c3317cd0bf22b8d0c3a393c662783e77b124827989a64434463625f81a94f0"
+    },
+    {
+      "task_id": "e775c78_2",
+      "path": "task_archives/e775c78_2.tar.gz",
+      "bytes": 216005,
+      "sha256": "1255994d9ad55826754dd20216e17eb2bef69c4a3de36e7de97315aeee84bf6b"
+    },
+    {
+      "task_id": "e7a10f8_2",
+      "path": "task_archives/e7a10f8_2.tar.gz",
+      "bytes": 487659,
+      "sha256": "719cfd45cd5f273a80015b726d484e9d81a29b0749f00ca82b5399d1e56d3974"
+    },
+    {
+      "task_id": "e7f15ba_1",
+      "path": "task_archives/e7f15ba_1.tar.gz",
+      "bytes": 1493793,
+      "sha256": "0cfeac5ce1f20fb12d3fdaea41b451ac7d47a162f831cdb047e65c1fe910058b"
+    },
+    {
+      "task_id": "e85d92a_3",
+      "path": "task_archives/e85d92a_3.tar.gz",
+      "bytes": 310740,
+      "sha256": "cec65048934dddde3a0bc9b59ef6e4cb3dddad187928e0ef1e05352bb5620836"
+    },
+    {
+      "task_id": "eb5ad85_1",
+      "path": "task_archives/eb5ad85_1.tar.gz",
+      "bytes": 170768,
+      "sha256": "32bd4b90be1176f939f1d11335b8791af3b510631c963d4d1de3dc75e6341b25"
+    },
+    {
+      "task_id": "ec437da_2",
+      "path": "task_archives/ec437da_2.tar.gz",
+      "bytes": 1485900,
+      "sha256": "9f7fc74864934949dac82286862d0a5dd777e8b3e853889cc98651635028c999"
+    },
+    {
+      "task_id": "ec655df_3",
+      "path": "task_archives/ec655df_3.tar.gz",
+      "bytes": 1862753,
+      "sha256": "9277a4d0e6d2aadd222ab475992512283f6ea9dd142268087d277d2f4b008571"
+    },
+    {
+      "task_id": "efc3cea_2",
+      "path": "task_archives/efc3cea_2.tar.gz",
+      "bytes": 1333210,
+      "sha256": "ef87cee6bfcff9cf3676dea4cb65afa1e2f926e824f27bbe6f330fa642fd36de"
+    },
+    {
+      "task_id": "f099b4c_3",
+      "path": "task_archives/f099b4c_3.tar.gz",
+      "bytes": 1538167,
+      "sha256": "d2d662134324a24e57501a4d1b9a1f6a7e01e4908336364da42cd3498ed46c05"
+    },
+    {
+      "task_id": "f323bae_1",
+      "path": "task_archives/f323bae_1.tar.gz",
+      "bytes": 197075,
+      "sha256": "cb17e5e6a4f24b5509b2da308ecfaa61f7902a20547d8a5e73c0d0003d9eb138"
+    },
+    {
+      "task_id": "f37e804_2",
+      "path": "task_archives/f37e804_2.tar.gz",
+      "bytes": 1579479,
+      "sha256": "f547200fa304417ab60323f93a7b8ce8decd3656d0c4745228d64cc9237c32ec"
+    },
+    {
+      "task_id": "f3a6713_1",
+      "path": "task_archives/f3a6713_1.tar.gz",
+      "bytes": 2131950,
+      "sha256": "c0c80bdf4eecaf2af7520c4e896cfcb5d38908c6edb23c5711d669422a6f133a"
+    },
+    {
+      "task_id": "f3f60f0_2",
+      "path": "task_archives/f3f60f0_2.tar.gz",
+      "bytes": 535586,
+      "sha256": "675290126f4b2984651ab90043f1a427a03f660df8a481a86509266f0bd433aa"
+    },
+    {
+      "task_id": "f691597_2",
+      "path": "task_archives/f691597_2.tar.gz",
+      "bytes": 106626,
+      "sha256": "9f4c687bd90d8074dde167bef27990958f959a126f1de0499cf6a1f814649340"
+    },
+    {
+      "task_id": "f6936d4_2",
+      "path": "task_archives/f6936d4_2.tar.gz",
+      "bytes": 1460280,
+      "sha256": "1b775aa6fcccc2bdbfbf9b0b319e8ac683f14a7453d7f28374dd1d469c6550f2"
+    },
+    {
+      "task_id": "f6be291_3",
+      "path": "task_archives/f6be291_3.tar.gz",
+      "bytes": 1759149,
+      "sha256": "e7889b66e8a4c2ef18c17127cdc7764227ddc40ad77f34f512e3c7cbacfdbce5"
+    },
+    {
+      "task_id": "f6f2e67_1",
+      "path": "task_archives/f6f2e67_1.tar.gz",
+      "bytes": 1112923,
+      "sha256": "e1309d96db3d8b66ca9e1463de8743728a37b537e8deacdac6d875e7a8f9041f"
+    },
+    {
+      "task_id": "f861c32_1",
+      "path": "task_archives/f861c32_1.tar.gz",
+      "bytes": 1116098,
+      "sha256": "16494bdaa6a3c95d15c00b295d1c35301b490d2adabb4082fedb500486a564bf"
+    },
+    {
+      "task_id": "f86d850_3",
+      "path": "task_archives/f86d850_3.tar.gz",
+      "bytes": 1492443,
+      "sha256": "f8b7f27fea2af564ea5b2789ccbfed0f279abe8035251fdeef22052843ebcf9f"
+    },
+    {
+      "task_id": "f99d726_1",
+      "path": "task_archives/f99d726_1.tar.gz",
+      "bytes": 1863812,
+      "sha256": "10f70e83b60ba14f2cd5649acf4dd340ba107757cf09264b11af5e953c46d241"
+    },
+    {
+      "task_id": "fa327a6_2",
+      "path": "task_archives/fa327a6_2.tar.gz",
+      "bytes": 1137667,
+      "sha256": "84525045310260f6c176a1fd6397f40f014152f4d986e882331031d6ee2b52e3"
+    },
+    {
+      "task_id": "fac291d_2",
+      "path": "task_archives/fac291d_2.tar.gz",
+      "bytes": 1661631,
+      "sha256": "32bcc7ad7fe0e92b58e3834433f618acf86099d2d3304658a2bcf4217ed883f3"
+    },
+    {
+      "task_id": "fb05fed_3",
+      "path": "task_archives/fb05fed_3.tar.gz",
+      "bytes": 616294,
+      "sha256": "5b0a677c6d62df3771eaf0881cdd51a45589661800cc56167f007f226f5eadd8"
+    },
+    {
+      "task_id": "fd1f8fa_3",
+      "path": "task_archives/fd1f8fa_3.tar.gz",
+      "bytes": 352582,
+      "sha256": "8dcb6f133e02ea44678eb12f2f50344b4700aa37277952bcf84095faba186d82"
+    },
+    {
+      "task_id": "fdc4b74_3",
+      "path": "task_archives/fdc4b74_3.tar.gz",
+      "bytes": 592682,
+      "sha256": "8f015cc53487ce63cabdde60f7a99cfaeb98563ea87021b78e78db2b0368d51d"
+    },
+    {
+      "task_id": "fddb6b6_2",
+      "path": "task_archives/fddb6b6_2.tar.gz",
+      "bytes": 1437341,
+      "sha256": "32565c195a0a0f3f5a7f960d78d84d3dbb8ca9ceafe1a1f27d21b374fe269d1f"
+    },
+    {
+      "task_id": "ff58e36_3",
+      "path": "task_archives/ff58e36_3.tar.gz",
+      "bytes": 906405,
+      "sha256": "b9a84ba77b4e71f08979abffb9dd3ad2caeea2fc3870eec66c29586fb86fd7be"
+    },
+    {
+      "task_id": "ffe6d5e_3",
+      "path": "task_archives/ffe6d5e_3.tar.gz",
+      "bytes": 662590,
+      "sha256": "48dc65213936843f25dd8c5328f79bcdf4f5a6eee5f8aec6059e652e28d8cfa5"
+    },
+    {
+      "task_id": "ffea2b5_3",
+      "path": "task_archives/ffea2b5_3.tar.gz",
+      "bytes": 1601138,
+      "sha256": "e6b4680845fe50ed6a723a3ed056078e095086040f487b798a6dd47ad817bc32"
+    }
+  ]
+}

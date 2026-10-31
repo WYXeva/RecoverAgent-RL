@@ -1,0 +1,255 @@
+{
+  "format": "full732-M1-C244-final-attempt-summary-v1",
+  "date": "2026-10-31",
+  "status": "ALL244_ATTEMPTED_10_UNKNOWN_REVIEW_REQUIRED",
+  "M1_training_and_reload": "PASS",
+  "M1_parameter_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c",
+  "teacher_manifest_sha256": "96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f",
+  "counts": {
+    "attempted": 244,
+    "valid": 234,
+    "success": 16,
+    "failure": 218,
+    "unknown": 10
+  },
+  "complete_valid_evaluation": false,
+  "TGC": null,
+  "conditional_valid_success_rate": 0.06837606837606838,
+  "conditional_rate_not_full_C244_score": true,
+  "old46": {
+    "attempted": 46,
+    "valid": 42,
+    "success": 5,
+    "failure": 37,
+    "unknown": 4,
+    "infrastructure_error": 3,
+    "TGC": null,
+    "complete_valid_evaluation": false
+  },
+  "new198": {
+    "attempted": 198,
+    "valid": 192,
+    "success": 11,
+    "failure": 181,
+    "unknown": 6,
+    "unattempted": 0,
+    "source_commit": "e8bfbe7de1c4df4da2617fa8655de17308718ce9",
+    "source_lock_sha256": "ab9b801438ae361733384857929c7b21f5b4a6695d021355ab2b67a16c838d06",
+    "runtime_variant": "m1_vgpu32_reference_lora_deadline_20261030",
+    "GPU": "NVIDIA GeForce RTX 4080 SUPER",
+    "memory_MiB": 32760,
+    "unmerged_BF16_LoRA": true,
+    "merge_optimization_accepted": false,
+    "started_CST": "2026-10-30T18:57:45.908381+08:00",
+    "finished_CST": "2026-10-31T13:10:54.547023+08:00",
+    "elapsed_seconds": 65588.63864159584,
+    "mean_task_wall_seconds": 328.4056253971125,
+    "failure_terminations": {
+      "protocol_correction_exhausted": 20,
+      "budget_exhausted": 76,
+      "completion_claim": 52,
+      "context_budget_exhausted": 33
+    },
+    "budget_failures_reaching40_requests": 75,
+    "budget_failures_with_server_deadline_receipt": 1,
+    "response_metrics": {
+      "saved_response_count": 6042,
+      "sum_generation_seconds_including_prefill": 51578.477510415716,
+      "response_output_tokens": 453766,
+      "max_recorded_inference_allocated_bytes": 16646226432,
+      "max_recorded_inference_allocated_GiB": 15.50300645828247,
+      "device_memory_not_equal_allocated": true,
+      "includes_deadline_response_count": 1
+    }
+  },
+  "by_official_split": [
+    {
+      "official_source_split": "train",
+      "total": 30,
+      "success": 1,
+      "failure": 29,
+      "unknown": 0,
+      "conditional_valid_success_rate": 0.03333333333333333
+    },
+    {
+      "official_source_split": "dev",
+      "total": 19,
+      "success": 2,
+      "failure": 17,
+      "unknown": 0,
+      "conditional_valid_success_rate": 0.10526315789473684
+    },
+    {
+      "official_source_split": "test_normal",
+      "total": 56,
+      "success": 7,
+      "failure": 49,
+      "unknown": 0,
+      "conditional_valid_success_rate": 0.125
+    },
+    {
+      "official_source_split": "test_challenge",
+      "total": 139,
+      "success": 6,
+      "failure": 123,
+      "unknown": 10,
+      "conditional_valid_success_rate": 0.046511627906976744
+    }
+  ],
+  "split_counts_crosschecked_against_official_ID_lists": true,
+  "historical_split_aggregation_method": "34-task saved snapshot identifies4 successes; sealed training report identifies31dc501_2 as5th; sealed final46 total and4 unknown IDs complete aggregate counts. No missing raw rows fabricated.",
+  "historical_success_IDs": [
+    "024c982_1",
+    "1150ed6_1",
+    "13547f5_1",
+    "258796c_3",
+    "31dc501_2"
+  ],
+  "old_unknown_tasks": [
+    {
+      "task_id": "16be9ce_3",
+      "category": "evaluation_error",
+      "error_type": "TypeError"
+    },
+    {
+      "task_id": "2ff4dfb_1",
+      "category": "infrastructure_error",
+      "error_type": "TimeoutError"
+    },
+    {
+      "task_id": "30e8586_3",
+      "category": "infrastructure_error",
+      "error_type": "RemoteDisconnected"
+    },
+    {
+      "task_id": "321ec38_1",
+      "category": "infrastructure_error",
+      "error_type": "TimeoutError"
+    }
+  ],
+  "new_unknown_tasks": [
+    {
+      "task_id": "998908e_3",
+      "split": "test_challenge",
+      "status": "evaluation_error",
+      "termination": "budget_exhausted",
+      "evaluation_exception_types": [
+        "ValueError"
+      ]
+    },
+    {
+      "task_id": "a97e35d_2",
+      "split": "test_challenge",
+      "status": "evaluation_error",
+      "termination": "context_budget_exhausted",
+      "evaluation_exception_types": [
+        "KeyError"
+      ]
+    },
+    {
+      "task_id": "b6d1f70_1",
+      "split": "test_challenge",
+      "status": "evaluation_error",
+      "termination": "protocol_correction_exhausted",
+      "evaluation_exception_types": [
+        "IndexError",
+        "StopIteration"
+      ]
+    },
+    {
+      "task_id": "d6d8cb6_2",
+      "split": "test_challenge",
+      "status": "evaluation_error",
+      "termination": "budget_exhausted",
+      "evaluation_exception_types": [
+        "Exception",
+        "UnboundLocalError"
+      ]
+    },
+    {
+      "task_id": "f099b4c_3",
+      "split": "test_challenge",
+      "status": "evaluation_error",
+      "termination": "budget_exhausted",
+      "evaluation_exception_types": [
+        "ValueError"
+      ]
+    },
+    {
+      "task_id": "f86d850_3",
+      "split": "test_challenge",
+      "status": "evaluation_error",
+      "termination": "context_budget_exhausted",
+      "evaluation_exception_types": [
+        "AttributeError",
+        "IndexError",
+        "UnboundLocalError"
+      ]
+    }
+  ],
+  "artifact_return": {
+    "new_task_archives": 198,
+    "all_task_archive_sizes_and_SHA256_and_extracted_results_verified": true,
+    "final_summary_sha256": "4b07f4f9d28c6320eae5c4fee621bd8af7c8186a4036e39eb3f3253338faf749",
+    "metadata_archive_sha256": "4ec07285b642e6bb167fac3e3464c199b1b22fe8d2efe08d2e721ab4c7cc0636",
+    "artifact_index_sha256": "620be8a8f15eae15f410fe405d03ed91321ad43869a7725095b68ea62c1ccc20",
+    "full_M1_training_return_complete": true,
+    "old46_full_raw_return_complete": false,
+    "local_root": "runs/m1_vgpu32_20261030/",
+    "ack": {
+      "summary_sha256": "4b07f4f9d28c6320eae5c4fee621bd8af7c8186a4036e39eb3f3253338faf749",
+      "archive_count": 198,
+      "metadata_archive_sha256": "4ec07285b642e6bb167fac3e3464c199b1b22fe8d2efe08d2e721ab4c7cc0636",
+      "local_verified_unix": 1793423479.7915456
+    }
+  },
+  "shutdown": {
+    "initial_attempt_CST": "2026-10-31T13:11:22.623134+08:00",
+    "initial_attempt_failed": true,
+    "initial_error": "OSError errno8 Exec format error: provider script has no shebang; subprocess direct exec failed",
+    "initial_receipt_only_proves_requested": true,
+    "controller_error_log_sha256": "0d4e8692a829072f72bcbd181021142143e68004debd828a8678d0ced556dcfa",
+    "corrected_request": {
+      "status": "COMMAND_REQUESTED_NOT_YET_CONFIRMED_OFF",
+      "requested_unix": 1793427340.1423857,
+      "command": [
+        "/bin/bash",
+        "/usr/bin/shutdown"
+      ],
+      "user_authorized": true,
+      "prior_failure": "OSError errno8 Exec format error from direct exec",
+      "script_has_shebang": false,
+      "script_sha256": "0358e83eeeaf542aa98f64ba9e339c91df46f1e025892d52dba159f4fb1cf027",
+      "local_backup_acknowledged": true,
+      "archive_count": 198,
+      "no_GPU_compute_processes": true,
+      "M1_file_reverification": {
+        "trainable_after_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c"
+      },
+      "transport_exit_code": 255
+    },
+    "corrected_request_CST": "2026-10-31T14:15:40.142386+08:00",
+    "unexpected_idle_seconds_until_corrective_request": 3857.5192515850067,
+    "fresh_SSH_check": {
+      "checked_unix": 1793427379.0973606,
+      "fresh_connection": true,
+      "returncode": 255,
+      "SSH_reachable": false,
+      "error_category": "connection_refused",
+      "seconds": 0.07187914848327637,
+      "cloud_console_power_state_verified": false,
+      "billing_state_verified": false
+    },
+    "status": "CORRECTED_SHUTDOWN_INVOKED_SSH_CONNECTION_REFUSED",
+    "cloud_console_power_state_verified": false,
+    "billing_state_or_amount_verified": false
+  },
+  "M1_file_hashes_reverified_before_corrective_shutdown": {
+    "trainable_after_hash": "3b9cf8f3aed4b36b9d55d0289d3a2f99faef400af80480f7179d09fcf3aa400c"
+  },
+  "automatic_task_retries": 0,
+  "C_used_for_training_or_checkpoint_selection": false,
+  "Recovery_SFT_or_GRPO_started": false,
+  "official_benchmark_claim": false,
+  "next_action": "Stop and await review; do not automatically rerun UNKNOWN or start another stage."
+}
