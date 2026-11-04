@@ -1,5 +1,7 @@
 # 项目状态
 
+> **2026-11-04 D085：B10真实自然失败/Teacher恢复试点 BLOCKED，未运行**。本轮新授权固定B前10项、既有4B M1、每失败最多post-error/late-failure两个边界、Teacher总上限20次，替代上轮仅软件验收的执行范围。Teacher只读账户/模型检查可用，本地51份M1发布文件SHA和重载回执匹配；`ssh.txt`目标复核仍`Connection refused`，远端M1/GPU未核验。已冻结原顺序B10名单、统一预算、检查点规则、新准备锁和10条现有P3-C采集作业；新增选择器只做封存/来源/可恢复/去重校验。64项合成针对性回归及Ruff通过。实际Student任务0、自然失败0、Teacher恢复0、成功0、合格/暂缓后缀0；这些是未运行计数，不是效果结论。Teacher接管和后缀导出接线尚未实施，不宣称完整试点可启动。未开机/租机/续费/训练，旧数据和锁不改。公开准备提交后停止。详见[阻塞与启动命令](../reports/b10_teacher_recovery_pilot_20261104.md)。
+
 > **2026-11-04 D084：P0.2 Nullable v2 采集/恢复接线软件验收 PASS，提交供审查**。基线 `73b9047` 的转换核心保持原样；`p3c.run_episode` 在初始工具/StudentSession之前启用共享转换，`restore_probe` 与历史单调用恢复入口按快照重建 Schema。完整 catalogue、审计及可见工具不匹配在状态导入/工具执行前拒绝，原恢复检查保留。新增独立 `p3c_nullable_v2_20261104` 配置/锁，复用现有 Runner、固定 Qwen3-4B/M1 和冻结 B244；格式5快照保留官方 split，旧格式/配置/锁不改。新增37项合成测试；Nullable合计94项、相关回归199项、完整pytest727项及Ruff通过。没有真实AppWorld任务、模型/GPU、采集或训练；没有效果验证。提交推送后停止，等待审查。详见[验收报告](../reports/schema_nullable_recovery_p02_20261104.md)。
 
 > **2026-11-04：P0.1提交供审查**。用户已明确授权将已验收的Nullable Schema修复提交到GitHub。发布前11份交付文件与2026-10-31验收哈希一致；本次只补充发布状态，软件测试结论仍为57项针对性、133项相关回归、690项完整pytest及Ruff通过。提交范围为P0.1代码、测试和文档，等待用户/GPT审查。详见[验收报告](../reports/schema_nullable_compatibility_v2.md)。

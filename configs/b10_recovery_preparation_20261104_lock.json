@@ -1,0 +1,15 @@
+{
+  "format": "b10-recovery-preparation-lock-v1",
+  "baseline_commit": "0b17a8ec3a805586b6deb2a8f602955a38a449f4",
+  "scope": "Preparation and checkpoint selection; existing Student execution dependencies validated through unchanged P0.2 lock",
+  "files": {
+    "configs/b10_recovery_pilot_20261104.json": "b6ce3c14b45f3cd2734e827861d360b64d187202677dcfa8697b974b5b5b2e20",
+    "configs/b10_recovery_plan_20261104.json": "aa01f3d237a9901210893bd7a4e69d0b7143c3eeecdbc26ac27d844440fa4b00",
+    "configs/full732_official_retry_current_20261029.json": "968b216c2d60ae2c29729e50f45a9f4162e5c4a6b2bf5dd32819824347f371e2",
+    "configs/p3c_nullable_v2_20261104.json": "8e7b66dee10310e298e616be2b6c463a16f3746a3abf36bac602dd863299d521",
+    "configs/p3c_nullable_v2_20261104_lock.json": "84cbcc980a0c1dd6a5e50bc137992a10309a456b32680f739985a563902c9c23",
+    "configs/p3c_nullable_v2_m1_release_20261104.json": "652253fbe5409a3bd8478b89c69fbe5209449b8f8939dba47c2810cddc75e7fc",
+    "configs/unified_task_split_full_pool_candidate.json": "0466cec29d9ad770a1cfeacb4c93945e5fcbcad68b9e980c5264d447418121a2",
+    "scripts/prepare_b10_recovery_pilot.py": "1e28e2e35552c7408d402aec1e7e0906eba643bb95f7a1cf2fefa2b496250530"
+  }
+}

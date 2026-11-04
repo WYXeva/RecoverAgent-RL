@@ -769,3 +769,16 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 新增 `p3c_nullable_v2_20261104` 配置/锁，复用现有 P3-C 调度器和 drive，固定 Qwen3-4B/M1、non-thinking、execution_v6及原预算，Memory关闭。新 M1 文件清单引用绑定既有发布报告/训练回执，不改变权重。新配置直接使用冻结 Full732 B244，保持 A/B/C 原任务分配；Adapter 与独立 evaluator 共用 B 身份。为保留原官方 split 而非伪标 train，新增仅限该 B runtime/v2 Schema/无 Memory 的快照格式5；旧格式1–4保留原 train 限制。旧配置、源码锁、execution_v6、Teacher 数据、M1和C244历史均不改；旧锁继续拒绝新源码。
 
 验收为新增37项合成测试、Nullable合计94项、相关回归199项、完整pytest727项及Ruff check/format check通过，3条固定上游Pydantic弃用警告。单测临时源码清单只为本轮有意接线更新，不重签生产旧锁。没有创建真实AppWorld任务、请求模型、SSH/GPU、训练、采集或重跑；没有成功率提升结论。真实跨进程恢复/部署和后续采集待另行审查。完整入口、测试命令、锁SHA与限制见 `reports/schema_nullable_recovery_p02_20261104.md`。本轮提交推送后停止。
+
+
+## D085 — B10真实试点授权与资源阻塞，仅交付必要准备（2026-11-04）
+
+用户本轮授权既有Qwen3-4B M1按现有冻结B244顺序执行前10任务，每任务干净初态一次，不替换/追加；每条有效自然失败最多选post-error、late-failure两个不同完整可继续边界，每边界Teacher一次，总上限20。沿用自定义Full732协议及官方原任务评价，不改变来源split或A/B/C，不使用C失败，不训练Recovery-SFT/GRPO，不租机/续费。此授权覆盖D084的“仅软件”限制，但要求机器和服务实际可用。
+
+基线 `0b17a8e`，受跟踪文件开始时无未提交差异。P0.1/P0.2直接复用，源码与旧配置/锁均未修改。实际检查：本地M1的51份发布文件SHA、参数/重载回执匹配；既定官方Teacher的只读余额和模型列表请求成功，无生成请求；SSH采用独立客户端配置并保留host-key验证后，目标仍Connection refused，12:28:34 UTC复核相同。未登录远端，不能确认GPU或M1服务，更不能生成新的自然失败。
+
+按“资源不可用只完成直接必要准备”的要求，冻结 `b10_recovery_plan_20261104.json` 前10个B身份，保留5个test_normal、4个test_challenge、1个train的原始来源；新配置/准备锁绑定现有P0.2执行锁和官方Teacher配置。Student预算不变；Teacher每分支独立80请求/16384生成/4096回复/600秒及原费用预留，不自动收费重试。选择器优先首次公开工具错误后的post-action和现有drive记录的late边界，不把pre-error当恢复；对历史、工具、状态、runtime相同的边界去重，不可继续、数值纠正耗尽或未决生成少取并留原因。
+
+准备工具只生成既有P3-C采集命令和只读选择检查点，不是完整恢复Runner。Teacher接管批量Student快照及成功后缀编码/过滤接线尚未实施，资源不可用后未继续扩展工程。后续真实路径必须保留Schema/状态/历史一致性，Teacher只能看源边界历史，评价参照原任务；只监督Teacher后缀Assistant，超长完整deferred。不可把旧P3-A正常采集、合成测试或C244失败冒充本次恢复。
+
+本轮实际Student任务/自然失败/检查点/Teacher尝试/成功/合格后缀/deferred均0，生成token及推理时间0，无模型效果结论。64项针对性合成回归和Ruff通过；未重复完整pytest。公开提交配置、准备工具、测试及报告，私有资源回执/名单作业保存在runs目录，提交后停止。详见 `reports/b10_teacher_recovery_pilot_20261104.md`；机器可用后从其中明确标注尚未执行的Student命令继续，Teacher恢复须补齐接线并验收后执行。

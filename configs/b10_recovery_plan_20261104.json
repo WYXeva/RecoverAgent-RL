@@ -1,0 +1,117 @@
+{
+  "format": "full732-b10-recovery-plan-v1",
+  "reviewed_baseline": "0b17a8ec3a805586b6deb2a8f602955a38a449f4",
+  "source_split": "configs/unified_task_split_full_pool_candidate.json",
+  "source_sha256": "0466cec29d9ad770a1cfeacb4c93945e5fcbcad68b9e980c5264d447418121a2",
+  "source_manifest_sha256": "086c0e2a1ac1143967d7ea8af06e0cc434aecdb39a51e1fe6c5fd42585ae2cab",
+  "order_source": "recoveragent.full732_recovery_tasks.b_tasks() existing task_id order",
+  "rows": [
+    {
+      "task_id": "024c982_2",
+      "scenario_id": "024c982",
+      "official_split": "test_normal",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    },
+    {
+      "task_id": "042a9fc_2",
+      "scenario_id": "042a9fc",
+      "official_split": "test_normal",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    },
+    {
+      "task_id": "07b42fd_1",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "recovery_grpo",
+      "initial_input_sha256": "6a0c70ff42783d9fb3b63eb3e0a8bc0533d97d2ea13561855594f0f5aec9ebb5",
+      "permission_status": "READY"
+    },
+    {
+      "task_id": "07bb666_2",
+      "scenario_id": "07bb666",
+      "official_split": "test_challenge",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    },
+    {
+      "task_id": "099174d_2",
+      "scenario_id": "099174d",
+      "official_split": "test_challenge",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    },
+    {
+      "task_id": "09ac073_3",
+      "scenario_id": "09ac073",
+      "official_split": "test_challenge",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    },
+    {
+      "task_id": "09b0ee6_1",
+      "scenario_id": "09b0ee6",
+      "official_split": "test_normal",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    },
+    {
+      "task_id": "0a9d82a_1",
+      "scenario_id": "0a9d82a",
+      "official_split": "test_normal",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    },
+    {
+      "task_id": "0d01c76_1",
+      "scenario_id": "0d01c76",
+      "official_split": "test_normal",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    },
+    {
+      "task_id": "0d22252_1",
+      "scenario_id": "0d22252",
+      "official_split": "test_challenge",
+      "role": "recovery_grpo",
+      "initial_input_sha256": null,
+      "permission_status": "BLOCKED"
+    }
+  ],
+  "checkpoint_rules": {
+    "order": [
+      "post_error",
+      "late_failure"
+    ],
+    "post_error": "first complete post_action boundary after observed public_tool_error; never pre_error or a rejected-only batch",
+    "late_failure": "latest active complete pre-boundary selected by the frozen p3c drive",
+    "max_per_failure": 2,
+    "max_teacher_attempts": 20,
+    "attempts_per_checkpoint": 1,
+    "deduplicate_by": [
+      "history_hash",
+      "tool_schema_hash",
+      "logical_state_hash",
+      "runtime_hash"
+    ],
+    "require_task_active": true,
+    "require_resume_eligible": true,
+    "reject_stopped_answer_guard": true,
+    "reject_unknown_generation_reservation": true,
+    "no_task_replacement_or_extension": true,
+    "teacher_budget": "independent uniform allowance; Student prefix usage accounted separately",
+    "actor_visibility": "snapshot history/tools only; no future Student trajectory or evaluation",
+    "supervision": "Teacher suffix Assistant only; original prefix and tool/control tokens masked",
+    "overlength": "retain complete attempt as deferred; no truncation or operation removal"
+  },
+  "plan_id": "835249aceeae127eaeb7c2b1b59e5c1cf48b175da609baafa94f7a9a9da1f031"
+}
