@@ -107,11 +107,13 @@ def test_changed_source_or_key_scope_refuses_before_dispatch(monkeypatch):
 
 @pytest.mark.parametrize("fatal", [False, True])
 def test_serial_paid_attempts_are_not_reissued_and_auth_stops(
-    monkeypatch, tmp_path, fatal
+    monkeypatch, tmp_path, fatal, current_teacher_unit_lock
 ):
     import os
 
-    value = config()
+    # Synthetic controller execution uses a temporary manifest, never re-signs
+    # the historical production lock after the P0.1 adapter/runner changes.
+    value = current_teacher_unit_lock(config())
     value.pop("official_continuation", None)
     _, all_rows = retry.a_tasks()
     allowed = {r["task_id"]: r for r in all_rows}
@@ -244,6 +246,9 @@ def test_old_production_transport_lock_is_not_resigned():
     from recoveragent.protocol_lock import verify_lock
     from recoveragent.parallel_teacher import DEFAULT as old_default
 
-    with pytest.raises(ValueError, match="teacher.py"):
+    with pytest.raises(ValueError, match="Frozen prompt/tool protocol changed"):
         verify_lock(read_json(old_default))
-    verify_lock(config())
+    # The released official retry manifest also predates P0.1. It must not be
+    # silently re-signed merely to let this revised checkout pass a legacy gate.
+    with pytest.raises(ValueError, match="Frozen prompt/tool protocol changed"):
+        verify_lock(config())

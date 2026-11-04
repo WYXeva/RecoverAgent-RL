@@ -62,13 +62,19 @@ def current_fresh_campaign_unit_locks(tmp_path, monkeypatch):
         if key not in bound:
             config = read_json(path)
             lock = read_json(config["protocol_lock"])
-            # Only the deliberately revised transport diagnostics may differ.
+            # Test-only manifests for transport diagnostics and P0.1's explicit
+            # schema opt-in wiring. Production source locks remain untouched;
+            # separate tests require those historical locks to reject this tree.
             changed = {
                 name
                 for name, expected in lock["files"].items()
                 if sha256(name) != expected
             }
-            assert changed <= {"src/recoveragent/teacher.py"}
+            assert changed <= {
+                "src/recoveragent/teacher.py",
+                "src/recoveragent/adapter.py",
+                "src/recoveragent/p3a.py",
+            }
             lock["files"] = {name: sha256(name) for name in lock["files"]}
             lock["revision"] = "SYNTHETIC_UNIT_TEST_ONLY"
             home = tmp_path / "synthetic_campaign_locks" / str(len(bound))

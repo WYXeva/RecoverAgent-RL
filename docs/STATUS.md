@@ -1,5 +1,9 @@
 # 项目状态
 
+> **2026-11-04：P0.1提交供审查**。用户已明确授权将已验收的Nullable Schema修复提交到GitHub。发布前11份交付文件与2026-10-31验收哈希一致；本次只补充发布状态，软件测试结论仍为57项针对性、133项相关回归、690项完整pytest及Ruff通过。提交范围为P0.1代码、测试和文档，等待用户/GPT审查。详见[验收报告](../reports/schema_nullable_compatibility_v2.md)。
+
+> **2026-10-31 D083：P0.1 Nullable Schema软件契约修复PASS，等待审查**。新增显式启用的`schema_nullable_compatibility_v2`，从固定AppWorld公开OpenAPI类型恢复明确允许的null；Teacher/Student共用Adapter转换，初始/动态工具与严格校验一致，原始/转换后Schema及来源SHA落盘。针对性57项、相关回归133项、完整pytest690项、Ruff check/format check通过。11应用473份公开工具定义静态转换通过，248个参数恢复nullable；未创建真实AppWorld任务、调用模型、启动GPU或训练，未验证成功率提升。旧配置/锁、execution_v6、数据、M1和C244结果不改；未提交、未推送，完成后停止。详见[验收报告](../reports/schema_nullable_compatibility_v2.md)。
+
 > **2026-10-31 M1失败后验分析完成**：218个有效失败按终止类型为预算85、结束后判失败62、上下文41、协议22、旧细节缺失8；10 UNKNOWN另列。新198项完整日志显示重复API发现、遗漏操作/错误聚合及凭据混淆。另确认公开API允许None但工具Schema拒绝null的契约冲突：12任务遇到，3任务最后一次拒绝直接相关；未修复或重跑，不能推断可挽救的成功数。33个新机有效上下文失败CPU重分词均超过32768。仅离线诊断，0新增模型/AppWorld/SSH/GPU，原成绩/模型/锁不变。详见[失败分析](../reports/full732_m1_failure_analysis_20261031.md)。
 
 > **2026-10-31 D082：M1/C244执行收尾，停止等待审查**。M1训练/重载PASS；C244于13:10全部244项尝试结束：16成功、218有效失败、10 UNKNOWN，完整TGC仍null。新机198份原始归档、最终摘要已全部回传核验；旧46项完整原始日志仍未全部回传。13:11自动关机因无shebang脚本被直接exec而失败，14:15改由bash补执行后SSH断开，新连接被拒绝；未核验云控制台/账单。失败到补执行约64.3分钟，缺陷与证据如实保留。详见`reports/full732_c244_final_20261031.md/json`。不自动重跑未知项、开机或进入Recovery-SFT/GRPO。

@@ -107,6 +107,12 @@ class AppWorldAdapter:
             "app_descriptions": task.app_descriptions,
         }
 
+    def configure_schema_compatibility(self, revision, output):
+        """Versioned opt-in, shared by all Teacher/Student adapter subclasses."""
+        from .schema_compatibility import prepare_adapter_schemas
+
+        return prepare_adapter_schemas(self, revision, output)
+
     def initial_tools(self):
         # Public discovery and supervisor tools. Actor chooses additional APIs by requesting docs.
         return [

@@ -742,3 +742,19 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 > **2026-10-31 D082：M1/C244执行收尾，停止等待审查**。M1训练/重载PASS；C244于13:10全部244项尝试结束：16成功、218有效失败、10 UNKNOWN，完整TGC仍null。新机198份原始归档、最终摘要已全部回传核验；旧46项完整原始日志仍未全部回传。13:11自动关机因无shebang脚本被直接exec而失败，14:15改由bash补执行后SSH断开，新连接被拒绝；未核验云控制台/账单。失败到补执行约64.3分钟，缺陷与证据如实保留。详见`reports/full732_c244_final_20261031.md/json`。不自动重跑未知项、开机或进入Recovery-SFT/GRPO。
 
 244项已尝试不等于244项有效成绩；有效比例16/234=6.84%，10个UNKNOWN不记0。新机198项11成功/181失败/6未知，完整原始证据逐项回传核验。新机平均任务328.406秒，总18.219小时；旧机历史证据缺口和混合运行时限制继续披露。自动关机脚本无shebang导致Python直接exec失败，本地监控没有继续核验电源状态；14:15补执行bash后SSH新连接被拒绝。旧请求回执、失败日志与新检查分别保存，不反写旧源锁。M1不重训，不重跑未知项，阶段结束等待审查。
+
+
+## D083 — P0.1：独立Nullable Schema契约修复，仅软件验收（2026-10-31）
+
+用户明确只授权Nullable契约修复、软件测试和文档更新，完成后等待检查，不自动提交/推送。基准为`codex/p0-p2-recovery`的`8c654b13c7957f72650484e9186b92b6dae2f14b`。
+
+固定AppWorld `42b5bcf3cd334fee33f0c37c02070a9f5807add5`的Function Calling转换器删除原始OpenAPI `anyOf`中的null并保留default:null，造成公开参数签名与前置严格校验冲突。采用独立`schema_nullable_compatibility_v2`，以FastAPI/Pydantic生成的公开OpenAPI为类型依据，不执行字符串类型声明、不根据默认值/描述猜测。先匹配固定转换器的原始非空Schema，再只恢复有明确证据的null分支；非空分支约束、required及原有整批拒绝/认证检查保留。无法解析、类型来源不明、引用循环/外部引用、Schema错配均停止，不回退放行。
+
+新增配置项`schema_compatibility_revision`显式选择新revision；缺省继续旧Schema，未改任何历史运行配置或源码锁。Teacher和Student入口均在工具选择前调用同一Adapter方法，初始工具和动态发现均取转换后的同一catalogue。审计文件保留原始/转换后Schema、公开类型来源、源码与规范JSON SHA；明确展示原来校验器就执行的顶层additionalProperties:false，使模型所见与校验一致。未修改harness.py或execution_v6文本。
+
+验收：新增57项针对性测试、133项相关回归、完整690项pytest通过，Ruff check/format check通过。固定安装包11应用473份公开工具定义静态检查通过，其中248参数有明确null恢复；这不是实际API执行或真实任务成功验证。全套产生3个上游Pydantic弃用警告。旧测试的临时源码清单针对新接线更新，生产旧锁继续拒绝当前改动；新公开Schema测试禁用上游导入时的.env自动加载，防止影响凭据单测。
+
+真实AppWorld任务/工具执行、Teacher/Student模型调用、GPU、训练任务均为0，C244历史结果不重算。原始数据、M1、旧源码锁保留，不启动后续阶段。详见`reports/schema_nullable_compatibility_v2.md`；本轮改动仅留本地等待用户检查。
+
+
+2026-11-04发布补充：用户明确要求“提交到GitHub供gpt检查”，覆盖10月31日暂不提交的交付安排。发布前复核11份交付文件SHA与原验收一致，源码/测试无追加修改，仅更新发布状态；提交P0.1至`codex/p0-p2-recovery`供审查，不启动下一阶段。

@@ -255,6 +255,10 @@ def run_episode(config, case, arm, output):
         adapter = EvaluationAdapter(
             config["appworld_root"], case["task_id"], experiment, case["split"]
         )
+        if config.get("schema_compatibility_revision") is not None:
+            record["schema_compatibility"] = adapter.configure_schema_compatibility(
+                config["schema_compatibility_revision"], output
+            )
         record["initial_state_hash"] = adapter.fingerprint()
         record["scenario_id"] = adapter.world.task.generator_id
         if record["scenario_id"] != case["scenario_id"]:

@@ -1,0 +1,363 @@
+{
+  "appworld_revision": "42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+  "source": "Pinned FastAPI/Pydantic public definitions; no task or AppWorld instance created",
+  "sources": {
+    "gmail": {
+      "module": "appworld.apps.gmail.apis",
+      "sha256": "fab69586994ff5471dc8a7b4e1e002844cfa74002e6b40c41e30b41e1fe70932"
+    },
+    "venmo": {
+      "module": "appworld.apps.venmo.apis",
+      "sha256": "99771a7b32a76db37b8519024eadc3f3ac6cb40fd81b1e20ca04b0bf22982284"
+    },
+    "supervisor": {
+      "module": "appworld.apps.supervisor.apis",
+      "sha256": "8f07409113cbd9a2dc5d50a1c2e17a12ddd6d8f29134cf3568fddc848c59f292"
+    },
+    "api_docs": {
+      "module": "appworld.apps.api_docs.apis",
+      "sha256": "4c3ebe37c82f6d11c23a75773ad1505e0d673ede846e6c5e36eaec4e7ec2fc62"
+    }
+  },
+  "upstream_catalogue": [
+    {
+      "type": "function",
+      "function": {
+        "name": "gmail__show_category_sizes",
+        "description": "Show the number of email threads in each category of inbox, outbox, archived, spam, and the number of unscheduled and scheduled email drafts.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "read": {
+              "type": "boolean",
+              "description": "Count only read or unread email threads. If None, count both read and unread threads. It is not applicable for drafts.",
+              "default": null
+            },
+            "access_token": {
+              "type": "string",
+              "description": "Access token obtained from gmail app login."
+            }
+          },
+          "required": [
+            "access_token"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "venmo__show_sent_payment_requests",
+        "description": "Search or show a list of payment requests you have sent to others.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search query string.",
+              "default": ""
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "denied"
+              ],
+              "description": "Filter payment requests by status. Will skip filtering if not passed.",
+              "default": null
+            },
+            "page_index": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "The index of the page to return.",
+              "default": 0
+            },
+            "page_limit": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "description": "The maximum number of results to return per page.",
+              "default": 5
+            },
+            "access_token": {
+              "type": "string",
+              "description": "Access token obtained from venmo app login."
+            }
+          },
+          "required": [
+            "access_token"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "supervisor__complete_task",
+        "description": "Mark the currently active task as complete with the given answer.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "description": "The answer to the task instruction. Pass it if and only if the task requests an answer, e.g., 'How many songs are in the Spotify queue?'. The answer must be concise, such as a number, a yes/no, or a specific entity, name, etc, e.g., '10' in this case. If the task is not a question, e.g., 'Start my Spotify music player.', the answer must be left to the default value, i.e., None.",
+              "default": null,
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "success",
+                "fail"
+              ],
+              "description": "Mark the task complete.",
+              "default": "success"
+            }
+          },
+          "required": []
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "api_docs__show_api_doc",
+        "description": "Show detailed API doc.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "app_name": {
+              "type": "string",
+              "description": "App name for the API."
+            },
+            "api_name": {
+              "type": "string",
+              "description": "Name of the API."
+            }
+          },
+          "required": [
+            "app_name",
+            "api_name"
+          ]
+        }
+      }
+    }
+  ],
+  "openapi": {
+    "gmail": {
+      "openapi": "3.1.0",
+      "paths": {
+        "/category_sizes": {
+          "get": {
+            "summary": "Show Category Sizes",
+            "description": "description:\n    Show the number of email threads in each category of inbox, outbox, archived, spam,\n    and the number of unscheduled and scheduled email drafts.\nmodel: UserEmailThread\n---\nsuccess:\n{\n    \"inbox\": 1,\n    \"outbox\": 1,\n    \"snoozed\": 1,\n    \"starred\": 1,\n    \"archived\": 1,\n    \"spam\": 1,\n    \"unscheduled_drafts\": 1,\n    \"scheduled_drafts\": 1\n}\nfailure:\n{\"message\": \"string\"}",
+            "security": [
+              {
+                "LogInOutManager": []
+              }
+            ],
+            "parameters": [
+              {
+                "name": "read",
+                "in": "query",
+                "required": false,
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Count only read or unread email threads. If None, count both read and unread threads. It is not applicable for drafts.",
+                  "title": "Read"
+                },
+                "description": "Count only read or unread email threads. If None, count both read and unread threads. It is not applicable for drafts."
+              }
+            ]
+          }
+        }
+      }
+    },
+    "venmo": {
+      "openapi": "3.1.0",
+      "paths": {
+        "/sent_payment_requests": {
+          "get": {
+            "summary": "Show Sent Payment Requests",
+            "description": "description: Search or show a list of payment requests you have sent to others.\nmodel: PaymentRequest\n---\nsuccess:\n[\n    {\n        \"payment_request_id\": 1,\n        \"amount\": 0.0,\n        \"description\": \"string\",\n        \"created_at\": \"2019-01-01T00:00:00\",\n        \"updated_at\": \"2019-01-01T00:00:00\",\n        \"approved_at\": \"2019-01-01T00:00:00\",\n        \"denied_at\": \"2019-01-01T00:00:00\",\n        \"private\": true,\n        \"sender\": {\n            \"name\": \"string\",\n            \"email\": \"user@example.com\"\n        },\n        \"receiver\": {\n            \"name\": \"string\",\n            \"email\": \"user@example.com\"\n        }\n    }\n]\nfailure:\n{\"message\": \"string\"}",
+            "security": [
+              {
+                "LogInOutManager": []
+              }
+            ],
+            "parameters": [
+              {
+                "name": "query",
+                "in": "query",
+                "required": false,
+                "schema": {
+                  "type": "string",
+                  "description": "Search query string.",
+                  "default": "",
+                  "title": "Query"
+                },
+                "description": "Search query string."
+              },
+              {
+                "name": "status",
+                "in": "query",
+                "required": false,
+                "schema": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "pending",
+                        "approved",
+                        "denied"
+                      ],
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Filter payment requests by status. Will skip filtering if not passed.",
+                  "title": "Status"
+                },
+                "description": "Filter payment requests by status. Will skip filtering if not passed."
+              },
+              {
+                "name": "page_index",
+                "in": "query",
+                "required": false,
+                "schema": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The index of the page to return.",
+                  "default": 0,
+                  "title": "Page Index"
+                },
+                "description": "The index of the page to return."
+              },
+              {
+                "name": "page_limit",
+                "in": "query",
+                "required": false,
+                "schema": {
+                  "type": "integer",
+                  "maximum": 20,
+                  "minimum": 1,
+                  "description": "The maximum number of results to return per page.",
+                  "default": 5,
+                  "title": "Page Limit"
+                },
+                "description": "The maximum number of results to return per page."
+              }
+            ]
+          }
+        }
+      }
+    },
+    "supervisor": {
+      "openapi": "3.1.0",
+      "paths": {
+        "/message": {
+          "post": {
+            "summary": "Complete Task",
+            "description": "description: Mark the currently active task as complete with the given answer.\nmodel: Task\n---\n{\"message\": \"string\"}",
+            "requestBody": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "properties": {
+                      "answer": {
+                        "anyOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "integer"
+                          },
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "title": "Answer",
+                        "description": "The answer to the task instruction. Pass it if and only if the task requests an answer, e.g., 'How many songs are in the Spotify queue?'. The answer must be concise, such as a number, a yes/no, or a specific entity, name, etc, e.g., '10' in this case. If the task is not a question, e.g., 'Start my Spotify music player.', the answer must be left to the default value, i.e., None."
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "success",
+                          "fail"
+                        ],
+                        "title": "Status",
+                        "description": "Mark the task complete.",
+                        "default": "success"
+                      }
+                    },
+                    "type": "object",
+                    "title": "Body_complete_task_message_post"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "api_docs": {
+      "openapi": "3.1.0",
+      "paths": {
+        "/api_doc": {
+          "get": {
+            "summary": "Show Api Doc",
+            "description": "description: Show detailed API doc.\nmodel: ApiDoc\n---\nsuccess:\n{\n    \"app_name\": \"string\",\n    \"api_name\": \"string\",\n    \"path\": \"string\",\n    \"method\": \"string\",\n    \"description\": \"string\",\n    \"parameters\": [\n        {\n            \"name\": \"string\",\n            \"type\": \"string\",\n            \"required\": true,\n            \"description\": \"string\",\n            \"default\": null,\n            \"constraints\": [\n                \"string\"\n            ]\n        }\n    ],\n    \"response_schemas\": {\n        \"success\": [\n            {}\n        ],\n        \"failure\": [\n            {}\n        ]\n    }\n}\nfailure:\n{\"message\": \"string\"}",
+            "parameters": [
+              {
+                "name": "app_name",
+                "in": "query",
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "description": "App name for the API.",
+                  "title": "App Name"
+                },
+                "description": "App name for the API."
+              },
+              {
+                "name": "api_name",
+                "in": "query",
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "description": "Name of the API.",
+                  "title": "Api Name"
+                },
+                "description": "Name of the API."
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "upstream_sha256": "ceb2633096375f8116e522cce61c053d30dc491fc6f69b83e366dc8a47e442b7",
+  "openapi_sha256": "b4c70b6727864c17e5a47363574fb904ea0cceb8cdceb9e02ed976fbb30e944c",
+  "expected_compatible_sha256": "94b40e3e4363c7d312c040241e0c78de88d4b2655e8cb35d8c452918018e8c9c"
+}
