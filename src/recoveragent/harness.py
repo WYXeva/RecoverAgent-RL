@@ -465,6 +465,11 @@ def validate_record(record):
     )
     guard = AnswerGuard(json.loads(messages[1]["content"])["instruction"])
     cursor = 2
+    if record.get("recovery"):
+        from .recovery_suffix import initial_guard
+
+        guard = initial_guard(messages, record["recovery"])
+        cursor = record["recovery"]["suffix_start"]
     for t in record["turns"]:
         if h.stopped or guard.stopped:
             raise ValueError("Recorded generation after correction exhaustion")
@@ -529,7 +534,10 @@ def validate_record(record):
 
 def _harness_missing(record):
     if record.get("custom_research"):
-        from .research_access import validate_record
+        if record.get("recovery"):
+            from .recovery_suffix import validate_public_record as validate_record
+        else:
+            from .research_access import validate_record
 
         validate_record(record)
         return False  # The full actual-control replay above remains mandatory.

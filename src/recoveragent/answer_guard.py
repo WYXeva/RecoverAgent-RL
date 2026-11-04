@@ -164,10 +164,17 @@ def validate_guard_record(record):
         return
     messages = record["messages"]
     guard = AnswerGuard(json.loads(messages[1]["content"])["instruction"])
+    if record.get("recovery"):
+        from .recovery_suffix import initial_guard
+
+        guard = initial_guard(messages, record["recovery"])
     if RULES not in messages[0]["content"]:
         if not record.get("custom_research"):
             raise ValueError("Undeclared answer guard")
-        from .research_access import validate_record
+        if record.get("recovery"):
+            from .recovery_suffix import validate_public_record as validate_record
+        else:
+            from .research_access import validate_record
 
         validate_record(record)  # Exact v6 plus real controls; replay below unchanged.
     for turn in record["turns"]:

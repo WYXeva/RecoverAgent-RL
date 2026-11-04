@@ -52,7 +52,13 @@ from .harness import (
 
 def validate_config(config):
     if config.get("custom_research"):
-        from .research_access import validate_identity
+        if config.get("recovery_protocol"):
+            from .b10_pilot import verify_teacher_config
+            from .full732_recovery_tasks import validate_context as validate_identity
+
+            verify_teacher_config(config)
+        else:
+            from .research_access import validate_identity
 
         validate_identity(
             config["custom_research"]["task_id"], config["custom_research"]
@@ -264,10 +270,12 @@ def interrupted_usage(directory, teacher):
     return totals
 
 
-def run_teacher_episode(config, task_id, output, credentials):
+def run_teacher_episode(config, task_id, output, credentials, *, recovery_source=None):
     """Production path always uses a real AppWorldAdapter and a real TeacherPolicy."""
     validate_config(config)
-    if config.get("custom_research"):
+    if bool(recovery_source) != bool(config.get("recovery_protocol")):
+        raise ValueError("Recovery requires an explicit source and locked protocol")
+    if config.get("custom_research") and not recovery_source:
         from .fresh_teacher import provider_preflight
 
         if provider_preflight(config, credentials)["status"] == "BLOCKED":
@@ -343,7 +351,7 @@ def run_teacher_episode(config, task_id, output, credentials):
             trajectory["environment_check"] = environment_check()
         policy = TeacherPolicy(config, credentials)
         adapter_class = AppWorldAdapter
-        if config.get("custom_research"):
+        if config.get("custom_research") and not recovery_source:
             from .fresh_teacher import FreshAdapter
 
             adapter_class = FreshAdapter
@@ -371,25 +379,41 @@ def run_teacher_episode(config, task_id, output, credentials):
         trajectory["appworld"] = adapter.versions
         trajectory["initial_state_hash"] = adapter.fingerprint()
         trajectory["environment_execution_limit"] = sys.maxsize
-        messages.extend(
-            [
-                {
-                    "role": "system",
-                    "content": actor_system(config, harness=bool(harness)),
-                },
-                {
-                    "role": "user",
-                    "content": json.dumps(adapter.public_task(), ensure_ascii=False),
-                },
-            ]
-        )
-        if config.get("answer_guard_protocol"):
+        if recovery_source:
+            from .recovery_suffix import restore_teacher_start
+
+            restored, tools, guard = restore_teacher_start(
+                adapter, recovery_source, output, trajectory
+            )
+            messages.extend(restored)
+            trajectory.update(mode="teacher_recovery", start_kind="checkpoint")
+            trajectory["initial_state_hash"] = adapter.fingerprint()
+        else:
+            messages.extend(
+                [
+                    {
+                        "role": "system",
+                        "content": actor_system(config, harness=bool(harness)),
+                    },
+                    {
+                        "role": "user",
+                        "content": json.dumps(
+                            adapter.public_task(), ensure_ascii=False
+                        ),
+                    },
+                ]
+            )
+        if config.get("answer_guard_protocol") and not recovery_source:
             guard = AnswerGuard(adapter.public_task()["instruction"])
+        if guard is not None:
             trajectory["answer_guard"] = guard.summary()
             usage.update(tool_requests=0, harness_rejections=0)
-        tools, prediction_valid = initialize_tools(
-            adapter, policy, config, output, usage, trajectory
-        )
+        if recovery_source:
+            prediction_valid = True
+        else:
+            tools, prediction_valid = initialize_tools(
+                adapter, policy, config, output, usage, trajectory
+            )
         trajectory["initial_tools"] = copy.deepcopy(tools)
         termination = "budget_exhausted" if prediction_valid else "invalid_prediction"
         backend = (
@@ -622,7 +646,7 @@ def run_teacher_episode(config, task_id, output, credentials):
             tools,
             {
                 "actor_role": "teacher",
-                "mode": "teacher_normal",
+                "mode": trajectory["mode"],
                 "config_hash": digest(config),
             },
         )
@@ -633,13 +657,17 @@ def run_teacher_episode(config, task_id, output, credentials):
         if harness:
             from .evaluation import evaluate_isolated
 
-            if config.get("custom_research"):
+            if config.get("custom_research") and not recovery_source:
                 from .fresh_teacher import evaluate_custom_isolated
 
                 evaluate_isolated = evaluate_custom_isolated
 
             evaluated = evaluate_isolated(
-                task_id, output.name, config["appworld_root"], output
+                task_id,
+                output.name,
+                config["appworld_root"],
+                output,
+                **({"research": config["custom_research"]} if recovery_source else {}),
             )
             if evaluated["status"] != "valid":
                 trajectory.update(

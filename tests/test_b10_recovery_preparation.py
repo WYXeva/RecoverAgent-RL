@@ -14,6 +14,7 @@ from recoveragent.nullable_recovery_runtime import RUNTIME
 import test_nullable_recovery as fixtures
 
 worlds = fixtures.worlds
+pytestmark = pytest.mark.usefixtures("current_b10_preparation_unit_lock")
 
 
 def episode(worlds, tmp_path, *, error=True, distinct=False, **changes):

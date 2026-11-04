@@ -24,6 +24,7 @@ from test_student_batch import Tokenizer, block, receipt
 
 
 original_legacy_config = test_runner.config
+pytestmark = pytest.mark.usefixtures("current_nullable_unit_lock")
 
 
 @pytest.fixture

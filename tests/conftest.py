@@ -78,6 +78,9 @@ def current_fresh_campaign_unit_locks(tmp_path, monkeypatch):
                 "src/recoveragent/research_access.py",
                 "src/recoveragent/state.py",
                 "src/recoveragent/student.py",
+                "src/recoveragent/demonstrations.py",
+                "src/recoveragent/harness.py",
+                "src/recoveragent/answer_guard.py",
             }
             lock["files"] = {name: sha256(name) for name in lock["files"]}
             lock["revision"] = "SYNTHETIC_UNIT_TEST_ONLY"
@@ -89,3 +92,37 @@ def current_fresh_campaign_unit_locks(tmp_path, monkeypatch):
         return original(bound[key])
 
     monkeypatch.setattr(fresh, "campaign_config", current)
+
+
+@pytest.fixture
+def current_nullable_unit_lock(tmp_path, monkeypatch):
+    """Temporary test tree only; never re-sign a released P0.2 runtime lock."""
+    from recoveragent import nullable_recovery_runtime as runtime
+
+    root = tmp_path / "synthetic_nullable_source_tree"
+    original = runtime.ROOT
+    lock = read_json(original / runtime.LOCK)
+    for name in lock["files"]:
+        target = root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(original / name, target)
+        lock["files"][name] = sha256(target)
+    write_json(root / runtime.LOCK, lock)
+    monkeypatch.setattr(runtime, "ROOT", root)
+    return root
+
+
+@pytest.fixture
+def current_b10_preparation_unit_lock(current_nullable_unit_lock, monkeypatch):
+    from scripts import prepare_b10_recovery_pilot as pilot
+
+    root = current_nullable_unit_lock
+    lock = read_json(pilot.ROOT / pilot.LOCK)
+    for name in lock["files"]:
+        target = root / name
+        if not target.exists():
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(pilot.ROOT / name, target)
+        lock["files"][name] = sha256(target)
+    write_json(root / pilot.LOCK, lock)
+    monkeypatch.setattr(pilot, "ROOT", root)

@@ -48,8 +48,15 @@ def sha256(path):
 def validate_demo(record):
     """Only the exact structured messages and per-turn public schemas are model input."""
     custom = record.get("custom_research") is not None
+    recovery = record.get("recovery") is not None
     if custom:
-        from .research_access import FORMAT as CUSTOM_FORMAT, validate_record
+        if recovery:
+            from .recovery_suffix import (
+                FORMAT as CUSTOM_FORMAT,
+                validate_public_record as validate_record,
+            )
+        else:
+            from .research_access import FORMAT as CUSTOM_FORMAT, validate_record
 
         validate_record(record)
     if (
@@ -58,7 +65,7 @@ def validate_demo(record):
         or record["actor_role"] != "teacher"
     ):
         raise ValueError("Not a normal train Teacher demonstration")
-    if record["start_kind"] != "original_initial":
+    if record["start_kind"] != ("checkpoint" if recovery else "original_initial"):
         raise ValueError("Clean demonstration must start at the original initial state")
     messages = record["messages"]
     validate_history(messages)
@@ -75,7 +82,10 @@ def validate_demo(record):
             raise ValueError("Unexpected control metadata in messages")
         if not isinstance(message.get("content"), str):
             raise ValueError("Expected text content")
-    indices = [i for i, m in enumerate(messages) if m["role"] == "assistant"]
+    start = record["recovery"]["suffix_start"] if recovery else 0
+    indices = [
+        i for i, m in enumerate(messages) if m["role"] == "assistant" and i >= start
+    ]
     if indices != [
         t["assistant_index"] for t in record["turns"] if "protocol_rejection" not in t
     ]:
@@ -246,9 +256,9 @@ def validate_receipts(trajectory, directory):
 
 def filter_attempt(trajectory, evaluation, train_ids, limits, directory):
     reasons = []
-    if (
-        trajectory.get("actor_role") != "teacher"
-        or trajectory.get("mode") != "teacher_normal"
+    recovery = trajectory.get("recovery") is not None
+    if trajectory.get("actor_role") != "teacher" or trajectory.get("mode") != (
+        "teacher_recovery" if recovery else "teacher_normal"
     ):
         reasons.append("not_teacher_normal")
     teacher = trajectory.get("teacher", {})
@@ -260,7 +270,10 @@ def filter_attempt(trajectory, evaluation, train_ids, limits, directory):
         reasons.append("unverified_teacher_identity")
     custom = trajectory.get("custom_research") is not None
     if custom:
-        from .research_access import validate_record
+        if recovery:
+            from .recovery_suffix import validate_public_record as validate_record
+        else:
+            from .research_access import validate_record
 
         validate_record(trajectory)
     if trajectory.get("task_id") not in train_ids or (
@@ -269,7 +282,9 @@ def filter_attempt(trajectory, evaluation, train_ids, limits, directory):
         reasons.append("not_official_train")
     if trajectory.get("status") != "valid":
         reasons.append("infrastructure_error")
-    if trajectory.get("start_kind") != "original_initial":
+    if trajectory.get("start_kind") != (
+        "checkpoint" if recovery else "original_initial"
+    ):
         reasons.append("not_clean_initial")
     if trajectory.get("appworld", {}).get("revision") != APPWORLD_REVISION:
         reasons.append("wrong_appworld_version")
@@ -344,7 +359,12 @@ def as_demo(trajectory):
     record = {k: copy.deepcopy(trajectory[k]) for k in keys}
     record["kind"] = FORMAT
     if trajectory.get("custom_research") is not None:
-        from .research_access import FORMAT as CUSTOM_FORMAT
+        if trajectory.get("recovery"):
+            from .recovery_suffix import FORMAT as CUSTOM_FORMAT
+
+            record["recovery"] = copy.deepcopy(trajectory["recovery"])
+        else:
+            from .research_access import FORMAT as CUSTOM_FORMAT
 
         record["kind"] = CUSTOM_FORMAT
         record["custom_research"] = copy.deepcopy(trajectory["custom_research"])
