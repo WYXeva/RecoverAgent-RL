@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from .io import digest, files_manifest, read_json, validate_history, write_json
+from .schema_snapshot import check_schema_binding
 from .teacher_history import validate_history as validate_batch_history
 
 POSITIONS = {"post_action", "pre_action", "pre_termination", "budget_exhausted"}
@@ -37,6 +38,22 @@ def capture(
         task_memory.validate_boundary(messages, tools)
         if task_memory.model_driven:
             _validate_model_runtime(task_memory, agent_runtime)
+    check_schema_binding(adapter, adapter.versions, tools)
+    research = getattr(adapter, "research_context", None)
+    if research is not None:
+        from .full732_recovery_tasks import validate_context
+        from .nullable_recovery_runtime import RUNTIME
+        from .schema_compatibility import SCHEMA_REVISION
+        from .schema_snapshot import snapshot_revision
+
+        validate_context(adapter.task_id, research)
+        if (
+            agent_runtime is None
+            or agent_runtime.get("format") != RUNTIME
+            or task_memory is not None
+            or snapshot_revision({"versions": adapter.versions}) != SCHEMA_REVISION
+        ):
+            raise ValueError("B244 snapshots require a batch Agent without Memory")
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
     state_id = "cp_" + destination.name
@@ -50,13 +67,15 @@ def capture(
     if task_memory is not None:
         task_memory.save(destination / "memory", messages, tools)
     manifest = {
-        "format_version": (4 if task_memory.model_driven else 3)
+        "format_version": 5
+        if research is not None
+        else (4 if task_memory.model_driven else 3)
         if task_memory is not None
         else 2
         if agent_runtime is not None
         else 1,
         "task_id": adapter.task_id,
-        "split": "train",
+        "split": research["official_split"] if research else "train",
         "position": position,
         "history_end_index": len(messages),
         "history_hash": digest(messages),
@@ -66,6 +85,8 @@ def capture(
         "files": files_manifest(destination),
         "metadata": metadata,
     }
+    if research is not None:
+        manifest["custom_research"] = research
     manifest["checkpoint_id"] = digest(manifest)
     write_json(destination / "manifest.json", manifest)
     return str(destination.resolve())
@@ -84,11 +105,11 @@ def inspect_snapshot(source):
         raise ValueError("Checkpoint files were modified")
     context = read_json(source / "context.json")
     version = manifest.get("format_version")
-    if version not in {1, 2, 3, 4}:
+    if version not in {1, 2, 3, 4, 5}:
         raise ValueError("Unsupported checkpoint format")
-    validator = validate_batch_history if version in {2, 3, 4} else validate_history
+    validator = validate_batch_history if version in {2, 3, 4, 5} else validate_history
     validator(context["messages"])
-    if version in {2, 3, 4} and "agent_runtime.json" not in manifest["files"]:
+    if version in {2, 3, 4, 5} and "agent_runtime.json" not in manifest["files"]:
         raise ValueError("Batch checkpoint requires agent runtime")
     if version in {3, 4}:
         from .task_memory import TaskMemory
@@ -112,13 +133,31 @@ def inspect_snapshot(source):
         or len(context["messages"]) != manifest["history_end_index"]
     ):
         raise ValueError("Checkpoint history/schema mismatch")
-    if manifest["split"] != "train":
+    if version == 5:
+        from .full732_recovery_tasks import validate_context
+        from .nullable_recovery_runtime import RUNTIME
+        from .schema_compatibility import SCHEMA_REVISION
+        from .schema_snapshot import snapshot_revision
+
+        research = validate_context(manifest["task_id"], manifest["custom_research"])
+        agent = read_json(source / "agent_runtime.json")
+        if (
+            manifest["split"] != research["official_split"]
+            or agent.get("format") != RUNTIME
+            or "memory" in agent
+            or snapshot_revision(manifest) != SCHEMA_REVISION
+        ):
+            raise ValueError("B244 snapshot runtime/Schema/split mismatch")
+    elif manifest["split"] != "train":
         raise ValueError("Only train snapshots are supported")
     return manifest, context, read_json(source / "runtime.json")
 
 
 def restore(adapter, source):
     manifest, context, runtime = inspect_snapshot(source)
+    check_schema_binding(adapter, manifest["versions"], context["tools"])
+    if manifest.get("custom_research") != getattr(adapter, "research_context", None):
+        raise ValueError("Snapshot research identity mismatch")
     if (
         manifest["task_id"] != adapter.task_id
         or manifest["versions"] != adapter.versions

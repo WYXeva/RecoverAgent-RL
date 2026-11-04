@@ -59,7 +59,14 @@ class AppWorldAdapter:
             )
         update_root(str(Path(root).resolve()))
         if research is not None:
-            from .research_access import authorize_task
+            from .full732_recovery_tasks import SCOPE as B_SCOPE
+
+            if research.get("scope") == B_SCOPE:
+                from .full732_recovery_tasks import authorize_task
+
+                self.research_context = research
+            else:
+                from .research_access import authorize_task
 
             self.official_split = authorize_task(root, task_id, research)
         elif task_id not in load_task_ids("train"):

@@ -11,7 +11,8 @@ from jsonschema import ValidationError
 from .adapter import AppWorldAdapter
 from .io import digest, validate_history, write_json
 from .policy import LocalPolicy, PolicyError, parse_completion
-from .state import capture, restore
+from .state import capture, inspect_snapshot, restore
+from .schema_snapshot import prepare_snapshot_adapter
 
 CONTINUE = "Continue the original task from the current state and visible history. Check what has already been done and avoid duplicating completed operations."
 SYSTEM = """You are a tool-using assistant working in AppWorld. Complete the user's task using public tools. Call exactly one function per turn. Use api_docs to discover APIs; requesting show_api_doc makes that function available on the next turn. All business actions, including login, are your responsibility. Use supervisor.complete_task only when finished. Do not invent API names, arguments, credentials or observations."""
@@ -56,6 +57,13 @@ def run_episode(config, task_id, run_dir, seed, recovery_source=None):
     }
     write_json(run_dir / "config.json", config)
     try:
+        original = context = None
+        if recovery_source:
+            original, context, _ = inspect_snapshot(recovery_source)
+            if original["format_version"] != 1:
+                raise ValueError(
+                    "Legacy single-call runner cannot resume a batch Agent snapshot"
+                )
         adapter = AppWorldAdapter(
             config["appworld_root"],
             task_id,
@@ -65,6 +73,17 @@ def run_episode(config, task_id, run_dir, seed, recovery_source=None):
         )
         base["scenario_id"] = adapter.world.task.generator_id
         if recovery_source:
+            prepare_snapshot_adapter(
+                adapter,
+                original,
+                context,
+                run_dir,
+                **(
+                    {"expected_revision": config["schema_compatibility_revision"]}
+                    if "schema_compatibility_revision" in config
+                    else {}
+                ),
+            )
             source, context = restore(adapter, recovery_source)
             messages, tools = context["messages"], context["tools"]
             base["start"] = {
@@ -76,6 +95,10 @@ def run_episode(config, task_id, run_dir, seed, recovery_source=None):
             }
             messages.append({"role": "user", "content": config["continuation_prompt"]})
         else:
+            if config.get("schema_compatibility_revision") is not None:
+                adapter.configure_schema_compatibility(
+                    config["schema_compatibility_revision"], run_dir
+                )
             messages = [
                 {"role": "system", "content": SYSTEM},
                 {

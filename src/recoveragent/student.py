@@ -45,6 +45,10 @@ def verify_student_runtime(runtime):
     This lock identifies software only; it grants no data, model or GPU permission.
     Historical runtime locks remain immutable and use their original checkouts.
     """
+    from .nullable_recovery_runtime import RUNTIME as NULLABLE_RUNTIME, verify_lock
+
+    if runtime == NULLABLE_RUNTIME:
+        return verify_lock()
     if runtime != V6_RUNTIME:
         raise ValueError("Unknown Student execution protocol")
     path = ROOT / V6_LOCK
@@ -217,6 +221,15 @@ class StudentSession:
         }
         if execution_protocol is not None or is_v6:
             self.execution_protocol = verify_student_runtime(execution_protocol)
+            from .nullable_recovery_runtime import RUNTIME as NULLABLE_RUNTIME
+
+            if execution_protocol == NULLABLE_RUNTIME:
+                from .schema_compatibility import SCHEMA_REVISION
+                from .schema_snapshot import check_schema_binding, snapshot_revision
+
+                if snapshot_revision({"versions": adapter.versions}) != SCHEMA_REVISION:
+                    raise ValueError("Nullable recovery Student requires Schema v2")
+                check_schema_binding(adapter, adapter.versions, tools)
             contract = self.execution_protocol["session_contract"]
             if (
                 not is_v6

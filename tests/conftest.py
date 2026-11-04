@@ -62,7 +62,7 @@ def current_fresh_campaign_unit_locks(tmp_path, monkeypatch):
         if key not in bound:
             config = read_json(path)
             lock = read_json(config["protocol_lock"])
-            # Test-only manifests for transport diagnostics and P0.1's explicit
+            # Test-only manifests for transport diagnostics and P0.1/P0.2's explicit
             # schema opt-in wiring. Production source locks remain untouched;
             # separate tests require those historical locks to reject this tree.
             changed = {
@@ -74,6 +74,10 @@ def current_fresh_campaign_unit_locks(tmp_path, monkeypatch):
                 "src/recoveragent/teacher.py",
                 "src/recoveragent/adapter.py",
                 "src/recoveragent/p3a.py",
+                "src/recoveragent/evaluation.py",
+                "src/recoveragent/research_access.py",
+                "src/recoveragent/state.py",
+                "src/recoveragent/student.py",
             }
             lock["files"] = {name: sha256(name) for name in lock["files"]}
             lock["revision"] = "SYNTHETIC_UNIT_TEST_ONLY"

@@ -153,8 +153,18 @@ def evaluate_here(task_id, experiment_name):
         sys.setprofile(previous)
 
 
-def evaluate_isolated(task_id, experiment_name, root, directory, timeout=120):
+def evaluate_isolated(
+    task_id, experiment_name, root, directory, timeout=120, *, research=None
+):
     destination = Path(directory) / "isolated_evaluation.json"
+    extra = []
+    if research is not None:
+        from .full732_recovery_tasks import validate_context
+
+        validate_context(task_id, research)
+        context_path = Path(directory) / "evaluation_research.json"
+        write_json(context_path, research)
+        extra = ["--research", str(context_path.resolve())]
     with (Path(directory) / "evaluation_worker.log").open("x") as log:
         subprocess.run(
             [
@@ -169,6 +179,7 @@ def evaluate_isolated(task_id, experiment_name, root, directory, timeout=120):
                 str(Path(root).resolve()),
                 "--output",
                 str(destination.resolve()),
+                *extra,
             ],
             check=True,
             timeout=timeout,
@@ -184,12 +195,17 @@ def main():
     p.add_argument("--experiment", required=True)
     p.add_argument("--root", required=True)
     p.add_argument("--output", required=True)
+    p.add_argument("--research")
     a = p.parse_args()
     from appworld import load_task_ids, update_root
 
     environment = environment_check()
     update_root(a.root)
-    if a.task not in load_task_ids("train"):
+    if a.research:
+        from .full732_recovery_tasks import authorize_task
+
+        authorize_task(a.root, a.task, read_json(a.research))
+    elif a.task not in load_task_ids("train"):
         raise ValueError("Harness evaluation only accepts official train tasks")
     result = evaluate_here(a.task, a.experiment)
     result.update(environment=environment, task_id=a.task, experiment=a.experiment)

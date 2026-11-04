@@ -26,6 +26,8 @@ from .execution_v6 import RUNTIME as PROMPT_RUNTIME, VARIANT as CURRENT_PROMPT
 from .harness import REFACTOR_REVISION
 from .io import canonical, digest, files_manifest, read_json, write_json
 from .sampling import make_plan, official_pool
+from .nullable_recovery_runtime import RUNTIME as NULLABLE_RUNTIME
+from .schema_snapshot import prepare_snapshot_adapter, snapshot_revision
 from .state import capture, inspect_snapshot, restore
 from .student import StudentSession, V6_RUNTIME, verify_student_runtime
 from .student_evaluation import evaluation_prompt, execution_clock, request_json
@@ -46,7 +48,7 @@ BUDGET_STOPS = {"budget_exhausted", "context_budget_exhausted", "completion_clai
 
 
 def verify_source(runtime=RUNTIME):
-    if runtime == V6_RUNTIME:
+    if runtime in {V6_RUNTIME, NULLABLE_RUNTIME}:
         return verify_student_runtime(runtime)["lock_sha256"]
     root = Path(__file__).resolve().parents[2]
     path = root / (
@@ -196,6 +198,7 @@ def validate_config(config):
         not in {
             PROMPT_RUNTIME,
             V6_RUNTIME,
+            NULLABLE_RUNTIME,
             RUNTIME,
             MEMORY_RUNTIME,
             HARNESS_RUNTIME,
@@ -206,7 +209,8 @@ def validate_config(config):
         or config["actor_prompt_variant"]
         != (
             CURRENT_PROMPT
-            if config["runtime_revision"] in {PROMPT_RUNTIME, V6_RUNTIME}
+            if config["runtime_revision"]
+            in {PROMPT_RUNTIME, V6_RUNTIME, NULLABLE_RUNTIME}
             else "execution_v5"
         )
         or config["harness_runtime_revision"] != REFACTOR_REVISION
@@ -241,6 +245,10 @@ def validate_config(config):
         or not 0 < limits["wall_seconds"] <= 600
     ):
         raise ValueError("Invalid P3-C collection budget")
+    if config["runtime_revision"] == NULLABLE_RUNTIME:
+        from .nullable_recovery_runtime import validate_config as validate_nullable
+
+        return validate_nullable(config)
     plan = read_json(config["task_manifest"])
     if (
         digest(plan) != config["task_manifest_hash"]
@@ -461,6 +469,14 @@ def classify_episode(evaluation, fault, termination):
 
 
 def run_episode(config, row, directory, provenance, identity):
+    research = None
+    if config.get("runtime_revision") == NULLABLE_RUNTIME:
+        from .full732_recovery_tasks import context_for
+
+        plan = validate_config(config)
+        if row not in plan["rows"]:
+            raise ValueError("Collection row differs from frozen B244")
+        research = context_for(row["task_id"])
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
     adapter, session, fault, collected = (
@@ -486,7 +502,13 @@ def run_episode(config, row, directory, provenance, identity):
             row["task_id"],
             experiment,
             max_interactions=sys.maxsize,
+            **({"research": research} if research is not None else {}),
         )
+        if config.get("schema_compatibility_revision") is not None:
+            adapter.configure_schema_compatibility(
+                config["schema_compatibility_revision"], directory
+            )
+        schema_binding = copy.deepcopy(adapter.versions.get("schema_compatibility"))
         session = StudentSession(
             adapter,
             tokenizer,
@@ -502,7 +524,9 @@ def run_episode(config, row, directory, provenance, identity):
             protocol_harness=True,
             harness_revision=REFACTOR_REVISION,
             execution_protocol=(
-                V6_RUNTIME if config.get("runtime_revision") == V6_RUNTIME else None
+                config["runtime_revision"]
+                if config.get("runtime_revision") in {V6_RUNTIME, NULLABLE_RUNTIME}
+                else None
             ),
             clock=execution_clock,
             memory_config=config.get("memory"),
@@ -522,7 +546,11 @@ def run_episode(config, row, directory, provenance, identity):
         adapter = None
         try:
             evaluation = evaluate_isolated(
-                row["task_id"], experiment, config["appworld_root"], directory
+                row["task_id"],
+                experiment,
+                config["appworld_root"],
+                directory,
+                **({"research": research} if research is not None else {}),
             )
         except Exception as exc:
             evaluation.update(
@@ -548,7 +576,9 @@ def run_episode(config, row, directory, provenance, identity):
     result = {
         "format": config["runtime_revision"],
         **row,
-        "split": "train",
+        "split": research["official_split"] if research else "train",
+        "custom_research": research,
+        "schema_compatibility": schema_binding if session else None,
         "policy": identity,
         **classify_episode(evaluation, fault, termination),
         "termination": termination,
@@ -576,14 +606,39 @@ def run_episode(config, row, directory, provenance, identity):
     return result
 
 
-def restore_probe(root, source, experiment, output):
+def restore_probe(root, source, experiment, output, *, config=None):
     """Run in a new process, compare state/history/schema/runtime, execute no task."""
     original, context, runtime = inspect_snapshot(source)
     agent = read_json(Path(source) / "agent_runtime.json")
+    revision = snapshot_revision(original)
+    lock = None
+    if agent.get("format") == NULLABLE_RUNTIME:
+        from .schema_compatibility import SCHEMA_REVISION
+
+        lock = verify_source(NULLABLE_RUNTIME)
+        if revision != SCHEMA_REVISION:
+            raise ValueError("Nullable recovery snapshot requires Schema v2")
+    if config is not None:
+        verify_source(config["runtime_revision"])
+        if (
+            config["runtime_revision"] != agent.get("format")
+            or config.get("schema_compatibility_revision") != revision
+        ):
+            raise ValueError("Configured and snapshot runtime/Schema revisions differ")
+        if config["runtime_revision"] == NULLABLE_RUNTIME:
+            validate_config(config)
+    research = original.get("custom_research")
     adapter = AppWorldAdapter(
-        root, original["task_id"], experiment, max_interactions=sys.maxsize
+        root,
+        original["task_id"],
+        experiment,
+        max_interactions=sys.maxsize,
+        **({"research": research} if research is not None else {}),
     )
     try:
+        prepare_snapshot_adapter(
+            adapter, original, context, Path(output).with_suffix(".schema")
+        )
         manifest, imported = restore(adapter, source)
         public = {t["function"]["name"]: t for t in adapter.catalogue}
         if any(t != public.get(t["function"]["name"]) for t in imported["tools"]):
@@ -592,6 +647,8 @@ def restore_probe(root, source, experiment, output):
             raise ValueError("Actor world unexpectedly loaded hidden ground truth")
         result = {
             "status": "PASS",
+            "schema_compatibility": adapter.versions.get("schema_compatibility"),
+            "source_lock_sha256": lock,
             "pid": os.getpid(),
             "checkpoint_id": manifest["checkpoint_id"],
             "database_matches": adapter.fingerprint() == original["logical_state_hash"],
@@ -640,6 +697,7 @@ def collect(config_path, output):
             in {
                 PROMPT_RUNTIME,
                 V6_RUNTIME,
+                NULLABLE_RUNTIME,
                 MEMORY_RUNTIME,
                 HARNESS_RUNTIME,
                 *MODEL_RUNTIMES,
@@ -813,13 +871,15 @@ def main():
     if a.command == "collect":
         print(json.dumps(collect(a.config, a.output)))
     elif a.command == "restore":
+        config = read_json(a.config)
         print(
             json.dumps(
                 restore_probe(
-                    read_json(a.config)["appworld_root"],
+                    config["appworld_root"],
                     a.source,
                     a.experiment,
                     a.output,
+                    config=config,
                 )
             )
         )

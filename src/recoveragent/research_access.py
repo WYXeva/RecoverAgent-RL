@@ -72,8 +72,13 @@ def context_for(row):
 
 def authorize_task(root, task, context):
     row = validate_identity(task, context)
-    root = Path(root) / "data"
     plan, _ = a_tasks()
+    return authorize_artifacts(root, task, row, plan)
+
+
+def authorize_artifacts(root, task, row, plan):
+    """Shared installed-artifact checks after a caller validates its frozen role."""
+    root = Path(root) / "data"
     if sha256(root / "LICENSE") != LICENSE_SHA:
         raise ValueError("Installed data use terms differ from reviewed license")
     if (root / "version.txt").read_text().strip() != plan["source"]["data_version"]:

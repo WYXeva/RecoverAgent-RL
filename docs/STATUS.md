@@ -1,5 +1,7 @@
 # 项目状态
 
+> **2026-11-04 D084：P0.2 Nullable v2 采集/恢复接线软件验收 PASS，提交供审查**。基线 `73b9047` 的转换核心保持原样；`p3c.run_episode` 在初始工具/StudentSession之前启用共享转换，`restore_probe` 与历史单调用恢复入口按快照重建 Schema。完整 catalogue、审计及可见工具不匹配在状态导入/工具执行前拒绝，原恢复检查保留。新增独立 `p3c_nullable_v2_20261104` 配置/锁，复用现有 Runner、固定 Qwen3-4B/M1 和冻结 B244；格式5快照保留官方 split，旧格式/配置/锁不改。新增37项合成测试；Nullable合计94项、相关回归199项、完整pytest727项及Ruff通过。没有真实AppWorld任务、模型/GPU、采集或训练；没有效果验证。提交推送后停止，等待审查。详见[验收报告](../reports/schema_nullable_recovery_p02_20261104.md)。
+
 > **2026-11-04：P0.1提交供审查**。用户已明确授权将已验收的Nullable Schema修复提交到GitHub。发布前11份交付文件与2026-10-31验收哈希一致；本次只补充发布状态，软件测试结论仍为57项针对性、133项相关回归、690项完整pytest及Ruff通过。提交范围为P0.1代码、测试和文档，等待用户/GPT审查。详见[验收报告](../reports/schema_nullable_compatibility_v2.md)。
 
 > **2026-10-31 D083：P0.1 Nullable Schema软件契约修复PASS，等待审查**。新增显式启用的`schema_nullable_compatibility_v2`，从固定AppWorld公开OpenAPI类型恢复明确允许的null；Teacher/Student共用Adapter转换，初始/动态工具与严格校验一致，原始/转换后Schema及来源SHA落盘。针对性57项、相关回归133项、完整pytest690项、Ruff check/format check通过。11应用473份公开工具定义静态转换通过，248个参数恢复nullable；未创建真实AppWorld任务、调用模型、启动GPU或训练，未验证成功率提升。旧配置/锁、execution_v6、数据、M1和C244结果不改；未提交、未推送，完成后停止。详见[验收报告](../reports/schema_nullable_compatibility_v2.md)。

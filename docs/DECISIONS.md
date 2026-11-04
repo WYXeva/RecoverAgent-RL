@@ -758,3 +758,14 @@ A100训练预检补充：原sft_recipe.py还要求型号包含RTX PRO 6000且>=9
 
 
 2026-11-04发布补充：用户明确要求“提交到GitHub供gpt检查”，覆盖10月31日暂不提交的交付安排。发布前复核11份交付文件SHA与原验收一致，源码/测试无追加修改，仅更新发布状态；提交P0.1至`codex/p0-p2-recovery`供审查，不启动下一阶段。
+
+
+## D084 — P0.2：Nullable v2 接入自然失败采集和快照恢复（2026-11-04）
+
+用户确认 `73b9047` 的 P0.1 核心实现通过审查，本轮只授权软件接线、独立配置/源码锁、软件验收及提交推送。开始时受跟踪文件无未提交差异，已有本地数据和运行产物保留。
+
+`p3c.run_episode` 在初始工具和 StudentSession 前调用现有 `configure_schema_compatibility`；Student 新 runtime 强制 v2 绑定。恢复先读取不可变快照记录的版本，再在新 Adapter 重建相同 catalogue，核对原始/转换后 catalogue 与审计 SHA、可见工具；不匹配在状态导入和工具执行前拒绝。`state.restore` 原有严格检查全部保留。共享 `schema_snapshot.py` 不复制 Nullable 转换，已审查的 `schema_compatibility.py` 不改。历史单调用 Runner 同样重建 Schema，但明确拒绝批量 Agent 快照，避免丢失新 Student 协议/预算状态；本轮不新增 Agent 续跑策略。
+
+新增 `p3c_nullable_v2_20261104` 配置/锁，复用现有 P3-C 调度器和 drive，固定 Qwen3-4B/M1、non-thinking、execution_v6及原预算，Memory关闭。新 M1 文件清单引用绑定既有发布报告/训练回执，不改变权重。新配置直接使用冻结 Full732 B244，保持 A/B/C 原任务分配；Adapter 与独立 evaluator 共用 B 身份。为保留原官方 split 而非伪标 train，新增仅限该 B runtime/v2 Schema/无 Memory 的快照格式5；旧格式1–4保留原 train 限制。旧配置、源码锁、execution_v6、Teacher 数据、M1和C244历史均不改；旧锁继续拒绝新源码。
+
+验收为新增37项合成测试、Nullable合计94项、相关回归199项、完整pytest727项及Ruff check/format check通过，3条固定上游Pydantic弃用警告。单测临时源码清单只为本轮有意接线更新，不重签生产旧锁。没有创建真实AppWorld任务、请求模型、SSH/GPU、训练、采集或重跑；没有成功率提升结论。真实跨进程恢复/部署和后续采集待另行审查。完整入口、测试命令、锁SHA与限制见 `reports/schema_nullable_recovery_p02_20261104.md`。本轮提交推送后停止。
