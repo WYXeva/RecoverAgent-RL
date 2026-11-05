@@ -14,6 +14,7 @@ import subprocess
 import sys
 import time
 from types import SimpleNamespace
+from functools import partial
 
 from . import p3c, p3a, student
 from .base_sft import load_tokenizer
@@ -26,11 +27,39 @@ from .nullable_recovery_runtime import RUNTIME as SESSION_RUNTIME
 from .recovery_suffix import process_attempt
 from .student_evaluation import request_json
 from .teacher import read_credentials
+from .harness import ProtocolHarness, BUDGET_REVISION
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = "configs/b10_execution_20261104.json"
 LOCK = "configs/b10_execution_20261104_lock.json"
 RUNTIME = "b10_m1_teacher_recovery_deadline_20261104"
+INITIAL_CONFIG, INITIAL_LOCK, INITIAL_RUNTIME = CONFIG, LOCK, RUNTIME
+BUDGET_CONFIG = "configs/b10_execution_budget_20261105.json"
+BUDGET_LOCK = "configs/b10_execution_budget_20261105_lock.json"
+BUDGET_VARIANT = "m1_b10_deadline_1200_20261105"
+
+
+def select_configuration(path):
+    global CONFIG, LOCK, RUNTIME
+    if path == INITIAL_CONFIG:
+        CONFIG, LOCK, RUNTIME = INITIAL_CONFIG, INITIAL_LOCK, INITIAL_RUNTIME
+    elif path == BUDGET_CONFIG:
+        CONFIG, LOCK, RUNTIME = BUDGET_CONFIG, BUDGET_LOCK, BUDGET_REVISION
+    else:
+        raise ValueError("Unknown B10 execution configuration")
+
+
+def deadline_contract():
+    from . import m1_vgpu_reference_backend as original
+    from .b10_deadline import remaining_for_budget
+
+    contract = isolated_module(original, "_b10_deadline_contract")
+    if RUNTIME == BUDGET_REVISION:
+        contract.VARIANT = BUDGET_VARIANT
+        contract.remaining = lambda deadline, now: remaining_for_budget(
+            deadline, now, 1200
+        )
+    return contract
 
 
 def verify_lock():
@@ -47,7 +76,12 @@ def verify_lock():
         or not required <= lock.get("files", {}).keys()
     ):
         raise ValueError("Incomplete B10 execution lock")
-    if digest(lock.get("session_contract")) != student.V6_CONTRACT_SHA256:
+    expected = copy.deepcopy(read_json(ROOT / INITIAL_LOCK)["session_contract"])
+    if digest(expected) != student.V6_CONTRACT_SHA256:
+        raise ValueError("Original Student contract changed")
+    if RUNTIME == BUDGET_REVISION:
+        expected["budget_caps"].update(max_requests=80, wall_seconds=1200)
+    if lock.get("session_contract") != expected:
         raise ValueError("B10 changed the Student execution contract")
     for name, expected in lock["files"].items():
         if (
@@ -64,7 +98,9 @@ def configuration():
     config = read_json(ROOT / CONFIG)
     plan = read_json(ROOT / config["plan"])
     if (
-        sha256(ROOT / config["plan"]) != config["plan_sha256"]
+        config["runtime_revision"] != RUNTIME
+        or config["source_lock"] != LOCK
+        or sha256(ROOT / config["plan"]) != config["plan_sha256"]
         or plan["rows"] != b_tasks()[1][:10]
         or config["tasks"] != [r["task_id"] for r in plan["rows"]]
     ):
@@ -133,12 +169,15 @@ def student_engine(config):
         }
 
     interface.verify_student_runtime = verify_session
+    interface.ProtocolHarness = partial(
+        ProtocolHarness, budget_revision=config.get("harness_budget_revision")
+    )
     engine.validate_config = validate
     engine.verify_source = lambda runtime=SESSION_RUNTIME: verify_session(runtime)[
         "lock_sha256"
     ]
     engine.StudentSession = session_class(
-        interface.StudentSession, config["inference_url"]
+        interface.StudentSession, config["inference_url"], contract=deadline_contract()
     )
     return engine
 
@@ -164,13 +203,11 @@ def verified_m1(path):
 
 
 def serve(args):
-    from . import m1_vgpu_reference_backend as original
-
     config = configuration()
     metadata = verified_m1(args.adapter)
     if sha256(args.probe) != config["reference_probe_sha256"]:
         raise ValueError("Pinned accepted original-PEFT probe changed")
-    backend = isolated_module(original, "_b10_reference_backend")
+    backend = deadline_contract()
     # Replace only provenance gates with the new complete source lock and the
     # pinned historical evidence SHA. The tested serving/deadline body is exact.
     backend.verify_lock = verify_lock
@@ -276,6 +313,8 @@ def child(args, command, output, **fields):
         "-m",
         "recoveragent.b10_pilot",
         command,
+        "--config",
+        CONFIG,
         "--root",
         args.root,
         "--adapter",
@@ -291,23 +330,34 @@ def child(args, command, output, **fields):
         cmd += ["--credentials", args.credentials]
     with Path(str(output) + ".log").open("x") as log:
         subprocess.run(
-            cmd, stdout=log, stderr=subprocess.STDOUT, check=True, timeout=960
+            cmd,
+            stdout=log,
+            stderr=subprocess.STDOUT,
+            check=True,
+            timeout=configuration()["student_config"]["student_limits"]["wall_seconds"]
+            + 360,
         )
 
 
-def summarize(output, stop_reason):
+def summarize(output, stop_reason, prior=None):
     output = Path(output)
+    roots = ([Path(prior)] if prior else []) + [output]
     students = [
-        read_json(p) for p in sorted((output / "student").glob("*/result.json"))
+        read_json(p)
+        for root in roots
+        for p in sorted((root / "student").glob("*/result.json"))
     ]
     teachers = [
-        read_json(p) for p in sorted((output / "teacher").glob("*/trajectory.json"))
+        read_json(p)
+        for root in roots
+        for p in sorted((root / "teacher").glob("*/trajectory.json"))
     ]
     acceptances = [
         read_json(p)
-        for p in sorted((output / "teacher").glob("*/suffix_acceptance.json"))
+        for root in roots
+        for p in sorted((root / "teacher").glob("*/suffix_acceptance.json"))
     ]
-    claims = list((output / "claims").glob("*.json"))
+    claims = [p for root in roots for p in (root / "claims").glob("*.json")]
     student_claims = [
         p
         for p in claims
@@ -359,17 +409,38 @@ def summarize(output, stop_reason):
             for r in teachers
         ],
         "source_lock_sha256": verify_lock(),
+        "budget_groups": [
+            {
+                "source_lock_sha256": sha256(
+                    ROOT / read_json(root / "frozen_config.json")["source_lock"]
+                ),
+                "student_limits": read_json(root / "frozen_config.json")[
+                    "student_config"
+                ]["student_limits"],
+                "student_results": len(list((root / "student").glob("*/result.json"))),
+                "teacher_results": len(
+                    list((root / "teacher").glob("*/trajectory.json"))
+                ),
+            }
+            for root in roots
+        ],
         "training_started": False,
     }
 
 
-def export_suffixes(output):
+def export_suffixes(output, prior=None):
     from .formal_dataset import write_lines
 
     directory = Path(output) / "recovery_dataset"
     directory.mkdir(exist_ok=False)
     records, examples, sources = [], [], []
-    for path in sorted((Path(output) / "teacher").glob("*/suffix_acceptance.json")):
+    roots = ([Path(prior)] if prior else []) + [Path(output)]
+    paths = [
+        p
+        for root in roots
+        for p in sorted((root / "teacher").glob("*/suffix_acceptance.json"))
+    ]
+    for path in paths:
         if not read_json(path)["eligible"]:
             continue
         records.append(read_json(path.parent / "recovery_sample.json"))
@@ -398,6 +469,53 @@ def export_suffixes(output):
     )
 
 
+def prior_evidence(prior):
+    """The single authorized budget transition, never a paid-attempt retry."""
+    config = configuration()
+    if RUNTIME != BUDGET_REVISION or not prior:
+        raise ValueError("New budget requires the sealed original B10 stage")
+    root = Path(prior).resolve()
+    if (
+        sha256(root / "pilot_manifest.json")
+        != config["continuation"]["prior_manifest_sha256"]
+    ):
+        raise ValueError("Prior B10 stage identity changed")
+    actual = files_manifest(root)
+    actual.pop("pilot_manifest.json")
+    if actual != read_json(root / "pilot_manifest.json")["files"]:
+        raise ValueError("Prior B10 evidence changed")
+    if read_json(root / "frozen_config.json") != read_json(ROOT / INITIAL_CONFIG):
+        raise ValueError("Prior B10 did not use the original frozen config")
+    student_claims = sorted((root / "claims").glob("student_*.json"))
+    episodes = {
+        p.parent.name: p.parent for p in (root / "student").glob("*/result.json")
+    }
+    expected = config["tasks"][: config["continuation"]["prior_student_tasks"]]
+    if (
+        set(episodes) != set(expected)
+        or {read_json(p)["task_id"] for p in student_claims} != set(expected)
+        or len(student_claims) != len(expected)
+    ):
+        raise ValueError(
+            "Unresolved/duplicate/unexpected Student attempts; never repeat"
+        )
+    completed = set()
+    for path in (root / "claims").glob("teacher_*.json"):
+        if path.name.endswith(".started.json"):
+            continue
+        claim = read_json(path)
+        directory = root / "teacher" / path.stem.removeprefix("teacher_")
+        if not (directory / "evidence_manifest.json").exists():
+            raise ValueError("Unresolved Teacher attempt; never retry")
+        key = (claim["task_id"], claim["checkpoint_id"])
+        if key in completed:
+            raise ValueError("Duplicate prior Teacher attempt")
+        completed.add(key)
+    if len(completed) != config["continuation"]["prior_teacher_attempts"]:
+        raise ValueError("Prior Teacher attempt count differs")
+    return episodes, completed
+
+
 def run(args):
     config = configuration()
     output = Path(args.output).resolve()
@@ -407,7 +525,17 @@ def run(args):
     write_json(output / "frozen_config.json", config)
     write_json(output / "tasks.json", read_json(ROOT / config["plan"]))
     stop_reason, attempts = None, 0
+    prior = getattr(args, "prior", None)
     try:
+        previous, completed = (
+            prior_evidence(prior) if RUNTIME == BUDGET_REVISION else ({}, set())
+        )
+        attempts = len(completed)
+        if prior:
+            write_json(
+                output / "continuation.json",
+                {"prior": str(Path(prior).resolve()), **config["continuation"]},
+            )
         identity = p3c.verify_checkpoint(
             args.adapter,
             ROOT / config["student_config"]["checkpoint_release"],
@@ -416,16 +544,17 @@ def run(args):
         if request_json(args.url, timeout=15) != identity:
             raise ValueError("Live backend is not the released M1")
         for task in config["tasks"]:
-            episode = output / "student" / task
-            write_json(
-                output / "claims" / ("student_" + task + ".json"),
-                {
-                    "task_id": task,
-                    "source_lock_sha256": verify_lock(),
-                    "time": time.time(),
-                },
-            )
-            child(args, "student", episode, task=task)
+            episode = previous.get(task, output / "student" / task)
+            if task not in previous:
+                write_json(
+                    output / "claims" / ("student_" + task + ".json"),
+                    {
+                        "task_id": task,
+                        "source_lock_sha256": verify_lock(),
+                        "time": time.time(),
+                    },
+                )
+                child(args, "student", episode, task=task)
             result = read_json(episode / "result.json")
             if result["outcome"] not in {"success", "model_failure"}:
                 raise RuntimeError(
@@ -434,6 +563,8 @@ def run(args):
             selection = selector().select_checkpoints(episode)
             write_json(output / "selections" / (task + ".json"), selection)
             for selected in selection["selected"]:
+                if (task, selected["checkpoint_id"]) in completed:
+                    continue
                 attempts += 1
                 if attempts > 20:
                     raise ValueError("Teacher attempt ceiling exceeded")
@@ -467,11 +598,11 @@ def run(args):
                     raise RuntimeError(
                         "Teacher infrastructure/evaluation failure; no paid retry"
                     )
-            write_json(output / f"progress_{task}.json", summarize(output, None))
+            write_json(output / f"progress_{task}.json", summarize(output, None, prior))
     except Exception as exc:
         stop_reason = type(exc).__name__ + ": " + str(exc)
-    export_suffixes(output)
-    summary = summarize(output, stop_reason)
+    export_suffixes(output, prior)
+    summary = summarize(output, stop_reason, prior)
     write_json(output / "summary.json", summary)
     print(json.dumps(summary), flush=True)
 
@@ -479,6 +610,10 @@ def run(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("command", choices=("serve", "student", "teacher", "run"))
+    parser.add_argument(
+        "--config", default=INITIAL_CONFIG, choices=(INITIAL_CONFIG, BUDGET_CONFIG)
+    )
+    parser.add_argument("--prior")
     for name in (
         "root",
         "adapter",
@@ -492,6 +627,7 @@ def main():
         parser.add_argument("--" + name)
     parser.add_argument("--url", default="http://127.0.0.1:8768")
     args = parser.parse_args()
+    select_configuration(args.config)
     configuration()
     {"serve": serve, "student": student_worker, "teacher": teacher_worker, "run": run}[
         args.command
@@ -499,4 +635,7 @@ def main():
 
 
 if __name__ == "__main__":
+    # Helper imports must observe the same explicit CLI selection, not a second
+    # module instance silently falling back to the historical configuration.
+    sys.modules["recoveragent.b10_pilot"] = sys.modules[__name__]
     main()

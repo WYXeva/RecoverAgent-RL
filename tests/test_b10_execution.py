@@ -22,6 +22,13 @@ from test_teacher_data import response
 worlds = fixtures.worlds
 
 
+@pytest.fixture(autouse=True)
+def selected_budget(monkeypatch):
+    monkeypatch.setattr(pilot, "CONFIG", pilot.BUDGET_CONFIG)
+    monkeypatch.setattr(pilot, "LOCK", pilot.BUDGET_LOCK)
+    monkeypatch.setattr(pilot, "RUNTIME", pilot.BUDGET_REVISION)
+
+
 @pytest.fixture
 def prepared(worlds, tmp_path, monkeypatch):
     lock = read_json(pilot.ROOT / pilot.LOCK)
@@ -294,7 +301,7 @@ def test_actual_p3c_entry_uses_new_lock_deadline_and_schema(
         requests.append(request)
         response = receipt(next(answers))(request)
         response.update(
-            runtime_variant=b10_deadline.VARIANT,
+            runtime_variant=pilot.BUDGET_VARIANT,
             deadline_monotonic=request["deadline_monotonic"],
         )
         return response
@@ -318,3 +325,132 @@ def test_actual_p3c_entry_uses_new_lock_deadline_and_schema(
         ]
         == pilot.verify_lock()
     )
+
+
+def test_fifteen_corrections_then_stop_and_numeric_budget_unchanged():
+    from recoveragent.harness import ProtocolHarness, BUDGET_REVISION
+
+    new = ProtocolHarness("dynamic_discovery", budget_revision=BUDGET_REVISION)
+    for index in range(1, 16):
+        feedback = json.loads(new.reject("malformed_output")["content"])
+        assert not new.stopped and feedback["corrections_remaining"] == 16 - index
+    assert not json.loads(new.reject("malformed_output")["content"])["retry_allowed"]
+    assert new.stopped and new.summary()["budget_revision"] == BUDGET_REVISION
+    with pytest.raises(ValueError):
+        new.reject("malformed_output")
+    old = ProtocolHarness("dynamic_discovery")
+    for _ in range(3):
+        old.reject("malformed_output")
+    assert old.stopped and "budget_revision" not in old.summary()
+    numeric = ProtocolHarness("dynamic_discovery", budget_revision=BUDGET_REVISION)
+    numeric.reject("malformed_output", answer_pending=True)
+    assert numeric.stopped and numeric.rejections == 1
+
+
+def test_versioned_1200_deadline_and_80_request_contract(monkeypatch, tmp_path):
+    from test_student_batch import Adapter, DISCOVER
+    from recoveragent import m1_vgpu_reference_backend as old
+
+    contract = pilot.deadline_contract()
+    assert contract.remaining(1300, 100) == 1200
+    with pytest.raises(ValueError):
+        old.remaining(1300, 100)
+    for bad in (True, float("inf"), 1301):
+        with pytest.raises(ValueError):
+            contract.remaining(bad, 100)
+    monkeypatch.setattr(
+        student,
+        "TEMPLATE_SHA256",
+        hashlib.sha256(Tokenizer.chat_template.encode()).hexdigest(),
+    )
+    cls = b10_deadline.session_class(
+        student.StudentSession, "http://127.0.0.1:8768", contract=contract
+    )
+    adapter = Adapter()
+    session = cls(
+        adapter,
+        Tokenizer(),
+        [{"role": "user", "content": "synthetic"}],
+        [DISCOVER],
+        output=tmp_path / "s",
+        clock=lambda: 100,
+        wall_seconds=1200,
+        max_requests=80,
+        tool_mode="dynamic_discovery",
+    )
+    monkeypatch.setattr(b10_deadline, "execution_clock", lambda: 150)
+
+    def http(url, request, timeout):
+        assert request["deadline_monotonic"] == 1300 and timeout == 1155
+        value = receipt(block("api_docs__show_api_doc", {}))(request)
+        value.update(
+            runtime_variant=pilot.BUDGET_VARIANT,
+            deadline_monotonic=1300,
+            finish_reason="deadline",
+        )
+        return value
+
+    monkeypatch.setattr(b10_deadline, "request_json", http)
+    event = session.step(None)
+    assert event["dispatched_count"] == 0 and not adapter.calls
+    assert session.termination == "budget_exhausted"
+    config = pilot.configuration()
+    assert config["student_config"]["student_limits"]["max_requests"] == 80
+    assert config["student_config"]["student_limits"]["max_generated_tokens"] == 16384
+    assert config["teacher_config"]["limits"]["episode_wall_seconds"] == 1200
+    assert config["teacher_config"]["limits"]["episode_requests"] == 80
+
+
+def test_original_b10_execution_lock_is_not_resigned(monkeypatch):
+    from recoveragent.demonstrations import sha256
+
+    assert (
+        sha256(pilot.ROOT / pilot.INITIAL_LOCK)
+        == "2835f25c0d5f8241a4fa11caa1faeec1cb01621afdccfd34d22bd156d39d162f"
+    )
+    monkeypatch.setattr(pilot, "CONFIG", pilot.INITIAL_CONFIG)
+    monkeypatch.setattr(pilot, "LOCK", pilot.INITIAL_LOCK)
+    monkeypatch.setattr(pilot, "RUNTIME", pilot.INITIAL_RUNTIME)
+    with pytest.raises(ValueError, match="source changed"):
+        pilot.verify_lock()
+
+
+def test_sealed_continuation_rejects_changed_and_unresolved_evidence(
+    tmp_path, monkeypatch
+):
+    from recoveragent.io import write_json
+    from recoveragent.demonstrations import sha256
+
+    config = copy.deepcopy(pilot.configuration())
+    root = tmp_path / "prior"
+    write_json(
+        root / "frozen_config.json", read_json(pilot.ROOT / pilot.INITIAL_CONFIG)
+    )
+    for task in config["tasks"][:7]:
+        write_json(root / "student" / task / "result.json", {"task_id": task})
+        write_json(root / "claims" / ("student_" + task + ".json"), {"task_id": task})
+    for index in range(6):
+        task = config["tasks"][index]
+        write_json(
+            root / "claims" / ("teacher_" + task + ".json"),
+            {"task_id": task, "checkpoint_id": task},
+        )
+        write_json(root / "teacher" / task / "evidence_manifest.json", {})
+    write_json(root / "pilot_manifest.json", {"files": files_manifest(root)})
+    config["continuation"]["prior_manifest_sha256"] = sha256(
+        root / "pilot_manifest.json"
+    )
+    monkeypatch.setattr(pilot, "configuration", lambda: config)
+    episodes, completed = pilot.prior_evidence(root)
+    assert len(episodes) == 7 and len(completed) == 6
+    # A known dispatched request cannot be hidden by deleting its evidence.
+    path = next((root / "teacher").glob("*/evidence_manifest.json"))
+    path.unlink()
+    with pytest.raises(ValueError, match="evidence changed"):
+        pilot.prior_evidence(root)
+    manifest = root / "pilot_manifest.json"
+    manifest.unlink()
+    write_json(manifest, {"files": files_manifest(root)})
+    config["continuation"]["prior_manifest_sha256"] = sha256(manifest)
+    with pytest.raises(ValueError, match="Unresolved Teacher"):
+        pilot.prior_evidence(root)

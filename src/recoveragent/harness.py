@@ -159,8 +159,15 @@ def check_batch(message, messages, tools, *, require_action=False):
             raise ProtocolViolation("unobserved_access_token", f["name"])
 
 
+BUDGET_REVISION = "b10_budget80_1200_corrections15_20261105"
+
+
 class ProtocolHarness:
-    def __init__(self, tool_mode, *, revision=REFACTOR_REVISION):
+    def __init__(self, tool_mode, *, revision=REFACTOR_REVISION, budget_revision=None):
+        if budget_revision not in {None, BUDGET_REVISION}:
+            raise ValueError("Unknown protocol correction budget revision")
+        if budget_revision is not None:
+            self.budget_revision = budget_revision
         if tool_mode not in {"dynamic_discovery", "api_predictor"}:
             raise ValueError("Unknown tool mode")
         self.tool_mode = tool_mode
@@ -175,7 +182,8 @@ class ProtocolHarness:
         if self.stopped:
             raise ValueError("Protocol correction already exhausted")
         self.rejections += 1
-        self.stopped = self.rejections > 2 or answer_pending
+        limit = 15 if getattr(self, "budget_revision", None) == BUDGET_REVISION else 2
+        self.stopped = self.rejections > limit or answer_pending
         feedback = {
             "source": "recoveragent_harness",
             "protocol": PROTOCOL,
@@ -186,7 +194,7 @@ class ProtocolHarness:
             "retry_allowed": not self.stopped,
             "tool_mode": self.tool_mode,
             "message": MESSAGES[code],
-            "corrections_remaining": max(0, 3 - self.rejections)
+            "corrections_remaining": max(0, limit + 1 - self.rejections)
             if not self.stopped
             else 0,
         }
@@ -269,6 +277,11 @@ class ProtocolHarness:
         return {
             "protocol": PROTOCOL,
             **({"runtime_revision": self.revision} if self.revision else {}),
+            **(
+                {"budget_revision": self.budget_revision}
+                if hasattr(self, "budget_revision")
+                else {}
+            ),
             "rejections": self.rejections,
             "notices": self.notices,
             "stopped": self.stopped,
@@ -461,7 +474,9 @@ def validate_record(record):
     if _harness_missing(record):
         raise ValueError("Harness prompt or version mismatch")
     h = ProtocolHarness(
-        record["tool_mode"], revision=record["harness"].get("runtime_revision")
+        record["tool_mode"],
+        revision=record["harness"].get("runtime_revision"),
+        budget_revision=record["harness"].get("budget_revision"),
     )
     guard = AnswerGuard(json.loads(messages[1]["content"])["instruction"])
     cursor = 2

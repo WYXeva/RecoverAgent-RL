@@ -51,6 +51,14 @@ from .harness import (
 
 
 def validate_config(config):
+    from .harness import BUDGET_REVISION
+
+    if config.get("harness_budget_revision") not in {None, BUDGET_REVISION} or (
+        config.get("harness_budget_revision") and not config.get("recovery_protocol")
+    ):
+        raise ValueError(
+            "Correction budget opt-in requires the locked B10 recovery protocol"
+        )
     if config.get("custom_research"):
         if config.get("recovery_protocol"):
             from .b10_pilot import verify_teacher_config
@@ -129,6 +137,8 @@ def validate_config(config):
         "tool_timeout_seconds": 60,
         "repeated_identical_call_limit": 3,
     }
+    if config.get("harness_budget_revision") == BUDGET_REVISION:
+        caps["episode_wall_seconds"] = 1200
     profile = config.get("collection_profile", "pilot")
     if profile not in {"pilot", "scenario_expansion_v1"}:
         raise ValueError("Unknown collection profile")
@@ -331,7 +341,9 @@ def run_teacher_episode(config, task_id, output, credentials, *, recovery_source
     evaluation_started = False
     harness = (
         ProtocolHarness(
-            trajectory["tool_mode"], revision=config.get("harness_runtime_revision")
+            trajectory["tool_mode"],
+            revision=config.get("harness_runtime_revision"),
+            budget_revision=config.get("harness_budget_revision"),
         )
         if config.get("harness_protocol")
         else None
