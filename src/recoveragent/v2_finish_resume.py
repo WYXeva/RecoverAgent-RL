@@ -1,4 +1,4 @@
-"""Verified post-S1 handoff for the approved GRPO4/dev3 finish, without replay."""
+"""Verified post-S1 handoff for the approved post-S1 finish, without replay."""
 
 import math
 from pathlib import Path
@@ -15,7 +15,7 @@ from .v2_training import verify_checkpoint
 def carry_s1(source, cfg, identity, s0, deployment):
     source, s0 = Path(source).resolve(), Path(s0).resolve()
     previous = read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
-    ignored = {"format", "source_lock"}
+    ignored = {"format", "source_lock", "gpu_wall_seconds"}
     if read_json(source / "run_config.json") != previous or {
         k: v for k, v in previous.items() if k not in ignored
     } != {k: v for k, v in feedback_recipe(cfg, previous).items() if k not in ignored}:
@@ -25,6 +25,9 @@ def carry_s1(source, cfg, identity, s0, deployment):
         preflight["source"]["lock_sha256"] != sha256(ROOT / previous["source_lock"])
         or deployment["job_deadline_epoch"]
         != preflight["deployment"]["job_deadline_epoch"]
+        + cfg["gpu_wall_seconds"]
+        - previous["gpu_wall_seconds"]
+        or cfg["gpu_wall_seconds"] not in {previous["gpu_wall_seconds"], 86400}
     ):
         raise ValueError("Post-S1 source/deadline mismatch")
     summary = read_json(source / "round_summary.json")
@@ -48,7 +51,8 @@ def carry_s1(source, cfg, identity, s0, deployment):
     parent = verify_checkpoint(s0, identity)
     handoff = read_json(source / "post_s1_handoff.json")
     if (
-        handoff["reason"] != "user_approved_grpo4_dev3_32k"
+        handoff["reason"]
+        not in {"user_approved_grpo4_dev3_32k", "user_restored_grpo16_dev24_32k"}
         or handoff["downstream_requests"] != 0
         or handoff["checkpoint_receipt_sha256"]
         != sha256(s1 / "checkpoint_receipt.json")
@@ -69,7 +73,7 @@ def carry_s1(source, cfg, identity, s0, deployment):
         raise ValueError("Post-S1 checkpoint lineage/data/update mismatch")
     continued = read_json(source / "continued_feedback.json")
     feedback, used, proof = carry_feedback(
-        continued["source_run"], previous, identity, s0, deployment
+        continued["source_run"], previous, identity, s0, preflight["deployment"]
     )
     if (
         continued != proof

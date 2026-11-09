@@ -15,7 +15,7 @@ from .v2_tasks import ROOT, plan, development_tasks, grpo_schedule
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_finish4_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_finish16_24h_20261109.json")
 
 
 def isolated(python, command, payload, destination, deadline, *, env=None):
@@ -135,7 +135,9 @@ def run(
         output / "dev_selection.json",
         {
             "task_ids": dev_tasks,
-            "selection": "frozen_order_distinct_scenarios",
+            "selection": "frozen_dev24"
+            if cfg["dev_tasks"] == 24
+            else "frozen_order_distinct_scenarios",
             "split_manifest_sha256": plan()["manifest_sha256"],
         },
     )

@@ -13,7 +13,7 @@ from recoveragent.v2_tasks import ROOT, development_tasks, grpo_schedule, plan
 
 
 def test_reduced_selection_keeps_three_scenarios_and_three_plus_one_groups():
-    cfg = config()
+    cfg = read_json(ROOT / "configs/v2_round1_finish4_20261109.json")
     tasks = development_tasks(cfg["dev_tasks"])
     frozen = plan()
     scenes = {r["task_id"]: r["scenario_id"] for r in frozen["rows"]}
@@ -42,7 +42,10 @@ def post_s1(tmp_path, monkeypatch):
         source / "preflight.json",
         {
             "source": {"lock_sha256": sha256(ROOT / old["source_lock"])},
-            "deployment": deployment,
+            "deployment": {
+                "job_deadline_epoch": 1000
+                - (cfg["gpu_wall_seconds"] - old["gpu_wall_seconds"])
+            },
         },
     )
     frozen = plan()
@@ -291,3 +294,18 @@ def test_existing_public_read_proposal_revalidated_without_new_teacher(tmp_path)
     record["messages"][2]["tool_calls"][0]["function"]["name"] = "gmail__delete_email"
     with pytest.raises(ValueError, match="Unsupported or mutating"):
         candidate(record, {}, "synthetic")
+
+
+def test_restored_scale_and_24h_keep_episode_budgets():
+    cfg = config()
+    old = read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
+    assert cfg["gpu_wall_seconds"] == 86400
+    assert cfg["feedback_tasks"] == 15
+    assert cfg["grpo"] == old["grpo"]
+    assert development_tasks(cfg["dev_tasks"]) == plan()["dev24"]
+    assert cfg["student_limits"] == old["student_limits"]
+    assert cfg["train_generated_tokens"] == 200000
+    fake = {"source_task_id": plan()["feedback20"][0]}
+    groups = grpo_schedule(cfg, [fake])
+    assert len(groups) == 16
+    assert sum(g["source"] == "generated" for g in groups) == 4

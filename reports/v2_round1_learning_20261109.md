@@ -163,3 +163,12 @@ OMP_NUM_THREADS=8 PYTORCH_ALLOC_CONF=expandable_segments:True \
 实际探索中一条提案因公开只读 `supervisor__show_active_task` 未列入生成器允许列表而被拒。只补这一接口，允许对原始提案重新执行独立环境验收，原拒绝和轨迹不改写；无新Teacher请求。尚未将重验代码通过写成真实生成任务合格。
 
 本次软件验证：针对性测试69 passed；完整 `PYTHONPATH=.:src .venv/bin/python -m pytest -q` 812 passed/1 skipped；Ruff check和format check通过。覆盖S1谱系与成本继承、预算/数据/来源篡改拒绝、3场景dev选择、3+1组、公开查询的已有提案重验与写操作继续拒绝。真实S1、GRPO和开发比较将在实际回执后更新。
+
+
+## 最新用户决定：恢复原GRPO/dev规模，总计24小时
+
+用户明确将GRPO恢复为最多16组×4轨迹，开发比较恢复固定dev24、三个阶段共最多72次episode；先前finish4已部署但自动启动保护在发起任何GRPO/dev请求前取消，未运行小规模比较。原15项反馈、11次Teacher恢复及32k限制不变。
+
+用户同时批准当前实例总计24小时，已用时间计入，绝对截止2026-11-10 14:12:31 UTC+8。20万训练侧生成token及每episode预算不增加；即使最多16组，达到累计资源上限仍停止并记录实际数。新入口配置为 `configs/v2_round1_finish16_24h_20261109.json`，独立源码锁；部署与输出改为 `deployment010.json`、`runs/round_010`，仍使用 `--resume-base-from ../runs/round_004 --resume-s1-from ../runs/round_008`。旧finish4启动命令仅保留历史，不执行。
+
+新接续在核对旧反馈时使用源运行的原12小时配置，在检查新运行时严格核对原起点+24小时，不能借接续清零时间或生成成本。针对性55 passed；完整813 passed/1 skipped及Ruff检查通过。以上为软件与配置验收；实际训练与开发结果继续单列。

@@ -8,13 +8,12 @@ import pytest
 from recoveragent.demonstrations import sha256
 from recoveragent.io import digest, files_manifest, read_json, write_json
 from recoveragent.v2_resume import carry_clock_interruption
-from recoveragent.v2_round import config
 from recoveragent.v2_tasks import ROOT, plan
 
 
 @pytest.fixture
 def clock_handoff(tmp_path):
-    cfg = config()
+    cfg = read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
     identity = cfg["models"][cfg["selected_model"]]
     old = read_json(ROOT / "configs/v2_round1_resume12h_20261109.json")
     source, s0 = tmp_path / "source", tmp_path / "S0"
