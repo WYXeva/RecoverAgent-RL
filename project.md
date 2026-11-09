@@ -1,7 +1,7 @@
 # RecoverAgent-RL v2：让任务与 Agent 一起进化
 
 > 更新：2026-11-09。本文是当前唯一项目设计与实施计划。采用现有仓库和 AppWorld 底座，重新组织学习实验。
-> 当前状态：方案更新；v2 的模型训练、任务生成和 GRPO 尚未执行。执行事实见 [STATUS](docs/STATUS.md)。
+> 最新执行要求（2026-11-09）：本轮保留 S0/S1/S2 学习闭环，在 S1 训练同时补齐 CoEvolve 的 AppWorld 方法，用该方法生成的新任务参与本轮 S2。方法范围、来源和适配差异见 [CoEvolve 接入说明](docs/COEVOLVE_APPWORLD_METHOD.md)。执行事实见 [STATUS](docs/STATUS.md)。
 
 ## 1. 项目要回答的问题
 

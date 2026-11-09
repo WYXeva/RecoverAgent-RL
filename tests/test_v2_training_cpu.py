@@ -154,3 +154,73 @@ def test_trl_grpo_loss_updates_only_current_adapter(tmp_path):
     assert gradient_health(model)["l2_norm"] > 0
     trainer.optimizer.step()
     assert tensor_hash(peft.get_peft_model_state_dict(model)) != before
+
+
+def test_coevolve_frozen_s1_reference_and_chunked_scores(tmp_path):
+    """Actual CPU gradients through TRL, not pretrained-model evidence."""
+    cfg = read_json("configs/v2_round1_coevolve_20261109.json")
+    model = peft.get_peft_model(
+        tiny(),
+        peft.LoraConfig(
+            r=2,
+            lora_alpha=4,
+            target_modules=r".*language_model\..*\.(q_proj|v_proj)",
+            task_type="CAUSAL_LM",
+        ),
+    )
+    parent = tmp_path / "reference"
+    model.save_pretrained(parent)
+    model.load_adapter(parent, adapter_name="coevolve_reference", is_trainable=False)
+    model.set_adapter("default")
+    before = tensor_hash(
+        peft.get_peft_model_state_dict(model, adapter_name="coevolve_reference")
+    )
+    trainer = make_trainer(model, tokenizer(), tmp_path / "trainer", cfg["grpo"])
+    ids = torch.arange(140).remainder(125).add(2).unsqueeze(0)
+    mask = torch.ones_like(ids)
+    model.eval()
+    with torch.no_grad():
+        selected, entropy, _ = trainer._get_per_token_logps_and_entropies(
+            model, ids, mask, 130
+        )
+        logits = (
+            model(
+                input_ids=ids,
+                attention_mask=mask,
+                logits_to_keep=torch.arange(9, 139),
+                use_cache=False,
+            ).logits.float()
+            / trainer.temperature
+        )
+        full = torch.log_softmax(logits, -1)
+        expected = full.gather(-1, ids[:, -130:, None]).squeeze(-1)
+        assert torch.allclose(selected, expected, atol=1e-6)
+        assert torch.allclose(entropy, -(full.exp() * full).sum(-1), atol=1e-6)
+    model.set_adapter("coevolve_reference", inference_mode=True)
+    with torch.no_grad():
+        ref, _, _ = trainer._get_per_token_logps_and_entropies(model, ids, mask, 130)
+    model.set_adapter("default")
+    model.train()
+    batch = {
+        "prompt_ids": ids[:, :10],
+        "prompt_mask": mask[:, :10],
+        "completion_ids": ids[:, 10:],
+        "completion_mask": mask[:, 10:],
+        "old_per_token_logps": selected,
+        "ref_per_token_logps": ref,
+        "advantages": torch.tensor([1.0]),
+    }
+    loss = trainer.compute_loss(model, batch)
+    loss.backward()
+    assert gradient_health(model)["l2_norm"] > 0
+    assert all(
+        p.grad is None for n, p in model.named_parameters() if "coevolve_reference" in n
+    )
+    trainer.optimizer.step()
+    assert (
+        tensor_hash(
+            peft.get_peft_model_state_dict(model, adapter_name="coevolve_reference")
+        )
+        == before
+    )
+    assert tensor_hash(peft.get_peft_model_state_dict(model)) != before

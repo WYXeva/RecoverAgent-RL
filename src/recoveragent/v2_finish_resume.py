@@ -7,7 +7,7 @@ from .demonstrations import sha256
 from .io import digest, files_manifest, read_json, write_json
 from .v2_feedback_resume import carry_feedback
 from .v2_generator import accept, candidate, validate_task
-from .v2_resume import feedback_recipe
+from .v2_resume import completed_sft_recipe
 from .v2_tasks import ROOT, plan
 from .v2_training import verify_checkpoint
 
@@ -18,7 +18,9 @@ def carry_s1(source, cfg, identity, s0, deployment):
     ignored = {"format", "source_lock", "gpu_wall_seconds"}
     if read_json(source / "run_config.json") != previous or {
         k: v for k, v in previous.items() if k not in ignored
-    } != {k: v for k, v in feedback_recipe(cfg, previous).items() if k not in ignored}:
+    } != {
+        k: v for k, v in completed_sft_recipe(cfg, previous).items() if k not in ignored
+    }:
         raise ValueError("Post-S1 handoff changed the frozen recipe")
     preflight = read_json(source / "preflight.json")
     if (

@@ -297,7 +297,7 @@ def test_existing_public_read_proposal_revalidated_without_new_teacher(tmp_path)
 
 
 def test_restored_scale_and_24h_keep_episode_budgets():
-    cfg = config()
+    cfg = read_json(ROOT / "configs/v2_round1_finish16_24h_20261109.json")
     old = read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
     assert cfg["gpu_wall_seconds"] == 86400
     assert cfg["feedback_tasks"] == 15

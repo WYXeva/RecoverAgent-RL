@@ -24,6 +24,22 @@ def feedback_recipe(cfg, previous):
     return cfg
 
 
+def completed_sft_recipe(cfg, previous):
+    """Only future CoEvolve/GRPO fields may differ at the explicit post-SFT handoff.
+
+    Source receipts still bind the original complete config/lock. This does not
+    permit changing tokenizer, model, data, SFT, task lists or inference budgets.
+    """
+    result = feedback_recipe(cfg, previous)
+    if cfg.get("format") == "v2_learning_round1_coevolve_20261109":
+        for name in ("task_evolution", "generator", "grpo"):
+            if name in previous:
+                result[name] = copy.deepcopy(previous[name])
+            else:
+                result.pop(name, None)
+    return result
+
+
 def verified_base(source, cfg, identity, data, deployment):
     from .v2_training import verify_checkpoint
 
@@ -31,7 +47,7 @@ def verified_base(source, cfg, identity, data, deployment):
     previous = read_json(source / "run_config.json")
     ignored = {"format", "source_lock", "gpu_wall_seconds"}
     if {k: v for k, v in previous.items() if k not in ignored} != {
-        k: v for k, v in feedback_recipe(cfg, previous).items() if k not in ignored
+        k: v for k, v in completed_sft_recipe(cfg, previous).items() if k not in ignored
     }:
         raise ValueError("S0 continuation changed the frozen learning recipe")
     expected = read_json(ROOT / "configs/v2_round1_cpu_offload_20261109.json")

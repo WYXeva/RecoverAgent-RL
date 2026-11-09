@@ -417,6 +417,9 @@ def run_teacher_episode(
         if exploration is not None:
             from .v2_generator import apply_instruction, exploration_instruction
 
+            if exploration.get("protocol") == "coevolve_appworld_v1":
+                from .coevolve_tasks import exploration_instruction
+
             apply_instruction(adapter, exploration_instruction(exploration))
             trajectory["generator_exploration"] = {
                 "feedback_sha256": digest(exploration)
@@ -448,6 +451,16 @@ def run_teacher_episode(
                     },
                 ]
             )
+            if (
+                exploration
+                and exploration.get("protocol") == "coevolve_appworld_v1"
+                and exploration["mode"] == "validation"
+            ):
+                from .coevolve_tasks import validation_hint
+
+                messages.append(
+                    {"role": "user", "content": validation_hint(exploration["task"])}
+                )
         if config.get("answer_guard_protocol") and not recovery_source:
             guard = AnswerGuard(adapter.public_task()["instruction"])
         if guard is not None:
@@ -696,17 +709,24 @@ def run_teacher_episode(
             },
         )
         adapter.save_terminal()
+        if exploration and exploration.get("protocol") == "coevolve_appworld_v1":
+            from .coevolve_tasks import capture_terminal as capture_coevolve_terminal
+
+            capture_coevolve_terminal(adapter, trajectory)
         adapter.close()
         adapter = None
         evaluation_started = bool(harness)
         if exploration is not None:
-            from .v2_generator import parse_proposal
+            if exploration.get("protocol") == "coevolve_appworld_v1":
+                success = trajectory["coevolve_terminal"]["status"] == "success"
+            else:
+                from .v2_generator import parse_proposal
 
-            try:
-                parse_proposal(trajectory)
-                success = True
-            except (ValueError, KeyError, TypeError):
-                success = False
+                try:
+                    parse_proposal(trajectory)
+                    success = True
+                except (ValueError, KeyError, TypeError):
+                    success = False
             official = None
         elif harness:
             from .evaluation import evaluate_isolated
@@ -749,7 +769,9 @@ def run_teacher_episode(
                 "reference": "generator_exploration"
                 if exploration is not None
                 else "original_task",
-                "evaluator": "public_proposal_checks_only"
+                "evaluator": "coevolve_execution_completion_not_task_acceptance"
+                if exploration and exploration.get("protocol") == "coevolve_appworld_v1"
+                else "public_proposal_checks_only"
                 if exploration is not None
                 else "appworld.evaluator.evaluate_task",
                 "terminal_checkpoint_id": trajectory["terminal_checkpoint_id"],

@@ -15,7 +15,7 @@ from .v2_tasks import ROOT, plan, development_tasks, grpo_schedule
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_finish16_24h_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_coevolve_20261109.json")
 
 
 def isolated(python, command, payload, destination, deadline, *, env=None):
@@ -225,17 +225,18 @@ def run(
             ledger["used"] = carried["training_generated_tokens"]
             ledger["limit"] -= carried.get("training_generated_token_reservation", 0)
             write_json(output / "continued_s1.json", proof)
-            generated, summary["generation_revalidation"] = (
-                revalidate_public_read_proposals(
-                    resume_s1_from,
-                    output,
-                    generated,
-                    python,
-                    deployment["appworld_root"],
-                    deadline,
-                    isolated,
+            if not cfg.get("task_evolution"):
+                generated, summary["generation_revalidation"] = (
+                    revalidate_public_read_proposals(
+                        resume_s1_from,
+                        output,
+                        generated,
+                        python,
+                        deployment["appworld_root"],
+                        deadline,
+                        isolated,
+                    )
                 )
-            )
         else:
             if carry_clock_from is not None:
                 carried, known, reserved = carry_clock_interruption(
@@ -465,7 +466,30 @@ def run(
                 deadline=deadline,
             )
             summary["real_checkpoints"]["S1_recovery"] = str(s1)
-        schedule = grpo_schedule(cfg, generated)
+        evolution = None
+        if cfg.get("task_evolution"):
+            from .coevolve_generation import Evolution
+
+            evolution = Evolution(
+                cfg,
+                identity,
+                deployment,
+                output / "coevolve",
+                summary,
+                deadline,
+                isolated,
+            )
+            evolution.initial(summary["feedback"])
+            # Slots stay fixed; the live validated pool supplies each generated
+            # slot immediately before sampling, including tasks added mid-run.
+            schedule = [
+                {"source": "original", "task_id": task}
+                for task in (plan()["feedback20"][: cfg["feedback_tasks"]] * 2)[
+                    : cfg["grpo"]["groups"]
+                ]
+            ]
+        else:
+            schedule = grpo_schedule(cfg, generated)
         write_json(output / "grpo_schedule.json", schedule)
 
         def rollout(model, checkpoint_id, task, group, member):
@@ -491,6 +515,8 @@ def run(
                 rollout,
                 deadline,
                 remaining_tokens=lambda: ledger["limit"] - ledger["used"],
+                task_at=evolution.task_at if evolution else None,
+                after_batch=evolution.after_batch if evolution else None,
             )
             summary["real_checkpoints"]["S2_grpo"] = str(s2)
         except NoPolicyUpdate as exc:
@@ -508,6 +534,8 @@ def run(
                 }
             ),
         }
+        if evolution:
+            evolution.snapshot("final_pool.json")
         for name, path in summary["real_checkpoints"].items():
             model = load_policy(path)
             results = []
@@ -629,7 +657,18 @@ def main():
         )
         try:
             adapter.configure_schema_compatibility(SCHEMA_REVISION, output)
-            replay(adapter, task, payload["mode"], output)
+            if task.get("generator") == "coevolve_appworld_task_v1":
+                from .coevolve_tasks import replay as replay_coevolve
+
+                replay_coevolve(
+                    adapter,
+                    task,
+                    read_json(payload["reference"]),
+                    payload["mode"],
+                    output,
+                )
+            else:
+                replay(adapter, task, payload["mode"], output)
         finally:
             adapter.close()
 

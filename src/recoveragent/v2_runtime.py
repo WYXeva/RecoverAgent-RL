@@ -6,7 +6,7 @@ from .demonstrations import sha256
 from .io import read_json
 from .v2_tasks import ROOT, RUNTIME
 
-LOCK = ROOT / "configs/v2_round1_finish16_24h_20261109_lock.json"
+LOCK = ROOT / "configs/v2_round1_coevolve_20261109_lock.json"
 
 
 def verify_lock():
@@ -15,11 +15,14 @@ def verify_lock():
         str(p.relative_to(ROOT)) for p in (ROOT / "src/recoveragent").glob("*.py")
     }
     required |= {
-        "configs/v2_round1_finish16_24h_20261109.json",
+        "configs/v2_round1_coevolve_20261109.json",
         "configs/v2_scenario_split_20261109.json",
         "configs/v2_qwen35_weights.json",
         "requirements/v2-learning.txt",
         "scripts/run_v2_round.py",
+        "third_party/agentevolver/LICENSE",
+        "third_party/agentevolver/SOURCE.json",
+        "third_party/agentevolver/task_abstraction_prompt.txt",
     }
     if lock.get("runtime_revision") != RUNTIME or not required <= lock["files"].keys():
         raise ValueError("Incomplete v2 source lock")

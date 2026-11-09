@@ -1,0 +1,11 @@
+{
+  "project": "modelscope/AgentEvolver",
+  "revision": "a5a8db8689d6493b028107dcb4c27415441581dc",
+  "source": "agentevolver/module/task_manager/strategies/common/prompts/prompt_summarize.py",
+  "source_sha256": "87ccdca749502b6e7a02e4c4ac36b68fbcef60895f94d75b6353afb9b819c3ed",
+  "extracted_constant": "AGENT_SUMMARIZE_SYSTEM_PROMPT",
+  "license": "Apache-2.0",
+  "changes": "The named prompt constant is vendored unchanged. Integration appends an explicit system-level JSON output override and supplies execution-evidence requirements separately. Surrounding framework and transport are not copied.",
+  "coevolve_repo_checked": "d4560239c80ce327808c0fd2a0d3a2c106f17e63",
+  "coevolve_executable_source_available": false
+}

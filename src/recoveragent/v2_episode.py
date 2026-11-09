@@ -59,9 +59,13 @@ def run(config, generate):
         adapter.execute = timed_execute
         generated = config.get("generated_task")
         if generated:
-            from .v2_generator import public_task, validate_task, apply_instruction
+            from .v2_generator import public_task, apply_instruction
+            from . import v2_generator as generated_backend
 
-            validate_task(generated, task)
+            if generated.get("generator") == "coevolve_appworld_task_v1":
+                from . import coevolve_tasks as generated_backend
+
+            generated_backend.validate_task(generated, task)
             apply_instruction(adapter, generated["instruction"])
             public = public_task(adapter.public_task(), generated)
             if (
@@ -157,9 +161,7 @@ def run(config, generate):
             {"messages": session.messages, "tools": session.tools},
         )
         if generated:
-            from .v2_generator import evaluate
-
-            evaluation = evaluate(adapter, generated)
+            evaluation = generated_backend.evaluate(adapter, generated)
         adapter.save_terminal()
         adapter.close()
         adapter = None

@@ -103,13 +103,35 @@ def trainer_class():
                 logits_to_keep=positions,
                 use_cache=False,
             )
-            logits = outputs.logits.float() / self.temperature
-            log_probs = torch.log_softmax(logits, -1)
-            chosen = log_probs.gather(-1, input_ids[:, -logits_to_keep:, None]).squeeze(
-                -1
-            )
-            entropy = -(log_probs.exp() * log_probs).sum(-1)
-            return chosen, entropy, None
+            # Checkpoint the vocabulary reduction in bounded chunks. Keeping
+            # float32 log-softmax/entropy graphs for 4096 x 248k tokens would
+            # exhaust the authorized single card without changing any targets.
+            from torch.utils.checkpoint import checkpoint
+
+            def reduce(logits, targets):
+                values = logits.float() / self.temperature
+                log_probs = torch.log_softmax(values, -1)
+                chosen = log_probs.gather(-1, targets[..., None]).squeeze(-1)
+                # Entropy is diagnostic only (no entropy bonus in this recipe).
+                with torch.no_grad():
+                    entropy = -(log_probs.exp() * log_probs).sum(-1)
+                return chosen, entropy
+
+            chosen, entropy = [], []
+            targets = input_ids[:, -logits_to_keep:]
+            for start in range(0, logits_to_keep, 128):
+                args = (
+                    outputs.logits[:, start : start + 128],
+                    targets[:, start : start + 128],
+                )
+                lp, ent = (
+                    checkpoint(reduce, *args, use_reentrant=False)
+                    if torch.is_grad_enabled()
+                    else reduce(*args)
+                )
+                chosen.append(lp)
+                entropy.append(ent)
+            return torch.cat(chosen, 1), torch.cat(entropy, 1), None
 
     return AppWorldGRPO
 
@@ -126,6 +148,8 @@ def make_trainer(model, tokenizer, output, settings):
         generation_batch_size=4,
         num_generations=4,
         beta=0.0,
+        epsilon=settings.get("clip_low", 0.2),
+        epsilon_high=settings.get("clip_high", 0.2),
         max_completion_length=4096,
         temperature=settings["temperature"],
         top_p=1.0,
@@ -148,6 +172,9 @@ def make_trainer(model, tokenizer, output, settings):
     )
     trainer.current_gradient_accumulation_steps = 1
     trainer.recoveragent_activation_offload = settings.get("activation_offload")
+    # Reference probabilities are supplied explicitly using a second frozen
+    # adapter on the same base; do not allocate a second 9B model.
+    trainer.beta = settings.get("beta", 0.0)
     trainer.create_optimizer()
     return trainer
 
@@ -165,7 +192,7 @@ def update_batch(trainer, groups):
     total_loss = 0.0
     for episodes, advantages in usable:
         for episode, advantage in zip(episodes, advantages, strict=True):
-            if advantage == 0:
+            if advantage == 0 and trainer.beta == 0:
                 continue
             rows = segments(episode["directory"], episode["policy"])
             tokens = sum(len(r["completion_ids"]) for r in rows)
@@ -182,6 +209,32 @@ def update_batch(trainer, groups):
                     "old_per_token_logps": tensor(row["logprobs"], torch.float32),
                     "advantages": torch.tensor([advantage], device=model.device),
                 }
+                if trainer.beta:
+                    model.set_adapter("coevolve_reference", inference_mode=True)
+                    try:
+                        with torch.no_grad():
+                            inputs["ref_per_token_logps"], _, _ = (
+                                trainer._get_per_token_logps_and_entropies(
+                                    model,
+                                    torch.cat(
+                                        [
+                                            inputs["prompt_ids"],
+                                            inputs["completion_ids"],
+                                        ],
+                                        1,
+                                    ),
+                                    torch.cat(
+                                        [
+                                            inputs["prompt_mask"],
+                                            inputs["completion_mask"],
+                                        ],
+                                        1,
+                                    ),
+                                    len(row["completion_ids"]),
+                                )
+                            )
+                    finally:
+                        model.set_adapter("default")
                 context = (
                     torch.autograd.graph.save_on_cpu(pin_memory=True)
                     if trainer.recoveragent_activation_offload == "cpu"
@@ -224,6 +277,8 @@ def train(
     deadline,
     *,
     remaining_tokens=None,
+    task_at=None,
+    after_batch=None,
 ):
     import torch
     from peft import get_peft_model_state_dict
@@ -235,6 +290,17 @@ def train(
         gradient_checkpointing_kwargs={"use_reentrant": False}
     )
     before = tensor_hash(get_peft_model_state_dict(model))
+    reference_hash = None
+    if config["grpo"].get("beta", 0):
+        model.load_adapter(
+            str(parent), adapter_name="coevolve_reference", is_trainable=False
+        )
+        model.set_adapter("default")
+        reference_hash = tensor_hash(
+            get_peft_model_state_dict(model, adapter_name="coevolve_reference")
+        )
+        if reference_hash != before:
+            raise ValueError("Frozen GRPO reference differs from S1")
     trainer = make_trainer(model, tokenizer, output / "trainer", config["grpo"])
     started, audit, probe_ids = time.monotonic(), [], None
     torch.cuda.reset_peak_memory_stats()
@@ -243,6 +309,10 @@ def train(
             raise TimeoutError("Shared GPU job deadline reached")
         groups, checkpoint_id = [], policy_id(model)
         for i, task in enumerate(schedule[batch_index : batch_index + 2]):
+            if task_at is not None:
+                task = task_at(batch_index + i, task)
+                if task is None:
+                    continue
             if (
                 remaining_tokens is not None
                 and remaining_tokens()
@@ -282,7 +352,12 @@ def train(
                         break
         # Save updated adapters as real private intermediate states, never replay old rollouts.
         if update["updated"]:
-            model.save_pretrained(output / f"update_{trainer.state.global_step:02d}")
+            model.save_pretrained(
+                output / f"update_{trainer.state.global_step:02d}",
+                selected_adapters=["default"],
+            )
+        if after_batch is not None and batch_index + 2 < len(schedule):
+            after_batch(batch_index // 2, groups)
     write_json(output / "updates.json", audit)
     if trainer.state.global_step == 0:
         write_json(
@@ -304,7 +379,18 @@ def train(
         "wall_seconds": time.monotonic() - started,
         "gpu_peak_allocated_bytes": torch.cuda.max_memory_allocated(),
         "gpu_peak_reserved_bytes": torch.cuda.max_memory_reserved(),
+        "reference_adapter_sha256": reference_hash,
+        "beta": trainer.beta,
     }
+    if reference_hash:
+        if (
+            tensor_hash(
+                get_peft_model_state_dict(model, adapter_name="coevolve_reference")
+            )
+            != reference_hash
+        ):
+            raise ValueError("GRPO reference adapter changed")
+        model.delete_adapter("coevolve_reference")
     after, probe = finish_checkpoint(
         model,
         tokenizer,

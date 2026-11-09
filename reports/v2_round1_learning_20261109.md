@@ -2,6 +2,8 @@
 
 本轮以 `ddc6e8e4338eb168ec4784e906b4de66ab7dd297` 为代码基线，按 `project.md` 的交付 1 实现并启动真实学习链路。本文区分软件验收、真实环境探针与模型运行；状态以最终回执为准。
 
+最新：S0和S1均已真实训练、保存重载并完整备份；S2/dev尚未启动。用户要求在本轮使用CoEvolve生成新任务，现已完成必要接线和软件测试，下一步以独立round_011执行。后文保留各时刻记录，不将早期进行中状态当作最终结论。
+
 ## 固定设置与入口
 
 - Student：`Qwen/Qwen3.5-9B`，revision `c202236235762e1c871ad0ccb60c8ee5ba337b9a`；原生 non-thinking 模板 SHA-256 `a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715`。没有加载旧 4B adapter，也没有切换 8B。
@@ -172,3 +174,15 @@ OMP_NUM_THREADS=8 PYTORCH_ALLOC_CONF=expandable_segments:True \
 用户同时批准当前实例总计24小时，已用时间计入，绝对截止2026-11-10 14:12:31 UTC+8。20万训练侧生成token及每episode预算不增加；即使最多16组，达到累计资源上限仍停止并记录实际数。新入口配置为 `configs/v2_round1_finish16_24h_20261109.json`，独立源码锁；部署与输出改为 `deployment010.json`、`runs/round_010`，仍使用 `--resume-base-from ../runs/round_004 --resume-s1-from ../runs/round_008`。旧finish4启动命令仅保留历史，不执行。
 
 新接续在核对旧反馈时使用源运行的原12小时配置，在检查新运行时严格核对原起点+24小时，不能借接续清零时间或生成成本。针对性55 passed；完整813 passed/1 skipped及Ruff检查通过。以上为软件与配置验收；实际训练与开发结果继续单列。
+
+## CoEvolve 接续与 S1 验收
+
+S1从S0继续8步/59样本/11739监督token（恢复40样本5930token，加完整正常示范19样本5809token，按监督token约50:50加权），最长32708，无截断。训练998.6721秒，allocated峰值32166756352字节；参数由S0的 `b4b16e43f10d280722ce5544277858b94bcfbc0aa78de6817790bda8e203d235` 更新为 `3daf5effa13ed2bcf939861d90112659da62c751996afd932ea10b392d6a496f`，重载哈希与logits完全一致。
+
+私有备份 `round008_S1_recovery.tar.gz` SHA256 `ff5cfa99a58779dc81ca0ec06e9d7d76e75bea1faee71424fc6802178a69bb14`，325727134字节/30文件；原始记录包SHA256 `ec8b65ffbb6de4e12f6c33535b09aea81d8ee8fb39eefdeac0e4e5985fde5f00`。旧008摘要中的主动SIGALRM停止发生在S1回执写完、摘要赋值前；独立handoff与重载回执证明S1完成，不改写旧摘要。
+
+恢复11次/6官方成功/4合格/2deferred/5失败；107请求，3251789 prompt/56891 generated/2242944 cached token，估价2.56253576元，1485.19494秒。连同旧10次探索，Teacher已知估价5.30696768元，不是账单。旧固定Gmail生成0接纳。
+
+[新配置](../configs/v2_round1_coevolve_20261109.json)和独立源码锁复用原Runner及只读S0/S1，接通[CoEvolve方法](../docs/COEVOLVE_APPWORLD_METHOD.md)。原自动finish16在请求前取消。新方法尚未真实运行，不宣称任务有效或模型改善。
+
+验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为820 passed/1 skipped；新增及受影响针对性55 passed；`PYTHONPATH=.:src .venv-v2/bin/python -m pytest -q tests/test_v2_training_cpu.py` 为3 passed；Ruff check与format check通过。CPU测试使用随机微型模型，覆盖真实梯度/冻结参考和概率分块等价，不是9B运行证据。
