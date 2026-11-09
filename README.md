@@ -6,7 +6,7 @@
 
 ## 当前起点
 
-v2 第一轮入口已实现，Qwen3.5-9B 短/最长完整样本训练烟测已通过，正式 S0 正在运行，学习闭环尚未完成。当前配置、启动命令和实际记录见[v2 执行报告](reports/v2_round1_learning_20261109.md)。已有 AppWorld 执行、恢复、数据过滤和4B Base-SFT 底座；B10 真实试点产出3条合格恢复后缀、23个 assistant 样本、5066监督 token，尚未执行 Recovery-SFT 或 GRPO。[B10 验收报告](reports/b10_teacher_recovery_execution_20261104.md)保留完整结果与局限。
+v2 第一轮入口已实现，Qwen3.5-9B 短/最长完整样本训练烟测已通过，正式 S0 已完成181步并通过重载验收，正在进行真实反馈采样，学习闭环尚未完成。当前配置、启动命令和实际记录见[v2 执行报告](reports/v2_round1_learning_20261109.md)。已有 AppWorld 执行、恢复、数据过滤和4B Base-SFT 底座；B10 真实试点产出3条合格恢复后缀、23个 assistant 样本、5066监督 token，尚未执行 Recovery-SFT 或 GRPO。[B10 验收报告](reports/b10_teacher_recovery_execution_20261104.md)保留完整结果与局限。
 
 新模型、场景隔离训练/开发/测试划分、预算和主实验设计以 `project.md` 为准。旧固定4B、A244/B244/C244、多检查点主算法及 P4 阶段门禁属于历史方案，不是 v2 的默认入口。本轮真实运行使用用户已授权机器与服务，具体状态见 STATUS。
 
@@ -23,7 +23,7 @@ v2 第一轮入口已实现，Qwen3.5-9B 短/最长完整样本训练烟测已�
 | 现有执行协议起点 | [execution_v6](src/recoveragent/execution_v6.py)、[Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
 | 排查模型实际输入/输出 | [LLM 请求视图](docs/LLM_VIEW.md) |
 
-当前入口为 `scripts/run_v2_round.py`；正在执行的 `round_004` 使用固定 CPU offload 版本。用户已授权当前实例总时限延长至12小时，独立 `configs/v2_round1_resume12h_20261109.json` 将从已验收且尚未开始反馈的 S0 继续后续流程，已用时间继续计入总时限。接续尚未实际发生；部件与烟测通过不表示学习闭环完成。历史运行用其固定提交、配置和锁复现。
+当前入口为 `scripts/run_v2_round.py`；已完成S0的 `round_004` 使用固定 CPU offload 版本。用户已授权当前实例总时限延长至12小时，独立 `configs/v2_round1_resume12h_20261109.json` 已从验收后的 S0 接续 `round_005`，已用时间继续计入总时限。真实接续已完成；S0通过不表示整轮学习闭环完成。历史运行用其固定提交、配置和锁复现。
 
 ## 目录与本地验证
 

@@ -100,3 +100,17 @@ PYTHONPATH=src .venv-harness/bin/python -m pytest -q tests/test_v2_learning.py
 截至2026-11-09 16:08（UTC+8），`round_004` 两次烟测通过，正式S0已完成28/181步；最近一步55.06秒、梯度有限，无新增OOM。当前执行源码固定于 `24dd6842f6823dd6db398dab72e0d42d5e8da402`。这是进行中的进度回执，最终结果与限制将在读取完整回执后补齐。烟测和未完成 adapter 不能当作正式 S0，当前不得据此声称 S0/S1/S2 已验收或成功率提高。
 
 私有远程根目录：`/root/autodl-tmp/recoveragent_v2_20261109/`；本轮运行目录 `runs/round_004/`，此前停止的回执保留在 `runs/round_001/`、`runs/round_002/`、`runs/round_003/`。权重、原始轨迹、状态与凭据不进入公开提交。
+
+## S0正式验收与真实接续
+
+2026-11-09 19:35（UTC+8），`round_004/S0_base` 完成全部181个optimizer steps、1 epoch、1443个样本及254396个监督token。训练段耗时14934.17秒（约4小时9分钟）；训练平均loss为0.095279，属于训练监控值。PyTorch峰值allocated为32320543232 bytes（30.10 GiB），reserved为32770097152 bytes。
+
+- 训练前LoRA SHA-256：`bb43b54770b75d2b4fe4e5003aab6370a273d567bffaf1f246403d96f5a5930e`。
+- 训练后及重载LoRA SHA-256：`b4b16e43f10d280722ce5544277858b94bcfbc0aa78de6817790bda8e203d235`。
+- 重载probe最大logit差异为0，输出完全相等；有限梯度、参数更新和重载验收通过。
+- 正式checkpoint回执SHA-256：`0be7c35229c516cedec67eb8170eb8f882c172ffa3d3e6afe93c85c1e2b6afe2`。
+- 私有checkpoint：`/root/autodl-tmp/recoveragent_v2_20261109/runs/round_004/S0_base`。
+
+两次烟测回执同时通过核验，短烟测2步/4样本、长烟测1步/完整32666 token样本。S0保存后，控制侧主动交接旧进程，在任何反馈请求前使用SIGALRM进入原异常清理路径。旧 `round_summary.json` 的8小时TimeoutError文字和空 `real_checkpoints` 字段保留原样；信号发生在S0验收回执写完、旧摘要尚未登记checkpoint的间隙，不表示8小时实际耗尽或S0失败。独立交接记录、正式回执及新流程的 `continued_base.json` 共同记录这一事实。
+
+`round_005` 于19:35接续，执行源码为 `7a0c14b94ed92a1d51dd46eda17fa2410c25b36b`，目录为 `source_resume12h_7a0c14b`。新流程逐文件核验S0、两次烟测及原数据/配置/任务清单，继承同一参数而未重新训练。首个feedback20任务已实际发出模型请求并执行公开工具；截至本段更新，尚无该任务官方结果，Teacher恢复/生成、S1、S2及dev24成绩仍未产生。S0完整checkpoint已回传到私有 `runs/v2_round1_20261109/round004_S0_base.tar.gz`（324657225 bytes），压缩包SHA-256为 `8110d6135eadc6dda55a1d6d359d8f4a0801434592d02b624589993af9b778ae`，376个文件的回执SHA均核验一致。
