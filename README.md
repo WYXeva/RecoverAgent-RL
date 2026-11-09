@@ -16,7 +16,7 @@ v2 文档已更新，学习运行尚未执行。已有 AppWorld 执行、恢复�
 | --- | --- |
 | v2 设计与实施顺序 | [project.md](project.md) |
 | 开发约定与执行事实 | [AGENTS](AGENTS.md)、[STATUS](docs/STATUS.md) |
-| 历史计划与决策 | [已归档 PROJECT_PLAN](PROJECT_PLAN.md)、[DECISIONS](docs/DECISIONS.md) |
+| 历史计划与决策 | [旧计划固定版本](https://github.com/WYXeva/RecoverAgent-RL/blob/8da347380f29646a23f7537f3c9014e0825ad004/PROJECT_PLAN.md)、[DECISIONS](docs/DECISIONS.md) |
 | 已有 Teacher 成功数据 | [最终数据报告](reports/full732_teacher_dataset_complete_20261029.md)；复用前按 v2 train 场景筛选并重新编码 |
 | 工具执行与状态恢复 | [Adapter](src/recoveragent/adapter.py)、[State](src/recoveragent/state.py)、[Nullable 修复](reports/schema_nullable_compatibility_v2.md) |
 | Teacher 恢复与后缀数据 | [恢复部件](src/recoveragent/recovery_suffix.py)、[B10 结果](reports/b10_teacher_recovery_execution_20261104.md) |
@@ -56,8 +56,10 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider
 - [Harness 审查与修复](reports/harness_refactor_report.md)。
 - Memory：[v1](reports/egtm_v1_report.md)、[模型驱动 v2](reports/egtm_v2_improvement_report.md)、[Harness 29k 实测](reports/egtm_harness_29k_live_report.md)。当时的共享阶段评估关闭 Memory。
 
-完整沿革见 [STATUS](docs/STATUS.md) 与 [DECISIONS](docs/DECISIONS.md)。历史源码、配置和报告保持原路径，以保留证据链和版本锁；这些文件不是默认执行入口。
+完整沿革见 [STATUS](docs/STATUS.md) 与 [DECISIONS](docs/DECISIONS.md)。配置、报告和版本锁保留；已移除的旧诊断脚本与计划文档使用报告绑定的历史提交复现。当前保留的源码部件仍供 v2 复用。
 
 </details>
 
 Actor 仅访问公开任务信息和工具；隐藏评价在控制侧进行。凭据、原始 AppWorld 数据、轨迹和权重不上传公开 GitHub。Teacher 付费调用、GPU 与训练必须有相应授权。
+
+本地清理范围、释放空间及保留项见[2026-11-09 清理记录](reports/workspace_cleanup_20261109.md)。

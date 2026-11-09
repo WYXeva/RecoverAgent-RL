@@ -1,0 +1,209 @@
+{
+  "base_commit": "8da347380f29646a23f7537f3c9014e0825ad004",
+  "deleted_documents": [
+    {
+      "path": "PROJECT_PLAN.md",
+      "sha256": "169726eac981724703bd2b629523d9d04b59d682394c4b6c6121538c43a0e3a3",
+      "bytes": 86542
+    },
+    {
+      "path": "docs/P4_STAGE_GATES.md",
+      "sha256": "22ff433f4f8b5c32a9b4fbdfbca94c76c55842ff84ed35fd24224ab798b4748e",
+      "bytes": 12358
+    },
+    {
+      "path": "docs/P4_STAGE2_SCORING.md",
+      "sha256": "b94e3578f0538d86503e22ec8b39d5b25f94b0a0b7b367768dedd6da046ebead",
+      "bytes": 5652
+    },
+    {
+      "path": "docs/P4_STAGE2B_SNAPSHOT_INTEGRITY.md",
+      "sha256": "26ccc47a7e4d3301d3d559dca0ebd232032332552854d15ecb54cfeb3bd6c7c5",
+      "bytes": 6637
+    },
+    {
+      "path": "docs/P4_STAGE3A_BASE_SFT_READINESS.md",
+      "sha256": "257267dd1a670224af8c690c2290d58be6a519ba962995caa9cbe0e7d650c19a",
+      "bytes": 13454
+    },
+    {
+      "path": "docs/P4_STAGE3B_BASE_SFT_TRAINING.md",
+      "sha256": "51c0565c9c1a2d944b5941178a44b49422697e60820758a8aa9a8a1d6906dd88",
+      "bytes": 9753
+    },
+    {
+      "path": "docs/P3A_HANDOFF.md",
+      "sha256": "7ef4922dc43160e59b8233ec1e65f3227ea4e0021a82f88e0658823ff3253b89",
+      "bytes": 9415
+    },
+    {
+      "path": "docs/PROMPT_FIX_PROPOSAL.md",
+      "sha256": "cfa08d1af0c484d6850520a40df8e0abda22e8cb3cbd985c3312e63e31c0b1c2",
+      "bytes": 8963
+    },
+    {
+      "path": "docs/TEACHER_EXPANSION.md",
+      "sha256": "182f3305fdb950ae132fa5e239bd21952c138cf8931f8635658a63c57dc204c2",
+      "bytes": 5086
+    }
+  ],
+  "deleted_old_scripts_and_tests": [
+    {
+      "path": "scripts/audit_answer_guard.py",
+      "sha256": "296735ada3026b60963f42984e79a1ae1dd173d0d001281e706948be48f7d0c0",
+      "bytes": 2691
+    },
+    {
+      "path": "scripts/audit_harness_historical_requests.py",
+      "sha256": "688f7a9f626da2004ea238cfc2c7f37c62ca041710fbb8e849c3efe2b396e90b",
+      "bytes": 2930
+    },
+    {
+      "path": "scripts/audit_harness_release.py",
+      "sha256": "dd73b0ae67298fa35a5981786e370929ca23b332d0e6b9aa17ac737fc649598d",
+      "bytes": 5744
+    },
+    {
+      "path": "scripts/audit_prompt_probe.py",
+      "sha256": "5675d6000d179649433025f439c25fedf16a92ac2b05d55bc05cd816f368c37a",
+      "bytes": 8240
+    },
+    {
+      "path": "scripts/audit_teacher_pilot.py",
+      "sha256": "8d2b4a5870efd7202e985f055173f78219d8afbdb0bcb6c6f007337034e62ca8",
+      "bytes": 5316
+    },
+    {
+      "path": "scripts/audit_tool_modes.py",
+      "sha256": "06c92d7113ce4d80bc5cf7d973711a3505a4a0944533f815207de55d7f50bf61",
+      "bytes": 7230
+    },
+    {
+      "path": "scripts/check_prompt_examples.py",
+      "sha256": "ad6403526fcfb0430d09f4e46daf033ecae3086038007013446d04514bb9d98f",
+      "bytes": 3364
+    },
+    {
+      "path": "scripts/compare_predictor_prompts.py",
+      "sha256": "8249b30d0a0bfeb539bea76814bd32d71dc11ede069c9884261655fdd9d229f3",
+      "bytes": 4631
+    },
+    {
+      "path": "scripts/diagnose_base_sft_failures.py",
+      "sha256": "dcb5a33cc0093390da671e2ab88b0dda45bb78b5c13d2e56fafe3f88719cd022",
+      "bytes": 9118
+    },
+    {
+      "path": "scripts/diagnose_p3b.py",
+      "sha256": "6c635662e68fcde9219df65646a8ebed29ef74b915e2a62ee62ecdcdeec26ccb",
+      "bytes": 10891
+    },
+    {
+      "path": "scripts/download_student.py",
+      "sha256": "56c8be4461cedf6ca2c6937f842c8e7e81005992ffe8ed08f92dcdbc2ae4b5f8",
+      "bytes": 656
+    },
+    {
+      "path": "scripts/probe_answer_guard.py",
+      "sha256": "48a7869c47bb02d32313af825212fffe2d49f588c18bb9bf0e083af0b3061487",
+      "bytes": 6603
+    },
+    {
+      "path": "scripts/probe_appworld_evaluator.py",
+      "sha256": "4e97947b69c9a00eed5198c2fdf53e2d3583688bfaf30c86275a080326de3958",
+      "bytes": 5633
+    },
+    {
+      "path": "scripts/probe_stage2_scoring.py",
+      "sha256": "3d5488e97112f1a3e1cd7cfe2e8f57c43966aeaa65b62992677fc2bfdfc398fb",
+      "bytes": 11251
+    },
+    {
+      "path": "scripts/probe_student_batch.py",
+      "sha256": "99e3997c136673b97f63ac47926dec8cf1350117140ad8254d724635beb40c4e",
+      "bytes": 10036
+    },
+    {
+      "path": "scripts/probe_unlimited_tools.py",
+      "sha256": "6a9997b091f6fdc47ebaaed78f262c9e1aa7fa2c13613a3afdcc254eac23c9a4",
+      "bytes": 6653
+    },
+    {
+      "path": "scripts/summarize_full732_m1.py",
+      "sha256": "9f7f78e5ef245f9204d3aab3e662b2dbbda61bcf8bee7786b5ee22961388fd27",
+      "bytes": 9417
+    },
+    {
+      "path": "scripts/summarize_remote_validation.py",
+      "sha256": "a2df911669adc20ccfe5e881e7886b03bde060e2125d7d3c1d48b9e26f895a78",
+      "bytes": 12051
+    },
+    {
+      "path": "scripts/summarize_run.py",
+      "sha256": "b476630ef438edf607326a3c594c2230c9347a7220302cd286afa30121fe208b",
+      "bytes": 2476
+    },
+    {
+      "path": "scripts/write_base_sft_report.py",
+      "sha256": "7b9166bb2d5043fb93147bf8badc2e6f8cf0b029b36ebeed9fc1c0a164e8ba02",
+      "bytes": 18553
+    },
+    {
+      "path": "tests/test_stage2_scoring.py",
+      "sha256": "13b9d16391233438c7d3bee37269f40a3e82ecaa07d348c0434895111304b893",
+      "bytes": 3324
+    },
+    {
+      "path": "tests/test_remote_metrics.py",
+      "sha256": "22d361ea89aa2605c10956d22b1bdff807e75972f75c303ed1006121b421696f",
+      "bytes": 1536
+    }
+  ],
+  "cache_files_deleted": 163,
+  "cache_allocated_bytes_deleted": 8269303808,
+  "cache_logical_bytes_deleted": 8268914399,
+  "cache_categories": [
+    "Qwen3-1.7B public base-model download cache",
+    "two unreferenced Qwen3-4B *.incomplete download blobs",
+    "pytest/Ruff cache and project Python bytecode"
+  ],
+  "tests": {
+    "pytest_passed": 743,
+    "pytest_warnings": 3,
+    "removed_historical_test_cases": 9,
+    "ruff_check": "PASS",
+    "ruff_format_check": "PASS; 162 files",
+    "retained_b10_source_lock_sha256": "18941a89eb0bdcbfe34e0069a1fd186a1fff89b46f095532c27745261e683cde"
+  },
+  "preserved": [
+    "project.md and AGENTS.md",
+    "all src/recoveragent source modules",
+    "configs, historical locks and requirements",
+    "all pre-existing reports",
+    "private datasets, runs, outputs, trained checkpoints",
+    "existing Python environments and 4B tokenizer cache"
+  ],
+  "filesystem_before": {
+    "project": {
+      "free_bytes": 949789843456,
+      "total_bytes": 1081101176832
+    },
+    "windows_c": {
+      "free_bytes": 4652638208,
+      "total_bytes": 161307652096
+    }
+  },
+  "filesystem_after": {
+    "project": {
+      "free_bytes": 958059831296,
+      "total_bytes": 1081101176832
+    },
+    "windows_c": {
+      "free_bytes": 4651921408,
+      "total_bytes": 161307652096
+    }
+  },
+  "windows_compaction_performed": false,
+  "windows_blocker": "C mount read-only; Windows executable interoperability failed at vsock creation; no WSL shutdown/compaction attempted",
+  "training_or_model_execution": false
+}

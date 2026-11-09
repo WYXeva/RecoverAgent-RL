@@ -31,4 +31,4 @@ B仍是 `dynamic_discovery`：请求show_api_doc后，工具在下一模型回�
 
 全部尝试、失败、模型和工具成本进入报告；官方成功轨迹还须通过合法完整多轮、当时可见schema、原始回执、来源及循环筛选。使用固定Qwen3-4B tokenizer验证逐回合Assistant-only mask、动态工具和Student批量parser；上下文/工具返回/历史/填充不监督。超过32768完整序列或4096 Qwen目标长度的轨迹整条暂缓，不裁剪成“合格”示范。
 
-新数据包与tokenizer结果保持独立，旧包不覆盖。远端遵循 `P3A_HANDOFF.md`，经授权通道传输完整包并用可信manifest SHA重新verify；本机verify和拷贝演练不冒称远程迁移。原始任务、隐藏评价、快照、LLM视图及凭据不公开。具体结果、命令、哈希及P3-B剩余项见 `reports/v4_ab_report.md`。
+新数据包与tokenizer结果保持独立，旧包不覆盖。远端遵循 [历史 P3-A 交接说明](https://github.com/WYXeva/RecoverAgent-RL/blob/8da347380f29646a23f7537f3c9014e0825ad004/docs/P3A_HANDOFF.md)，经授权通道传输完整包并用可信manifest SHA重新verify；本机verify和拷贝演练不冒称远程迁移。原始任务、隐藏评价、快照、LLM视图及凭据不公开。具体结果、命令、哈希及P3-B剩余项见 `reports/v4_ab_report.md`。
