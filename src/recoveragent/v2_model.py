@@ -12,7 +12,7 @@ def validate_identity(identity):
     from .io import read_json
     from .v2_tasks import ROOT
 
-    choices = read_json(ROOT / "configs/v2_round1_resume_20261109.json")["models"]
+    choices = read_json(ROOT / "configs/v2_round1_resume12h_20261109.json")["models"]
     if identity not in choices.values():
         raise ValueError("Unpinned v2 model/template")
     return identity

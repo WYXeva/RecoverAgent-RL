@@ -145,7 +145,7 @@ def test_invalid_handoff_rejected(completed_base, damage):
     elif damage == "incomplete_source":
         (source / "round_summary.json").write_text(json.dumps({"status": "started"}))
     elif damage == "deadline_reset":
-        deployment["job_deadline_epoch"] += 1
+        deployment["job_deadline_epoch"] += cfg["gpu_wall_seconds"] - 28800 + 1
     elif damage == "wrong_source_lock":
         previous = read_json(source / "preflight.json")
         previous["source"]["lock_sha256"] = "0" * 64
@@ -165,3 +165,11 @@ def test_fresh_run_still_performs_both_smokes(completed_base, tmp_path, monkeypa
     result = establish_base(cfg, identity, data, tmp_path / "fresh", deployment, 1)
     assert calls == ["short", "long", "formal"]
     assert result == tmp_path / "fresh/S0_base"
+
+
+def test_configured_extension_counts_original_elapsed_time(completed_base):
+    source, cfg, identity, data, deployment = completed_base
+    deployment["job_deadline_epoch"] += cfg["gpu_wall_seconds"] - 28800
+    checkpoint, evidence = verified_base(source, cfg, identity, data, deployment)
+    assert checkpoint == source / "S0_base"
+    assert evidence["job_deadline_epoch"] == 100000 + cfg["gpu_wall_seconds"] - 28800

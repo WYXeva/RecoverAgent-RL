@@ -8,7 +8,7 @@
 - Full732 场景隔离自定义划分：170/37/37 个 train/dev/test 场景，510/111/111 个任务，seed `20261109`；保留原官方 split。清单 manifest SHA-256 `ff24d1c05f16e82795e0baa4dd855c03d8482bb32d6e2e07ce386a9af59bfe6b`。固定 feedback20 和 dev24，不按结果替换。
 - 配置：[v2_round1_cpu_offload_20261109.json](../configs/v2_round1_cpu_offload_20261109.json)；源码锁：[v2_round1_cpu_offload_20261109_lock.json](../configs/v2_round1_cpu_offload_20261109_lock.json)，SHA-256 `9f12bf4e6c446fa93847f678456b93a753cdb7921080c04bfca985b29393fcfd`。历史锁、数据、4B 权重和成绩保持原样。
 - 现有机器实际为 RTX 4080 SUPER vGPU、32 GB，BF16 可用；与计划参考的 80/96 GB 不同，必须以短/最长完整样本实测验收。只用已开机实例，不租机或续费。
-- GPU 作业上限 8 小时，训练侧 Student 生成总量 20 万 token；每 episode 80 请求、16384 生成 token、4096 单回复、32768 上下文、1200 秒；通用纠错 15 次。开发评估关闭训练快照。
+- GPU 作业最初上限8小时；用户于本次运行中明确批准延长为总计12小时，已用时间计入，新绝对截止为北京时间2026-11-10 02:12:31。训练侧 Student 生成总量仍为20万token；每episode 80请求、16384生成token、4096单回复、32768上下文、1200秒；通用纠错15次。开发评估关闭训练快照。
 - 用户确认 Teacher 不设独立金额上限。运行保留请求/token/时间限制、逐响应身份和费用估算；部署中的 5130 元是 30×80 有界请求按峰时价格推导的保守技术预留，不是用户另设的费用额度。Teacher 使用现有官方 `deepseek-flash`，没有自动收费重试。
 
 入口复用现有 AppWorld、共享 nullable schema、StudentSession、Teacher 执行、快照与官方评价；新增薄接入层完成模型原生格式、可训练 adapter 续接、一个 Gmail 分类计数任务生成器以及 TRL GRPO loss 的实际多轮采样接入。
@@ -41,6 +41,14 @@ PYTHONPATH=src HF_HOME=/root/autodl-tmp/recoveragent_v2_20261109/hf_cache \
 ```
 
 合成续跑测试 15 passed；与现有 v2 测试合计30 passed。完整pytest为773 passed/1 skipped/3 warnings，Ruff check与format check通过。尚无真实S0续跑结果；这些测试不表示正式S0或后续学习已完成。
+
+### 用户批准的12小时版本
+
+后续用户明确授权当前实例总上限从8小时延长至12小时。新增 [resume12h配置](../configs/v2_round1_resume12h_20261109.json)及[独立源码锁](../configs/v2_round1_resume12h_20261109_lock.json)，锁SHA-256为 `5043d6e9a13d75467e737487b1e6ea97500f4282e8d829b84902fabc7fb23b36`。原8小时配置/锁均保持原样。实际接续命令沿用上面的 `--resume-base-from`，部署文件使用原截止时间加14400秒，输出使用独立 `runs/round_005`。
+
+平台关机保护已调整到新的绝对截止；正在训练的协调进程及源码不热改。等正式S0验收回执生成后，在反馈采样前停止旧进程，经原异常清理路径落盘，再从独立源码目录继续。控制侧另记主动交接原因；旧进程的TimeoutError文字不作为“已耗尽8小时”的证据。接续前重新核验完整S0及两次烟测，参数不重新初始化。
+
+新增测试确认延长预算仍按原启动时间计算；与v2及接续测试合计31 passed；完整pytest 774 passed/1 skipped/3 warnings，Ruff通过。2026-11-09 18:26（UTC+8）S0已完成130/181步，接续尚未发生；后续真实执行结果待补充。
 
 ## 数据与执行正确性
 

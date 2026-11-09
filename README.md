@@ -23,7 +23,7 @@ v2 第一轮入口已实现，Qwen3.5-9B 短/最长完整样本训练烟测已�
 | 现有执行协议起点 | [execution_v6](src/recoveragent/execution_v6.py)、[Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
 | 排查模型实际输入/输出 | [LLM 请求视图](docs/LLM_VIEW.md) |
 
-当前入口为 `scripts/run_v2_round.py`；正在执行的 `round_004` 使用固定 CPU offload 版本，当前代码另准备了 `configs/v2_round1_resume_20261109.json`，可从已验收且尚未开始反馈的 S0 继续后续流程。续跑入口尚未实际使用，8 小时绝对时限不重置。部件与烟测通过不表示学习闭环完成；历史运行用其固定提交、配置和锁复现。
+当前入口为 `scripts/run_v2_round.py`；正在执行的 `round_004` 使用固定 CPU offload 版本。用户已授权当前实例总时限延长至12小时，独立 `configs/v2_round1_resume12h_20261109.json` 将从已验收且尚未开始反馈的 S0 继续后续流程，已用时间继续计入总时限。接续尚未实际发生；部件与烟测通过不表示学习闭环完成。历史运行用其固定提交、配置和锁复现。
 
 ## 目录与本地验证
 
