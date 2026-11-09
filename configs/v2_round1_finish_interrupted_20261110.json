@@ -1,0 +1,10 @@
+{
+  "format": "v2_finish_interrupted_grpo_20261110",
+  "source_lock": "configs/v2_round1_finish_interrupted_20261110_lock.json",
+  "execution_lock_sha256": "12c13adb21ea0a3d4b71090ca14aaeef7b6905141e22792b5b274ee3bbc00dc7",
+  "selection": "last_completed_update_before_OOM_no_dev_selection",
+  "resume_optimizer": false,
+  "new_training_or_teacher_requests": 0,
+  "dev_tasks_per_stage": 24,
+  "preserve_original_deadline": true
+}

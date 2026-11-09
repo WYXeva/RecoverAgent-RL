@@ -1,0 +1,8 @@
+{
+  "format": "v2_interrupted_finish_entry_lock_v1",
+  "original_runtime_lock_sha256": "12c13adb21ea0a3d4b71090ca14aaeef7b6905141e22792b5b274ee3bbc00dc7",
+  "files": {
+    "scripts/finish_v2_interrupted.py": "9af1cb8bb40c566ed4d0f4feeb9c5df7c8f6ab7a1ef2c29a2059fe454be4d045",
+    "configs/v2_round1_finish_interrupted_20261110.json": "1679cad4342e7231fcd6a35fdda9153aabfc59eaed8ca77a717d54670aaf8f8f"
+  }
+}
