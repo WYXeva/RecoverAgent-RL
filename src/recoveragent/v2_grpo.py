@@ -6,6 +6,7 @@ is scored separately, with the same episode advantage, and token-weighted
 within its episode. Tools/context never enter the completion loss.
 """
 
+from contextlib import nullcontext
 import gc
 import math
 import time
@@ -142,6 +143,7 @@ def make_trainer(model, tokenizer, output, settings):
         reward_funcs=lambda completions, **kwargs: [None] * len(completions),
     )
     trainer.current_gradient_accumulation_steps = 1
+    trainer.recoveragent_activation_offload = settings.get("activation_offload")
     trainer.create_optimizer()
     return trainer
 
@@ -176,7 +178,13 @@ def update_batch(trainer, groups):
                     "old_per_token_logps": tensor(row["logprobs"], torch.float32),
                     "advantages": torch.tensor([advantage], device=model.device),
                 }
-                loss = trainer.compute_loss(model, inputs)
+                context = (
+                    torch.autograd.graph.save_on_cpu(pin_memory=True)
+                    if trainer.recoveragent_activation_offload == "cpu"
+                    else nullcontext()
+                )
+                with context:
+                    loss = trainer.compute_loss(model, inputs)
                 loss = loss * (len(row["completion_ids"]) / tokens) / (4 * len(usable))
                 if not torch.isfinite(loss):
                     raise ValueError("Nonfinite GRPO loss")

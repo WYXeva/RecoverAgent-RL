@@ -1,5 +1,6 @@
 """BF16 LoRA stages with explicit parent lineage and save/reload verification."""
 
+from contextlib import nullcontext
 import gc
 import math
 import time
@@ -237,7 +238,13 @@ def train_sft(
         def compute_loss(
             self, model, inputs, return_outputs=False, num_items_in_batch=None
         ):
-            loss, outputs = selected_token_loss(model, inputs)
+            context = (
+                torch.autograd.graph.save_on_cpu(pin_memory=True)
+                if config.get("activation_offload") == "cpu"
+                else nullcontext()
+            )
+            with context:
+                loss, outputs = selected_token_loss(model, inputs)
             if not torch.isfinite(loss):
                 raise ValueError("Nonfinite SFT loss")
             return (loss, outputs) if return_outputs else loss

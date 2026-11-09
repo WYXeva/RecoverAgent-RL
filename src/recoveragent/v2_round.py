@@ -15,7 +15,7 @@ from .v2_tasks import ROOT, plan
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_reload_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_cpu_offload_20261109.json")
 
 
 def isolated(python, command, payload, destination, deadline):
