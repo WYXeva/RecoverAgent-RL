@@ -6,6 +6,7 @@ reference answers and state predicates remain on the controller side.
 
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from .coevolve_signals import SignalLedger, interaction_triplets
@@ -264,23 +265,7 @@ class Evolution:
                     },
                 )
                 task = attach_reference(task, reference, judgment)
-                checks = []
-                for mode in ("positive", "noop", "omit_completion", "wrong_answer"):
-                    check = target / mode
-                    self.isolated(
-                        self.deployment["worker_python"],
-                        "generator-check",
-                        {
-                            "task": task,
-                            "reference": str(solver / "trajectory.json"),
-                            "mode": mode,
-                            "appworld_root": self.deployment["appworld_root"],
-                            "output": str(check),
-                        },
-                        check,
-                        self.deadline,
-                    )
-                    checks.append(read_json(check / "validation.json"))
+                checks = self.checks(task, solver / "trajectory.json", target)
                 task = accept(task, checks)
                 write_json(target / "accepted_task.json", task)
                 self.pool.append(task)
@@ -289,6 +274,39 @@ class Evolution:
                 result.update(reason=str(exc), error_type=type(exc).__name__)
             self.attempts.append(result)
             write_json(target / "acceptance.json", result)
+
+    def checks(self, task, reference, target):
+        def run_mode(mode):
+            check = target / mode
+            started = time.monotonic()
+            self.isolated(
+                self.deployment["worker_python"],
+                "generator-check",
+                {
+                    "task": task,
+                    "reference": str(reference),
+                    "mode": mode,
+                    "appworld_root": self.deployment["appworld_root"],
+                    "output": str(check),
+                },
+                check,
+                self.deadline,
+            )
+            write_json(
+                check / "validation_timing.json",
+                {"wall_seconds": time.monotonic() - started, "model_requests": 0},
+            )
+            return read_json(check / "validation.json")
+
+        # Threads only launch independent AppWorld PROCESSES, never share worlds.
+        with ThreadPoolExecutor(
+            max_workers=self.settings.get("validation_processes", 1)
+        ) as pool:
+            return list(
+                pool.map(
+                    run_mode, ("positive", "noop", "omit_completion", "wrong_answer")
+                )
+            )
 
     def snapshot(self, name):
         write_json(

@@ -15,7 +15,7 @@ from .v2_tasks import ROOT, plan, development_tasks, grpo_schedule
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_coevolve_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_coevolve_answer_20261109.json")
 
 
 def isolated(python, command, payload, destination, deadline, *, env=None):
@@ -87,6 +87,7 @@ def run(
     carry_clock_from=None,
     carry_feedback_from=None,
     resume_s1_from=None,
+    carry_coevolve_from=None,
 ):
     import torch
     from peft import PeftModel
@@ -109,6 +110,8 @@ def run(
         raise ValueError(
             "Post-S1 continuation requires its S0 source and no feedback replay"
         )
+    if carry_coevolve_from and not resume_s1_from:
+        raise ValueError("CoEvolve continuation requires verified S0/S1 sources")
     cfg = config()
     identity = cfg["models"][cfg["selected_model"]]
     output = Path(output).resolve()
@@ -395,7 +398,10 @@ def run(
                     recovery_rows.extend(read_rows(directory / "examples.jsonl"))
 
             generated, goal_keys = [], set()
-            for i, failure in enumerate(failures[: cfg["generator_proposals"]]):
+            legacy_limit = (
+                0 if cfg.get("task_evolution") else cfg["generator_proposals"]
+            )
+            for i, failure in enumerate(failures[:legacy_limit]):
                 history = read_json(Path(failure["directory"]) / "history.json")
                 feedback = {
                     "task_id": failure["task_id"],
@@ -466,7 +472,7 @@ def run(
                 deadline=deadline,
             )
             summary["real_checkpoints"]["S1_recovery"] = str(s1)
-        evolution = None
+        evolution, carried_rollouts = None, {}
         if cfg.get("task_evolution"):
             from .coevolve_generation import Evolution
 
@@ -479,7 +485,12 @@ def run(
                 deadline,
                 isolated,
             )
-            evolution.initial(summary["feedback"])
+            if carry_coevolve_from:
+                from .v2_coevolve_resume import resume
+
+                carried_rollouts = resume(evolution, carry_coevolve_from, s1, ledger)
+            else:
+                evolution.initial(summary["feedback"])
             # Slots stay fixed; the live validated pool supplies each generated
             # slot immediately before sampling, including tasks added mid-run.
             schedule = [
@@ -493,6 +504,14 @@ def run(
         write_json(output / "grpo_schedule.json", schedule)
 
         def rollout(model, checkpoint_id, task, group, member):
+            if (group, member) in carried_rollouts:
+                result = carried_rollouts[(group, member)]
+                if (
+                    result["policy"]["checkpoint_id"] != checkpoint_id
+                    or result["generated_task_id"] != task["generated_task"]["task_id"]
+                ):
+                    raise ValueError("Reused rollout is not the current policy/task")
+                return result
             return run_student(
                 model,
                 checkpoint_id,
@@ -585,6 +604,7 @@ def main():
             "run",
             "teacher-worker",
             "generator-check",
+            "generator-rescore",
         ],
     )
     p.add_argument("--input")
@@ -594,6 +614,7 @@ def main():
     p.add_argument("--carry-clock-from")
     p.add_argument("--carry-feedback-from")
     p.add_argument("--resume-s1-from")
+    p.add_argument("--carry-coevolve-from")
     args = p.parse_args()
     cfg = config()
     identity = cfg["models"][cfg["selected_model"]]
@@ -622,6 +643,7 @@ def main():
                     carry_clock_from=args.carry_clock_from,
                     carry_feedback_from=args.carry_feedback_from,
                     resume_s1_from=args.resume_s1_from,
+                    carry_coevolve_from=args.carry_coevolve_from,
                 )
             )
         )
@@ -638,6 +660,10 @@ def main():
             recovery_source=payload["source"],
             exploration=payload["exploration"],
         )
+    elif args.command == "generator-rescore":
+        from .v2_coevolve_resume import rescore
+
+        rescore(read_json(args.input))
     elif args.command == "generator-check":
         from .adapter import AppWorldAdapter
         from .schema_compatibility import SCHEMA_REVISION
@@ -657,7 +683,7 @@ def main():
         )
         try:
             adapter.configure_schema_compatibility(SCHEMA_REVISION, output)
-            if task.get("generator") == "coevolve_appworld_task_v1":
+            if task.get("generator") == "coevolve_appworld_task_v2":
                 from .coevolve_tasks import replay as replay_coevolve
 
                 replay_coevolve(

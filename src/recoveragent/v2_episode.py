@@ -62,7 +62,7 @@ def run(config, generate):
             from .v2_generator import public_task, apply_instruction
             from . import v2_generator as generated_backend
 
-            if generated.get("generator") == "coevolve_appworld_task_v1":
+            if generated.get("generator") == "coevolve_appworld_task_v2":
                 from . import coevolve_tasks as generated_backend
 
             generated_backend.validate_task(generated, task)

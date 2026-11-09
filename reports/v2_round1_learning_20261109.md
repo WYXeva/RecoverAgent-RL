@@ -186,3 +186,13 @@ S1从S0继续8步/59样本/11739监督token（恢复40样本5930token，加完�
 [新配置](../configs/v2_round1_coevolve_20261109.json)和独立源码锁复用原Runner及只读S0/S1，接通[CoEvolve方法](../docs/COEVOLVE_APPWORLD_METHOD.md)。原自动finish16在请求前取消。新方法尚未真实运行，不宣称任务有效或模型改善。
 
 验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为820 passed/1 skipped；新增及受影响针对性55 passed；`PYTHONPATH=.:src .venv-v2/bin/python -m pytest -q tests/test_v2_training_cpu.py` 为3 passed；Ruff check与format check通过。CPU测试使用随机微型模型，覆盖真实梯度/冻结参考和概率分块等价，不是9B运行证据。
+
+### 真实生成与评分缺陷（首个GRPO更新前）
+
+`round_011` 使用 `941c9fc710b3270b0ba28daa9b7e084fdf4c7c3f`，4次探索、3次独立解答，抽象4候选、3合格、1因成功动作引用不足拒绝；其中2个合格任务来自真实S0反馈。3个任务均经过独立正例、无操作、漏完成、错答案验证。旧10次探索及费用没有清零。
+
+S1已真实采样首个生成任务2次（28请求/2859token）。首条被程序误判：业务终态与参考SHA完全相同，计数答案数字3与字符串"3"被精确JSON比较区别。0个GRPO更新时主动停止；两条旧结果保留，不能报告为已验证自然失败。新answer revision将按公开明确计数合同重新验收任务和只读评分，不重采这两条；尚无S2或开发集成绩。
+
+截至此处累计已知训练生成43481token，未知预留4096；Teacher累计usage估价7.6239492元。`round011_records.tar.gz` 8704756字节，SHA256 `44f4d83238758e9a8c9e3836eb09f9f55545a8728bf236873e495fdc64ad172f`。S2目录没有训练权重，245字节partial归档不是checkpoint。首个合格任务完整包另有3266439字节备份，SHA256 `6f206c8c9e3776864d7fcc34e9a714cca75d8c5e354354f8b0d8eac5610b1545`，任务合同/参考轨迹SHA验证通过。
+
+新针对性84 passed，完整849 passed/1 skipped，随机微型CPU模型3 passed，Ruff通过。只读真实终态诊断为0模型请求；任务验收/模型采样/更新各自报告。

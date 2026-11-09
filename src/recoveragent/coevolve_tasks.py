@@ -8,6 +8,7 @@ it never substitutes the source task's official score for the generated goal.
 
 import copy
 import json
+import re
 from pathlib import Path
 
 from .io import canonical, digest, write_json
@@ -15,7 +16,52 @@ from .v2_generator import apply_instruction, business_hash
 from .v2_tasks import context_for
 from .coevolve_signals import interaction_triplets
 
-VERSION = "coevolve_appworld_task_v1"
+VERSION = "coevolve_appworld_task_v2"
+
+
+def answer_comparison(instruction):
+    """Public, narrow scalar contract; never infer IDs/text from the reference."""
+    from .answer_guard import public_contract
+
+    public = public_contract(instruction)
+    clause = re.search(
+        r"\breport (?:only )?(?:the )?(?:total )?(?:number|count) of ([^.!?]+)[.!?]?$",
+        instruction,
+        re.IGNORECASE,
+    )
+    explicit_count = clause and not re.search(
+        r"\b(and|or|format|text|digits|identifier|id|verbatim|rounded|percent|range)\b",
+        clause[1],
+        re.IGNORECASE,
+    )
+    return {
+        "kind": "scalar_number"
+        if public["kind"] in {"number", "money"} or explicit_count
+        else "exact_json",
+        "instruction_sha256": digest(instruction),
+        "rule": public["rule"]
+        if public["kind"] != "unclassified"
+        else "explicit_final_report_count"
+        if explicit_count
+        else "no_unambiguous_scalar_contract",
+    }
+
+
+def answer_matches(actual, expected, comparison):
+    if comparison["kind"] == "exact_json":
+        return canonical(actual) == canonical(expected)
+    from .answer_guard import numeric_representation
+
+    # Reject booleans, units/currencies, leading-zero IDs and arbitrary text.
+    def number(value):
+        if isinstance(value, str) and not re.fullmatch(
+            r"\s*-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?\s*", value
+        ):
+            return None
+        return numeric_representation(value)
+
+    left, right = number(actual), number(expected)
+    return left is not None and right is not None and left == right
 
 
 def exploration_instruction(payload):
@@ -135,6 +181,7 @@ def attach_reference(task, trajectory, judgment):
         "expected_answer": terminal["answer"],
         "reference_trajectory_sha256": digest(trajectory),
         "semantic_judgment_sha256": digest(judgment),
+        "answer_comparison": answer_comparison(task["instruction"]),
         "reward_scope": "exact_reference_business_state_and_answer_equivalence",
     }
     task["task_id"] = identify(task)
@@ -155,6 +202,8 @@ def validate_task(task, source_task_id, *, require_validation=True):
             not validation["passed"]
             or validation["sha256"] != digest(validation["results"])
             or task["execution_contract"]["revision"] != VERSION
+            or task["execution_contract"]["answer_comparison"]
+            != answer_comparison(task["instruction"])
         ):
             raise ValueError("CoEvolve task is not validated")
         check_results(task, validation["results"])
@@ -168,7 +217,11 @@ def evaluate(adapter, task):
     success = (
         current.get("instruction") == task["instruction"]
         and current.get("status") == "success"
-        and canonical(current.get("answer")) == canonical(contract["expected_answer"])
+        and answer_matches(
+            current.get("answer"),
+            contract["expected_answer"],
+            contract["answer_comparison"],
+        )
         and business_hash(adapter) == contract["expected_business_sha256"]
     )
     return {

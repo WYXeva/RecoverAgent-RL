@@ -31,7 +31,10 @@ def completed_sft_recipe(cfg, previous):
     permit changing tokenizer, model, data, SFT, task lists or inference budgets.
     """
     result = feedback_recipe(cfg, previous)
-    if cfg.get("format") == "v2_learning_round1_coevolve_20261109":
+    if cfg.get("format") in {
+        "v2_learning_round1_coevolve_20261109",
+        "v2_learning_round1_coevolve_answer_20261109",
+    }:
         for name in ("task_evolution", "generator", "grpo"):
             if name in previous:
                 result[name] = copy.deepcopy(previous[name])
