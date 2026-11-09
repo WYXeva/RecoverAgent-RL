@@ -4,15 +4,15 @@ import contextlib
 import copy
 import json
 import sys
-import time
 from pathlib import Path
 
 from .adapter import AppWorldAdapter
 from .evaluation import environment_check, evaluate_isolated
 from .execution_v6 import SYSTEM_PROMPT
 from .harness import BUDGET_REVISION, REFACTOR_REVISION, ProtocolHarness
-from .io import read_json, write_json
+from .io import digest, read_json, write_json
 from .p3c import observable_error, save_boundary
+from .runner import now
 from .schema_compatibility import SCHEMA_REVISION
 from .student import StudentSession
 from .v2_model import load_tokenizer
@@ -22,6 +22,7 @@ from .v2_tasks import RUNTIME, context_for
 def run(config, generate):
     directory = Path(config["output"])
     directory.mkdir(parents=True, exist_ok=False)
+    experiment = directory.name + "_" + digest(str(directory))[:12]
     task, adapter, session = config["task_id"], None, None
     if config["purpose"] not in {"feedback", "grpo", "evaluation"}:
         raise ValueError("Unknown episode purpose")
@@ -34,13 +35,13 @@ def run(config, generate):
         "snapshot_seconds": 0.0,
         "evaluation_seconds": 0.0,
     }
-    started = time.monotonic()
+    started = now()
     try:
         environment_check()
         adapter = AppWorldAdapter(
             config["appworld_root"],
             task,
-            directory.name,
+            experiment,
             seed=42,
             max_interactions=sys.maxsize,
             research=context,
@@ -49,11 +50,11 @@ def run(config, generate):
         execute = adapter.execute
 
         def timed_execute(*args, **kwargs):
-            before = time.monotonic()
+            before = now()
             try:
                 return execute(*args, **kwargs)
             finally:
-                costs["environment_seconds"] += time.monotonic() - before
+                costs["environment_seconds"] += now() - before
 
         adapter.execute = timed_execute
         generated = config.get("generated_task")
@@ -84,6 +85,7 @@ def run(config, generate):
             tool_mode="dynamic_discovery",
             output=directory / "session",
             checkpoint_id=config["checkpoint_id"],
+            clock=now,
             model_contract=config["model"],
             execution_protocol=RUNTIME,
             protocol_harness=True,
@@ -105,7 +107,7 @@ def run(config, generate):
                 or session.usage["unknown_generation_reservation"]
             ):
                 return
-            before = time.monotonic()
+            before = now()
             saved = save_boundary(
                 session,
                 directory / f"snapshot_{len(checkpoints):02d}",
@@ -113,7 +115,7 @@ def run(config, generate):
                 {"kind": kind, "policy": session.identity},
             )
             checkpoints.append({**saved, "kind": kind})
-            costs["snapshot_seconds"] += time.monotonic() - before
+            costs["snapshot_seconds"] += now() - before
 
         if config["purpose"] == "feedback":
 
@@ -162,15 +164,15 @@ def run(config, generate):
         adapter.close()
         adapter = None
         if not generated:
-            before = time.monotonic()
+            before = now()
             evaluation = evaluate_isolated(
                 task,
-                directory.name,
+                experiment,
                 config["appworld_root"],
                 directory,
                 research=context,
             )
-            costs["evaluation_seconds"] += time.monotonic() - before
+            costs["evaluation_seconds"] += now() - before
     except Exception as exc:
         fault = {"type": type(exc).__name__, "message": str(exc)}
     finally:
@@ -181,6 +183,7 @@ def run(config, generate):
     )
     result = {
         "task_id": task,
+        "experiment_name": experiment,
         "task_source": "generated" if config.get("generated_task") else "original",
         "generated_task_id": config.get("generated_task", {}).get("task_id"),
         "purpose": config["purpose"],
@@ -198,7 +201,7 @@ def run(config, generate):
         "costs": costs,
         "termination": session.termination if session else None,
         "fault": fault,
-        "wall_seconds": time.monotonic() - started,
+        "wall_seconds": now() - started,
         "snapshots": checkpoints,
         "selected_snapshot": checkpoints[-1]
         if checkpoints and valid and not evaluation["success"]

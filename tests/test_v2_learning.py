@@ -346,6 +346,8 @@ def test_new_lock_and_immutable_historical_lock_rejection():
 
 def test_real_entry_wiring_with_synthetic_generator(worlds, tmp_path, monkeypatch):
     from recoveragent import v2_episode as entry
+    from freezegun import freeze_time
+    import time
 
     task = plan()["feedback20"][0]
     model = {
@@ -383,18 +385,32 @@ def test_real_entry_wiring_with_synthetic_generator(worlds, tmp_path, monkeypatc
             block("supervisor__complete_task", {}),
         ]
     )
-    result = entry.run(
-        {
-            "task_id": task,
-            "output": str(tmp_path / "episode"),
-            "appworld_root": "synthetic",
-            "purpose": "feedback",
-            "model": model,
-            "checkpoint_id": "S0_synthetic",
-            "student_limits": {"max_requests": 80, "wall_seconds": 1200},
-        },
-        lambda req: receipt(next(responses))(req),
-    )
+    clock = {"now": 100.0}
+    monkeypatch.setattr(time, "clock_gettime", lambda _: clock["now"])
+    remaining = []
+
+    def generate(request):
+        remaining.append(request["remaining_wall_seconds"])
+        clock["now"] += 17
+        return receipt(next(responses))(request)
+
+    with freeze_time("2024-01-01"):
+        frozen = time.monotonic()
+        result = entry.run(
+            {
+                "task_id": task,
+                "output": str(tmp_path / "episode"),
+                "appworld_root": "synthetic",
+                "purpose": "feedback",
+                "model": model,
+                "checkpoint_id": "S0_synthetic",
+                "student_limits": {"max_requests": 80, "wall_seconds": 1200},
+            },
+            generate,
+        )
+        assert time.monotonic() == frozen
+    assert remaining == [1200, 1183]
+    assert result["wall_seconds"] == 34
     assert result["fault"] is None
     assert result["classification"] == "natural_failure"
     assert result["selected_snapshot"]["kind"] == "late_failure"

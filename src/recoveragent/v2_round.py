@@ -15,10 +15,10 @@ from .v2_tasks import ROOT, plan
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_resume12h_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_clock_20261109.json")
 
 
-def isolated(python, command, payload, destination, deadline):
+def isolated(python, command, payload, destination, deadline, *, env=None):
     destination = Path(destination)
     request = destination.parent / (destination.name + ".input.json")
     write_json(request, payload)
@@ -28,6 +28,7 @@ def isolated(python, command, payload, destination, deadline):
             stdout=log,
             stderr=subprocess.STDOUT,
             check=True,
+            env=env,
             timeout=max(1, min(1300, deadline - time.monotonic())),
         )
 
@@ -77,7 +78,7 @@ def preflight(deployment, identity):
     }
 
 
-def run(deployment, output, data, *, resume_base_from=None):
+def run(deployment, output, data, *, resume_base_from=None, carry_clock_from=None):
     import torch
     from peft import PeftModel
     from .v2_data import read_rows, write_rows, prepare_recovery, mix_recovery
@@ -87,7 +88,7 @@ def run(deployment, output, data, *, resume_base_from=None):
     from .v2_teacher import configuration
     from .v2_training import train_sft, verify_checkpoint
     from .v2_grpo import train as train_grpo
-    from .v2_resume import establish_base
+    from .v2_resume import establish_base, carry_clock_interruption
 
     cfg = config()
     identity = cfg["models"][cfg["selected_model"]]
@@ -143,6 +144,14 @@ def run(deployment, output, data, *, resume_base_from=None):
             cfg, identity, data, output, deployment, deadline, source=resume_base_from
         )
         summary["real_checkpoints"]["S0_base"] = str(s0)
+        if carry_clock_from is not None:
+            carried, known, reserved = carry_clock_interruption(
+                carry_clock_from, cfg, identity, s0, deployment
+            )
+            summary["feedback"].append(carried)
+            summary["training_generated_token_reservation"] = reserved
+            ledger.update(used=known, limit=cfg["train_generated_tokens"] - reserved)
+            write_json(output / "carried_clock_interruption.json", carried)
 
         def load_policy(path):
             verify_checkpoint(path, identity)
@@ -175,7 +184,10 @@ def run(deployment, output, data, *, resume_base_from=None):
             return {**result, "directory": str(directory)}
 
         model = load_policy(s0)
+        feedback_start = len(summary["feedback"])
         for i, task in enumerate(plan()["feedback20"]):
+            if i < feedback_start:
+                continue
             result = run_student(
                 model,
                 policy_id(model),
@@ -192,26 +204,47 @@ def run(deployment, output, data, *, resume_base_from=None):
         gc.collect()
         torch.cuda.empty_cache()
 
-        def teacher(task, directory, *, source=None, exploration=None):
+        def teacher(task, directory, *, source=None, exploration=None, legacy=None):
             remaining = (
                 deployment["teacher_budget_cny"] - summary["teacher_usage_priced_cny"]
             )
             if remaining <= 0:
                 raise RuntimeError("Shared Teacher money cap exhausted")
+            teacher_config = configuration(
+                task,
+                identity,
+                deployment["appworld_root"],
+                remaining,
+                recovery=source is not None,
+            )
+            worker_env = None
+            if legacy:
+                from .v2_legacy_teacher import call, environment
+
+                teacher_config = call(
+                    python,
+                    legacy["teacher_source_directory"],
+                    legacy["teacher_source_lock_sha256"],
+                    "configuration",
+                    {
+                        "task_id": task,
+                        "identity": identity,
+                        "root": deployment["appworld_root"],
+                        "remaining_cost": remaining,
+                        "recovery": True,
+                    },
+                )
+                worker_env = environment(legacy["teacher_source_directory"])
             payload = {
-                "config": configuration(
-                    task,
-                    identity,
-                    deployment["appworld_root"],
-                    remaining,
-                    recovery=source is not None,
-                ),
+                "config": teacher_config,
                 "task_id": task,
                 "output": str(directory),
                 "source": source,
                 "exploration": exploration,
             }
-            isolated(python, "teacher-worker", payload, directory, deadline)
+            isolated(
+                python, "teacher-worker", payload, directory, deadline, env=worker_env
+            )
             record = read_json(directory / "trajectory.json")
             summary["teacher_usage_priced_cny"] += record["usage"][
                 "usage_priced_cost"
@@ -241,8 +274,20 @@ def run(deployment, output, data, *, resume_base_from=None):
                 failure["task_id"],
                 directory,
                 source=failure["selected_snapshot"]["snapshot_ref"],
+                legacy=failure if failure.get("teacher_source_directory") else None,
             )
-            acceptance = prepare_recovery(directory, tokenizer)
+            if failure.get("teacher_source_directory"):
+                from .v2_legacy_teacher import call
+
+                acceptance = call(
+                    python,
+                    failure["teacher_source_directory"],
+                    failure["teacher_source_lock_sha256"],
+                    "suffix",
+                    {"directory": str(directory), "identity": identity},
+                )
+            else:
+                acceptance = prepare_recovery(directory, tokenizer)
             summary["recovery"].append(
                 {
                     "task_id": failure["task_id"],
@@ -250,6 +295,7 @@ def run(deployment, output, data, *, resume_base_from=None):
                     "official_success": record["reward"] == 1,
                     "acceptance": acceptance,
                     "directory": str(directory),
+                    "teacher_source_directory": failure.get("teacher_source_directory"),
                 }
             )
             if acceptance["status"] == "eligible":
@@ -425,6 +471,7 @@ def main():
     p.add_argument("--output")
     p.add_argument("--data")
     p.add_argument("--resume-base-from")
+    p.add_argument("--carry-clock-from")
     args = p.parse_args()
     cfg = config()
     identity = cfg["models"][cfg["selected_model"]]
@@ -450,6 +497,7 @@ def main():
                     args.output,
                     args.data,
                     resume_base_from=args.resume_base_from,
+                    carry_clock_from=args.carry_clock_from,
                 )
             )
         )

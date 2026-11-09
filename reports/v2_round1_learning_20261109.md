@@ -114,3 +114,13 @@ PYTHONPATH=src .venv-harness/bin/python -m pytest -q tests/test_v2_learning.py
 两次烟测回执同时通过核验，短烟测2步/4样本、长烟测1步/完整32666 token样本。S0保存后，控制侧主动交接旧进程，在任何反馈请求前使用SIGALRM进入原异常清理路径。旧 `round_summary.json` 的8小时TimeoutError文字和空 `real_checkpoints` 字段保留原样；信号发生在S0验收回执写完、旧摘要尚未登记checkpoint的间隙，不表示8小时实际耗尽或S0失败。独立交接记录、正式回执及新流程的 `continued_base.json` 共同记录这一事实。
 
 `round_005` 于19:35接续，执行源码为 `7a0c14b94ed92a1d51dd46eda17fa2410c25b36b`，目录为 `source_resume12h_7a0c14b`。新流程逐文件核验S0、两次烟测及原数据/配置/任务清单，继承同一参数而未重新训练。首个feedback20任务已实际发出模型请求并执行公开工具；截至本段更新，尚无该任务官方结果，Teacher恢复/生成、S1、S2及dev24成绩仍未产生。S0完整checkpoint已回传到私有 `runs/v2_round1_20261109/round004_S0_base.tar.gz`（324657225 bytes），压缩包SHA-256为 `8110d6135eadc6dda55a1d6d359d8f4a0801434592d02b624589993af9b778ae`，376个文件的回执SHA均核验一致。
+
+## 会话时钟实际问题与接续
+
+首个训练反馈任务已完成官方有效失败：30请求、2760生成token、29工具调用、1次协议拒绝，模型耗时273.47秒，实际墙钟382.08秒；文件控制侧时间差382.30秒。它在1200秒预算内完成，保留结果、不重复尝试。原环境/快照分项耗时为0及恒定1200秒remaining元数据不可信，原件保留并明确标记。
+
+根因为AppWorld冻结普通`time.monotonic`；新`clock` revision在v2入口复用已有`runner.now`（CLOCK_MONOTONIC）并传入StudentSession。第二项只初始化、0请求时已停止。接续逐文件绑定源记录、保留已用token和绝对12小时截止，继续未发起请求的任务。首项快照恢复与后缀导出使用原锁定7a0c14b源码，不改写快照预期值；新任务使用新锁。独立输出名称避免覆盖旧初始化产物。
+
+针对性合成测试40 passed，包括冻结时间下实际deadline递减、结果/成本继承、篡改/已开始第二任务拒绝及旧源码调度。尚未将这些软件测试写成Teacher恢复或学习闭环完成。裸pytest启动缺少仓库根路径导致6项导入收集错误，使用项目根路径的完整命令重新验证。
+
+完整验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为783 passed/1 skipped（18.56秒）；`.venv/bin/ruff check .` 与 `.venv/bin/ruff format --check .` 均通过。

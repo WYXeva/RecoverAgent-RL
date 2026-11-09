@@ -1,0 +1,137 @@
+{
+  "format": "v2_learning_round1_clock_20261109",
+  "models": {
+    "primary": {
+      "model": "Qwen/Qwen3.5-9B",
+      "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+      "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+      "thinking": false,
+      "tool_format": "qwen_xml"
+    },
+    "fallback": {
+      "model": "Qwen/Qwen3-8B",
+      "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+      "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+      "thinking": false,
+      "tool_format": "qwen_json"
+    }
+  },
+  "selected_model": "primary",
+  "fallback_requires_actual_compatibility_failure": true,
+  "split": "configs/v2_scenario_split_20261109.json",
+  "source_lock": "configs/v2_round1_clock_20261109_lock.json",
+  "teacher": {
+    "provider": "deepseek_official",
+    "base_url": "https://api.deepseek.com",
+    "allowed_host": "api.deepseek.com",
+    "api_key_env": "DEEPSEEK_API_KEY1",
+    "model": "deepseek-flash",
+    "revision": "Official models lists DeepSeek-V4.1-Flash; official2026-10-17 changelog identifies Flash-1017. Alias may change; per-response identity retained.",
+    "revision_is_immutable": false,
+    "revision_source": "https://api-docs.deepseek.com/updates/",
+    "thinking": true,
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": null,
+    "max_request_bytes": 524288,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "CNY",
+      "input_per_million": 2,
+      "cached_input_per_million": 0.04,
+      "output_per_million": 8,
+      "source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+      "checked_at": "2026-11-09",
+      "source_sha256": "6205cf5d53a7903827bf21938eefb6a8ab6041bb5a73fcf43e4bdd6adc8d344b",
+      "basis": "Conservative PEAK rate estimate; off-peak rates half. Actual account balance snapshots separately; estimates are not invoices.",
+      "off_peak": {
+        "input_per_million": 1,
+        "cached_input_per_million": 0.02,
+        "output_per_million": 4
+      }
+    },
+    "http_user_agent": "RecoverAgent-RL/0.2",
+    "reasoning_protocol": "provider_reasoning_audit_only_v1",
+    "response_identity_protocol": "model_response_id_v1",
+    "response_model_aliases": [
+      "deepseek-v4.1-flash",
+      "deepseek-v4.1-flash-1017"
+    ],
+    "response_model_alias_evidence": "Official pricing/changelog resolves deepseek-flash to DeepSeek-V4.1-Flash(-1017); no relay prefix policy used.",
+    "http_error_diagnostics": "keyword_hash_v1",
+    "http_transport": "requests_session_v1"
+  },
+  "teacher_budget_cny": null,
+  "gpu_wall_seconds": 43200,
+  "train_generated_tokens": 200000,
+  "base_trajectories": 96,
+  "feedback_tasks": 20,
+  "recovery_attempts": 20,
+  "generator_proposals": 10,
+  "generator": "gmail_category_count_v1",
+  "dev_tasks": 24,
+  "grpo": {
+    "groups": 16,
+    "group_size": 4,
+    "groups_per_update": 2,
+    "original_to_generated_ratio": [
+      3,
+      1
+    ],
+    "learning_rate": 1e-06,
+    "beta": 0.0,
+    "temperature": 0.8,
+    "top_p": 1.0,
+    "loss_type": "grpo",
+    "activation_offload": "cpu"
+  },
+  "base_sft": {
+    "epochs": 1,
+    "learning_rate": 5e-05,
+    "gradient_accumulation_steps": 8
+  },
+  "recovery_sft": {
+    "epochs": 1,
+    "learning_rate": 2e-05,
+    "gradient_accumulation_steps": 8,
+    "recovery_supervised_token_fraction": 0.5
+  },
+  "lora": {
+    "r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.0,
+    "bias": "none",
+    "task_type": "CAUSAL_LM",
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
+  },
+  "student_limits": {
+    "max_input_tokens": 32768,
+    "max_new_tokens": 4096,
+    "max_requests": 80,
+    "max_generated_tokens": 16384,
+    "wall_seconds": 1200,
+    "seed": 42,
+    "temperature": 0.8,
+    "top_p": 1.0
+  },
+  "schema_compatibility_revision": "schema_nullable_compatibility_v2",
+  "system_prompt_sha256": "5ef2bb774a258ba0a0e00d94284a29720bad3d2578c9a2a54ec94a594272dbba",
+  "harness_budget_revision": "b10_budget80_1200_corrections15_20261105",
+  "appworld_root": "data/appworld",
+  "teacher_config_template": "configs/b10_execution_budget_20261105.json",
+  "private_output": "runs/v2_round1_20261109",
+  "official_benchmark_claim": false,
+  "teacher_fee_policy": "no_independent_monetary_cap_user_confirmed_20261109",
+  "reload_precision": "bf16_autocast_both_probes",
+  "activation_offload": "cpu",
+  "memory_adaptation_reason": "round_002 longest complete sample OOM on authorized 32 GB GPU; preserve BF16 model/data/targets, offload autograd saved tensors to CPU"
+}
