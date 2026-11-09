@@ -15,7 +15,7 @@ from .v2_tasks import ROOT, plan
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_feedback_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
 
 
 def isolated(python, command, payload, destination, deadline, *, env=None):
@@ -115,6 +115,14 @@ def run(
             "split_manifest_sha256": plan()["manifest_sha256"],
         },
     )
+    write_json(
+        output / "feedback_selection.json",
+        {
+            "task_ids": plan()["feedback20"][: cfg["feedback_tasks"]],
+            "selection": "frozen_prefix",
+            "count": cfg["feedback_tasks"],
+        },
+    )
     summary = {
         "status": "started",
         "real_checkpoints": {},
@@ -171,6 +179,11 @@ def run(
             )
             summary["feedback"].extend(carried)
             ledger["used"] = used
+            reserved = proof.get("generation_reservation", 0)
+            ledger["limit"] -= reserved
+            summary["training_generated_token_reservation"] = reserved
+            if proof.get("cancellation"):
+                summary["canceled_feedback"] = proof["cancellation"]
             write_json(output / "continued_feedback.json", proof)
 
         def load_policy(path):
@@ -203,9 +216,9 @@ def run(
             )
             return {**result, "directory": str(directory)}
 
-        model = load_policy(s0)
         feedback_start = len(summary["feedback"])
-        for i, task in enumerate(plan()["feedback20"]):
+        model = load_policy(s0) if feedback_start < cfg["feedback_tasks"] else None
+        for i, task in enumerate(plan()["feedback20"][: cfg["feedback_tasks"]]):
             if i < feedback_start:
                 continue
             result = run_student(
@@ -386,7 +399,7 @@ def run(
         )
         summary["real_checkpoints"]["S1_recovery"] = str(s1)
         schedule = []
-        originals = plan()["feedback20"]
+        originals = plan()["feedback20"][: cfg["feedback_tasks"]]
         for i in range(cfg["grpo"]["groups"]):
             if generated and i % 4 == 3:
                 task = generated[(i // 4) % len(generated)]

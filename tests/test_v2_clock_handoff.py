@@ -315,3 +315,107 @@ def test_only_complete_unknown_evaluation_can_continue(change):
     }
     assert resumable_evaluation_error(result)
     assert not resumable_evaluation_error({**result, **change})
+
+
+def test_feedback15_keeps_every_other_budget():
+    from recoveragent.v2_resume import feedback_recipe
+
+    cfg = config()
+    old = read_json(ROOT / "configs/v2_round1_feedback_20261109.json")
+    assert cfg["feedback_tasks"] == 15
+    assert {
+        k: v
+        for k, v in feedback_recipe(cfg, old).items()
+        if k not in {"format", "source_lock"}
+    } == {k: v for k, v in old.items() if k not in {"format", "source_lock"}}
+    assert cfg["dev_tasks"] == 24 and cfg["grpo"]["groups"] == 16
+
+
+def test_feedback_prefix_chain_preserves_original_provenance(feedback_prefix, tmp_path):
+    call, args = feedback_prefix
+    source, cfg, identity, s0, deployment = args
+    rows, used, proof = call(*args)
+    next_source = tmp_path / "next_source"
+    old = read_json(ROOT / "configs/v2_round1_feedback_20261109.json")
+    write_json(next_source / "run_config.json", old)
+    write_json(
+        next_source / "preflight.json",
+        {
+            "source": {"lock_sha256": sha256(ROOT / old["source_lock"])},
+            "deployment": {"job_deadline_epoch": deployment["job_deadline_epoch"]},
+        },
+    )
+    for name in ["task_lists.json", "continued_base.json"]:
+        write_json(next_source / name, read_json(source / name))
+    write_json(next_source / "continued_feedback.json", proof)
+    write_json(
+        next_source / "round_summary.json",
+        {"status": "stopped", "feedback": rows, "training_generated_tokens": used},
+    )
+    write_json(next_source / "feedback/handoff_marker.json", {"new_requests": 0})
+    again, counted, _ = call(next_source, cfg, identity, s0, deployment)
+    assert again == rows and counted == used
+
+
+def test_user_canceled_sixteenth_task_cost_is_retained_but_not_training(
+    feedback_prefix,
+):
+    import copy
+
+    call, args = feedback_prefix
+    source, cfg, identity, s0, deployment = args
+    summary = read_json(source / "round_summary.json")
+    template = copy.deepcopy(summary["feedback"][1])
+    original_dir = Path(template["directory"])
+    original_request = read_json(
+        original_dir.with_name(original_dir.name + ".config.json")
+    )
+    for i in range(2, 15):
+        task = plan()["feedback20"][i]
+        directory = source / "feedback" / f"feedback_{i:02d}_{task}"
+        row = {**template, "task_id": task, "directory": str(directory)}
+        write_json(
+            directory / "result.json",
+            {k: v for k, v in row.items() if k != "directory"},
+        )
+        write_json(
+            directory.with_name(directory.name + ".config.json"),
+            {**original_request, "task_id": task, "output": str(directory)},
+        )
+        for name in ["0.request.json", "0.response.json"]:
+            write_json(
+                directory / "session/requests" / name,
+                read_json(original_dir / "session/requests" / name),
+            )
+        summary["feedback"].append(row)
+        summary["training_generated_tokens"] += 2
+    partial = source / "feedback" / f"feedback_15_{plan()['feedback20'][15]}"
+    policy = template["policy"]
+    for i in range(2):
+        write_json(
+            partial / f"session/requests/{i}.request.json",
+            {"policy": policy, "max_new_tokens": 4},
+        )
+    write_json(
+        partial / "session/requests/0.response.json",
+        {"policy": policy, "token_ids": [1, 2]},
+    )
+    write_json(partial / "backend_failure.json", {"error_type": "TimeoutError"})
+    summary["training_generated_tokens"] += 2
+    (source / "round_summary.json").write_text(json.dumps(summary))
+    write_json(
+        source / "feedback_limit_interruption.json",
+        {
+            "reason": "user_reduce_feedback15",
+            "feedback_limit": 15,
+            "no_retry": True,
+            "source_summary_sha256": sha256(source / "round_summary.json"),
+            "partial_files": files_manifest(partial),
+        },
+    )
+    rows, used, proof = call(*args)
+    assert len(rows) == 15 and used == summary["training_generated_tokens"]
+    assert proof["generation_reservation"] == 4
+    assert proof["cancellation"]["known_generated_tokens"] == 2
+    assert proof["cancellation"]["training_eligible"] is False
+    assert plan()["feedback20"][15] not in [r["task_id"] for r in rows]

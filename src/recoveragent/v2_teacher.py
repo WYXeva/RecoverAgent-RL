@@ -8,7 +8,7 @@ from .v2_tasks import ROOT, RUNTIME, context_for
 
 
 def configuration(task_id, identity, root, remaining_cost, *, recovery=True):
-    frozen = read_json(ROOT / "configs/v2_round1_feedback_20261109.json")
+    frozen = read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
     config = copy.deepcopy(
         read_json(ROOT / frozen["teacher_config_template"])["teacher_config"]
     )

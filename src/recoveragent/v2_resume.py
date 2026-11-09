@@ -8,6 +8,14 @@ from .io import digest, files_manifest, read_json, write_json
 from .v2_tasks import ROOT, plan
 
 
+def feedback_recipe(cfg, previous):
+    """User-approved first15 prefix; all other recipe fields remain comparable."""
+    cfg = dict(cfg)
+    if cfg.get("feedback_tasks") == 15 and previous.get("feedback_tasks") == 20:
+        cfg["feedback_tasks"] = 20
+    return cfg
+
+
 def verified_base(source, cfg, identity, data, deployment):
     from .v2_training import verify_checkpoint
 
@@ -15,7 +23,7 @@ def verified_base(source, cfg, identity, data, deployment):
     previous = read_json(source / "run_config.json")
     ignored = {"format", "source_lock", "gpu_wall_seconds"}
     if {k: v for k, v in previous.items() if k not in ignored} != {
-        k: v for k, v in cfg.items() if k not in ignored
+        k: v for k, v in feedback_recipe(cfg, previous).items() if k not in ignored
     }:
         raise ValueError("S0 continuation changed the frozen learning recipe")
     expected = read_json(ROOT / "configs/v2_round1_cpu_offload_20261109.json")
@@ -118,7 +126,7 @@ def carry_clock_interruption(source, cfg, identity, s0, deployment):
     ignored = {"format", "source_lock"}
     if read_json(source / "run_config.json") != previous or {
         k: v for k, v in previous.items() if k not in ignored
-    } != {k: v for k, v in cfg.items() if k not in ignored}:
+    } != {k: v for k, v in feedback_recipe(cfg, previous).items() if k not in ignored}:
         raise ValueError("Clock continuation changed the experiment")
     preflight = read_json(source / "preflight.json")
     if (

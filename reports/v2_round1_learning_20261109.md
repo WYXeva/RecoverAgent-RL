@@ -134,3 +134,11 @@ PYTHONPATH=src .venv-harness/bin/python -m pytest -q tests/test_v2_learning.py
 针对性合成测试50 passed，验证UNKNOWN保持null、已完成任务不重跑、成本不清零及不安全异常仍拒绝。这些软件测试不代表真实Teacher恢复或完整学习闭环完成。
 
 本次完整验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为793 passed/1 skipped（18.62秒）；Ruff check及format check通过。
+
+## 用户将S0反馈缩为15项
+
+用户要求将当前反馈缩到固定前15项。实际15项已经完成：3成功、11有效自然失败、1UNKNOWN，共40183生成token；不据此声称dev成功率。第16项在指令到达时已启动，立即中断，8个完整回复产生439个已知token，第9个请求未完成回复，保留4096token技术预留。已知训练侧总账为40622token，剩余额度另扣未知预留；中断项不继续、不进入Teacher恢复、不算作15项中的完成任务。
+
+独立feedback15配置保存原固定清单的前15项，不重新训练或推理S0。接续验证旧来源链和原始结果，旧快照使用各自锁定Teacher源码；新配置继续恢复、生成、S1/S2及dev24。暂停/终止记录与源摘要分开保留，原SIGALRM错误文字不改写成实际12小时耗尽。
+
+反馈15接续：针对性53 passed；完整pytest796 passed/1 skipped（18.42秒），Ruff check/format check通过。测试覆盖来源链、不重复成本、显式取消第16项的已知token及未知预留、其不进入训练数据。
