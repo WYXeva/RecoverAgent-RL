@@ -10,6 +10,7 @@
 - **资源**：仅使用 `ssh.txt` 已开机机器；GPU绝对8小时上限与Student训练侧20万生成token保持不变。用户明确Teacher无独立金额上限，仍执行请求/token/时间预算和逐次费用记录；当前没有Teacher生成费用。
 - **验证与证据**：完整pytest 758 passed/1 skipped，独立CPU随机小模型测试2 passed，Ruff检查通过；真实无模型AppWorld探针确认187个工具Schema一致。当前[执行报告](../reports/v2_round1_learning_20261109.md)记录软件、环境与模型结果的区别。私有根目录 `runs/v2_round1_20261109/`；远程本轮 `recoveragent_v2_20261109/runs/round_004/`。
 - **下一动作**：监控正式S0并验收重载，然后在原冻结规模和剩余预算内连续推进反馈、恢复、生成、S1、S2与固定开发集比较。
+- **中断接续准备**：增加独立新配置/锁及 `--resume-base-from`，只复用已停止且尚无下游请求的已验收 S0，重新核对两次烟测及所有来源哈希；不重置8小时绝对截止。该接续尚未实跑；新增合成测试15 passed，完整pytest现为773 passed/1 skipped，Ruff通过。当前远程训练仍运行原冻结代码。
 
 ## 历史入口
 

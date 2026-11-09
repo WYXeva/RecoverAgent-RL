@@ -15,7 +15,7 @@ from .v2_tasks import ROOT, plan
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_cpu_offload_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_resume_20261109.json")
 
 
 def isolated(python, command, payload, destination, deadline):
@@ -77,7 +77,7 @@ def preflight(deployment, identity):
     }
 
 
-def run(deployment, output, data):
+def run(deployment, output, data, *, resume_base_from=None):
     import torch
     from peft import PeftModel
     from .v2_data import read_rows, write_rows, prepare_recovery, mix_recovery
@@ -87,6 +87,7 @@ def run(deployment, output, data):
     from .v2_teacher import configuration
     from .v2_training import train_sft, verify_checkpoint
     from .v2_grpo import train as train_grpo
+    from .v2_resume import establish_base
 
     cfg = config()
     identity = cfg["models"][cfg["selected_model"]]
@@ -124,7 +125,7 @@ def run(deployment, output, data):
     python = deployment.get("worker_python", sys.executable)
 
     def alarm(*_):
-        raise TimeoutError("GPU run reached configured 8-hour deadline")
+        raise TimeoutError("GPU run reached configured absolute deadline")
 
     previous = signal.signal(signal.SIGALRM, alarm)
     signal.setitimer(signal.ITIMER_REAL, remaining_job_seconds)
@@ -138,17 +139,9 @@ def run(deployment, output, data):
             Path(data) / "examples.jsonl"
         ):
             raise ValueError("Prepared model/data identity mismatch")
-        for profile in ("short", "long"):
-            train_sft(
-                cfg,
-                identity,
-                Path(data) / "examples.jsonl",
-                output / ("smoke_" + profile),
-                profile=profile,
-                deadline=deadline,
-            )
-        s0 = output / "S0_base"
-        train_sft(cfg, identity, Path(data) / "examples.jsonl", s0, deadline=deadline)
+        s0 = establish_base(
+            cfg, identity, data, output, deployment, deadline, source=resume_base_from
+        )
         summary["real_checkpoints"]["S0_base"] = str(s0)
 
         def load_policy(path):
@@ -431,6 +424,7 @@ def main():
     p.add_argument("--input")
     p.add_argument("--output")
     p.add_argument("--data")
+    p.add_argument("--resume-base-from")
     args = p.parse_args()
     cfg = config()
     identity = cfg["models"][cfg["selected_model"]]
@@ -449,7 +443,16 @@ def main():
             )
         )
     elif args.command == "run":
-        print(json.dumps(run(read_json(args.input), args.output, args.data)))
+        print(
+            json.dumps(
+                run(
+                    read_json(args.input),
+                    args.output,
+                    args.data,
+                    resume_base_from=args.resume_base_from,
+                )
+            )
+        )
     elif args.command == "teacher-worker":
         from .p3a import run_teacher_episode
         from .teacher import read_credentials

@@ -26,6 +26,22 @@ export PYTORCH_ALLOC_CONF=expandable_segments:True
 
 `deployment.json` 包含 `appworld_root`、`worker_python`、技术费用预留及绝对 `job_deadline_epoch`；运行目录只能新建。已经准备的数据应直接复用，不重复执行 `prepare`。完整依赖见 [requirements/v2-learning.txt](../requirements/v2-learning.txt)，AppWorld worker 另需现有锁定环境。私有 `.env` 不提交。
 
+### 已验收 S0 的续跑准备（尚未真实执行）
+
+当前代码增加 `--resume-base-from`，继续复用同一 Runner。独立配置为 [v2_round1_resume_20261109.json](../configs/v2_round1_resume_20261109.json)，新源码锁为 [v2_round1_resume_20261109_lock.json](../configs/v2_round1_resume_20261109_lock.json)；运行中的 `round_004` 及其源码没有替换。
+
+只有源运行已经停止、正式 S0 与短/长烟测均更新参数并通过重载，且没有任何下游请求时才允许接续。逐文件验证 checkpoint SHA，核对数据、模型、冻结任务列表、原配置和来源锁；保留源目录，写入新目录及继承回执。缺烟测、未完成训练、数据/参数损坏、已开始反馈或试图重置 GPU 计时均拒绝。该配置仍为 8 小时，继续使用原绝对截止时间。
+
+```bash
+PYTHONPATH=src HF_HOME=/root/autodl-tmp/recoveragent_v2_20261109/hf_cache \
+  PYTORCH_ALLOC_CONF=expandable_segments:True \
+  .venv/bin/python scripts/run_v2_round.py run \
+  --input deployment.json --data base_data --output runs/continued_new \
+  --resume-base-from /path/to/stopped_run_with_verified_S0
+```
+
+合成续跑测试 15 passed；与现有 v2 测试合计30 passed。完整pytest为773 passed/1 skipped/3 warnings，Ruff check与format check通过。尚无真实S0续跑结果；这些测试不表示正式S0或后续学习已完成。
+
 ## 数据与执行正确性
 
 原包 manifest SHA-256 `96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f` 未变。新 train 场景有 107 条原始成功轨迹；新 tokenizer/template 编码后，95 条完整合格、12 条超长 deferred，共 1443 个 Assistant 样本、254396 个监督 token、16887943 个完整序列 token，最长 32666。没有截断目标或删除工具调用。
