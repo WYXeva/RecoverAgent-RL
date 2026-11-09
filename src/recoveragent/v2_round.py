@@ -15,7 +15,7 @@ from .v2_tasks import ROOT, plan, development_tasks, grpo_schedule
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_coevolve_answer_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_coevolve_quality_20261109.json")
 
 
 def isolated(python, command, payload, destination, deadline, *, env=None):

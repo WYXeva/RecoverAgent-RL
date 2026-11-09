@@ -42,6 +42,9 @@ def verify_source(source, cfg, deployment, s1, carried):
     source = Path(source).resolve()
     old = read_json(ROOT / "configs/v2_round1_coevolve_20261109.json")
     normalized = copy.deepcopy(cfg)
+    quality = normalized["task_evolution"].pop("quality_filter", None)
+    if quality not in {None, "coevolve_goal_quality_v1"}:
+        raise ValueError("Unsupported generated-goal quality revision")
     if normalized["task_evolution"].pop("validation_processes", None) != 2:
         raise ValueError("Unsupported validation worker count")
     for name in ("format", "source_lock", "generator"):
@@ -158,6 +161,7 @@ def resume(evolution, source, s1, ledger):
     evolution.signals.observe(evolution.summary["feedback"])
     if evolution.signals.export() != snapshot["signals"]:
         raise ValueError("Saved feedback signals differ from their original evidence")
+    evolution.summary["teacher_usage_priced_cny"] = summary["teacher_usage_priced_cny"]
     mapping = {}
     for i, old in enumerate(snapshot["pool"]):
         task = upgrade(old)
@@ -175,6 +179,8 @@ def resume(evolution, source, s1, ledger):
         target = evolution.output / f"revalidate_{i:02d}"
         write_json(target / "source_task.json", old)
         write_json(target / "candidate.json", task)
+        if evolution.settings.get("quality_filter"):
+            evolution.quality(task, target)
         checks = evolution.checks(task, reference, target)
         task = tasks.accept(task, checks)
         write_json(target / "accepted_task.json", task)
@@ -205,7 +211,6 @@ def resume(evolution, source, s1, ledger):
         read_json(p)["event_id"]
         for p in (source / "coevolve").glob("cycle_*/signal.json")
     }
-    evolution.summary["teacher_usage_priced_cny"] = summary["teacher_usage_priced_cny"]
     ledger["used"] = summary["training_generated_tokens"]
     write_json(
         evolution.output / "continued_generation.json",

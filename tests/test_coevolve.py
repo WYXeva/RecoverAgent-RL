@@ -1,6 +1,7 @@
 """Synthetic evidence tests; no model calls or real AppWorld score claims."""
 
 import copy
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -213,7 +214,7 @@ def test_end_to_end_controller_and_online_pool(tmp_path, monkeypatch):
             return {
                 "tasks": [
                     {
-                        "query": "Count a new category and return an integer.",
+                        "query": "Report the number of newly selected unread threads.",
                         "action_sequence": "Three real actions",
                         "completion_criterion": "exact count",
                         "evidence_refs": [
@@ -226,11 +227,34 @@ def test_end_to_end_controller_and_online_pool(tmp_path, monkeypatch):
                     }
                 ]
             }
+        if directory.name == "novelty":
+            assert content["baselines"][0]["instruction"] == "Find an account balance."
+            assert "execution_contract" not in content
+            return {
+                "novel": True,
+                "reason": "Different public goal",
+                "goal_difference": "Unread thread count instead of account balance",
+                "duplicate_of": None,
+            }
         return {"success": True, "reason": "synthetic verified evidence"}
 
     monkeypatch.setattr(engine, "execute", execute)
     monkeypatch.setattr(engine, "text", text)
-    engine.initial([episode(tmp_path, "feedback", False)])
+    summary["feedback"] = [
+        episode(
+            tmp_path,
+            "feedback",
+            False,
+            messages=[
+                {
+                    "role": "user",
+                    "content": json.dumps({"instruction": "Find an account balance."}),
+                },
+                *history(),
+            ],
+        )
+    ]
+    engine.initial(summary["feedback"])
     assert len(executions) == 3  # Two independent explorations plus one fresh solver.
     assert len({p for p, _ in executions}) == 3
     assert len(engine.pool) == 1 and summary["coevolve"]["accepted"] == 1

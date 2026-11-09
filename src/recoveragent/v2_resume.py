@@ -34,6 +34,7 @@ def completed_sft_recipe(cfg, previous):
     if cfg.get("format") in {
         "v2_learning_round1_coevolve_20261109",
         "v2_learning_round1_coevolve_answer_20261109",
+        "v2_learning_round1_coevolve_quality_20261109",
     }:
         for name in ("task_evolution", "generator", "grpo"):
             if name in previous:
