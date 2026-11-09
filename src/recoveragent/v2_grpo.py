@@ -18,6 +18,10 @@ from .v2_inference import policy_id
 from .v2_training import load_trainable, finish_checkpoint, finalize_reload
 
 
+class NoPolicyUpdate(ValueError):
+    """All bounded groups finished without a usable relative-reward signal."""
+
+
 def group_advantages(episodes):
     if len(episodes) != 4:
         raise ValueError("A GRPO group needs four real attempts")
@@ -288,7 +292,10 @@ def train(
                 "optimizer_steps": 0,
             },
         )
-        raise ValueError("GRPO produced no update; S2 is not a trained checkpoint")
+        del trainer, model
+        gc.collect()
+        torch.cuda.empty_cache()
+        raise NoPolicyUpdate("GRPO produced no update; S2 is not a trained checkpoint")
     metadata = {
         "stage": "S2_grpo",
         "optimizer_steps": trainer.state.global_step,

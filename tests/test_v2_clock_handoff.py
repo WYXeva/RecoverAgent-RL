@@ -320,7 +320,7 @@ def test_only_complete_unknown_evaluation_can_continue(change):
 def test_feedback15_keeps_every_other_budget():
     from recoveragent.v2_resume import feedback_recipe
 
-    cfg = config()
+    cfg = read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
     old = read_json(ROOT / "configs/v2_round1_feedback_20261109.json")
     assert cfg["feedback_tasks"] == 15
     assert {

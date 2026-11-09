@@ -1,5 +1,6 @@
 """Continue after a verified S0, before any downstream model requests."""
 
+import copy
 import math
 from pathlib import Path
 
@@ -9,10 +10,17 @@ from .v2_tasks import ROOT, plan
 
 
 def feedback_recipe(cfg, previous):
-    """User-approved first15 prefix; all other recipe fields remain comparable."""
-    cfg = dict(cfg)
+    """Normalize only explicit first15 / GRPO4 / dev3 user-approved reductions."""
+    cfg = copy.deepcopy(cfg)
     if cfg.get("feedback_tasks") == 15 and previous.get("feedback_tasks") == 20:
         cfg["feedback_tasks"] = 20
+    if cfg.get("dev_tasks") == 3 and previous.get("dev_tasks") == 24:
+        cfg["dev_tasks"] = 24
+    if (
+        cfg.get("grpo", {}).get("groups") == 4
+        and previous.get("grpo", {}).get("groups") == 16
+    ):
+        cfg["grpo"]["groups"] = 16
     return cfg
 
 

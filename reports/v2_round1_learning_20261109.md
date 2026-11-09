@@ -142,3 +142,24 @@ PYTHONPATH=src .venv-harness/bin/python -m pytest -q tests/test_v2_learning.py
 独立feedback15配置保存原固定清单的前15项，不重新训练或推理S0。接续验证旧来源链和原始结果，旧快照使用各自锁定Teacher源码；新配置继续恢复、生成、S1/S2及dev24。暂停/终止记录与源摘要分开保留，原SIGALRM错误文字不改写成实际12小时耗尽。
 
 反馈15接续：针对性53 passed；完整pytest796 passed/1 skipped（18.42秒），Ruff check/format check通过。测试覆盖来源链、不重复成本、显式取消第16项的已知token及未知预留、其不进入训练数据。
+
+
+## 恢复完成与本轮缩小接续
+
+11次真实Teacher接管全部完成：6次原任务官方成功，4条恢复后缀在32k窗口内合格，2条超长暂缓，5次未成功。首条成功恢复6请求/12工具调用，111.28秒，2902输出token；CPU重新编码确认该条最长33961token，因此继续保留为deferred，没有裁剪或启动扩大窗口的GPU实验。此为真实恢复结果，不是S1效果验证。
+
+用户明确保留32k，并把后续GRPO改为最多4组×4轨迹（3原始+1生成）；同条件阶段比较改为3个不同场景的固定dev任务，分别评价S0/S1/S2，最多9次episode。原始场景划分和dev24母清单不修改，子集在执行前独立保存。若没有合格生成任务，相应组空缺并披露；若所有GRPO组无奖励差异，不生成伪S2，只报告可用checkpoint比较。
+
+接续配置为 `configs/v2_round1_finish4_20261109.json`，独立同名源码锁。复用原Runner，通过 `--resume-s1-from` 只读核验已完成S1及其S0父参数、数据、全部文件SHA、源配置/锁、原反馈与成本总账。不会重复Teacher调用或训练，不重置12小时截止。完整启动方式：
+
+```bash
+PYTHONPATH=src HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false \
+OMP_NUM_THREADS=8 PYTORCH_ALLOC_CONF=expandable_segments:True \
+.venv/bin/python scripts/run_v2_round.py run \
+  --input ../deployment009.json --data ../base_data --output ../runs/round_009 \
+  --resume-base-from ../runs/round_004 --resume-s1-from ../runs/round_008
+```
+
+实际探索中一条提案因公开只读 `supervisor__show_active_task` 未列入生成器允许列表而被拒。只补这一接口，允许对原始提案重新执行独立环境验收，原拒绝和轨迹不改写；无新Teacher请求。尚未将重验代码通过写成真实生成任务合格。
+
+本次软件验证：针对性测试69 passed；完整 `PYTHONPATH=.:src .venv/bin/python -m pytest -q` 812 passed/1 skipped；Ruff check和format check通过。覆盖S1谱系与成本继承、预算/数据/来源篡改拒绝、3场景dev选择、3+1组、公开查询的已有提案重验与写操作继续拒绝。真实S1、GRPO和开发比较将在实际回执后更新。

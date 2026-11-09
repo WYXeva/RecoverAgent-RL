@@ -74,6 +74,7 @@ def parse_proposal(trajectory):
                 or name
                 in {
                     "supervisor__show_profile",
+                    "supervisor__show_active_task",
                     "supervisor__show_account_passwords",
                     "gmail__login",
                     "gmail__show_category_sizes",

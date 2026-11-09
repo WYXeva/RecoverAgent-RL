@@ -11,7 +11,7 @@ from .research_access import SPLIT, SPLIT_SHA, authorize_artifacts
 ROOT = Path(__file__).resolve().parents[2]
 PLAN = ROOT / "configs/v2_scenario_split_20261109.json"
 SCOPE = "full732_scenario_isolated_v2_20261109"
-RUNTIME = "v2_learning_round1_feedback15_20261109"
+RUNTIME = "v2_learning_round1_finish4_20261109"
 SEED = 20261109
 
 
@@ -89,3 +89,44 @@ def validate_context(task_id, context, *, training=False):
 def authorize_task(root, task_id, context):
     expected = validate_context(task_id, context)
     return authorize_artifacts(root, task_id, expected, plan())
+
+
+def development_tasks(count):
+    """Freeze reduced dev by original order, one task per scenario, no outcomes."""
+    frozen = plan()
+    if count == 24:
+        return frozen["dev24"]
+    if count != 3:
+        raise ValueError("Only the approved dev24 or three-scenario dev3 is supported")
+    rows = {r["task_id"]: r for r in frozen["rows"]}
+    chosen, seen = [], set()
+    for task in frozen["dev24"]:
+        scenario = rows[task]["scenario_id"]
+        if scenario not in seen:
+            chosen.append(task)
+            seen.add(scenario)
+        if len(chosen) == count:
+            return chosen
+    raise ValueError("Insufficient frozen dev scenarios")
+
+
+def grpo_schedule(cfg, generated):
+    originals = plan()["feedback20"][: cfg["feedback_tasks"]]
+    schedule = []
+    for i in range(cfg["grpo"]["groups"]):
+        if i % 4 == 3:
+            if not generated:
+                continue  # Missing generated slot is reported, never replaced to fill a quota.
+            task = generated[(i // 4) % len(generated)]
+            schedule.append(
+                {
+                    "source": "generated",
+                    "task_id": task["source_task_id"],
+                    "generated_task": task,
+                }
+            )
+        else:
+            schedule.append(
+                {"source": "original", "task_id": originals[i % len(originals)]}
+            )
+    return schedule
