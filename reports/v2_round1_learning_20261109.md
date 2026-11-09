@@ -124,3 +124,13 @@ PYTHONPATH=src .venv-harness/bin/python -m pytest -q tests/test_v2_learning.py
 针对性合成测试40 passed，包括冻结时间下实际deadline递减、结果/成本继承、篡改/已开始第二任务拒绝及旧源码调度。尚未将这些软件测试写成Teacher恢复或学习闭环完成。裸pytest启动缺少仓库根路径导致6项导入收集错误，使用项目根路径的完整命令重新验证。
 
 完整验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为783 passed/1 skipped（18.56秒）；`.venv/bin/ruff check .` 与 `.venv/bin/ruff format --check .` 均通过。
+
+## 首批9项真实反馈与评价UNKNOWN
+
+`round_006` 尝试冻结清单前9项（含保留的首项）：1成功、7有效自然失败、1UNKNOWN，共19527生成token。第7项因上下文预算耗尽正常失败；第9项在完整官方评分中出现两个未知来源KeyError，按原严格分类保持UNKNOWN，不改写成失败奖励，不重跑，不进入Teacher恢复。原流程已停止，全部记录已回传，私有压缩包8601882 bytes，SHA-256 `7be1d3b0f2f3b718d95b52893cb5027e819e68994fd9b8a7d478086b284434f4`。
+
+独立feedback配置/锁补齐已完成反馈前缀接续，核对原始结果、模型、任务顺序、源码锁和全部请求token成本，继续第10–20项。单项完整但未知评价可以保留后继续；worker异常、环境错误、未完整评分及未知生成用量仍停止。Teacher恢复只选择valid自然失败，旧快照绑定原版本执行器。没有修改官方评价器、Schema、提示、训练数据或checkpoint。
+
+针对性合成测试50 passed，验证UNKNOWN保持null、已完成任务不重跑、成本不清零及不安全异常仍拒绝。这些软件测试不代表真实Teacher恢复或完整学习闭环完成。
+
+本次完整验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为793 passed/1 skipped（18.62秒）；Ruff check及format check通过。

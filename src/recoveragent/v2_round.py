@@ -15,7 +15,7 @@ from .v2_tasks import ROOT, plan
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_clock_20261109.json")
+    return read_json(ROOT / "configs/v2_round1_feedback_20261109.json")
 
 
 def isolated(python, command, payload, destination, deadline, *, env=None):
@@ -78,7 +78,15 @@ def preflight(deployment, identity):
     }
 
 
-def run(deployment, output, data, *, resume_base_from=None, carry_clock_from=None):
+def run(
+    deployment,
+    output,
+    data,
+    *,
+    resume_base_from=None,
+    carry_clock_from=None,
+    carry_feedback_from=None,
+):
     import torch
     from peft import PeftModel
     from .v2_data import read_rows, write_rows, prepare_recovery, mix_recovery
@@ -90,6 +98,10 @@ def run(deployment, output, data, *, resume_base_from=None, carry_clock_from=Non
     from .v2_grpo import train as train_grpo
     from .v2_resume import establish_base, carry_clock_interruption
 
+    from .v2_feedback_resume import carry_feedback, resumable_evaluation_error
+
+    if carry_clock_from is not None and carry_feedback_from is not None:
+        raise ValueError("Choose only one feedback continuation source")
     cfg = config()
     identity = cfg["models"][cfg["selected_model"]]
     output = Path(output).resolve()
@@ -153,6 +165,14 @@ def run(deployment, output, data, *, resume_base_from=None, carry_clock_from=Non
             ledger.update(used=known, limit=cfg["train_generated_tokens"] - reserved)
             write_json(output / "carried_clock_interruption.json", carried)
 
+        if carry_feedback_from is not None:
+            carried, used, proof = carry_feedback(
+                carry_feedback_from, cfg, identity, s0, deployment
+            )
+            summary["feedback"].extend(carried)
+            ledger["used"] = used
+            write_json(output / "continued_feedback.json", proof)
+
         def load_policy(path):
             verify_checkpoint(path, identity)
             return PeftModel.from_pretrained(
@@ -196,7 +216,9 @@ def run(deployment, output, data, *, resume_base_from=None, carry_clock_from=Non
                 "feedback",
             )
             summary["feedback"].append(result)
-            if result["classification"] == "infrastructure_error":
+            if result[
+                "classification"
+            ] == "infrastructure_error" and not resumable_evaluation_error(result):
                 raise RuntimeError(
                     "Feedback infrastructure failure; retained, no paid retry"
                 )
@@ -472,6 +494,7 @@ def main():
     p.add_argument("--data")
     p.add_argument("--resume-base-from")
     p.add_argument("--carry-clock-from")
+    p.add_argument("--carry-feedback-from")
     args = p.parse_args()
     cfg = config()
     identity = cfg["models"][cfg["selected_model"]]
@@ -498,6 +521,7 @@ def main():
                     args.data,
                     resume_base_from=args.resume_base_from,
                     carry_clock_from=args.carry_clock_from,
+                    carry_feedback_from=args.carry_feedback_from,
                 )
             )
         )
