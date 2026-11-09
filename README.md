@@ -1,26 +1,29 @@
 # RecoverAgent-RL
 
-在 AppWorld 中研究工具调用 Agent 的自然失败、真实状态恢复与恢复学习。正式 Student 为 **Qwen/Qwen3-4B**。
+在 AppWorld 中研究反馈驱动的任务演化、真实失败恢复和在线强化学习：同一个 Student 执行任务，Teacher 接续修复 badcase，并探索、生成可验证的新任务；通过迭代 Recovery-SFT 与当前策略 GRPO 更新模型。
 
-训练路线：Teacher 正常示范 → Base-SFT → Student 自然失败 → Teacher 多检查点恢复 → Recovery-SFT → 在线 GRPO。
+**[project.md](project.md) 是唯一当前主计划；[AGENTS.md](AGENTS.md) 是开发约定；[STATUS 当前摘要](docs/STATUS.md#当前摘要2026-11-09) 记录实际进度。** 后续实现从 [第8节“交付1：一轮真实学习结果”](project.md#交付-1一轮真实学习结果) 开始。
 
-先读 [当前阶段门禁](docs/P4_STAGE_GATES.md)与[实际状态](docs/STATUS.md)，需求见 [PROJECT_PLAN.md](PROJECT_PLAN.md)，开发约定见 [AGENTS.md](AGENTS.md)。
+## 当前起点
 
-## 当前工作入口
+v2 文档已更新，学习运行尚未执行。已有 AppWorld 执行、恢复、数据过滤和4B Base-SFT 底座；B10 真实试点产出3条合格恢复后缀、23个 assistant 样本、5066监督 token，尚未执行 Recovery-SFT 或 GRPO。[B10 验收报告](reports/b10_teacher_recovery_execution_20261104.md)保留完整结果与局限。
 
-| 工作 | 入口 |
+新模型、场景隔离训练/开发/测试划分、预算和主实验设计以 `project.md` 为准。旧固定4B、A244/B244/C244、多检查点主算法及 P4 阶段门禁属于历史方案，不是 v2 的默认入口。文档更新不启动付费采集或训练。
+
+## 文档与已有部件
+
+| 内容 | 入口 |
 | --- | --- |
-| Full732 当前工作范围 | [Stage 1 门禁](docs/P4_STAGE_GATES.md)，Stage 2–6 须逐阶段授权 |
-| Full732 Stage 1 入口/验收 | [full732_stage1.py](src/recoveragent/full732_stage1.py)、[工程报告](reports/full732_stage1_report.md) |
-| Stage 2 评分诊断 | [固定三任务报告](reports/full732_stage2_scoring_report.md)、[脱敏结果](reports/full732_stage2_scoring_summary.json) |
-| 冻结 Full732 候选划分 | [A244/B244/C244](configs/unified_task_split_full_pool_candidate.json) |
-| 既有审计与 train 替代方案 | [审计报告](reports/unified_training_plan.md)、[A30/B30/C30](configs/unified_task_split.json) |
-| 既有共享评估接口 | [evaluate_shared_stage.py](scripts/evaluate_shared_stage.py)、[train 替代方案配置](configs/shared_stage_validation_v2.json) |
-| 当前 System Prompt | [execution_v6.py](src/recoveragent/execution_v6.py)、[协议说明](docs/PROMPTS.md) |
-| Teacher/Student 工具执行 | [Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
+| v2 设计与实施顺序 | [project.md](project.md) |
+| 开发约定与执行事实 | [AGENTS](AGENTS.md)、[STATUS](docs/STATUS.md) |
+| 历史计划与决策 | [已归档 PROJECT_PLAN](PROJECT_PLAN.md)、[DECISIONS](docs/DECISIONS.md) |
+| 已有 Teacher 成功数据 | [最终数据报告](reports/full732_teacher_dataset_complete_20261029.md)；复用前按 v2 train 场景筛选并重新编码 |
+| 工具执行与状态恢复 | [Adapter](src/recoveragent/adapter.py)、[State](src/recoveragent/state.py)、[Nullable 修复](reports/schema_nullable_compatibility_v2.md) |
+| Teacher 恢复与后缀数据 | [恢复部件](src/recoveragent/recovery_suffix.py)、[B10 结果](reports/b10_teacher_recovery_execution_20261104.md) |
+| 现有执行协议起点 | [execution_v6](src/recoveragent/execution_v6.py)、[Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
 | 排查模型实际输入/输出 | [LLM 请求视图](docs/LLM_VIEW.md) |
 
-Full732 Stage 1及v6初始化兼容修复已通过。Stage 2在固定三个train任务上验证：初态unknown不代表合法终态不能评分；同时发现旧控制快照缺少评分变更元数据，重现只2/3通过，同任务官方验证对照可正常成功。原A/B/C各244题不变，生产评分预检PARTIAL与受限用途阻断仍保留；Stage 3–6未执行。旧checkpoint有新验证集训练暴露，不能作为新实验的无泄漏M1。[v6新运行协议](reports/student_v6_compatibility_report.md)与历史配置分别复现，不自动放行新训练和全池评估。
+现有代码和协议文档描述已实现的部件，不表示已兼容 v2 新模型或完成新训练链路；历史运行用其固定提交、配置和锁复现。
 
 ## 目录与本地验证
 
@@ -51,7 +54,7 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider
 - [96GB Base-SFT](reports/p3b_base_sft_report.md)及[评价诊断](reports/p3b_diagnosis_20261024.md)。
 - [A100 重训与 P3-C](reports/a100_sft_p3c_20261026_report.md)：历史权重与自然失败采集。
 - [Harness 审查与修复](reports/harness_refactor_report.md)。
-- Memory：[v1](reports/egtm_v1_report.md)、[模型驱动 v2](reports/egtm_v2_improvement_report.md)、[Harness 29k 实测](reports/egtm_harness_29k_live_report.md)。共享阶段评估当前关闭 Memory。
+- Memory：[v1](reports/egtm_v1_report.md)、[模型驱动 v2](reports/egtm_v2_improvement_report.md)、[Harness 29k 实测](reports/egtm_harness_29k_live_report.md)。当时的共享阶段评估关闭 Memory。
 
 完整沿革见 [STATUS](docs/STATUS.md) 与 [DECISIONS](docs/DECISIONS.md)。历史源码、配置和报告保持原路径，以保留证据链和版本锁；这些文件不是默认执行入口。
 

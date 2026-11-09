@@ -1,3 +1,12 @@
+# PROJECT_PLAN.md — 历史计划
+
+> 2026-11-09：本文归档，仅供历史实验复现。当前唯一主计划为 [project.md](project.md)，开发约定为 [AGENTS.md](AGENTS.md)，实际进度见 [STATUS](docs/STATUS.md)。
+
+后续实现从 [project.md 第 8 节：交付 1——一轮真实学习结果](project.md#交付-1一轮真实学习结果) 开始。下列旧模型、A/B/C 划分、阶段门禁和停等要求不作为 v2 的执行约定；历史源码锁、数据、权重与成绩继续保留。
+
+<details>
+<summary>展开旧计划完整正文（截至 cc711d6）</summary>
+
 # RecoverAgent-RL：项目计划与需求文档
 
 > **2026-10-31 D082：M1/C244执行收尾，停止等待审查**。M1训练/重载PASS；C244于13:10全部244项尝试结束：16成功、218有效失败、10 UNKNOWN，完整TGC仍null。新机198份原始归档、最终摘要已全部回传核验；旧46项完整原始日志仍未全部回传。13:11自动关机因无shebang脚本被直接exec而失败，14:15改由bash补执行后SSH断开，新连接被拒绝；未核验云控制台/账单。失败到补执行约64.3分钟，缺陷与证据如实保留。详见`reports/full732_c244_final_20261031.md/json`。不自动重跑未知项、开机或进入Recovery-SFT/GRPO。
@@ -936,3 +945,5 @@ Phase0真实清单/权限/初态与评价可用性审计 → Phase1冻结C与A/B
 ### v0.21 · 用户指定System Prompt
 
 新增execution_v6及共享评估v2，只改变system文本与运行身份；保留旧配置/锁/报告与原始数据。395软件测试通过，尚无真实模型效果验证。
+
+</details>
