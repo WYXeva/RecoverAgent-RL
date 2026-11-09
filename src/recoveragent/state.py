@@ -40,9 +40,17 @@ def capture(
             _validate_model_runtime(task_memory, agent_runtime)
     check_schema_binding(adapter, adapter.versions, tools)
     research = getattr(adapter, "research_context", None)
+    from .v2_tasks import SCOPE as V2_SCOPE
+
+    is_v2 = research is not None and research.get("scope") == V2_SCOPE
     if research is not None:
-        from .full732_recovery_tasks import validate_context
-        from .nullable_recovery_runtime import RUNTIME
+        if is_v2:
+            from .v2_tasks import validate_context, RUNTIME
+
+            validate_context(adapter.task_id, research, training=True)
+        else:
+            from .full732_recovery_tasks import validate_context
+            from .nullable_recovery_runtime import RUNTIME
         from .schema_compatibility import SCHEMA_REVISION
         from .schema_snapshot import snapshot_revision
 
@@ -67,7 +75,9 @@ def capture(
     if task_memory is not None:
         task_memory.save(destination / "memory", messages, tools)
     manifest = {
-        "format_version": 5
+        "format_version": 6
+        if is_v2
+        else 5
         if research is not None
         else (4 if task_memory.model_driven else 3)
         if task_memory is not None
@@ -105,11 +115,13 @@ def inspect_snapshot(source):
         raise ValueError("Checkpoint files were modified")
     context = read_json(source / "context.json")
     version = manifest.get("format_version")
-    if version not in {1, 2, 3, 4, 5}:
+    if version not in {1, 2, 3, 4, 5, 6}:
         raise ValueError("Unsupported checkpoint format")
-    validator = validate_batch_history if version in {2, 3, 4, 5} else validate_history
+    validator = (
+        validate_batch_history if version in {2, 3, 4, 5, 6} else validate_history
+    )
     validator(context["messages"])
-    if version in {2, 3, 4, 5} and "agent_runtime.json" not in manifest["files"]:
+    if version in {2, 3, 4, 5, 6} and "agent_runtime.json" not in manifest["files"]:
         raise ValueError("Batch checkpoint requires agent runtime")
     if version in {3, 4}:
         from .task_memory import TaskMemory
@@ -133,9 +145,16 @@ def inspect_snapshot(source):
         or len(context["messages"]) != manifest["history_end_index"]
     ):
         raise ValueError("Checkpoint history/schema mismatch")
-    if version == 5:
-        from .full732_recovery_tasks import validate_context
-        from .nullable_recovery_runtime import RUNTIME
+    if version in {5, 6}:
+        if version == 6:
+            from .v2_tasks import validate_context, RUNTIME
+
+            validate_context(
+                manifest["task_id"], manifest["custom_research"], training=True
+            )
+        else:
+            from .full732_recovery_tasks import validate_context
+            from .nullable_recovery_runtime import RUNTIME
         from .schema_compatibility import SCHEMA_REVISION
         from .schema_snapshot import snapshot_revision
 

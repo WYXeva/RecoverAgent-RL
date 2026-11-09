@@ -159,7 +159,12 @@ def evaluate_isolated(
     destination = Path(directory) / "isolated_evaluation.json"
     extra = []
     if research is not None:
-        from .full732_recovery_tasks import validate_context
+        from .v2_tasks import SCOPE as V2_SCOPE
+
+        if research.get("scope") == V2_SCOPE:
+            from .v2_tasks import validate_context
+        else:
+            from .full732_recovery_tasks import validate_context
 
         validate_context(task_id, research)
         context_path = Path(directory) / "evaluation_research.json"
@@ -202,9 +207,15 @@ def main():
     environment = environment_check()
     update_root(a.root)
     if a.research:
-        from .full732_recovery_tasks import authorize_task
+        research = read_json(a.research)
+        from .v2_tasks import SCOPE as V2_SCOPE
 
-        authorize_task(a.root, a.task, read_json(a.research))
+        if research.get("scope") == V2_SCOPE:
+            from .v2_tasks import authorize_task
+        else:
+            from .full732_recovery_tasks import authorize_task
+
+        authorize_task(a.root, a.task, research)
     elif a.task not in load_task_ids("train"):
         raise ValueError("Harness evaluation only accepts official train tasks")
     result = evaluate_here(a.task, a.experiment)

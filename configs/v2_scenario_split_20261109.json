@@ -1,0 +1,4489 @@
+{
+  "format": "full732_scenario_isolated_v2_20261109",
+  "seed": 20261109,
+  "source_manifest_sha256": "0466cec29d9ad770a1cfeacb4c93945e5fcbcad68b9e980c5264d447418121a2",
+  "source": {
+    "appworld_revision": "42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+    "data_version": "0.2.0",
+    "split_files": {
+      "train": "93d9fe71e7a2e3b7529803d4a20b604f4ebf5ae806f321081140238068189d37",
+      "dev": "9fa976589300ea8905708257144d801d1604b06d85fb0181e381df8a3ba85001",
+      "test_normal": "c3af41497b6f2f0860a2ff8c09b335dca527e2cf48e59b4aabdb301b6b68db8f",
+      "test_challenge": "3c32b481042ac97f7d3477d53f5d196245c885c438d652944edc8a9a28e0f028"
+    },
+    "base_db_files": {
+      "admin.db": "2a54320b5c0f3e15ec42a91ff6d48a35c1b9402a439676fd83abe9cba6907ac9",
+      "amazon.db": "0f8c234176a2ee5c5ed76c88f433fee28d54c77053318a2cda4d8f3fc213a48d",
+      "api_docs.db": "f5c8cb85fce35ea0eab41833bea12b261f1dae637a0011a095026f08f98b6045",
+      "file_system.db": "6073413135b14fff3ea3a289574d04d9815ea257ebbc3083db25eb97b634846a",
+      "gmail.db": "069221ea55688e2e454840ac4915b7920848be1958ec2a8d45e0743f7bc48cef",
+      "phone.db": "cc4b9469902a874adae83ba73f88d3b96e650fbabb34119409f13710abe0a143",
+      "simple_note.db": "58bfe70a5272be257a07bac3508d17c1d657c431c9628038c21a7e955e9827ed",
+      "splitwise.db": "36c88eb0b56b9663a74cc8696b520175afe2dedad5c9c9b7fcbbc3135e7ca8a3",
+      "spotify.db": "75d993b87a603145eff54e8a399848ad3e91c5460082fc9225ce13770f8424a3",
+      "supervisor.db": "410f9388a56d356d50a91e3b42b47777cf8bf0fed86a8c2461f598d91c562072",
+      "todoist.db": "5470d42bbc9ba39467b279ac2eab62b1978efa3b48d116274438d7031f54fdbb",
+      "venmo.db": "a1198cedc5e87f44025f4af4a19ce8ec76ebdb6d0270daa776cc1b67811069f9",
+      "version.txt": "911fc0c48cb0c70601db5775a9bef1b740dc4cc9f9b46389b9f0563fe7eb94d7"
+    },
+    "license_sha256": "3786bdb398d95201c067c3b59a3943659a36783579f70ad0fab99f915b499609",
+    "tool_schema_files": {
+      "amazon.json": "c237e0f8d26420b4de494581f0759112018f624dc9ec2744a68c37696da5a715",
+      "api_docs.json": "ddaf60c331c3f7a562cd70c653e0b80d44c14c23823eca6b33fed8185936c91f",
+      "file_system.json": "3d7f0ac5981d609ba8a0fcc3b3e5ce57e8c196c7c773b46e64851cc26c1c64e4",
+      "gmail.json": "5a89dba6f93f7eb7d4b99420b56d5570b37385ffdf2c7187ffaf45b5eb35e570",
+      "phone.json": "51d475fc24de716cb5ef16122c2bce1bd0e15b91f94a17531ce82eeb96fe7239",
+      "simple_note.json": "67e522466d09ed4616b4dedbb67fea77c851ebf0e6a4c9e71879b5b7bcdaee1b",
+      "splitwise.json": "d823a9322a149858482538394d7b2370e17d5adbf8079db04f10c22466cd29e6",
+      "spotify.json": "95b36bbd4743703f7ecfc1f8da9893ea3581b74e213374f1cbc87ce8cb79bdd7",
+      "supervisor.json": "88ad747838bd344696af89f3d8d5195b3cecbb0d3f31e98c2282013be68461a2",
+      "todoist.json": "c31dd8fd73c427b8d6a3276e5be8d8a8c186c11a7aeb038eb9bba3d7a94d2a26",
+      "venmo.json": "42672e78af295bcdb3680ab49fe398e82b8c1eebc6d70fb959b0fef7a1dbe775"
+    }
+  },
+  "rows": [
+    {
+      "task_id": "d8e490b_1",
+      "scenario_id": "d8e490b",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d8e490b_2",
+      "scenario_id": "d8e490b",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d8e490b_3",
+      "scenario_id": "d8e490b",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "8749218_3",
+      "scenario_id": "8749218",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "8749218_2",
+      "scenario_id": "8749218",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "8749218_1",
+      "scenario_id": "8749218",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "6588a51_1",
+      "scenario_id": "6588a51",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "6588a51_3",
+      "scenario_id": "6588a51",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "6588a51_2",
+      "scenario_id": "6588a51",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "270f1ff_3",
+      "scenario_id": "270f1ff",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "270f1ff_2",
+      "scenario_id": "270f1ff",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "270f1ff_1",
+      "scenario_id": "270f1ff",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "fa327a6_2",
+      "scenario_id": "fa327a6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fa327a6_1",
+      "scenario_id": "fa327a6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fa327a6_3",
+      "scenario_id": "fa327a6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fd1f8fa_3",
+      "scenario_id": "fd1f8fa",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "fd1f8fa_2",
+      "scenario_id": "fd1f8fa",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "fd1f8fa_1",
+      "scenario_id": "fd1f8fa",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "9ef034e_1",
+      "scenario_id": "9ef034e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9ef034e_2",
+      "scenario_id": "9ef034e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9ef034e_3",
+      "scenario_id": "9ef034e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cb4ee7a_1",
+      "scenario_id": "cb4ee7a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cb4ee7a_2",
+      "scenario_id": "cb4ee7a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cb4ee7a_3",
+      "scenario_id": "cb4ee7a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a97e35d_2",
+      "scenario_id": "a97e35d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a97e35d_3",
+      "scenario_id": "a97e35d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a97e35d_1",
+      "scenario_id": "a97e35d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "37a8675_2",
+      "scenario_id": "37a8675",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "37a8675_1",
+      "scenario_id": "37a8675",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "37a8675_3",
+      "scenario_id": "37a8675",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "e70b117_1",
+      "scenario_id": "e70b117",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e70b117_2",
+      "scenario_id": "e70b117",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e70b117_3",
+      "scenario_id": "e70b117",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "adb1060_1",
+      "scenario_id": "adb1060",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "adb1060_2",
+      "scenario_id": "adb1060",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "adb1060_3",
+      "scenario_id": "adb1060",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d194965_2",
+      "scenario_id": "d194965",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d194965_1",
+      "scenario_id": "d194965",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d194965_3",
+      "scenario_id": "d194965",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "ff58e36_3",
+      "scenario_id": "ff58e36",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "ff58e36_2",
+      "scenario_id": "ff58e36",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "ff58e36_1",
+      "scenario_id": "ff58e36",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "cdaaea5_3",
+      "scenario_id": "cdaaea5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cdaaea5_2",
+      "scenario_id": "cdaaea5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cdaaea5_1",
+      "scenario_id": "cdaaea5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a30375d_2",
+      "scenario_id": "a30375d",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "a30375d_3",
+      "scenario_id": "a30375d",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "a30375d_1",
+      "scenario_id": "a30375d",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "277d81d_3",
+      "scenario_id": "277d81d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "277d81d_2",
+      "scenario_id": "277d81d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "277d81d_1",
+      "scenario_id": "277d81d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "dac78d9_1",
+      "scenario_id": "dac78d9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "dac78d9_2",
+      "scenario_id": "dac78d9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "dac78d9_3",
+      "scenario_id": "dac78d9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "c77c005_1",
+      "scenario_id": "c77c005",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "c77c005_3",
+      "scenario_id": "c77c005",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "c77c005_2",
+      "scenario_id": "c77c005",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "23cf851_1",
+      "scenario_id": "23cf851",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "23cf851_2",
+      "scenario_id": "23cf851",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "23cf851_3",
+      "scenario_id": "23cf851",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "22cc237_1",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "22cc237_2",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "22cc237_3",
+      "scenario_id": "22cc237",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "e0fe09c_2",
+      "scenario_id": "e0fe09c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e0fe09c_3",
+      "scenario_id": "e0fe09c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e0fe09c_1",
+      "scenario_id": "e0fe09c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "18670a5_1",
+      "scenario_id": "18670a5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "18670a5_3",
+      "scenario_id": "18670a5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "18670a5_2",
+      "scenario_id": "18670a5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7d26579_1",
+      "scenario_id": "7d26579",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7d26579_3",
+      "scenario_id": "7d26579",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7d26579_2",
+      "scenario_id": "7d26579",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "83a7951_1",
+      "scenario_id": "83a7951",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "83a7951_3",
+      "scenario_id": "83a7951",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "83a7951_2",
+      "scenario_id": "83a7951",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "5e27cd7_3",
+      "scenario_id": "5e27cd7",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "5e27cd7_2",
+      "scenario_id": "5e27cd7",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "5e27cd7_1",
+      "scenario_id": "5e27cd7",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "4d12842_2",
+      "scenario_id": "4d12842",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "4d12842_1",
+      "scenario_id": "4d12842",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "4d12842_3",
+      "scenario_id": "4d12842",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ffe6d5e_1",
+      "scenario_id": "ffe6d5e",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "ffe6d5e_3",
+      "scenario_id": "ffe6d5e",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "ffe6d5e_2",
+      "scenario_id": "ffe6d5e",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "16be9ce_2",
+      "scenario_id": "16be9ce",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "16be9ce_3",
+      "scenario_id": "16be9ce",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "16be9ce_1",
+      "scenario_id": "16be9ce",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "0de03ad_2",
+      "scenario_id": "0de03ad",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "0de03ad_3",
+      "scenario_id": "0de03ad",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "0de03ad_1",
+      "scenario_id": "0de03ad",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "66b7899_2",
+      "scenario_id": "66b7899",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "66b7899_3",
+      "scenario_id": "66b7899",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "66b7899_1",
+      "scenario_id": "66b7899",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e7a10f8_1",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "e7a10f8_3",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "e7a10f8_2",
+      "scenario_id": "e7a10f8",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "d6ac34d_1",
+      "scenario_id": "d6ac34d",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d6ac34d_3",
+      "scenario_id": "d6ac34d",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d6ac34d_2",
+      "scenario_id": "d6ac34d",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d4e9306_2",
+      "scenario_id": "d4e9306",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "d4e9306_1",
+      "scenario_id": "d4e9306",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "d4e9306_3",
+      "scenario_id": "d4e9306",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "6f4b9a5_1",
+      "scenario_id": "6f4b9a5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "6f4b9a5_3",
+      "scenario_id": "6f4b9a5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "6f4b9a5_2",
+      "scenario_id": "6f4b9a5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "9126bf0_1",
+      "scenario_id": "9126bf0",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9126bf0_2",
+      "scenario_id": "9126bf0",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9126bf0_3",
+      "scenario_id": "9126bf0",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "afc0fce_1",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "afc0fce_2",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "afc0fce_3",
+      "scenario_id": "afc0fce",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "32616b5_3",
+      "scenario_id": "32616b5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "32616b5_2",
+      "scenario_id": "32616b5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "32616b5_1",
+      "scenario_id": "32616b5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "e3d6c94_3",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "e3d6c94_1",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "e3d6c94_2",
+      "scenario_id": "e3d6c94",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "383cbac_1",
+      "scenario_id": "383cbac",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "383cbac_3",
+      "scenario_id": "383cbac",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "383cbac_2",
+      "scenario_id": "383cbac",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "166f4ff_2",
+      "scenario_id": "166f4ff",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "166f4ff_3",
+      "scenario_id": "166f4ff",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "166f4ff_1",
+      "scenario_id": "166f4ff",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "3f3c139_2",
+      "scenario_id": "3f3c139",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "3f3c139_3",
+      "scenario_id": "3f3c139",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "3f3c139_1",
+      "scenario_id": "3f3c139",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "afc4005_2",
+      "scenario_id": "afc4005",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "afc4005_3",
+      "scenario_id": "afc4005",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "afc4005_1",
+      "scenario_id": "afc4005",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "77bcb81_1",
+      "scenario_id": "77bcb81",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "77bcb81_3",
+      "scenario_id": "77bcb81",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "77bcb81_2",
+      "scenario_id": "77bcb81",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "1150ed6_2",
+      "scenario_id": "1150ed6",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "1150ed6_1",
+      "scenario_id": "1150ed6",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "1150ed6_3",
+      "scenario_id": "1150ed6",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "7238049_3",
+      "scenario_id": "7238049",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7238049_1",
+      "scenario_id": "7238049",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7238049_2",
+      "scenario_id": "7238049",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b7a9ee9_2",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "b7a9ee9_1",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "b7a9ee9_3",
+      "scenario_id": "b7a9ee9",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "ac62177_3",
+      "scenario_id": "ac62177",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ac62177_1",
+      "scenario_id": "ac62177",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ac62177_2",
+      "scenario_id": "ac62177",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "6c2c621_1",
+      "scenario_id": "6c2c621",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "6c2c621_2",
+      "scenario_id": "6c2c621",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "6c2c621_3",
+      "scenario_id": "6c2c621",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "fdc4b74_1",
+      "scenario_id": "fdc4b74",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fdc4b74_2",
+      "scenario_id": "fdc4b74",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fdc4b74_3",
+      "scenario_id": "fdc4b74",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "29caf6f_2",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "29caf6f_1",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "29caf6f_3",
+      "scenario_id": "29caf6f",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "f6be291_2",
+      "scenario_id": "f6be291",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f6be291_1",
+      "scenario_id": "f6be291",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f6be291_3",
+      "scenario_id": "f6be291",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "634f342_3",
+      "scenario_id": "634f342",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "634f342_1",
+      "scenario_id": "634f342",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "634f342_2",
+      "scenario_id": "634f342",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d37c235_2",
+      "scenario_id": "d37c235",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d37c235_1",
+      "scenario_id": "d37c235",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d37c235_3",
+      "scenario_id": "d37c235",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "229360a_2",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "229360a_3",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "229360a_1",
+      "scenario_id": "229360a",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "82e2fac_3",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "82e2fac_1",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "82e2fac_2",
+      "scenario_id": "82e2fac",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "f861c32_2",
+      "scenario_id": "f861c32",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f861c32_3",
+      "scenario_id": "f861c32",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f861c32_1",
+      "scenario_id": "f861c32",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "6bdbc26_1",
+      "scenario_id": "6bdbc26",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "6bdbc26_2",
+      "scenario_id": "6bdbc26",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "6bdbc26_3",
+      "scenario_id": "6bdbc26",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "0a9d82a_1",
+      "scenario_id": "0a9d82a",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "0a9d82a_3",
+      "scenario_id": "0a9d82a",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "0a9d82a_2",
+      "scenario_id": "0a9d82a",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "dcbd34b_3",
+      "scenario_id": "dcbd34b",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "dcbd34b_1",
+      "scenario_id": "dcbd34b",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "dcbd34b_2",
+      "scenario_id": "dcbd34b",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f37e804_3",
+      "scenario_id": "f37e804",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f37e804_1",
+      "scenario_id": "f37e804",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f37e804_2",
+      "scenario_id": "f37e804",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "8d42650_3",
+      "scenario_id": "8d42650",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "8d42650_1",
+      "scenario_id": "8d42650",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "8d42650_2",
+      "scenario_id": "8d42650",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "eb5ad85_2",
+      "scenario_id": "eb5ad85",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "eb5ad85_1",
+      "scenario_id": "eb5ad85",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "eb5ad85_3",
+      "scenario_id": "eb5ad85",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7847649_1",
+      "scenario_id": "7847649",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "7847649_2",
+      "scenario_id": "7847649",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "7847649_3",
+      "scenario_id": "7847649",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "92fe421_1",
+      "scenario_id": "92fe421",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "92fe421_3",
+      "scenario_id": "92fe421",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "92fe421_2",
+      "scenario_id": "92fe421",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9a16324_2",
+      "scenario_id": "9a16324",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9a16324_3",
+      "scenario_id": "9a16324",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9a16324_1",
+      "scenario_id": "9a16324",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "efc3cea_1",
+      "scenario_id": "efc3cea",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "efc3cea_3",
+      "scenario_id": "efc3cea",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "efc3cea_2",
+      "scenario_id": "efc3cea",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9dabbc9_3",
+      "scenario_id": "9dabbc9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "9dabbc9_1",
+      "scenario_id": "9dabbc9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "9dabbc9_2",
+      "scenario_id": "9dabbc9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "9016950_1",
+      "scenario_id": "9016950",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "9016950_2",
+      "scenario_id": "9016950",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "9016950_3",
+      "scenario_id": "9016950",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "4242c97_2",
+      "scenario_id": "4242c97",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "4242c97_1",
+      "scenario_id": "4242c97",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "4242c97_3",
+      "scenario_id": "4242c97",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7e1be84_3",
+      "scenario_id": "7e1be84",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7e1be84_1",
+      "scenario_id": "7e1be84",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7e1be84_2",
+      "scenario_id": "7e1be84",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f6f2e67_1",
+      "scenario_id": "f6f2e67",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f6f2e67_2",
+      "scenario_id": "f6f2e67",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f6f2e67_3",
+      "scenario_id": "f6f2e67",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "98d2608_1",
+      "scenario_id": "98d2608",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "98d2608_2",
+      "scenario_id": "98d2608",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "98d2608_3",
+      "scenario_id": "98d2608",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "143527e_2",
+      "scenario_id": "143527e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "143527e_3",
+      "scenario_id": "143527e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "143527e_1",
+      "scenario_id": "143527e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7264edc_1",
+      "scenario_id": "7264edc",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7264edc_2",
+      "scenario_id": "7264edc",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7264edc_3",
+      "scenario_id": "7264edc",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ccf4b82_3",
+      "scenario_id": "ccf4b82",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "ccf4b82_2",
+      "scenario_id": "ccf4b82",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "ccf4b82_1",
+      "scenario_id": "ccf4b82",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f6936d4_2",
+      "scenario_id": "f6936d4",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f6936d4_3",
+      "scenario_id": "f6936d4",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f6936d4_1",
+      "scenario_id": "f6936d4",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "6171bbc_1",
+      "scenario_id": "6171bbc",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "6171bbc_3",
+      "scenario_id": "6171bbc",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "6171bbc_2",
+      "scenario_id": "6171bbc",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "476b213_3",
+      "scenario_id": "476b213",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "476b213_2",
+      "scenario_id": "476b213",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "476b213_1",
+      "scenario_id": "476b213",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "13547f5_2",
+      "scenario_id": "13547f5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "13547f5_3",
+      "scenario_id": "13547f5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "13547f5_1",
+      "scenario_id": "13547f5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d037dc8_1",
+      "scenario_id": "d037dc8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d037dc8_2",
+      "scenario_id": "d037dc8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d037dc8_3",
+      "scenario_id": "d037dc8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "0d22252_1",
+      "scenario_id": "0d22252",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "0d22252_2",
+      "scenario_id": "0d22252",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "0d22252_3",
+      "scenario_id": "0d22252",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "c901732_3",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "c901732_1",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "c901732_2",
+      "scenario_id": "c901732",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "988af8e_1",
+      "scenario_id": "988af8e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "988af8e_2",
+      "scenario_id": "988af8e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "988af8e_3",
+      "scenario_id": "988af8e",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fb05fed_3",
+      "scenario_id": "fb05fed",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fb05fed_1",
+      "scenario_id": "fb05fed",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fb05fed_2",
+      "scenario_id": "fb05fed",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "bcb9696_2",
+      "scenario_id": "bcb9696",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "bcb9696_3",
+      "scenario_id": "bcb9696",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "bcb9696_1",
+      "scenario_id": "bcb9696",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ba46d91_2",
+      "scenario_id": "ba46d91",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ba46d91_3",
+      "scenario_id": "ba46d91",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ba46d91_1",
+      "scenario_id": "ba46d91",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "8ce6779_1",
+      "scenario_id": "8ce6779",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "8ce6779_3",
+      "scenario_id": "8ce6779",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "8ce6779_2",
+      "scenario_id": "8ce6779",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "a7179fa_2",
+      "scenario_id": "a7179fa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a7179fa_1",
+      "scenario_id": "a7179fa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a7179fa_3",
+      "scenario_id": "a7179fa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7434096_3",
+      "scenario_id": "7434096",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7434096_1",
+      "scenario_id": "7434096",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7434096_2",
+      "scenario_id": "7434096",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "099174d_3",
+      "scenario_id": "099174d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "099174d_1",
+      "scenario_id": "099174d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "099174d_2",
+      "scenario_id": "099174d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "432dc7a_2",
+      "scenario_id": "432dc7a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "432dc7a_3",
+      "scenario_id": "432dc7a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "432dc7a_1",
+      "scenario_id": "432dc7a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "652485c_2",
+      "scenario_id": "652485c",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "652485c_3",
+      "scenario_id": "652485c",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "652485c_1",
+      "scenario_id": "652485c",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "3aa1a22_1",
+      "scenario_id": "3aa1a22",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "3aa1a22_3",
+      "scenario_id": "3aa1a22",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "3aa1a22_2",
+      "scenario_id": "3aa1a22",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "4ec8de5_1",
+      "scenario_id": "4ec8de5",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "4ec8de5_3",
+      "scenario_id": "4ec8de5",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "4ec8de5_2",
+      "scenario_id": "4ec8de5",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "530b157_1",
+      "scenario_id": "530b157",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "530b157_2",
+      "scenario_id": "530b157",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "530b157_3",
+      "scenario_id": "530b157",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "ce73d68_2",
+      "scenario_id": "ce73d68",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ce73d68_1",
+      "scenario_id": "ce73d68",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ce73d68_3",
+      "scenario_id": "ce73d68",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "30e8586_2",
+      "scenario_id": "30e8586",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "30e8586_1",
+      "scenario_id": "30e8586",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "30e8586_3",
+      "scenario_id": "30e8586",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cef9191_2",
+      "scenario_id": "cef9191",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "cef9191_1",
+      "scenario_id": "cef9191",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "cef9191_3",
+      "scenario_id": "cef9191",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "cdf61bd_3",
+      "scenario_id": "cdf61bd",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cdf61bd_2",
+      "scenario_id": "cdf61bd",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cdf61bd_1",
+      "scenario_id": "cdf61bd",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a132254_1",
+      "scenario_id": "a132254",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a132254_3",
+      "scenario_id": "a132254",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a132254_2",
+      "scenario_id": "a132254",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "6d59d90_3",
+      "scenario_id": "6d59d90",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "6d59d90_1",
+      "scenario_id": "6d59d90",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "6d59d90_2",
+      "scenario_id": "6d59d90",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ffea2b5_3",
+      "scenario_id": "ffea2b5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ffea2b5_2",
+      "scenario_id": "ffea2b5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ffea2b5_1",
+      "scenario_id": "ffea2b5",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "4fab96f_2",
+      "scenario_id": "4fab96f",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "4fab96f_1",
+      "scenario_id": "4fab96f",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "4fab96f_3",
+      "scenario_id": "4fab96f",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "7b97e6d_1",
+      "scenario_id": "7b97e6d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7b97e6d_3",
+      "scenario_id": "7b97e6d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7b97e6d_2",
+      "scenario_id": "7b97e6d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ec655df_1",
+      "scenario_id": "ec655df",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ec655df_2",
+      "scenario_id": "ec655df",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ec655df_3",
+      "scenario_id": "ec655df",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a676f2a_3",
+      "scenario_id": "a676f2a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a676f2a_1",
+      "scenario_id": "a676f2a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a676f2a_2",
+      "scenario_id": "a676f2a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "dbc0276_3",
+      "scenario_id": "dbc0276",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "dbc0276_1",
+      "scenario_id": "dbc0276",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "dbc0276_2",
+      "scenario_id": "dbc0276",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "aa8502b_2",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "aa8502b_1",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "aa8502b_3",
+      "scenario_id": "aa8502b",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "3d9a636_1",
+      "scenario_id": "3d9a636",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "3d9a636_2",
+      "scenario_id": "3d9a636",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "3d9a636_3",
+      "scenario_id": "3d9a636",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f3a6713_2",
+      "scenario_id": "f3a6713",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f3a6713_1",
+      "scenario_id": "f3a6713",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f3a6713_3",
+      "scenario_id": "f3a6713",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "baeb104_2",
+      "scenario_id": "baeb104",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "baeb104_3",
+      "scenario_id": "baeb104",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "baeb104_1",
+      "scenario_id": "baeb104",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "2c544f9_3",
+      "scenario_id": "2c544f9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "2c544f9_1",
+      "scenario_id": "2c544f9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "2c544f9_2",
+      "scenario_id": "2c544f9",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "aaa25aa_3",
+      "scenario_id": "aaa25aa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "aaa25aa_2",
+      "scenario_id": "aaa25aa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "aaa25aa_1",
+      "scenario_id": "aaa25aa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "21abae1_3",
+      "scenario_id": "21abae1",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "21abae1_2",
+      "scenario_id": "21abae1",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "21abae1_1",
+      "scenario_id": "21abae1",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "b68eb83_3",
+      "scenario_id": "b68eb83",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b68eb83_2",
+      "scenario_id": "b68eb83",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b68eb83_1",
+      "scenario_id": "b68eb83",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ccb4494_2",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "ccb4494_3",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "ccb4494_1",
+      "scenario_id": "ccb4494",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "e775c78_3",
+      "scenario_id": "e775c78",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e775c78_2",
+      "scenario_id": "e775c78",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e775c78_1",
+      "scenario_id": "e775c78",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "cf6abd2_3",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "cf6abd2_2",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "cf6abd2_1",
+      "scenario_id": "cf6abd2",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "b3bdcc1_3",
+      "scenario_id": "b3bdcc1",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b3bdcc1_2",
+      "scenario_id": "b3bdcc1",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b3bdcc1_1",
+      "scenario_id": "b3bdcc1",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "906f2c7_3",
+      "scenario_id": "906f2c7",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "906f2c7_1",
+      "scenario_id": "906f2c7",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "906f2c7_2",
+      "scenario_id": "906f2c7",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a5b0084_3",
+      "scenario_id": "a5b0084",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a5b0084_1",
+      "scenario_id": "a5b0084",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a5b0084_2",
+      "scenario_id": "a5b0084",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7d7fbf6_1",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "7d7fbf6_3",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "7d7fbf6_2",
+      "scenario_id": "7d7fbf6",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "b0a8eae_3",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "b0a8eae_1",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "b0a8eae_2",
+      "scenario_id": "b0a8eae",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "9aae7da_1",
+      "scenario_id": "9aae7da",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9aae7da_3",
+      "scenario_id": "9aae7da",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9aae7da_2",
+      "scenario_id": "9aae7da",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "5a83b05_2",
+      "scenario_id": "5a83b05",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "5a83b05_3",
+      "scenario_id": "5a83b05",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "5a83b05_1",
+      "scenario_id": "5a83b05",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "6104387_2",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "6104387_3",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "6104387_1",
+      "scenario_id": "6104387",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "7574325_2",
+      "scenario_id": "7574325",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7574325_3",
+      "scenario_id": "7574325",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "7574325_1",
+      "scenario_id": "7574325",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b6d1104_3",
+      "scenario_id": "b6d1104",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "b6d1104_2",
+      "scenario_id": "b6d1104",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "b6d1104_1",
+      "scenario_id": "b6d1104",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "b4707e8_1",
+      "scenario_id": "b4707e8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b4707e8_3",
+      "scenario_id": "b4707e8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b4707e8_2",
+      "scenario_id": "b4707e8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "3650990_1",
+      "scenario_id": "3650990",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "3650990_2",
+      "scenario_id": "3650990",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "3650990_3",
+      "scenario_id": "3650990",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "5238afc_3",
+      "scenario_id": "5238afc",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "5238afc_2",
+      "scenario_id": "5238afc",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "5238afc_1",
+      "scenario_id": "5238afc",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "31dc501_2",
+      "scenario_id": "31dc501",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "31dc501_3",
+      "scenario_id": "31dc501",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "31dc501_1",
+      "scenario_id": "31dc501",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f099b4c_3",
+      "scenario_id": "f099b4c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f099b4c_1",
+      "scenario_id": "f099b4c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f099b4c_2",
+      "scenario_id": "f099b4c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f323bae_3",
+      "scenario_id": "f323bae",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f323bae_2",
+      "scenario_id": "f323bae",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f323bae_1",
+      "scenario_id": "f323bae",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f691597_3",
+      "scenario_id": "f691597",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f691597_2",
+      "scenario_id": "f691597",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f691597_1",
+      "scenario_id": "f691597",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "042a9fc_2",
+      "scenario_id": "042a9fc",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "042a9fc_1",
+      "scenario_id": "042a9fc",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "042a9fc_3",
+      "scenario_id": "042a9fc",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "522e5e5_1",
+      "scenario_id": "522e5e5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "522e5e5_2",
+      "scenario_id": "522e5e5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "522e5e5_3",
+      "scenario_id": "522e5e5",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "b119b1f_1",
+      "scenario_id": "b119b1f",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "b119b1f_2",
+      "scenario_id": "b119b1f",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "b119b1f_3",
+      "scenario_id": "b119b1f",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "d0b1f43_3",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "d0b1f43_2",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "d0b1f43_1",
+      "scenario_id": "d0b1f43",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "09ac073_1",
+      "scenario_id": "09ac073",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "09ac073_2",
+      "scenario_id": "09ac073",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "09ac073_3",
+      "scenario_id": "09ac073",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "383a053_2",
+      "scenario_id": "383a053",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "383a053_3",
+      "scenario_id": "383a053",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "383a053_1",
+      "scenario_id": "383a053",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "80acbaf_1",
+      "scenario_id": "80acbaf",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "80acbaf_2",
+      "scenario_id": "80acbaf",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "80acbaf_3",
+      "scenario_id": "80acbaf",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fddb6b6_1",
+      "scenario_id": "fddb6b6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fddb6b6_3",
+      "scenario_id": "fddb6b6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "fddb6b6_2",
+      "scenario_id": "fddb6b6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "23d431c_2",
+      "scenario_id": "23d431c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "23d431c_1",
+      "scenario_id": "23d431c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "23d431c_3",
+      "scenario_id": "23d431c",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "27e1026_2",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "27e1026_3",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "27e1026_1",
+      "scenario_id": "27e1026",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "34d9492_3",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "34d9492_2",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "34d9492_1",
+      "scenario_id": "34d9492",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "e201314_3",
+      "scenario_id": "e201314",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e201314_1",
+      "scenario_id": "e201314",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "e201314_2",
+      "scenario_id": "e201314",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "76f2c72_2",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "76f2c72_3",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "76f2c72_1",
+      "scenario_id": "76f2c72",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "c8f5f44_2",
+      "scenario_id": "c8f5f44",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "c8f5f44_3",
+      "scenario_id": "c8f5f44",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "c8f5f44_1",
+      "scenario_id": "c8f5f44",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "8f79e35_2",
+      "scenario_id": "8f79e35",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "8f79e35_3",
+      "scenario_id": "8f79e35",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "8f79e35_1",
+      "scenario_id": "8f79e35",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "59bcfc8_1",
+      "scenario_id": "59bcfc8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "59bcfc8_3",
+      "scenario_id": "59bcfc8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "59bcfc8_2",
+      "scenario_id": "59bcfc8",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "325d6ec_2",
+      "scenario_id": "325d6ec",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "325d6ec_1",
+      "scenario_id": "325d6ec",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "325d6ec_3",
+      "scenario_id": "325d6ec",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "a3ba388_2",
+      "scenario_id": "a3ba388",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a3ba388_3",
+      "scenario_id": "a3ba388",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "a3ba388_1",
+      "scenario_id": "a3ba388",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f3f60f0_3",
+      "scenario_id": "f3f60f0",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f3f60f0_2",
+      "scenario_id": "f3f60f0",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f3f60f0_1",
+      "scenario_id": "f3f60f0",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "df61dc5_1",
+      "scenario_id": "df61dc5",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "df61dc5_3",
+      "scenario_id": "df61dc5",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "df61dc5_2",
+      "scenario_id": "df61dc5",
+      "official_split": "dev",
+      "role": "train"
+    },
+    {
+      "task_id": "b0934aa_2",
+      "scenario_id": "b0934aa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b0934aa_3",
+      "scenario_id": "b0934aa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "b0934aa_1",
+      "scenario_id": "b0934aa",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ce359b5_1",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "ce359b5_3",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "ce359b5_2",
+      "scenario_id": "ce359b5",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "33e202d_3",
+      "scenario_id": "33e202d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "33e202d_1",
+      "scenario_id": "33e202d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "33e202d_2",
+      "scenario_id": "33e202d",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "81be677_3",
+      "scenario_id": "81be677",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "81be677_1",
+      "scenario_id": "81be677",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "81be677_2",
+      "scenario_id": "81be677",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "2d9f728_3",
+      "scenario_id": "2d9f728",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "2d9f728_2",
+      "scenario_id": "2d9f728",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "2d9f728_1",
+      "scenario_id": "2d9f728",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "f86d850_3",
+      "scenario_id": "f86d850",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f86d850_2",
+      "scenario_id": "f86d850",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "f86d850_1",
+      "scenario_id": "f86d850",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d6d8cb6_2",
+      "scenario_id": "d6d8cb6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d6d8cb6_3",
+      "scenario_id": "d6d8cb6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d6d8cb6_1",
+      "scenario_id": "d6d8cb6",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "36705ae_2",
+      "scenario_id": "36705ae",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "36705ae_1",
+      "scenario_id": "36705ae",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "36705ae_3",
+      "scenario_id": "36705ae",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d18139b_3",
+      "scenario_id": "d18139b",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d18139b_2",
+      "scenario_id": "d18139b",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "d18139b_1",
+      "scenario_id": "d18139b",
+      "official_split": "test_normal",
+      "role": "train"
+    },
+    {
+      "task_id": "ec437da_1",
+      "scenario_id": "ec437da",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ec437da_2",
+      "scenario_id": "ec437da",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "ec437da_3",
+      "scenario_id": "ec437da",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9bf2c8a_1",
+      "scenario_id": "9bf2c8a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9bf2c8a_2",
+      "scenario_id": "9bf2c8a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9bf2c8a_3",
+      "scenario_id": "9bf2c8a",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "96bf160_1",
+      "scenario_id": "96bf160",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "96bf160_2",
+      "scenario_id": "96bf160",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "96bf160_3",
+      "scenario_id": "96bf160",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "2a163ab_2",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "2a163ab_3",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "2a163ab_1",
+      "scenario_id": "2a163ab",
+      "official_split": "train",
+      "role": "train"
+    },
+    {
+      "task_id": "9871968_1",
+      "scenario_id": "9871968",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9871968_2",
+      "scenario_id": "9871968",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "9871968_3",
+      "scenario_id": "9871968",
+      "official_split": "test_challenge",
+      "role": "train"
+    },
+    {
+      "task_id": "d9987f6_3",
+      "scenario_id": "d9987f6",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "d9987f6_2",
+      "scenario_id": "d9987f6",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "d9987f6_1",
+      "scenario_id": "d9987f6",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "50e1ac9_2",
+      "scenario_id": "50e1ac9",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "50e1ac9_1",
+      "scenario_id": "50e1ac9",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "50e1ac9_3",
+      "scenario_id": "50e1ac9",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "bde252e_1",
+      "scenario_id": "bde252e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "bde252e_3",
+      "scenario_id": "bde252e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "bde252e_2",
+      "scenario_id": "bde252e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "9b2dc64_3",
+      "scenario_id": "9b2dc64",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "9b2dc64_2",
+      "scenario_id": "9b2dc64",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "9b2dc64_1",
+      "scenario_id": "9b2dc64",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "8a13317_1",
+      "scenario_id": "8a13317",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "8a13317_3",
+      "scenario_id": "8a13317",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "8a13317_2",
+      "scenario_id": "8a13317",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "c1091c7_2",
+      "scenario_id": "c1091c7",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "c1091c7_1",
+      "scenario_id": "c1091c7",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "c1091c7_3",
+      "scenario_id": "c1091c7",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "258796c_1",
+      "scenario_id": "258796c",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "258796c_2",
+      "scenario_id": "258796c",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "258796c_3",
+      "scenario_id": "258796c",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "6ea6792_3",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "dev"
+    },
+    {
+      "task_id": "6ea6792_2",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "dev"
+    },
+    {
+      "task_id": "6ea6792_1",
+      "scenario_id": "6ea6792",
+      "official_split": "train",
+      "role": "dev"
+    },
+    {
+      "task_id": "2ff4dfb_1",
+      "scenario_id": "2ff4dfb",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "2ff4dfb_3",
+      "scenario_id": "2ff4dfb",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "2ff4dfb_2",
+      "scenario_id": "2ff4dfb",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "a8f302f_3",
+      "scenario_id": "a8f302f",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "a8f302f_1",
+      "scenario_id": "a8f302f",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "a8f302f_2",
+      "scenario_id": "a8f302f",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "365e0a3_3",
+      "scenario_id": "365e0a3",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "365e0a3_2",
+      "scenario_id": "365e0a3",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "365e0a3_1",
+      "scenario_id": "365e0a3",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "1b988ac_1",
+      "scenario_id": "1b988ac",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "1b988ac_3",
+      "scenario_id": "1b988ac",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "1b988ac_2",
+      "scenario_id": "1b988ac",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "0d01c76_2",
+      "scenario_id": "0d01c76",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "0d01c76_3",
+      "scenario_id": "0d01c76",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "0d01c76_1",
+      "scenario_id": "0d01c76",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "552869a_3",
+      "scenario_id": "552869a",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "552869a_2",
+      "scenario_id": "552869a",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "552869a_1",
+      "scenario_id": "552869a",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "29a7b7e_3",
+      "scenario_id": "29a7b7e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "29a7b7e_1",
+      "scenario_id": "29a7b7e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "29a7b7e_2",
+      "scenario_id": "29a7b7e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "69ba40f_2",
+      "scenario_id": "69ba40f",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "69ba40f_3",
+      "scenario_id": "69ba40f",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "69ba40f_1",
+      "scenario_id": "69ba40f",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "6474048_1",
+      "scenario_id": "6474048",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "6474048_2",
+      "scenario_id": "6474048",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "6474048_3",
+      "scenario_id": "6474048",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "57c3486_1",
+      "scenario_id": "57c3486",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "57c3486_3",
+      "scenario_id": "57c3486",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "57c3486_2",
+      "scenario_id": "57c3486",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "986aa4e_2",
+      "scenario_id": "986aa4e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "986aa4e_1",
+      "scenario_id": "986aa4e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "986aa4e_3",
+      "scenario_id": "986aa4e",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "425a494_2",
+      "scenario_id": "425a494",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "425a494_1",
+      "scenario_id": "425a494",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "425a494_3",
+      "scenario_id": "425a494",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "68ee2c9_3",
+      "scenario_id": "68ee2c9",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "68ee2c9_1",
+      "scenario_id": "68ee2c9",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "68ee2c9_2",
+      "scenario_id": "68ee2c9",
+      "official_split": "dev",
+      "role": "dev"
+    },
+    {
+      "task_id": "b6d1f70_2",
+      "scenario_id": "b6d1f70",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "b6d1f70_1",
+      "scenario_id": "b6d1f70",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "b6d1f70_3",
+      "scenario_id": "b6d1f70",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "59fae45_2",
+      "scenario_id": "59fae45",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "59fae45_3",
+      "scenario_id": "59fae45",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "59fae45_1",
+      "scenario_id": "59fae45",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "90adc3f_1",
+      "scenario_id": "90adc3f",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "90adc3f_2",
+      "scenario_id": "90adc3f",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "90adc3f_3",
+      "scenario_id": "90adc3f",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "82d2e01_3",
+      "scenario_id": "82d2e01",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "82d2e01_2",
+      "scenario_id": "82d2e01",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "82d2e01_1",
+      "scenario_id": "82d2e01",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "321ec38_2",
+      "scenario_id": "321ec38",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "321ec38_1",
+      "scenario_id": "321ec38",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "321ec38_3",
+      "scenario_id": "321ec38",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "024c982_3",
+      "scenario_id": "024c982",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "024c982_2",
+      "scenario_id": "024c982",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "024c982_1",
+      "scenario_id": "024c982",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "4ac4a8d_2",
+      "scenario_id": "4ac4a8d",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "4ac4a8d_3",
+      "scenario_id": "4ac4a8d",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "4ac4a8d_1",
+      "scenario_id": "4ac4a8d",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "0de03ea_3",
+      "scenario_id": "0de03ea",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "0de03ea_1",
+      "scenario_id": "0de03ea",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "0de03ea_2",
+      "scenario_id": "0de03ea",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "b71318e_3",
+      "scenario_id": "b71318e",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "b71318e_2",
+      "scenario_id": "b71318e",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "b71318e_1",
+      "scenario_id": "b71318e",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "4441ee9_1",
+      "scenario_id": "4441ee9",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "4441ee9_2",
+      "scenario_id": "4441ee9",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "4441ee9_3",
+      "scenario_id": "4441ee9",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "4815c06_3",
+      "scenario_id": "4815c06",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "4815c06_2",
+      "scenario_id": "4815c06",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "4815c06_1",
+      "scenario_id": "4815c06",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "953b296_2",
+      "scenario_id": "953b296",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "953b296_1",
+      "scenario_id": "953b296",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "953b296_3",
+      "scenario_id": "953b296",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "6b6ca61_2",
+      "scenario_id": "6b6ca61",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "6b6ca61_3",
+      "scenario_id": "6b6ca61",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "6b6ca61_1",
+      "scenario_id": "6b6ca61",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "6a5e690_3",
+      "scenario_id": "6a5e690",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "6a5e690_1",
+      "scenario_id": "6a5e690",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "6a5e690_2",
+      "scenario_id": "6a5e690",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "3b8fb7a_3",
+      "scenario_id": "3b8fb7a",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "3b8fb7a_1",
+      "scenario_id": "3b8fb7a",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "3b8fb7a_2",
+      "scenario_id": "3b8fb7a",
+      "official_split": "test_normal",
+      "role": "dev"
+    },
+    {
+      "task_id": "a1d3dfd_1",
+      "scenario_id": "a1d3dfd",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "a1d3dfd_3",
+      "scenario_id": "a1d3dfd",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "a1d3dfd_2",
+      "scenario_id": "a1d3dfd",
+      "official_split": "test_challenge",
+      "role": "dev"
+    },
+    {
+      "task_id": "1b2bae9_3",
+      "scenario_id": "1b2bae9",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "1b2bae9_2",
+      "scenario_id": "1b2bae9",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "1b2bae9_1",
+      "scenario_id": "1b2bae9",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "3fcc458_1",
+      "scenario_id": "3fcc458",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "3fcc458_3",
+      "scenario_id": "3fcc458",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "3fcc458_2",
+      "scenario_id": "3fcc458",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "2e9b91e_2",
+      "scenario_id": "2e9b91e",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "2e9b91e_3",
+      "scenario_id": "2e9b91e",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "2e9b91e_1",
+      "scenario_id": "2e9b91e",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "af84964_1",
+      "scenario_id": "af84964",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "af84964_2",
+      "scenario_id": "af84964",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "af84964_3",
+      "scenario_id": "af84964",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "287e338_1",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "287e338_2",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "287e338_3",
+      "scenario_id": "287e338",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "e52623a_1",
+      "scenario_id": "e52623a",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "e52623a_2",
+      "scenario_id": "e52623a",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "e52623a_3",
+      "scenario_id": "e52623a",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "e85d92a_2",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "e85d92a_1",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "e85d92a_3",
+      "scenario_id": "e85d92a",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "60d0b5b_3",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "60d0b5b_2",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "60d0b5b_1",
+      "scenario_id": "60d0b5b",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "396c5a2_3",
+      "scenario_id": "396c5a2",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "396c5a2_1",
+      "scenario_id": "396c5a2",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "396c5a2_2",
+      "scenario_id": "396c5a2",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "998908e_1",
+      "scenario_id": "998908e",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "998908e_2",
+      "scenario_id": "998908e",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "998908e_3",
+      "scenario_id": "998908e",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "b05f69a_2",
+      "scenario_id": "b05f69a",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "b05f69a_3",
+      "scenario_id": "b05f69a",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "b05f69a_1",
+      "scenario_id": "b05f69a",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "692c77d_1",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "692c77d_3",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "692c77d_2",
+      "scenario_id": "692c77d",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "5800354_2",
+      "scenario_id": "5800354",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "5800354_1",
+      "scenario_id": "5800354",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "5800354_3",
+      "scenario_id": "5800354",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "245cb43_1",
+      "scenario_id": "245cb43",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "245cb43_2",
+      "scenario_id": "245cb43",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "245cb43_3",
+      "scenario_id": "245cb43",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "07b42fd_3",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "07b42fd_2",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "07b42fd_1",
+      "scenario_id": "07b42fd",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "f99d726_1",
+      "scenario_id": "f99d726",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "f99d726_2",
+      "scenario_id": "f99d726",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "f99d726_3",
+      "scenario_id": "f99d726",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "3ab5b8b_2",
+      "scenario_id": "3ab5b8b",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "3ab5b8b_3",
+      "scenario_id": "3ab5b8b",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "3ab5b8b_1",
+      "scenario_id": "3ab5b8b",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "fac291d_2",
+      "scenario_id": "fac291d",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "fac291d_1",
+      "scenario_id": "fac291d",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "fac291d_3",
+      "scenario_id": "fac291d",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "b08d5ef_3",
+      "scenario_id": "b08d5ef",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "b08d5ef_1",
+      "scenario_id": "b08d5ef",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "b08d5ef_2",
+      "scenario_id": "b08d5ef",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "771d8fc_2",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "771d8fc_3",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "771d8fc_1",
+      "scenario_id": "771d8fc",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "0d8a4ee_2",
+      "scenario_id": "0d8a4ee",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "0d8a4ee_1",
+      "scenario_id": "0d8a4ee",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "0d8a4ee_3",
+      "scenario_id": "0d8a4ee",
+      "official_split": "dev",
+      "role": "test"
+    },
+    {
+      "task_id": "690d51b_1",
+      "scenario_id": "690d51b",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "690d51b_2",
+      "scenario_id": "690d51b",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "690d51b_3",
+      "scenario_id": "690d51b",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "302c169_1",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "302c169_2",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "302c169_3",
+      "scenario_id": "302c169",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "3c13f5a_1",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "3c13f5a_3",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "3c13f5a_2",
+      "scenario_id": "3c13f5a",
+      "official_split": "train",
+      "role": "test"
+    },
+    {
+      "task_id": "7bdaf23_3",
+      "scenario_id": "7bdaf23",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "7bdaf23_2",
+      "scenario_id": "7bdaf23",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "7bdaf23_1",
+      "scenario_id": "7bdaf23",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "b9c5c9a_1",
+      "scenario_id": "b9c5c9a",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "b9c5c9a_3",
+      "scenario_id": "b9c5c9a",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "b9c5c9a_2",
+      "scenario_id": "b9c5c9a",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "dcb2559_1",
+      "scenario_id": "dcb2559",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "dcb2559_3",
+      "scenario_id": "dcb2559",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "dcb2559_2",
+      "scenario_id": "dcb2559",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "dc5c5c6_2",
+      "scenario_id": "dc5c5c6",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "dc5c5c6_3",
+      "scenario_id": "dc5c5c6",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "dc5c5c6_1",
+      "scenario_id": "dc5c5c6",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "20c1328_1",
+      "scenario_id": "20c1328",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "20c1328_2",
+      "scenario_id": "20c1328",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "20c1328_3",
+      "scenario_id": "20c1328",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "1a79e37_3",
+      "scenario_id": "1a79e37",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "1a79e37_2",
+      "scenario_id": "1a79e37",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "1a79e37_1",
+      "scenario_id": "1a79e37",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "a53a8fd_1",
+      "scenario_id": "a53a8fd",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "a53a8fd_3",
+      "scenario_id": "a53a8fd",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "a53a8fd_2",
+      "scenario_id": "a53a8fd",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "09b0ee6_1",
+      "scenario_id": "09b0ee6",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "09b0ee6_2",
+      "scenario_id": "09b0ee6",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "09b0ee6_3",
+      "scenario_id": "09b0ee6",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "c9458ed_2",
+      "scenario_id": "c9458ed",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "c9458ed_1",
+      "scenario_id": "c9458ed",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "c9458ed_3",
+      "scenario_id": "c9458ed",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "9ef798c_3",
+      "scenario_id": "9ef798c",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "9ef798c_2",
+      "scenario_id": "9ef798c",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "9ef798c_1",
+      "scenario_id": "9ef798c",
+      "official_split": "test_normal",
+      "role": "test"
+    },
+    {
+      "task_id": "07bb666_1",
+      "scenario_id": "07bb666",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "07bb666_2",
+      "scenario_id": "07bb666",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "07bb666_3",
+      "scenario_id": "07bb666",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "e7f15ba_1",
+      "scenario_id": "e7f15ba",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "e7f15ba_2",
+      "scenario_id": "e7f15ba",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "e7f15ba_3",
+      "scenario_id": "e7f15ba",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "1c4bd27_2",
+      "scenario_id": "1c4bd27",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "1c4bd27_1",
+      "scenario_id": "1c4bd27",
+      "official_split": "test_challenge",
+      "role": "test"
+    },
+    {
+      "task_id": "1c4bd27_3",
+      "scenario_id": "1c4bd27",
+      "official_split": "test_challenge",
+      "role": "test"
+    }
+  ],
+  "feedback20": [
+    "d8e490b_1",
+    "8749218_3",
+    "6588a51_1",
+    "270f1ff_3",
+    "fa327a6_2",
+    "fd1f8fa_3",
+    "9ef034e_1",
+    "cb4ee7a_1",
+    "a97e35d_2",
+    "37a8675_2",
+    "e70b117_1",
+    "adb1060_1",
+    "d194965_2",
+    "ff58e36_3",
+    "cdaaea5_3",
+    "a30375d_2",
+    "277d81d_3",
+    "dac78d9_1",
+    "c77c005_1",
+    "23cf851_1"
+  ],
+  "dev24": [
+    "d9987f6_3",
+    "d9987f6_2",
+    "d9987f6_1",
+    "50e1ac9_2",
+    "50e1ac9_1",
+    "50e1ac9_3",
+    "bde252e_1",
+    "bde252e_3",
+    "bde252e_2",
+    "9b2dc64_3",
+    "9b2dc64_2",
+    "9b2dc64_1",
+    "8a13317_1",
+    "8a13317_3",
+    "8a13317_2",
+    "c1091c7_2",
+    "c1091c7_1",
+    "c1091c7_3",
+    "258796c_1",
+    "258796c_2",
+    "258796c_3",
+    "6ea6792_3",
+    "6ea6792_2",
+    "6ea6792_1"
+  ],
+  "official_benchmark_claim": false,
+  "assignment": "sha256(seed:scenario); 170/37/37; no outcomes or task content",
+  "manifest_sha256": "ff24d1c05f16e82795e0baa4dd855c03d8482bb32d6e2e07ce386a9af59bfe6b"
+}

@@ -79,7 +79,16 @@ def restore_teacher_start(adapter, source, output, trajectory):
 
 
 def validate_public_record(record):
-    context = validate_context(record["task_id"], record["custom_research"])
+    from .v2_tasks import SCOPE as V2_SCOPE
+
+    if record["custom_research"].get("scope") == V2_SCOPE:
+        from .v2_tasks import validate_context as validate_v2
+
+        context = validate_v2(
+            record["task_id"], record["custom_research"], training=True
+        )
+    else:
+        context = validate_context(record["task_id"], record["custom_research"])
     recovery = record["recovery"]
     boundary = recovery["snapshot_prefix_end"]
     if (

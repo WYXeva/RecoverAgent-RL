@@ -45,6 +45,12 @@ def verify_student_runtime(runtime):
     This lock identifies software only; it grants no data, model or GPU permission.
     Historical runtime locks remain immutable and use their original checkouts.
     """
+    from .v2_tasks import RUNTIME as V2_RUNTIME
+
+    if runtime == V2_RUNTIME:
+        from .v2_runtime import verify_lock as verify_v2
+
+        return verify_v2()
     from .nullable_recovery_runtime import RUNTIME as NULLABLE_RUNTIME, verify_lock
 
     if runtime == NULLABLE_RUNTIME:
@@ -180,10 +186,22 @@ class StudentSession:
         clock=None,
         memory_config=None,
         memory_state=None,
+        model_contract=None,
     ):
-        if (
-            hashlib.sha256(tokenizer.chat_template.encode()).hexdigest()
-            != TEMPLATE_SHA256
+        if model_contract is not None:
+            from .v2_model import validate_identity
+            from .v2_tasks import RUNTIME as V2_RUNTIME
+
+            validate_identity(model_contract)
+            if execution_protocol != V2_RUNTIME or memory_config or memory_state:
+                raise ValueError(
+                    "New model requires explicit v2 runtime without Memory"
+                )
+        self.model_contract = copy.deepcopy(model_contract)
+        if hashlib.sha256(tokenizer.chat_template.encode()).hexdigest() != (
+            model_contract["chat_template_sha256"]
+            if model_contract
+            else TEMPLATE_SHA256
         ):
             raise ValueError("Student must use the pinned Qwen3-4B template")
         if tool_mode not in MODES:
@@ -223,7 +241,7 @@ class StudentSession:
             self.execution_protocol = verify_student_runtime(execution_protocol)
             from .nullable_recovery_runtime import RUNTIME as NULLABLE_RUNTIME
 
-            if execution_protocol == NULLABLE_RUNTIME:
+            if execution_protocol == NULLABLE_RUNTIME or model_contract is not None:
                 from .schema_compatibility import SCHEMA_REVISION
                 from .schema_snapshot import check_schema_binding, snapshot_revision
 
@@ -280,6 +298,12 @@ class StudentSession:
             "chat_template_sha256": TEMPLATE_SHA256,
             "checkpoint_id": checkpoint_id or "raw_base:" + REVISION,
         }
+        if model_contract is not None:
+            self.identity = {
+                **copy.deepcopy(model_contract),
+                "checkpoint_id": checkpoint_id
+                or "raw_base:" + model_contract["revision"],
+            }
         self.output = Path(output) if output else None
         if self.output:
             self.output.mkdir(parents=True, exist_ok=False)
@@ -495,6 +519,15 @@ class StudentSession:
             "temperature": self.temperature,
             "top_p": self.top_p,
             "eos_token_id": self.tokenizer.eos_token_id,
+            **(
+                {
+                    "remaining_wall_seconds": max(
+                        0.0, self.wall_seconds - (self.clock() - self.started)
+                    )
+                }
+                if self.model_contract is not None
+                else {}
+            ),
             **({"purpose": purpose, "memory_trigger": reason} if purpose else {}),
             **({"memory_compilation": compilation} if compilation is not None else {}),
         }
@@ -619,9 +652,20 @@ class StudentSession:
                     and response["finish_reason"] != "length"
                 ):
                     raise ValueError("Missing Student EOS boundary")
-                message = parse_batch(
-                    text, "student_" + name, response["finish_reason"]
-                )
+                if self.model_contract is None:
+                    message = parse_batch(
+                        text, "student_" + name, response["finish_reason"]
+                    )
+                else:
+                    from .v2_model import parse_native
+
+                    message = parse_native(
+                        text,
+                        "student_" + name,
+                        response["finish_reason"],
+                        request["tools"],
+                        self.model_contract,
+                    )
                 if self.harness:
                     check_batch(
                         message, self.messages, request["tools"], require_action=True
@@ -664,6 +708,10 @@ class StudentSession:
                         and offset != len(calls) - 1
                     ):
                         raise ValueError("Completion must be last")
+            if self.model_contract is not None and getattr(
+                self, "before_dispatch", None
+            ):
+                self.before_dispatch(message)
             self.messages.append(message)
             guard = self.answer_guard
             verdicts = guard.inspect(calls) if guard else [None] * len(calls)

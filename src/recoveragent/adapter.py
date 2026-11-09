@@ -60,8 +60,13 @@ class AppWorldAdapter:
         update_root(str(Path(root).resolve()))
         if research is not None:
             from .full732_recovery_tasks import SCOPE as B_SCOPE
+            from .v2_tasks import SCOPE as V2_SCOPE
 
-            if research.get("scope") == B_SCOPE:
+            if research.get("scope") == V2_SCOPE:
+                from .v2_tasks import authorize_task
+
+                self.research_context = research
+            elif research.get("scope") == B_SCOPE:
                 from .full732_recovery_tasks import authorize_task
 
                 self.research_context = research

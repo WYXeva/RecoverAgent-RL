@@ -1,0 +1,12 @@
+# Separate environment: never upgrade the historical training/runtime environment.
+torch==2.10.0
+transformers @ https://github.com/huggingface/transformers/archive/431e9e9df58ce80fcc7b83b112dcf42b3dcb6d5f.tar.gz
+trl @ https://github.com/huggingface/trl/archive/4ae4d34a86f385511c85fa14caedc2178095d0b8.tar.gz
+peft==0.21.2
+accelerate==1.15.0
+datasets==5.1.0
+tokenizers==0.23.3
+# AppWorld workers also require the existing appworld-harness.lock.txt environment.
+
+# Qwen3.5 linear-attention Triton kernels (no model or dtype change).
+flash-linear-attention==0.6.0

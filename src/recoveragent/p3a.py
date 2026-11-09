@@ -52,15 +52,28 @@ from .harness import (
 
 def validate_config(config):
     from .harness import BUDGET_REVISION
+    from .v2_tasks import RUNTIME as V2_RUNTIME
+
+    is_v2 = config.get("v2_runtime") == V2_RUNTIME
+    if config.get("v2_runtime") and not is_v2:
+        raise ValueError("Unknown learning runtime")
+    if is_v2:
+        from .v2_teacher import validate_config as validate_v2
+
+        validate_v2(config)
 
     if config.get("harness_budget_revision") not in {None, BUDGET_REVISION} or (
-        config.get("harness_budget_revision") and not config.get("recovery_protocol")
+        config.get("harness_budget_revision")
+        and not config.get("recovery_protocol")
+        and not is_v2
     ):
         raise ValueError(
             "Correction budget opt-in requires the locked B10 recovery protocol"
         )
     if config.get("custom_research"):
-        if config.get("recovery_protocol"):
+        if is_v2:
+            from .v2_tasks import validate_context as validate_identity
+        elif config.get("recovery_protocol"):
             from .b10_pilot import verify_teacher_config
             from .full732_recovery_tasks import validate_context as validate_identity
 
@@ -102,7 +115,7 @@ def validate_config(config):
         not in PREDICTOR_PROMPTS
     ):
         raise ValueError("Unknown Predictor prompt variant")
-    if config["student"]["model"] != "Qwen/Qwen3-4B":
+    if not is_v2 and config["student"]["model"] != "Qwen/Qwen3-4B":
         raise ValueError("Formal Student must be Qwen3-4B")
     from .validated_selection import PROTOCOL, LEGACY_PROTOCOL
 
@@ -147,7 +160,8 @@ def validate_config(config):
 
         if config["project_version"] not in {"0.8", "0.9", "0.10"}:
             raise ValueError("Expanded collection requires v0.8 or later")
-        verify_lock(config)
+        if not is_v2:
+            verify_lock(config)
         caps.update(
             max_tasks=20,
             max_requests=800,
@@ -280,12 +294,20 @@ def interrupted_usage(directory, teacher):
     return totals
 
 
-def run_teacher_episode(config, task_id, output, credentials, *, recovery_source=None):
+def run_teacher_episode(
+    config, task_id, output, credentials, *, recovery_source=None, exploration=None
+):
     """Production path always uses a real AppWorldAdapter and a real TeacherPolicy."""
     validate_config(config)
+    if exploration is not None and (not config.get("v2_runtime") or recovery_source):
+        raise ValueError("Exploration requires the separate v2 train-side path")
     if bool(recovery_source) != bool(config.get("recovery_protocol")):
         raise ValueError("Recovery requires an explicit source and locked protocol")
-    if config.get("custom_research") and not recovery_source:
+    if (
+        config.get("custom_research")
+        and not recovery_source
+        and not config.get("v2_runtime")
+    ):
         from .fresh_teacher import provider_preflight
 
         if provider_preflight(config, credentials)["status"] == "BLOCKED":
@@ -363,7 +385,11 @@ def run_teacher_episode(config, task_id, output, credentials, *, recovery_source
             trajectory["environment_check"] = environment_check()
         policy = TeacherPolicy(config, credentials)
         adapter_class = AppWorldAdapter
-        if config.get("custom_research") and not recovery_source:
+        if (
+            config.get("custom_research")
+            and not recovery_source
+            and not config.get("v2_runtime")
+        ):
             from .fresh_teacher import FreshAdapter
 
             adapter_class = FreshAdapter
@@ -388,6 +414,13 @@ def run_teacher_episode(config, task_id, output, credentials, *, recovery_source
                 config["schema_compatibility_revision"], output
             )
         trajectory["scenario_id"] = adapter.world.task.generator_id
+        if exploration is not None:
+            from .v2_generator import apply_instruction, exploration_instruction
+
+            apply_instruction(adapter, exploration_instruction(exploration))
+            trajectory["generator_exploration"] = {
+                "feedback_sha256": digest(exploration)
+            }
         trajectory["appworld"] = adapter.versions
         trajectory["initial_state_hash"] = adapter.fingerprint()
         trajectory["environment_execution_limit"] = sys.maxsize
@@ -666,10 +699,23 @@ def run_teacher_episode(config, task_id, output, credentials, *, recovery_source
         adapter.close()
         adapter = None
         evaluation_started = bool(harness)
-        if harness:
+        if exploration is not None:
+            from .v2_generator import parse_proposal
+
+            try:
+                parse_proposal(trajectory)
+                success = True
+            except (ValueError, KeyError, TypeError):
+                success = False
+            official = None
+        elif harness:
             from .evaluation import evaluate_isolated
 
-            if config.get("custom_research") and not recovery_source:
+            if (
+                config.get("custom_research")
+                and not recovery_source
+                and not config.get("v2_runtime")
+            ):
                 from .fresh_teacher import evaluate_custom_isolated
 
                 evaluate_isolated = evaluate_custom_isolated
@@ -679,7 +725,11 @@ def run_teacher_episode(config, task_id, output, credentials, *, recovery_source
                 output.name,
                 config["appworld_root"],
                 output,
-                **({"research": config["custom_research"]} if recovery_source else {}),
+                **(
+                    {"research": config["custom_research"]}
+                    if recovery_source or config.get("v2_runtime")
+                    else {}
+                ),
             )
             if evaluated["status"] != "valid":
                 trajectory.update(
@@ -696,8 +746,12 @@ def run_teacher_episode(config, task_id, output, credentials, *, recovery_source
                 "task_id": task_id,
                 "trajectory_id": output.name,
                 "success": success,
-                "reference": "original_task",
-                "evaluator": "appworld.evaluator.evaluate_task",
+                "reference": "generator_exploration"
+                if exploration is not None
+                else "original_task",
+                "evaluator": "public_proposal_checks_only"
+                if exploration is not None
+                else "appworld.evaluator.evaluate_task",
                 "terminal_checkpoint_id": trajectory["terminal_checkpoint_id"],
                 "official": official,
             },

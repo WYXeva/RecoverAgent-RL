@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+import shutil
 
 import pytest
 
@@ -23,7 +24,26 @@ worlds = fixtures.worlds
 
 
 @pytest.fixture(autouse=True)
-def selected_budget(monkeypatch):
+def selected_budget(monkeypatch, tmp_path):
+    # Synthetic source tree only: v2 intentionally invalidates released B10 locks.
+    # Keep the historical files unchanged and exercise the old controller there.
+    from recoveragent import protocol_lock
+    from recoveragent.demonstrations import sha256
+    from recoveragent.io import write_json
+
+    root = tmp_path / "synthetic_b10_source_tree"
+    locked = read_json(pilot.ROOT / pilot.BUDGET_LOCK)
+    for name in locked["files"]:
+        target = root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(pilot.ROOT / name, target)
+        locked["files"][name] = sha256(target)
+    write_json(root / pilot.BUDGET_LOCK, locked)
+    verify = protocol_lock.verify_lock
+    monkeypatch.setattr(
+        protocol_lock, "verify_lock", lambda c, root_override=None: verify(c, root=root)
+    )
+    monkeypatch.setattr(pilot, "ROOT", root)
     monkeypatch.setattr(pilot, "CONFIG", pilot.BUDGET_CONFIG)
     monkeypatch.setattr(pilot, "LOCK", pilot.BUDGET_LOCK)
     monkeypatch.setattr(pilot, "RUNTIME", pilot.BUDGET_REVISION)
