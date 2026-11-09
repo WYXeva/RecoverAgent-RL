@@ -66,7 +66,12 @@ def finish_checkpoint(
     ):
         raise ValueError("Parameters unchanged or nonfinite")
     model.eval()
-    with torch.no_grad():
+    with (
+        torch.no_grad(),
+        torch.autocast(
+            model.device.type, dtype=torch.bfloat16, enabled=model.device.type == "cuda"
+        ),
+    ):
         probe = (
             model(
                 input_ids=torch.tensor([probe_ids], device=model.device),
@@ -94,7 +99,12 @@ def finalize_reload(
     base = load_base(identity)
     model = PeftModel.from_pretrained(base, str(output), is_trainable=False)
     model.eval()
-    with torch.no_grad():
+    with (
+        torch.no_grad(),
+        torch.autocast(
+            model.device.type, dtype=torch.bfloat16, enabled=model.device.type == "cuda"
+        ),
+    ):
         actual = (
             model(
                 input_ids=torch.tensor([probe_ids], device=model.device),
@@ -104,6 +114,16 @@ def finalize_reload(
             .logits.float()
             .cpu()
         )
+    write_json(
+        Path(output) / "reload_result.json",
+        {
+            "adapter_sha256_expected": after,
+            "adapter_sha256_actual": tensor_hash(get_peft_model_state_dict(model)),
+            "precision": "bf16_autocast_on_cuda",
+            "max_abs_logit_difference": float((actual - expected).abs().max()),
+            "logits_exactly_equal": torch.equal(actual, expected),
+        },
+    )
     if tensor_hash(get_peft_model_state_dict(model)) != after or not torch.allclose(
         actual, expected, atol=1e-2, rtol=1e-2
     ):

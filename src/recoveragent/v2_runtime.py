@@ -6,7 +6,7 @@ from .demonstrations import sha256
 from .io import read_json
 from .v2_tasks import ROOT, RUNTIME
 
-LOCK = ROOT / "configs/v2_round1_20261109_lock.json"
+LOCK = ROOT / "configs/v2_round1_reload_20261109_lock.json"
 
 
 def verify_lock():
@@ -15,7 +15,7 @@ def verify_lock():
         str(p.relative_to(ROOT)) for p in (ROOT / "src/recoveragent").glob("*.py")
     }
     required |= {
-        "configs/v2_round1_20261109.json",
+        "configs/v2_round1_reload_20261109.json",
         "configs/v2_scenario_split_20261109.json",
         "configs/v2_qwen35_weights.json",
         "requirements/v2-learning.txt",
