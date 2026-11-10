@@ -1,212 +1,140 @@
-# v2 第一轮学习执行记录（2026-11-09）
+# v2 第一轮学习与 CoEvolve AppWorld 接入
 
-本轮以 `ddc6e8e4338eb168ec4784e906b4de66ab7dd297` 为代码基线，按 `project.md` 的交付 1 实现并启动真实学习链路。本文区分软件验收、真实环境探针与模型运行；状态以最终回执为准。
+更新：2026-11-10。**S0、S1、S2均已真实更新、保存重载并完成固定dev24×3评价；本轮没有观察到成功率提升：2/24 → 1/24 → 1/24。** GRPO第三次更新因长上下文OOM提前结束，保留最后两次完整更新，不声称完成16组。此前逐时记录保留在[8bef14a版本](https://github.com/WYXeva/RecoverAgent-RL/blob/8bef14a78dc1822ee0e5384036f31142a79b749c/reports/v2_round1_learning_20261109.md)。
 
-最新：S0和S1均已真实训练、保存重载并完整备份。CoEvolve已有4个真实候选、3个合格新任务（2个由反馈引导）。S1完成首个新任务的2条采样后，发现数值答案类型造成误拒绝，在0个GRPO更新处停止。独立round_012已核验来源并启动重验/只读重评分，之后继续S2及固定dev24。当前源码febe0cf；已完成首个真实GRPO更新，生成任务贡献非零优势；最终S2和开发成绩仍待完成。后文保留各时刻记录，不将早期状态当作最终结论。
+## 实验范围与结果
 
-## 固定设置与入口
+Student固定`Qwen/Qwen3.5-9B`，revision `c202236235762e1c871ad0ccb60c8ee5ba337b9a`；non-thinking原生模板SHA `a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715`。BF16+LoRA rank16，仅使用已授权32GB实例，没有更换模型、租机或续费。
 
-- Student：`Qwen/Qwen3.5-9B`，revision `c202236235762e1c871ad0ccb60c8ee5ba337b9a`；原生 non-thinking 模板 SHA-256 `a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715`。没有加载旧 4B adapter，也没有切换 8B。
-- Full732 场景隔离自定义划分：170/37/37 个 train/dev/test 场景，510/111/111 个任务，seed `20261109`；保留原官方 split。清单 manifest SHA-256 `ff24d1c05f16e82795e0baa4dd855c03d8482bb32d6e2e07ce386a9af59bfe6b`。固定 feedback20 和 dev24，不按结果替换。
-- 配置：[v2_round1_cpu_offload_20261109.json](../configs/v2_round1_cpu_offload_20261109.json)；源码锁：[v2_round1_cpu_offload_20261109_lock.json](../configs/v2_round1_cpu_offload_20261109_lock.json)，SHA-256 `9f12bf4e6c446fa93847f678456b93a753cdb7921080c04bfca985b29393fcfd`。历史锁、数据、4B 权重和成绩保持原样。
-- 现有机器实际为 RTX 4080 SUPER vGPU、32 GB，BF16 可用；与计划参考的 80/96 GB 不同，必须以短/最长完整样本实测验收。只用已开机实例，不租机或续费。
-- GPU 作业最初上限8小时；用户于本次运行中明确批准延长为总计12小时，已用时间计入，新绝对截止为北京时间2026-11-10 02:12:31。训练侧 Student 生成总量仍为20万token；每episode 80请求、16384生成token、4096单回复、32768上下文、1200秒；通用纠错15次。开发评估关闭训练快照。
-- 用户确认 Teacher 不设独立金额上限。运行保留请求/token/时间限制、逐响应身份和费用估算；部署中的 5130 元是 30×80 有界请求按峰时价格推导的保守技术预留，不是用户另设的费用额度。Teacher 使用现有官方 `deepseek-flash`，没有自动收费重试。
+Full732场景隔离自定义划分为170/37/37个train/dev/test场景，510/111/111个任务，seed20261109；清单SHA `ff24d1c05f16e82795e0baa4dd855c03d8482bb32d6e2e07ce386a9af59bfe6b`。保留官方来源split；这些不是官方排行榜成绩。dev/test内容和轨迹不进入本轮训练、恢复或任务生成；历史项目已接触Full732，不能声称完全未见测试。
 
-入口复用现有 AppWorld、共享 nullable schema、StudentSession、Teacher 执行、快照与官方评价；新增薄接入层完成模型原生格式、可训练 adapter 续接、一个 Gmail 分类计数任务生成器以及 TRL GRPO loss 的实际多轮采样接入。
+| 阶段 | 实际参数更新 | 固定dev24成功 | 状态 |
+| --- | ---: | ---: | --- |
+| S0_base | 181 optimizer steps，1 epoch | 2/24（8.33%） | 训练、重载和备份通过 |
+| S1_recovery | 从S0继续8 steps，1 epoch | 1/24（4.17%） | 训练、重载和备份通过 |
+| S2_grpo | 从S1继续2 steps | 1/24（4.17%） | OOM后验收最后完整更新，重载和备份通过 |
 
-```bash
-# 在独立 v2 环境与已授权机器执行；路径按私有部署配置填写。
-export PYTHONPATH=src
-export HF_HOME=/root/autodl-tmp/recoveragent_v2_20261109/hf_cache
-export PYTORCH_ALLOC_CONF=expandable_segments:True
-.venv/bin/python scripts/run_v2_round.py prepare --output base_data_new
-.venv/bin/python scripts/run_v2_round.py download-model
-.venv/bin/python scripts/run_v2_round.py run \
-  --input deployment.json --data base_data_new --output runs/round_new
-```
+三阶段评价均从原任务干净初态执行，同execution_v6、nullable v2、动态工具发现、seed42、temperature0.8/top_p1；80请求/16384累计生成/4096单回复/32768上下文/1200秒，15次通用纠错。关闭训练快照；未知评价不当作自然失败，也不以训练loss代替验证成绩。
 
-`deployment.json` 包含 `appworld_root`、`worker_python`、技术费用预留及绝对 `job_deadline_epoch`；运行目录只能新建。已经准备的数据应直接复用，不重复执行 `prepare`。完整依赖见 [requirements/v2-learning.txt](../requirements/v2-learning.txt)，AppWorld worker 另需现有锁定环境。私有 `.env` 不提交。
+## 同条件评价与主要失败
 
-### 已验收 S0 的续跑准备（尚未真实执行）
+72次原任务官方评价全部有效，0 UNKNOWN/基础设施异常。逐任务核对三个模型的实际初态SHA、首次输入token IDs、首次工具Schema、所有episode预算和加载策略身份；24项均一致。S0→S1新增成功0项、丢失成功1项；S1→S2的24项成功/失败结果完全相同。共同条件manifest SHA `5c9dc94dabcb1a67a3d340f540ebd9dbedfaad05d92d4c9aaae95f65a017b275`。
 
-当前代码增加 `--resume-base-from`，继续复用同一 Runner。独立配置为 [v2_round1_resume_20261109.json](../configs/v2_round1_resume_20261109.json)，新源码锁为 [v2_round1_resume_20261109_lock.json](../configs/v2_round1_resume_20261109_lock.json)；运行中的 `round_004` 及其源码没有替换。
+| 失败终止类型 | S0 | S1 | S2 |
+| --- | ---: | ---: | ---: |
+| 32k上下文不足 | 10 | 15 | 12 |
+| 宣布完成但未通过官方验收 | 11 | 8 | 11 |
+| 请求预算耗尽 | 1 | 0 | 0 |
+| 未知/基础设施异常 | 0 | 0 | 0 |
 
-只有源运行已经停止、正式 S0 与短/长烟测均更新参数并通过重载，且没有任何下游请求时才允许接续。逐文件验证 checkpoint SHA，核对数据、模型、冻结任务列表、原配置和来源锁；保留源目录，写入新目录及继承回执。缺烟测、未完成训练、数据/参数损坏、已开始反馈或试图重置 GPU 计时均拒绝。该配置仍为 8 小时，继续使用原绝对截止时间。
+这些是可核验的终止类型，不把它们直接等同于全部业务根因。失败轨迹中的API文档查询分别194/223/199次，完全相同的工具名和参数重复调用分别111/46/37次；重复查询可能有合法复核用途，未统一判定为无效调用。长历史与任务未完成仍是主要现象。
 
-```bash
-PYTHONPATH=src HF_HOME=/root/autodl-tmp/recoveragent_v2_20261109/hf_cache \
-  PYTORCH_ALLOC_CONF=expandable_segments:True \
-  .venv/bin/python scripts/run_v2_round.py run \
-  --input deployment.json --data base_data --output runs/continued_new \
-  --resume-base-from /path/to/stopped_run_with_verified_S0
-```
+| 阶段 | 请求数 | 输入token累计 | 生成token | episode墙钟秒 | 模型生成秒 | 工具执行秒 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| S0_base | 874 | 15218045 | 73505 | 8885.82 | 7627.81 | 46.34 |
+| S1_recovery | 770 | 13827552 | 74788 | 8635.78 | 7369.61 | 46.83 |
+| S2_grpo | 649 | 10653067 | 63223 | 7231.38 | 5979.95 | 43.52 |
 
-合成续跑测试 15 passed；与现有 v2 测试合计30 passed。完整pytest为773 passed/1 skipped/3 warnings，Ruff check与format check通过。尚无真实S0续跑结果；这些测试不表示正式S0或后续学习已完成。
+三阶段合计2293请求、39698664输入token、211516生成token、24752.97秒episode墙钟。模型生成占20977.36秒，工具执行136.70秒；其余包括分词、worker启动和官方评分。S2调用和耗时下降，但成功数保持1/24，不能由此认定复杂任务能力改善。
 
-### 用户批准的12小时版本
+## S0：共同起点
 
-后续用户明确授权当前实例总上限从8小时延长至12小时。新增 [resume12h配置](../configs/v2_round1_resume12h_20261109.json)及[独立源码锁](../configs/v2_round1_resume12h_20261109_lock.json)，锁SHA-256为 `5043d6e9a13d75467e737487b1e6ea97500f4282e8d829b84902fabc7fb23b36`。原8小时配置/锁均保持原样。实际接续命令沿用上面的 `--resume-base-from`，部署文件使用原截止时间加14400秒，输出使用独立 `runs/round_005`。
+按新train场景筛选已有Teacher原始成功：107条来源中95合格、12超长暂缓；这里的95不是旧历史95条数据包。重新使用9B tokenizer/template编码，1443样本、254396监督token，完整输入和Assistant目标不截断。
 
-平台关机保护已调整到新的绝对截止；正在训练的协调进程及源码不热改。等正式S0验收回执生成后，在反馈采样前停止旧进程，经原异常清理路径落盘，再从独立源码目录继续。控制侧另记主动交接原因；旧进程的TimeoutError文字不作为“已耗尽8小时”的证据。接续前重新核验完整S0及两次烟测，参数不重新初始化。
+短烟测2步/4样本、最长完整32666-token样本1步均通过后，正式181步，14934.17秒；训练loss0.09527896，allocated峰值30.10 GiB。训练loss不是开发成绩。数据SHA `561041f89875778d50a3e7c13e822c404deba8668165c649811d83c393d4da24`；原Teacher manifest `96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f`。
 
-新增测试确认延长预算仍按原启动时间计算；与v2及接续测试合计31 passed；完整pytest 774 passed/1 skipped/3 warnings，Ruff通过。2026-11-09 18:26（UTC+8）S0已完成130/181步，接续尚未发生；后续真实执行结果待补充。
+## 真实反馈与 Recovery-SFT
 
-## 数据与执行正确性
+固定前15个train任务：3官方成功、11有效自然失败、1评价UNKNOWN。11次Teacher接管保留真实失败状态、同刻历史和可见工具，按原任务起点评分；6官方成功，其中4条后缀合格、2条超长deferred，5次失败。合格后缀共40样本/5930监督token，旧Student前缀、工具输出和控制信息不监督。
 
-原包 manifest SHA-256 `96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f` 未变。新 train 场景有 107 条原始成功轨迹；新 tokenizer/template 编码后，95 条完整合格、12 条超长 deferred，共 1443 个 Assistant 样本、254396 个监督 token、16887943 个完整序列 token，最长 32666。没有截断目标或删除工具调用。
+S1从S0的可训练adapter继续：40恢复样本+19正常成功样本，共59样本/11739监督token；恢复/正常监督token为5930/5809，按50/50权重混合。8步、998.67秒，全部有限梯度，allocated峰值约29.96 GiB；保存后LoRA哈希和探针logits精确重载。数据SHA `50236a3482cf6b7026a9a739e7e8172659f5be1096940fa482f18289f56d549e`。
 
-编码样本 SHA-256 `561041f89875778d50a3e7c13e822c404deba8668165c649811d83c393d4da24`，私有目录 `runs/v2_round1_20261109/base_data/`。数据中保留原 Schema、v2 转换后 Schema 及来源；任务、恢复后缀与生成任务继承 train 来源。dev/test 轨迹不进入训练。
+用户取消的第16项保留439已知生成token和4096未知预留，不纳入15项结果或恢复训练；不重跑。旧固定Gmail生成器10次实际探索均未接纳，原件和费用保留。
 
-S1 必须从 S0 的 trainable adapter 和精确参数哈希继续；只监督恢复后缀，按监督 token 与完整正常轨迹约 1:1 混合。GRPO 使用更新后的当前 Student 重新生成的 token 和实际采样 logprob，每组同一任务/初态，4 条轨迹，最多 16 组、2 组/更新；全零优势不记为参数更新。新任务必须实际贡献非零策略梯度，才计入“参与有效训练”。
+## CoEvolve 方法与本轮新任务
 
-生成器只支持 Gmail 分类计数汇总，目标的 read 条件/类别组合有实际变化。强模型探索真实公开 API；控制侧从实际返回构建程序验收，在独立新进程验证正例、无操作、漏完成和错答案。派生任务使用自定义验收，不冒称官方原任务成绩；原任务恢复仍使用原任务官方评分参照。
+[CoEvolve论文](https://arxiv.org/html/2604.15840v1)和[官方仓库](https://github.com/StoneHanaMori/CoEvolve)固定commit `d4560239c80ce327808c0fd2a0d3a2c106f17e63`：仓库当时只有README、许可证和图片，没有可执行核心。实际复用[AgentEvolver](https://github.com/modelscope/AgentEvolver)固定commit `a5a8db8689d6493b028107dcb4c27415441581dc`的Apache-2.0任务抽象提示，原文、许可证和来源SHA在`third_party/agentevolver/`。因此交付的是AppWorld方法链路的单卡适配实现，不是运行CoEvolve官方完整源码或复现论文规模/成绩。
 
-## 软件与环境验证
+实现初始非引导探索、能力边界/稀有动作/遗忘信号、反馈上下文、多分支真实探索、动作证据抽象、独立Solver、语义与正负程序验收，以及GRPO期间再次反馈并入池。本轮真实触发了边界和稀有信号；不把仅有软件测试的遗忘逻辑写成已观察到遗忘。详见[方法与差异](../docs/COEVOLVE_APPWORLD_METHOD.md)。
 
-- 完整 pytest：758 passed、1 skipped（旧环境不含新模型栈）、3 warnings。
-- 独立 v2 环境 tiny random CPU 测试：2 passed；覆盖真实梯度更新、保存重载、S0→S1 参数继承及 TRL loss 更新。这是随机小模型测试，不是预训练 9B 训练结果。
-- v2 针对性测试：15 passed；覆盖场景隔离、共享 schema/恢复、原生工具格式、后缀监督、当前策略采样与预算。
-- Ruff 0.8.0 check 与 format check 通过。
-- 真实 AppWorld 无模型探针：派生任务公开指令与 SupervisorTask 数据库一致，187 个实际使用工具 Schema 与新编码完全一致。没有模型调用、任务成功验证或效果结论。
-- 远程四个模型分片的大小及 SHA-256 均匹配固定 HF revision；下载镜像不作为模型身份依据。公开文件清单见 [v2_qwen35_weights.json](../configs/v2_qwen35_weights.json)。
+| 新方法产物 | 实际数量 |
+| --- | ---: |
+| 候选提案 | 8 |
+| 独立Solver及4类正负程序检查通过 | 7 |
+| 最终合格新目标 | 4（1初始探索、3反馈引导） |
+| 输出契约不能可靠识别，暂缓 | 2 |
+| 仅改措辞/格式，目标重复 | 1 |
+| 缺少3个真实成功动作引用，拒绝 | 1 |
+| 实际进入Student GRPO采样 | 2 |
+| 贡献非零优势及真实参数更新 | 2（其中1条来自S0真实反馈） |
 
-验证命令：
+一次反馈上下文输出不合约被拒绝，不自动重试。新颖性检查复用独立Teacher，对照原始公开train目标及同来源已接纳目标，不读取隐藏答案。程序验收绑定可重放原初态、真实Solver参考业务终态和公开答案契约；不执行、漏完成、错误答案必须失败，正解必须通过。严格参考终态可能误拒其他合法解；该oracle以终态和答案条件为核心，不声称对任意自然语言过程约束完备，新颖性判定也不是形式证明。
 
-```bash
-PYTHONPATH=src .venv-harness/bin/python -m pytest -q
-PYTHONPATH=src .venv-v2/bin/python -m pytest -q tests/test_v2_training_cpu.py
-PYTHONPATH=src .venv-harness/bin/python -m pytest -q tests/test_v2_learning.py
-.venv/bin/ruff check .
-.venv/bin/ruff format --check .
-```
+发现Teacher字符串"3"与Student数字3的误拒绝后，原round_011在0更新处停止；只读导入原终态确认业务SHA一致，在独立revision下重验3任务/12项正负检查并重评分2条已有轨迹。保留原错误判分，0模型重跑；不改目标、期望状态或历史数据。后续发现两种未识别计数问法，明确暂缓并在采样前保护；实际使用的两条均通过独立质量审查。只读审查输出`quality_review_001/qualified_pool.json`，原池保持不变。
 
-## 真实运行结果
+## S2：实际 GRPO 更新与中断
 
-首次 `round_001` 短烟测完成 2 个 optimizer steps，loss 0.1737 / 0.0419，有限梯度且 LoRA 参数改变；在重载输出比较处明确停止，没有进入长烟测或正式训练。源码已固定于 `6489154702b12d8f123394fd1da585b91f471155`，原源码锁 `e8235088da4cac48a769f20956fdf458711bf0544d0453b044fdb0d7052fd37f` 与原配置不重签。
+真实当前策略32条/8组：10成功、22自然失败、0未知。前6组形成3个update batch，2组有奖励差异、产生2次optimizer更新；另一个batch为全成功/全失败组，不伪造更新。全部8组中3组有奖励差异（37.5%，均为2成功/2失败），另1组全成功、4组全失败。两个生成任务组都有差异；6个原始任务组仅1组有差异。最后2组已采样，第三次更新在反向传播时OOM，未执行optimizer.step，不计训练完成。
 
-真实诊断确认，保存和重载后 adapter tensor SHA-256 均为 `00b32cff270891bf45128baae4f29f3cb45c137e05e7e76689d1a0deb2b05b19`。差异来自训练器探针启用 BF16 autocast，重载探针没有启用；两种计算模式最大 logit 差异 0.4375。使用相同 BF16 autocast 后，重载 logits SHA-256 与保存前完全一致：`135c9548e3de238e73d59eb92e9dd45cf3464f5b7363aa8569f23cdce98c17da`。
+两次更新loss分别`-8.157978300005198e-05`、`3.510737878158307e-05`，有限梯度L2分别`0.04845981504593288`、`0.07693566241293463`。生成任务`coevolve_d2a9cab7bd1db4158115fac3`和`coevolve_623bedfd0698a4e062dcd032`分别贡献非零优势；第一步256个LoRA tensor均变化，后续真实采样使用更新后的策略哈希。
 
-修正只统一两侧探针精度，并新增可核验的重载差异回执；没有放宽原有容差或参数哈希校验。独立新 revision/锁/`round_002` 从短烟测重新执行，原 GPU 绝对截止时间不延长。修正后相关测试 29 passed，独立 CPU 测试 2 passed。
+复用TRL clipped GRPO loss，learning rate1e-6、beta0.001、固定S1参考adapter、同组同任务/初态/策略及真实行为logprob。每次真实请求单独编码，动态Schema不强拼为一个序列；只计算生成Assistant位置。词表概率分块与CPU activation offload不截断token。单卡LoRA、4轨迹/组、每轨迹token归一化及少量更新均与论文大规模配置不同。
 
-`round_002` 短烟测通过：2 步、有限梯度、LoRA 哈希变化与重载验收，显存峰值 19.00 GiB。长烟测在 32666 token 完整样本反向传播时 OOM，0 个 optimizer steps，峰值 30.15 GiB；正式 S0 未启动。长烟测保留未更新的 partial adapter，不标记为合格 checkpoint。源码固定于 `5feba6e5d08776febded3d37b91e4b406fcb0dbb`，源码锁 `927fda64b25bacfef31bf7690a2dbde48cd5713d23f69d2ea787e4938cfb2046` 不重签。
+OOM后停止剩余GRPO，不重采、不跳过长样本继续凑组。`finish_v2_interrupted.py`以原源码锁验证update_02与随后真实采样策略完全一致，原样保存为S2并重载；不使用dev选择checkpoint。原中间保存没有Adam状态，无法精确续训；OOM前未写最终冻结参考adapter哈希及正式峰值统计，二者如实缺失，不补造。OOM日志显示申请1.49 GiB时仅剩1.47 GiB。
 
-针对这次实测显存阻塞，`round_003` 新配置采用 PyTorch [`save_on_cpu`](https://docs.pytorch.org/docs/stable/autograd.html#torch.autograd.graph.save_on_cpu) 暂存反向传播所需激活；保留 BF16、同一模型、完整数据及监督目标。容器内存上限 66571993088 bytes，GPU 绝对截止时间不变。重新执行短、长烟测后才允许正式训练。
+## 成本与预算
 
-`round_003` 两次真实烟测均通过：短样本 2 步，长样本 1 步；两侧 reload logits 完全相等，参数哈希均变化。长样本实际训练步 43.05 秒，PyTorch allocated 峰值 32104827904 bytes（29.90 GiB），reserved 峰值 33241956352 bytes。随后开始正式 S0，一轮预计 181 optimizer steps（1443 样本 / accumulation 8）。
+- 反馈15项：427请求，40183生成token，墙钟5166.96秒；其中模型3795.15秒、环境20.65秒，其余包含快照与进程处理。
+- Teacher恢复11次：107请求、56891生成token，1485.19秒，按usage估价2.56253576元。
+- CoEvolve探索/Solver共15条真实轨迹、169请求、97359生成token；另15次文本调用5770生成token、5次质量审查。新方法估价3.54881040元。
+- GRPO采样32条：870请求、88723生成token，墙钟10074.56秒；模型8041.51秒、环境54.90秒。round_012包含采样、更新和演化的总时长17197.63秒。
+- 训练侧累计已知生成129345token，另保留4096未知预留；没有用满20万token，停止原因是OOM。
+- Teacher全轮含旧失败生成、恢复、CoEvolve及质量审查累计usage估价**8.85577808元**；不是账户扣费账单。开发评估成本见上表；估价不含此前Base-SFT原始示范的历史采集费用，也不是GPU租赁账单。
+- GPU绝对截止为2026-11-10 14:12:31（UTC+8），含此前全部用时，未因接续重置。
 
-`round_003` 正式 S0 完成 3 步后 OOM 停止。前三步分别 200.56/162.40/111.06 秒、梯度均有限；正式训练峰值 allocated 30050433536 bytes，未完成 adapter hash `1da7543b824e4f53cea891b50a4ae8f13f1c7764571361f1643c5ddb638e7e87`。它不是验收通过的 S0。OOM 报告有 3.31 GiB reserved/unallocated，却无法申请 1.33 GiB；因此在不改源码/模型/数据的 `round_004` 独立部署中启用 `PYTORCH_ALLOC_CONF=expandable_segments:True`，重新从 raw 开始烟测与正式一轮。失败尝试的3步不并入新运行的一轮步数。
+## 私有 checkpoint 与复现入口
 
-用户曾询问缩小开发集，随后明确保持原规模；冻结dev24及其他规模未变，短暂进程暂停/恢复有独立控制回执，绝对截止时间未延长。
+远端根目录`/root/autodl-tmp/recoveragent_v2_20261109/`；本地私有备份根目录`runs/v2_round1_20261109/`。
 
-截至2026-11-09 16:08（UTC+8），`round_004` 两次烟测通过，正式S0已完成28/181步；最近一步55.06秒、梯度有限，无新增OOM。当前执行源码固定于 `24dd6842f6823dd6db398dab72e0d42d5e8da402`。这是进行中的进度回执，最终结果与限制将在读取完整回执后补齐。烟测和未完成 adapter 不能当作正式 S0，当前不得据此声称 S0/S1/S2 已验收或成功率提高。
+| 阶段 | 远端相对路径 | LoRA tensor SHA-256 |
+| --- | --- | --- |
+| S0 | `runs/round_004/S0_base` | `b4b16e43f10d280722ce5544277858b94bcfbc0aa78de6817790bda8e203d235` |
+| S1 | `runs/round_008/S1_recovery` | `3daf5effa13ed2bcf939861d90112659da62c751996afd932ea10b392d6a496f` |
+| S2 | `runs/round_013/S2_grpo` | `6b3b93bf917b3da22314d47221f8434f07b60c50bbcb5b632e79f9a0aad74f07` |
 
-私有远程根目录：`/root/autodl-tmp/recoveragent_v2_20261109/`；本轮运行目录 `runs/round_004/`，此前停止的回执保留在 `runs/round_001/`、`runs/round_002/`、`runs/round_003/`。权重、原始轨迹、状态与凭据不进入公开提交。
+私有压缩包均已逐文件核验：S0 `round004_S0_base.tar.gz`（376文件），S1 `round008_S1_recovery.tar.gz`（30文件），S2 `round013_S2_grpo.tar.gz`（8文件）。S2归档SHA `8f1eda0bd96ffd8b00f8be4d7d1723625f9df53b6d98d628287d41aa7a5171a4`，111782169字节。
 
-## S0正式验收与真实接续
+使用锁定环境和同一模型revision加载base，再用`PeftModel.from_pretrained(base, checkpoint_path, is_trainable=False)`加载对应adapter；先运行`verify_checkpoint(checkpoint_path, identity)`核验模型、所有文件SHA和重载回执。不要直接将adapter目录当作完整9B基座。
 
-2026-11-09 19:35（UTC+8），`round_004/S0_base` 完成全部181个optimizer steps、1 epoch、1443个样本及254396个监督token。训练段耗时14934.17秒（约4小时9分钟）；训练平均loss为0.095279，属于训练监控值。PyTorch峰值allocated为32320543232 bytes（30.10 GiB），reserved为32770097152 bytes。
-
-- 训练前LoRA SHA-256：`bb43b54770b75d2b4fe4e5003aab6370a273d567bffaf1f246403d96f5a5930e`。
-- 训练后及重载LoRA SHA-256：`b4b16e43f10d280722ce5544277858b94bcfbc0aa78de6817790bda8e203d235`。
-- 重载probe最大logit差异为0，输出完全相等；有限梯度、参数更新和重载验收通过。
-- 正式checkpoint回执SHA-256：`0be7c35229c516cedec67eb8170eb8f882c172ffa3d3e6afe93c85c1e2b6afe2`。
-- 私有checkpoint：`/root/autodl-tmp/recoveragent_v2_20261109/runs/round_004/S0_base`。
-
-两次烟测回执同时通过核验，短烟测2步/4样本、长烟测1步/完整32666 token样本。S0保存后，控制侧主动交接旧进程，在任何反馈请求前使用SIGALRM进入原异常清理路径。旧 `round_summary.json` 的8小时TimeoutError文字和空 `real_checkpoints` 字段保留原样；信号发生在S0验收回执写完、旧摘要尚未登记checkpoint的间隙，不表示8小时实际耗尽或S0失败。独立交接记录、正式回执及新流程的 `continued_base.json` 共同记录这一事实。
-
-`round_005` 于19:35接续，执行源码为 `7a0c14b94ed92a1d51dd46eda17fa2410c25b36b`，目录为 `source_resume12h_7a0c14b`。新流程逐文件核验S0、两次烟测及原数据/配置/任务清单，继承同一参数而未重新训练。首个feedback20任务已实际发出模型请求并执行公开工具；截至本段更新，尚无该任务官方结果，Teacher恢复/生成、S1、S2及dev24成绩仍未产生。S0完整checkpoint已回传到私有 `runs/v2_round1_20261109/round004_S0_base.tar.gz`（324657225 bytes），压缩包SHA-256为 `8110d6135eadc6dda55a1d6d359d8f4a0801434592d02b624589993af9b778ae`，376个文件的回执SHA均核验一致。
-
-## 会话时钟实际问题与接续
-
-首个训练反馈任务已完成官方有效失败：30请求、2760生成token、29工具调用、1次协议拒绝，模型耗时273.47秒，实际墙钟382.08秒；文件控制侧时间差382.30秒。它在1200秒预算内完成，保留结果、不重复尝试。原环境/快照分项耗时为0及恒定1200秒remaining元数据不可信，原件保留并明确标记。
-
-根因为AppWorld冻结普通`time.monotonic`；新`clock` revision在v2入口复用已有`runner.now`（CLOCK_MONOTONIC）并传入StudentSession。第二项只初始化、0请求时已停止。接续逐文件绑定源记录、保留已用token和绝对12小时截止，继续未发起请求的任务。首项快照恢复与后缀导出使用原锁定7a0c14b源码，不改写快照预期值；新任务使用新锁。独立输出名称避免覆盖旧初始化产物。
-
-针对性合成测试40 passed，包括冻结时间下实际deadline递减、结果/成本继承、篡改/已开始第二任务拒绝及旧源码调度。尚未将这些软件测试写成Teacher恢复或学习闭环完成。裸pytest启动缺少仓库根路径导致6项导入收集错误，使用项目根路径的完整命令重新验证。
-
-完整验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为783 passed/1 skipped（18.56秒）；`.venv/bin/ruff check .` 与 `.venv/bin/ruff format --check .` 均通过。
-
-## 首批9项真实反馈与评价UNKNOWN
-
-`round_006` 尝试冻结清单前9项（含保留的首项）：1成功、7有效自然失败、1UNKNOWN，共19527生成token。第7项因上下文预算耗尽正常失败；第9项在完整官方评分中出现两个未知来源KeyError，按原严格分类保持UNKNOWN，不改写成失败奖励，不重跑，不进入Teacher恢复。原流程已停止，全部记录已回传，私有压缩包8601882 bytes，SHA-256 `7be1d3b0f2f3b718d95b52893cb5027e819e68994fd9b8a7d478086b284434f4`。
-
-独立feedback配置/锁补齐已完成反馈前缀接续，核对原始结果、模型、任务顺序、源码锁和全部请求token成本，继续第10–20项。单项完整但未知评价可以保留后继续；worker异常、环境错误、未完整评分及未知生成用量仍停止。Teacher恢复只选择valid自然失败，旧快照绑定原版本执行器。没有修改官方评价器、Schema、提示、训练数据或checkpoint。
-
-针对性合成测试50 passed，验证UNKNOWN保持null、已完成任务不重跑、成本不清零及不安全异常仍拒绝。这些软件测试不代表真实Teacher恢复或完整学习闭环完成。
-
-本次完整验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为793 passed/1 skipped（18.62秒）；Ruff check及format check通过。
-
-## 用户将S0反馈缩为15项
-
-用户要求将当前反馈缩到固定前15项。实际15项已经完成：3成功、11有效自然失败、1UNKNOWN，共40183生成token；不据此声称dev成功率。第16项在指令到达时已启动，立即中断，8个完整回复产生439个已知token，第9个请求未完成回复，保留4096token技术预留。已知训练侧总账为40622token，剩余额度另扣未知预留；中断项不继续、不进入Teacher恢复、不算作15项中的完成任务。
-
-独立feedback15配置保存原固定清单的前15项，不重新训练或推理S0。接续验证旧来源链和原始结果，旧快照使用各自锁定Teacher源码；新配置继续恢复、生成、S1/S2及dev24。暂停/终止记录与源摘要分开保留，原SIGALRM错误文字不改写成实际12小时耗尽。
-
-反馈15接续：针对性53 passed；完整pytest796 passed/1 skipped（18.42秒），Ruff check/format check通过。测试覆盖来源链、不重复成本、显式取消第16项的已知token及未知预留、其不进入训练数据。
-
-
-## 恢复完成与本轮缩小接续
-
-11次真实Teacher接管全部完成：6次原任务官方成功，4条恢复后缀在32k窗口内合格，2条超长暂缓，5次未成功。首条成功恢复6请求/12工具调用，111.28秒，2902输出token；CPU重新编码确认该条最长33961token，因此继续保留为deferred，没有裁剪或启动扩大窗口的GPU实验。此为真实恢复结果，不是S1效果验证。
-
-用户明确保留32k，并把后续GRPO改为最多4组×4轨迹（3原始+1生成）；同条件阶段比较改为3个不同场景的固定dev任务，分别评价S0/S1/S2，最多9次episode。原始场景划分和dev24母清单不修改，子集在执行前独立保存。若没有合格生成任务，相应组空缺并披露；若所有GRPO组无奖励差异，不生成伪S2，只报告可用checkpoint比较。
-
-接续配置为 `configs/v2_round1_finish4_20261109.json`，独立同名源码锁。复用原Runner，通过 `--resume-s1-from` 只读核验已完成S1及其S0父参数、数据、全部文件SHA、源配置/锁、原反馈与成本总账。不会重复Teacher调用或训练，不重置12小时截止。完整启动方式：
+新完整运行入口：`PYTHONPATH=src python scripts/run_v2_round.py run --input <私有部署JSON> --data <重新编码数据目录> --output <新目录>`；当前默认质量准入配置为`configs/v2_round1_coevolve_quality_20261109.json`。历史真实GRPO执行源码为`febe0cf`，lock SHA `12c13adb21ea0a3d4b71090ca14aaeef7b6905141e22792b5b274ee3bbc00dc7`；独立质量审查源码`0cc8fff`。收尾入口commit`8bef14a`配合原febe0cf的PYTHONPATH运行：
 
 ```bash
-PYTHONPATH=src HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false \
-OMP_NUM_THREADS=8 PYTORCH_ALLOC_CONF=expandable_segments:True \
-.venv/bin/python scripts/run_v2_round.py run \
-  --input ../deployment009.json --data ../base_data --output ../runs/round_009 \
-  --resume-base-from ../runs/round_004 --resume-s1-from ../runs/round_008
+PYTHONPATH=<原febe0cf源码>/src python scripts/finish_v2_interrupted.py \
+  --input <包含原run/部署/S0/S1/新输出路径的私有JSON> \
+  --config configs/v2_round1_finish_interrupted_20261110.json
 ```
 
-实际探索中一条提案因公开只读 `supervisor__show_active_task` 未列入生成器允许列表而被拒。只补这一接口，允许对原始提案重新执行独立环境验收，原拒绝和轨迹不改写；无新Teacher请求。尚未将重验代码通过写成真实生成任务合格。
+所有接续复用同一绝对截止，原运行和旧锁不改写。`round_012`保持OOM原始摘要，`round_013`记录S2验收与独立评价；不得把前者改成正常结束。
 
-本次软件验证：针对性测试69 passed；完整 `PYTHONPATH=.:src .venv/bin/python -m pytest -q` 812 passed/1 skipped；Ruff check和format check通过。覆盖S1谱系与成本继承、预算/数据/来源篡改拒绝、3场景dev选择、3+1组、公开查询的已有提案重验与写操作继续拒绝。真实S1、GRPO和开发比较将在实际回执后更新。
+## 软件验收与结论边界
 
+`PYTHONPATH=.:src .venv/bin/python -m pytest -q`：872 passed、1 skipped、3条上游弃用警告；新增中断收尾9项测试通过，质量准入83项针对性测试通过。先前独立CPU随机小模型3项验证了SFT/GRPO参数更新、参考KL及分块概率等价；本次未修改这些训练公式。Ruff check和format check通过（193文件）。
 
-## 最新用户决定：恢复原GRPO/dev规模，总计24小时
+真实AppWorld反馈、Teacher恢复、新任务解答与正负验证、Student GRPO采样、S0/S1/S2参数更新及全部72次评价均有独立记录。三个checkpoint的保存前后LoRA哈希一致，重载探针logits最大差为0。软件契约与实际更新通过；本轮开发成功率未提升，Recovery-SFT少成功1项，GRPO没有新增成功。
 
-用户明确将GRPO恢复为最多16组×4轨迹，开发比较恢复固定dev24、三个阶段共最多72次episode；先前finish4已部署但自动启动保护在发起任何GRPO/dev请求前取消，未运行小规模比较。原15项反馈、11次Teacher恢复及32k限制不变。
+本轮只有4条合格恢复后缀、2次GRPO更新，dev24来自8个场景，且没有Static对照、生成器消融或多种子实验。不能将这份结果归因为Teacher数据质量、CoEvolve生成机制或方法普遍有效/无效。
 
-用户同时批准当前实例总计24小时，已用时间计入，绝对截止2026-11-10 14:12:31 UTC+8。20万训练侧生成token及每episode预算不增加；即使最多16组，达到累计资源上限仍停止并记录实际数。新入口配置为 `configs/v2_round1_finish16_24h_20261109.json`，独立源码锁；部署与输出改为 `deployment010.json`、`runs/round_010`，仍使用 `--resume-base-from ../runs/round_004 --resume-s1-from ../runs/round_008`。旧finish4启动命令仅保留历史，不执行。
+**下一轮优先修复长样本GRPO反向的显存峰值**，让已有合法、奖励有差异的组能完成计划内更新，并在每次完整更新后保存优化器状态以支持精确续训。32k上下文耗尽仍需作为执行侧失败单列。本轮不继续实现或运行下一轮。
 
-新接续在核对旧反馈时使用源运行的原12小时配置，在检查新运行时严格核对原起点+24小时，不能借接续清零时间或生成成本。针对性55 passed；完整813 passed/1 skipped及Ruff检查通过。以上为软件与配置验收；实际训练与开发结果继续单列。
+## 最终归档与停止
 
-## CoEvolve 接续与 S1 验收
+`round_013/round_summary.json`状态为`evaluated_three_stages_after_interrupted_grpo`，SHA `6a8652b9ea4a9ece60cfeefc8b758edcc27f3b008dfdf90bef3dc0de92e1b11b`。`round_012`的OOM事实及未应用的最后2组保留。
 
-S1从S0继续8步/59样本/11739监督token（恢复40样本5930token，加完整正常示范19样本5809token，按监督token约50:50加权），最长32708，无截断。训练998.6721秒，allocated峰值32166756352字节；参数由S0的 `b4b16e43f10d280722ce5544277858b94bcfbc0aa78de6817790bda8e203d235` 更新为 `3daf5effa13ed2bcf939861d90112659da62c751996afd932ea10b392d6a496f`，重载哈希与logits完全一致。
+- `round013_records.tar.gz`：122319076字节，SHA `ae6fcf0fd329f01b081b9cb250ad5a12d163ba3c9109204f8329b99f9ff3cea5`。已核验72份结果、2293对请求/回复及最终摘要；权重另存于三个完整checkpoint归档。
+- `round013_external_terminals.tar.gz`：276097字节，SHA `f90a0078015a439b11da75140f0634f6c03357dcb82bd8d28a30c505dabae260`。含72次评价和原2条重评分轨迹的74份实际终态，962个文件逐项SHA通过。
+- `quality_review001.tar.gz`：20512字节，SHA `b0ef0d08a752f009aeeb74994a08c497e0d91412e2bb9f05a23c3a3b84fc22a5`；合格任务可从`quality_review_001/qualified_pool.json`加载。
+- 独立最终核验为私有`final_verification013.json`、`final_backup_verification013.json`；此前反馈、恢复、生成、训练和中断产物归档均保留。
 
-私有备份 `round008_S1_recovery.tar.gz` SHA256 `ff5cfa99a58779dc81ca0ec06e9d7d76e75bea1faee71424fc6802178a69bb14`，325727134字节/30文件；原始记录包SHA256 `ec8b65ffbb6de4e12f6c33535b09aea81d8ee8fb39eefdeac0e4e5985fde5f00`。旧008摘要中的主动SIGALRM停止发生在S1回执写完、摘要赋值前；独立handoff与重载回执证明S1完成，不改写旧摘要。
+2026-11-10 12:05（UTC+8）在备份核验和GPU进程退出后执行平台关机命令，命令返回0，SSH随后被远端关闭。关机前本轮作业累计约21.88小时，早于原24小时截止；未读取平台扣费账单。未启动第二轮、追加训练或Teacher请求。
 
-恢复11次/6官方成功/4合格/2deferred/5失败；107请求，3251789 prompt/56891 generated/2242944 cached token，估价2.56253576元，1485.19494秒。连同旧10次探索，Teacher已知估价5.30696768元，不是账单。旧固定Gmail生成0接纳。
-
-[新配置](../configs/v2_round1_coevolve_20261109.json)和独立源码锁复用原Runner及只读S0/S1，接通[CoEvolve方法](../docs/COEVOLVE_APPWORLD_METHOD.md)。原自动finish16在请求前取消。新方法尚未真实运行，不宣称任务有效或模型改善。
-
-验证：`PYTHONPATH=.:src .venv/bin/python -m pytest -q` 为820 passed/1 skipped；新增及受影响针对性55 passed；`PYTHONPATH=.:src .venv-v2/bin/python -m pytest -q tests/test_v2_training_cpu.py` 为3 passed；Ruff check与format check通过。CPU测试使用随机微型模型，覆盖真实梯度/冻结参考和概率分块等价，不是9B运行证据。
-
-### 真实生成与评分缺陷（首个GRPO更新前）
-
-`round_011` 使用 `941c9fc710b3270b0ba28daa9b7e084fdf4c7c3f`，4次探索、3次独立解答，抽象4候选、3合格、1因成功动作引用不足拒绝；其中2个合格任务来自真实S0反馈。3个任务均经过独立正例、无操作、漏完成、错答案验证。旧10次探索及费用没有清零。
-
-S1已真实采样首个生成任务2次（28请求/2859token）。首条被程序误判：业务终态与参考SHA完全相同，计数答案数字3与字符串"3"被精确JSON比较区别。0个GRPO更新时主动停止；两条旧结果保留，不能报告为已验证自然失败。新answer revision将按公开明确计数合同重新验收任务和只读评分，不重采这两条；尚无S2或开发集成绩。
-
-截至此处累计已知训练生成43481token，未知预留4096；Teacher累计usage估价7.6239492元。`round011_records.tar.gz` 8704756字节，SHA256 `44f4d83238758e9a8c9e3836eb09f9f55545a8728bf236873e495fdc64ad172f`。S2目录没有训练权重，245字节partial归档不是checkpoint。首个合格任务完整包另有3266439字节备份，SHA256 `6f206c8c9e3776864d7fcc34e9a714cca75d8c5e354354f8b0d8eac5610b1545`，任务合同/参考轨迹SHA验证通过。
-
-新针对性84 passed，完整849 passed/1 skipped，随机微型CPU模型3 passed，Ruff通过。只读真实终态诊断为0模型请求；任务验收/模型采样/更新各自报告。
-
-`round_012`（源码`febe0cf92dfcaacdadcb2883a02974920120afac`，新锁`12c13adb21ea0a3d4b71090ca14aaeef7b6905141e22792b5b274ee3bbc00dc7`）已通过真实来源核验。3个任务的12项独立正负验收全部通过；两条既有S1轨迹从只读终态重评分为1成功/1失败，0个新增模型请求。第一条的业务终态与原参考完全一致，仅数值答案类型不同；第二条仍失败。原判分、预期答案和轨迹不改写。已从第3条轨迹继续采样，尚无optimizer更新。
-
-首个真实GRPO更新已完成：2组/8条轨迹，生成任务2成功2失败，原始任务0成功4失败；共23620生成token、187次模型请求。256个LoRA tensor全部变化，参数SHA从S1的`3daf5effa13ed2bcf939861d90112659da62c751996afd932ea10b392d6a496f`变为`eb0b7a3addbef7c8d99491c1649f351c306f766397698f906de0963989f64246`；有限梯度L2=0.048459815。生成任务`coevolve_d2a9cab7bd1db4158115fac3`在更新回执中具有非零优势贡献。这是实际参数更新，不是最终S2重载或开发集提升结论。
-
-首个更新后的边界/稀有信号确已触发两分支探索，另2条候选通过独立Solver和四项程序检查。但控制侧复核发现两条公开题意明确的计数请求（tell me exactly how many / tell me the total number）尚未被v2窄解析器识别，仍采用精确JSON；在任何Student采样前另记为`deferred_pending_scalar_contract_revalidation`，并设置采样前停止保护，防止误判奖励进入训练。原2条接纳回执和参考答案保持原样；因此程序验收累计5条，当前完整输出契约合格3条、暂缓2条，不能把5条都写成可训练合格任务。保护只作用于这两条新候选，不改变已执行任务、参数或原预算。
-
-第二次真实GRPO更新通过：累计6组/24条、2次更新、2个奖励有差异的组。第二个有贡献的新任务`coevolve_623bedfd0698a4e062dcd032`来自真实S0反馈引导探索，因此反馈生成任务也已贡献非零策略更新；不是仅初始非引导任务参与。第二批原始任务的全成功/全失败组按既定规则跳过更新。当前已知训练侧生成100939token，加既有4096预留；最终S2重载和dev比较仍待完成。
-
-### 独立任务资格审查
-
-末轮出现一条与既有新任务目标相同、仅措辞和答案格式不同的提案。新增D098的共享准入逻辑与只读审查入口：明确未识别的单值契约暂缓，独立新颖性检查排除原题复述及已有任务的格式变体。审查输出另外保存，不改原接纳回执或训练奖励，运行中的febe0cf保持冻结；不新增Student采样、GPU训练或探索。新质量配置/源码锁独立，针对性83 passed、完整863 passed/1 skipped，Ruff通过。真实审查结果待回执。
-
-只读资格审查实际完成（源码`0cc8fffbfbf76b076a827f933849aa6bac4809b8`，新锁`5d23b6a8fc8e85fe141ff340c06c1fdb66ce265c611bf1b0fdfeb4a3da4b7f76`）：8候选中1条因动作依据不足在Solver前拒绝；其余7条通过独立Solver及程序验证，再经统一资格审查得到4合格、2契约deferred、1语义重复。4合格包括初始非引导1条、S0反馈引导2条、S1更新后反馈引导1条；已贡献GRPO更新的两条均在合格池中。5次独立文本新颖性检查，新增估价0.01030136元；累计Teacher估价8.85577808元，非账单。没有新增Student/GPU/探索/Solver执行。私有`quality_review001.tar.gz`为20512字节，SHA256 `b0ef0d08a752f009aeeb74994a08c497e0d91412e2bb9f05a23c3a3b84fc22a5`，含完整原始评审与可加载的`qualified_pool.json`。原7条程序接纳回执及奖励保持不变。
+运行中用户授权清理旧4B模型：核验固定revision及当前9B缓存路径后，仅删除远端旧`models--Qwen--Qwen3-4B`基座缓存，释放8060919808字节（约7.5 GiB）；数据盘使用率92%降至77%，可用约11.5 GiB。三个9B checkpoint回执SHA前后不变，评估未中断；共享Python环境、AppWorld、旧原始记录和adapter保留。私有审计已回传至本地备份根目录的`disk_cleanup_20261110_result.json`。
