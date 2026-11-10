@@ -421,6 +421,15 @@ def run_teacher_episode(
                 from .coevolve_tasks import exploration_instruction
 
             apply_instruction(adapter, exploration_instruction(exploration))
+            if (
+                exploration.get("protocol") == "coevolve_appworld_v1"
+                and exploration.get("mode") == "validation"
+            ):
+                from .todoist_goal import prepare
+
+                prepare(adapter, exploration["task"])
+                if "goal_contract" in exploration["task"]:
+                    adapter.coevolve_goal_task = exploration["task"]
             trajectory["generator_exploration"] = {
                 "feedback_sha256": digest(exploration)
             }

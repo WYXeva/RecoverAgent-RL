@@ -1,9 +1,9 @@
 """General AppWorld tasks abstracted from real exploration, with executable rewards.
 
-An independent Teacher solution and semantic check establish a reference. The
-program reward checks exact answer and business-state equivalence to that real
-solution. This conservative verifier may reject alternative valid end states;
-it never substitutes the source task's official score for the generated goal.
+An independent Teacher solution and semantic check establish a reference.
+Explicit Todoist goals use their public conditions and observed read-back;
+legacy free-form tasks retain reference-state comparison. Neither evaluator
+substitutes the source task's official score for the generated goal.
 """
 
 import copy
@@ -105,6 +105,13 @@ def capture_terminal(adapter, trajectory):
         "answer": current.get("answer"),
         "business_sha256": business_hash(adapter),
     }
+    goal_task = getattr(adapter, "coevolve_goal_task", None)
+    if goal_task:
+        from .todoist_goal import satisfied
+
+        trajectory["coevolve_terminal"]["goal_satisfied"] = satisfied(
+            adapter, goal_task, trajectory["messages"]
+        )
 
 
 def identify(task):
@@ -158,6 +165,11 @@ def candidate(proposal, explorations, context):
         "context_sha256": digest(context),
         "official_benchmark_claim": False,
     }
+    if proposal.get("goal_contract") is not None:
+        from .todoist_goal import instruction
+
+        task["goal_contract"] = copy.deepcopy(proposal["goal_contract"])
+        task["instruction"] = instruction(task["goal_contract"])
     return {**task, "task_id": identify(task)}
 
 
@@ -184,6 +196,21 @@ def attach_reference(task, trajectory, judgment):
         "answer_comparison": answer_comparison(task["instruction"]),
         "reward_scope": "exact_reference_business_state_and_answer_equivalence",
     }
+    if "goal_contract" in task:
+        from .todoist_goal import REVISION
+
+        expected = len(task["goal_contract"]["tasks"])
+        if terminal.get("goal_satisfied") is not True or not answer_matches(
+            terminal["answer"],
+            expected,
+            task["execution_contract"]["answer_comparison"],
+        ):
+            raise ValueError("Reference did not satisfy the public Todoist goal")
+        task["execution_contract"].update(
+            revision=REVISION,
+            expected_answer=expected,
+            reward_scope="public_todoist_goal_and_readback",
+        )
     task["task_id"] = identify(task)
     return task
 
@@ -196,12 +223,19 @@ def validate_task(task, source_task_id, *, require_validation=True):
         or task["task_id"] != identify(task)
     ):
         raise ValueError("CoEvolve generated task identity/source changed")
+    revision = VERSION
+    if "goal_contract" in task:
+        from .todoist_goal import REVISION, instruction
+
+        revision = REVISION
+        if task["instruction"] != instruction(task["goal_contract"]):
+            raise ValueError("Todoist instruction differs from its goal contract")
     if require_validation:
         validation = task["validation"]
         if (
             not validation["passed"]
             or validation["sha256"] != digest(validation["results"])
-            or task["execution_contract"]["revision"] != VERSION
+            or task["execution_contract"]["revision"] != revision
             or task["execution_contract"]["answer_comparison"]
             != answer_comparison(task["instruction"])
         ):
@@ -209,8 +243,18 @@ def validate_task(task, source_task_id, *, require_validation=True):
         check_results(task, validation["results"])
 
 
-def evaluate(adapter, task):
+def evaluate(adapter, task, messages=None):
     contract = task["execution_contract"]
+    if "goal_contract" in task:
+        from .todoist_goal import REVISION, satisfied
+
+        if contract["revision"] != REVISION:
+            raise ValueError("Todoist goal uses a different scoring revision")
+        state_matches = satisfied(adapter, task, messages or [])
+    else:
+        if contract["revision"] != VERSION:
+            raise ValueError("Unknown generated-task scoring revision")
+        state_matches = business_hash(adapter) == contract["expected_business_sha256"]
     current = adapter.world.requester.request(
         "supervisor", "show_active_task", track=False
     )
@@ -222,25 +266,38 @@ def evaluate(adapter, task):
             contract["expected_answer"],
             contract["answer_comparison"],
         )
-        and business_hash(adapter) == contract["expected_business_sha256"]
+        and state_matches
     )
     return {
         "status": "valid",
         "success": success,
-        "evaluator": VERSION,
+        "evaluator": contract["revision"],
         "reference": "generated_initial_state",
         "official_result_complete": False,
     }
 
 
+def validation_modes(task):
+    if "goal_contract" in task:
+        from .todoist_goal import validation_modes as goal_modes
+
+        return goal_modes(task["goal_contract"])
+    return {
+        "positive": True,
+        "noop": False,
+        "omit_completion": False,
+        "wrong_answer": False,
+    }
+
+
 def check_results(task, results):
-    modes = {"positive", "noop", "omit_completion", "wrong_answer"}
+    modes = validation_modes(task)
     if (
-        len(results) != 4
-        or {r["mode"] for r in results} != modes
+        len(results) != len(modes)
+        or {r["mode"] for r in results} != set(modes)
         or any(
             r["initial_state_hash"] != task["execution_contract"]["initial_state_hash"]
-            or r["evaluation"]["success"] != (r["mode"] == "positive")
+            or r["evaluation"]["success"] != modes[r["mode"]]
             for r in results
         )
     ):
@@ -261,19 +318,31 @@ def replay(adapter, task, trajectory, mode, output):
     from .tool_modes import execute_with_mode
 
     validate_task(task, adapter.task_id, require_validation=False)
+    if mode not in validation_modes(task):
+        raise ValueError("Unsupported validation mode")
     if digest(trajectory) != task["execution_contract"]["reference_trajectory_sha256"]:
         raise ValueError("Reference solution changed")
     apply_instruction(adapter, task["instruction"])
+    from .todoist_goal import prepare, perturb
+
+    prepare(adapter, task)
     initial = adapter.fingerprint()
     if initial != task["execution_contract"]["initial_state_hash"]:
         raise ValueError("Generated initial state changed")
     tools, tokens = adapter.initial_tools(), {}
+    executed, changed = [], False
     if mode != "noop":
         for row in interaction_triplets(
             trajectory["messages"], trajectory["trajectory_id"]
         ):
             fn = row["action"]
             args = json.loads(fn["arguments"])
+            if "goal_contract" in task:
+                args, changed = perturb(
+                    fn["name"], args, mode, task["goal_contract"], changed
+                )
+                if args is None:
+                    continue
             if "access_token" in args:
                 args["access_token"] = tokens.get(
                     args["access_token"], args["access_token"]
@@ -288,6 +357,24 @@ def replay(adapter, task, trajectory, mode, output):
             result, tools = execute_with_mode(
                 adapter, fn["name"], json.dumps(args), tools, "dynamic_discovery"
             )
+            call_id = str(len(executed))
+            executed.extend(
+                [
+                    {
+                        "role": "assistant",
+                        "tool_calls": [
+                            {
+                                "id": call_id,
+                                "function": {
+                                    "name": fn["name"],
+                                    "arguments": json.dumps(args),
+                                },
+                            }
+                        ],
+                    },
+                    {"role": "tool", "tool_call_id": call_id, "content": result},
+                ]
+            )
             if (
                 fn["name"].endswith("__login")
                 and not row["failed"]
@@ -296,10 +383,22 @@ def replay(adapter, task, trajectory, mode, output):
                 old, new = json.loads(row["observation"]), json.loads(result)
                 if isinstance(old, dict) and "access_token" in old:
                     tokens[old["access_token"]] = new["access_token"]
+    if (
+        mode
+        in {
+            "omit_task",
+            "wrong_due_date",
+            "wrong_priority",
+            "omit_readback",
+            "extra_description",
+        }
+        and not changed
+    ):
+        raise ValueError("Validation did not exercise the requested business change")
     result = {
         "mode": mode,
         "initial_state_hash": initial,
-        "evaluation": evaluate(adapter, task),
+        "evaluation": evaluate(adapter, task, executed),
     }
     write_json(Path(output) / "validation.json", result)
     return result

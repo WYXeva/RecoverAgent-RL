@@ -11,7 +11,7 @@ from .research_access import SPLIT, SPLIT_SHA, authorize_artifacts
 ROOT = Path(__file__).resolve().parents[2]
 PLAN = ROOT / "configs/v2_scenario_split_20261109.json"
 SCOPE = "full732_scenario_isolated_v2_20261109"
-RUNTIME = "v2_learning_round1_coevolve_quality_20261109"
+RUNTIME = "v2_learning_round1_coevolve_goals_20261110"
 SEED = 20261109
 
 

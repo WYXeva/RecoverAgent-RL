@@ -67,6 +67,10 @@ def run(config, generate):
 
             generated_backend.validate_task(generated, task)
             apply_instruction(adapter, generated["instruction"])
+            if "goal_contract" in generated:
+                from .todoist_goal import prepare
+
+                prepare(adapter, generated)
             public = public_task(adapter.public_task(), generated)
             if (
                 adapter.fingerprint()
@@ -161,7 +165,12 @@ def run(config, generate):
             {"messages": session.messages, "tools": session.tools},
         )
         if generated:
-            evaluation = generated_backend.evaluate(adapter, generated)
+            if "goal_contract" in generated:
+                evaluation = generated_backend.evaluate(
+                    adapter, generated, session.messages
+                )
+            else:
+                evaluation = generated_backend.evaluate(adapter, generated)
         adapter.save_terminal()
         adapter.close()
         adapter = None

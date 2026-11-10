@@ -27,7 +27,7 @@
 
 用户批准当前实例总计24小时，截止2026-11-10 14:12:31（UTC+8），包含已用时间；训练侧20万生成token和未知用量预留继续累计，不租机、充值或续费。旧探索与失败费用不清零。只以真实回执确认新任务合格、非零训练贡献和成功率变化。
 
-当前状态：S1完成8步并保存重载；CoEvolve首段真实4候选/3合格，2个来自反馈。S1已采样生成任务2次；发现计数答案字符串/数字误拒绝后，在0个GRPO更新处停止并准备独立v2修复。原终态、答案和错误评分不改写；尚无S2更新或开发集结果。详见D097。
+首轮最终状态：S0/S1/S2真实更新和dev24×3评价已完成，成功数2/1/1，GRPO在2次更新后因OOM结束。后续审查确认Todoist参考状态评分产生过误罚。真实结果与局限见[首轮报告](../reports/v2_round1_learning_20261109.md)、D100和D101，不能由更新事实推断效果改善。
 
 程序判据v2只对公开题意明确的单个数值做数值等价；其他答案保留精确JSON比较。原始与新revision均保留，修复不放宽目标业务终态。
 
@@ -36,3 +36,5 @@
 新增`coevolve_goal_quality_v1`，在新Solver前检查未识别的明确单值请求，并用独立Teacher文本请求比较实际目标与原始任务/同源已有任务；仅措辞或输出格式变化不算新任务。原先的完整业务终态与答案判据不放宽。新配置为`configs/v2_round1_coevolve_quality_20261109.json`，旧源码锁保留。
 
 既有池可通过`PYTHONPATH=src .venv/bin/python scripts/review_coevolve_pool.py --input review_input.json`进行只读资格审查。输入指定`source_run`、`source_code`、`deployment`、`s1_run`、`s0_checkpoint`及全新`output`路径；源码、来源摘要和原截止时间必须匹配。不启动Student、GPU或新任务执行。语义判定仍依赖强模型，保存完整依据，不当作形式证明；严格终态匹配仍可能排除其他合法解法。
+
+2026-11-10软件修复：新默认配置为`configs/v2_round1_coevolve_goals_20261110.json`。对显式`goal_contract`的Todoist项目/待办计数任务，从同一结构化目标渲染题面并检查实际业务条件与读回；其他题型维持原评分。原历史提案和权重不迁移、不重评分。具体软件验证与未验证部分见[目标评分修复](../reports/coevolve_todoist_goal_fix_20261110.md)。

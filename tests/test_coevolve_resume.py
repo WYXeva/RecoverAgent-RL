@@ -96,7 +96,8 @@ def test_upgrade_preserves_goal_state_and_reference_and_does_not_edit_source():
 
 @pytest.fixture
 def stopped_source(tmp_path, monkeypatch):
-    cfg = config()
+    # This historical handoff changes only scalar answer equivalence, not goals.
+    cfg = read_json(ROOT / "configs/v2_round1_coevolve_quality_20261109.json")
     old = read_json(ROOT / "configs/v2_round1_coevolve_20261109.json")
     root, code, source, s1 = [
         tmp_path / n for n in ("root", "old_code", "source", "S1")
@@ -180,6 +181,12 @@ def test_completed_current_policy_prefix_and_costs_can_be_carried(stopped_source
     summary, completed = resume.verify_source(*stopped_source)
     assert len(completed) == 1 and summary["training_generated_tokens"] == 12
     assert summary["teacher_usage_priced_cny"] == 1.2
+
+
+def test_new_goal_recipe_cannot_reuse_old_reward_handoff(stopped_source):
+    source, _, deployment, s1, carried = stopped_source
+    with pytest.raises(ValueError, match="changed the learning recipe"):
+        resume.verify_source(source, config(), deployment, s1, carried)
 
 
 @pytest.mark.parametrize(
