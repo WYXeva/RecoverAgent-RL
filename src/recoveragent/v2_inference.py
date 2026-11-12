@@ -7,9 +7,20 @@ import time
 from pathlib import Path
 
 from .io import digest, write_json
+from .v2_context import validate_request_context
 
 
-def generate(model, tokenizer, request, *, identity, deadline, token_ledger=None):
+def generate(
+    model,
+    tokenizer,
+    request,
+    *,
+    identity,
+    deadline,
+    max_input_tokens,
+    token_ledger=None,
+):
+    validate_request_context(request, max_input_tokens)
     import torch
     from transformers import GenerationConfig, StoppingCriteria, StoppingCriteriaList
 
@@ -129,6 +140,7 @@ def episode(config, model, tokenizer, *, python, deadline, token_ledger=None):
                         request,
                         identity=identity,
                         deadline=deadline,
+                        max_input_tokens=config["student_limits"]["max_input_tokens"],
                         token_ledger=token_ledger,
                     )
                 except Exception as exc:

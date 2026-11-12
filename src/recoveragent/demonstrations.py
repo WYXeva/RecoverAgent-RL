@@ -41,6 +41,19 @@ FORMAT = "clean-teacher-normal-v1"
 FILTER = "official-success-format-loop-v1"
 
 
+def custom_contract(record):
+    if record.get("recovery"):
+        from .recovery_suffix import FORMAT, validate_public_record
+    elif (
+        record["custom_research"].get("scope")
+        == "full732_scenario_isolated_v2_20261109"
+    ):
+        from .v2_tasks import DEMO_FORMAT as FORMAT, validate_public_record
+    else:
+        from .research_access import FORMAT, validate_record as validate_public_record
+    return FORMAT, validate_public_record
+
+
 def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -50,14 +63,7 @@ def validate_demo(record):
     custom = record.get("custom_research") is not None
     recovery = record.get("recovery") is not None
     if custom:
-        if recovery:
-            from .recovery_suffix import (
-                FORMAT as CUSTOM_FORMAT,
-                validate_public_record as validate_record,
-            )
-        else:
-            from .research_access import FORMAT as CUSTOM_FORMAT, validate_record
-
+        CUSTOM_FORMAT, validate_record = custom_contract(record)
         validate_record(record)
     if (
         record["kind"] != (CUSTOM_FORMAT if custom else FORMAT)
@@ -270,11 +276,7 @@ def filter_attempt(trajectory, evaluation, train_ids, limits, directory):
         reasons.append("unverified_teacher_identity")
     custom = trajectory.get("custom_research") is not None
     if custom:
-        if recovery:
-            from .recovery_suffix import validate_public_record as validate_record
-        else:
-            from .research_access import validate_record
-
+        _, validate_record = custom_contract(trajectory)
         validate_record(trajectory)
     if trajectory.get("task_id") not in train_ids or (
         not custom and trajectory.get("split") != "train"
@@ -359,13 +361,9 @@ def as_demo(trajectory):
     record = {k: copy.deepcopy(trajectory[k]) for k in keys}
     record["kind"] = FORMAT
     if trajectory.get("custom_research") is not None:
+        CUSTOM_FORMAT, _ = custom_contract(trajectory)
         if trajectory.get("recovery"):
-            from .recovery_suffix import FORMAT as CUSTOM_FORMAT
-
             record["recovery"] = copy.deepcopy(trajectory["recovery"])
-        else:
-            from .research_access import FORMAT as CUSTOM_FORMAT
-
         record["kind"] = CUSTOM_FORMAT
         record["custom_research"] = copy.deepcopy(trajectory["custom_research"])
     for key in (

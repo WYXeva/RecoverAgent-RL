@@ -136,7 +136,7 @@ def test_v2_snapshot_takeover_dynamic_tools_and_atomic_batch(
         "tool_format": "qwen_json",
     }
     monkeypatch.setattr("recoveragent.v2_model.validate_identity", lambda x: x)
-    contract = read_json("configs/b10_execution_budget_20261105_lock.json")[
+    contract = read_json("configs/v2_learning_64k_20261112_lock.json")[
         "session_contract"
     ]
     monkeypatch.setattr(
@@ -155,6 +155,7 @@ def test_v2_snapshot_takeover_dynamic_tools_and_atomic_batch(
         answer_guard=True,
         execution_protocol=RUNTIME,
         model_contract=model,
+        max_input_tokens=65536,
         output=tmp_path / "session",
     )
     session.runtime_revision = RUNTIME
@@ -243,7 +244,13 @@ def test_grpo_uses_each_actual_dynamic_request_and_only_generated_tokens(tmp_pat
     policy = {"checkpoint": "S1"}
     for i, prompt in enumerate([[1, 2], [8, 9, 10]]):
         write_json(
-            root / f"{i}.request.json", {"policy": policy, "input_token_ids": prompt}
+            root / f"{i}.request.json",
+            {
+                "policy": policy,
+                "input_token_ids": prompt,
+                "max_input_tokens": 65536,
+                "max_new_tokens": 4096,
+            },
         )
         write_json(
             root / f"{i}.response.json",
@@ -336,10 +343,13 @@ def test_generator_real_proposal_required_and_negative_evaluator(monkeypatch):
 
 
 def test_new_lock_and_immutable_historical_lock_rejection():
+    from recoveragent.teacher_collection import verify_lock as previous_collection
     from recoveragent.v2_runtime import verify_lock
     from recoveragent.b10_pilot import verify_lock as old
 
-    assert verify_lock()["revision"] == RUNTIME
+    assert verify_lock()["session_contract"]["budget_caps"]["max_input_tokens"] == 65536
+    with pytest.raises(ValueError):
+        previous_collection()
     with pytest.raises(ValueError):
         old()
 
@@ -359,7 +369,7 @@ def test_real_entry_wiring_with_synthetic_generator(worlds, tmp_path, monkeypatc
         ).hexdigest(),
         "tool_format": "qwen_json",
     }
-    contract = read_json("configs/b10_execution_budget_20261105_lock.json")[
+    contract = read_json("configs/v2_learning_64k_20261112_lock.json")[
         "session_contract"
     ]
     monkeypatch.setattr("recoveragent.v2_model.validate_identity", lambda x: x)
@@ -404,7 +414,11 @@ def test_real_entry_wiring_with_synthetic_generator(worlds, tmp_path, monkeypatc
                 "purpose": "feedback",
                 "model": model,
                 "checkpoint_id": "S0_synthetic",
-                "student_limits": {"max_requests": 80, "wall_seconds": 1200},
+                "student_limits": {
+                    "max_requests": 80,
+                    "wall_seconds": 1200,
+                    "max_input_tokens": 65536,
+                },
             },
             generate,
         )

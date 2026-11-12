@@ -8,7 +8,6 @@ import pytest
 from recoveragent.demonstrations import sha256
 from recoveragent.io import files_manifest, read_json, write_json
 from recoveragent.v2_resume import establish_base, verified_base
-from recoveragent.v2_round import config
 from recoveragent.v2_tasks import plan
 
 
@@ -18,7 +17,8 @@ def completed_base(tmp_path):
     data.mkdir()
     (data / "examples.jsonl").write_text("{}\n" * 9)
     old = read_json("configs/v2_round1_cpu_offload_20261109.json")
-    cfg = config()
+    # This fixture reproduces the historical 32k handoff, not the new 64k run.
+    cfg = read_json("configs/v2_round1_coevolve_goals_20261110.json")
     identity = cfg["models"][cfg["selected_model"]]
     data_hash = sha256(data / "examples.jsonl")
     write_json(

@@ -4,11 +4,12 @@ import copy
 import math
 
 from .io import read_json
+from .v2_context import CONFIG, sequence_limit
 from .v2_tasks import ROOT, RUNTIME, context_for
 
 
 def configuration(task_id, identity, root, remaining_cost, *, recovery=True):
-    frozen = read_json(ROOT / "configs/v2_round1_coevolve_goals_20261110.json")
+    frozen = read_json(CONFIG)
     config = copy.deepcopy(
         read_json(ROOT / frozen["teacher_config_template"])["teacher_config"]
     )
@@ -19,6 +20,7 @@ def configuration(task_id, identity, root, remaining_cost, *, recovery=True):
         student=identity,
         teacher=copy.deepcopy(frozen["teacher"]),
         protocol_lock=frozen["source_lock"],
+        learning_context={"max_sequence_tokens": sequence_limit(frozen)},
     )
     if not recovery:
         config.pop("recovery_protocol")

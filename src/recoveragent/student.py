@@ -216,7 +216,7 @@ class StudentSession:
                 raise ValueError("Invalid Student resource bound")
         if max_new_tokens > 4096 or wall_seconds <= 0:
             raise ValueError("Invalid output/time budget")
-        if protocol_harness and max_input_tokens > 32768:
+        if protocol_harness and model_contract is None and max_input_tokens > 32768:
             raise ValueError("harness_v1 Student window cannot exceed 32768")
         validate_history(messages)
         public = {d["function"]["name"]: d for d in adapter.catalogue}
@@ -521,9 +521,10 @@ class StudentSession:
             "eos_token_id": self.tokenizer.eos_token_id,
             **(
                 {
+                    "max_input_tokens": self.max_input_tokens,
                     "remaining_wall_seconds": max(
                         0.0, self.wall_seconds - (self.clock() - self.started)
-                    )
+                    ),
                 }
                 if self.model_contract is not None
                 else {}

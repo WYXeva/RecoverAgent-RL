@@ -275,6 +275,8 @@ class TeacherPolicy:
         }
         if self.config.get("http_user_agent"):
             headers["User-Agent"] = self.config["http_user_agent"]
+        if self.config.get("opencode_session_id"):
+            headers["x-opencode-session"] = self.config["opencode_session_id"]
         request = urllib.request.Request(
             self.config["base_url"].rstrip("/") + "/chat/completions",
             canonical(payload).encode(),
@@ -331,6 +333,8 @@ class TeacherPolicy:
         }
         if self.config.get("http_user_agent"):
             headers["User-Agent"] = self.config["http_user_agent"]
+        if self.config.get("opencode_session_id"):
+            headers["x-opencode-session"] = self.config["opencode_session_id"]
         phase, status = "request_open", None
         try:
             with self._http_session.post(

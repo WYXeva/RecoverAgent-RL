@@ -171,11 +171,9 @@ def validate_guard_record(record):
     if RULES not in messages[0]["content"]:
         if not record.get("custom_research"):
             raise ValueError("Undeclared answer guard")
-        if record.get("recovery"):
-            from .recovery_suffix import validate_public_record as validate_record
-        else:
-            from .research_access import validate_record
+        from .demonstrations import custom_contract
 
+        _, validate_record = custom_contract(record)
         validate_record(record)  # Exact v6 plus real controls; replay below unchanged.
     for turn in record["turns"]:
         if "protocol_rejection" in turn and "harness" in record:

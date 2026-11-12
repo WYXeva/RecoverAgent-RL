@@ -4,9 +4,10 @@ from pathlib import Path
 
 from .demonstrations import sha256
 from .io import read_json
+from .v2_context import CONFIG, sequence_limit
 from .v2_tasks import ROOT, RUNTIME
 
-LOCK = ROOT / "configs/v2_round1_coevolve_goals_20261110_lock.json"
+LOCK = ROOT / "configs/v2_learning_64k_20261112_lock.json"
 
 
 def verify_lock():
@@ -15,7 +16,7 @@ def verify_lock():
         str(p.relative_to(ROOT)) for p in (ROOT / "src/recoveragent").glob("*.py")
     }
     required |= {
-        "configs/v2_round1_coevolve_goals_20261110.json",
+        str(CONFIG.relative_to(ROOT)),
         "configs/v2_scenario_split_20261109.json",
         "configs/v2_qwen35_weights.json",
         "requirements/v2-learning.txt",
@@ -27,6 +28,8 @@ def verify_lock():
     }
     if lock.get("runtime_revision") != RUNTIME or not required <= lock["files"].keys():
         raise ValueError("Incomplete v2 source lock")
+    if lock["session_contract"]["budget_caps"]["max_input_tokens"] != sequence_limit():
+        raise ValueError("v2 configuration/source lock context mismatch")
     for name, expected in lock["files"].items():
         if (
             Path(name).is_absolute()

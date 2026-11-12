@@ -549,11 +549,9 @@ def validate_record(record):
 
 def _harness_missing(record):
     if record.get("custom_research"):
-        if record.get("recovery"):
-            from .recovery_suffix import validate_public_record as validate_record
-        else:
-            from .research_access import validate_record
+        from .demonstrations import custom_contract
 
+        _, validate_record = custom_contract(record)
         validate_record(record)
         return False  # The full actual-control replay above remains mandatory.
     return (

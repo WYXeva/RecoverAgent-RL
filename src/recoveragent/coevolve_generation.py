@@ -173,6 +173,24 @@ class Evolution:
             ],
             self.settings["text_max_tokens"],
         )
+        # Text-only abstraction/quality calls share the same pinned tokenizer
+        # and complete input+output window as exploration and Solver episodes.
+        from .teacher_collection import context_receipt
+        from .v2_model import load_tokenizer
+
+        if not hasattr(self, "context_tokenizer"):
+            self.context_tokenizer = load_tokenizer(self.identity)
+        context = context_receipt(
+            self.context_tokenizer,
+            request["messages"],
+            [],
+            request["max_tokens"],
+            cfg["learning_context"],
+            self.identity,
+        )
+        write_json(Path(directory) / "context.json", context)
+        if not context["within_budget"]:
+            raise ValueError("CoEvolve text context too long; no truncation")
         # Conservative pre-request reservation; reconcile only known returned usage.
         price = cfg["teacher"]["pricing"]
         reserve = (

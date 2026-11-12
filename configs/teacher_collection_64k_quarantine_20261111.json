@@ -1,0 +1,221 @@
+{
+  "revision": "v2_teacher_collection_64k_quarantine_20261111",
+  "template": "configs/b10_execution_budget_20261105.json",
+  "appworld_root": "data/appworld",
+  "student": {
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "thinking": false,
+    "tool_format": "qwen_xml"
+  },
+  "teacher": {
+    "provider": "opencode_go",
+    "base_url": "https://opencode.ai/inference/go/openai/v1",
+    "allowed_host": "opencode.ai",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-v4.1-flash",
+    "revision": "OpenCode Go deepseek-v4.1-flash service alias; response ID/model retained; successful native tools probe 2026-11-11. No immutable weight attestation.",
+    "revision_is_immutable": false,
+    "revision_source": "https://opencode.ai/docs/console/go/",
+    "thinking": true,
+    "reasoning_protocol": "provider_reasoning_audit_only_v1",
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": null,
+    "max_request_bytes": 4194304,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "USD",
+      "input_per_million": 0.3,
+      "cached_input_per_million": 0.006,
+      "output_per_million": 1.2,
+      "source": "https://opencode.ai/docs/console/go/#usage-limits",
+      "checked_at": "2026-11-11",
+      "basis": "Conservative published DeepSeek V4.1 Flash peak-rate Go allowance estimate. Not actual subscription charge. No billing or subscription settings changed."
+    },
+    "http_user_agent": "RecoverAgent-RL/0.2",
+    "response_identity_protocol": "model_response_id_v1",
+    "response_model_aliases": [],
+    "http_error_diagnostics": "keyword_hash_v1",
+    "http_transport": "requests_session_v1"
+  },
+  "context": {
+    "max_sequence_tokens": 65536,
+    "basis": "Pinned Qwen3.5-9B native non-thinking template, visible public history plus tools plus reserved reply; same exact tokenizer for SFT export. Provider token accounting is recorded separately.",
+    "truncate": false
+  },
+  "target_successes": 256,
+  "reuse_dataset": "data/full732_teacher_successes_complete_20261029",
+  "reuse_manifest_sha256": "96265f67a5828b101f5db32a804008478d7c419a01e079f6e468b8e5f164735f",
+  "concurrency": 2,
+  "episode_cost_cap_usd": 2.0,
+  "total_cost_cap_usd": 100.0,
+  "max_attempts_per_task": 1,
+  "source_split": "full732_scenario_isolated_v2_20261109:train",
+  "training_enabled": false,
+  "prior_attempt_results": [
+    {
+      "path": "runs/teacher_go_64k_20261111_01/results/6588a51_1.json",
+      "sha256": "e3f8561eb85ad1ea013839da790f1486c52c8d82798e71cf7c3966d908c7978c"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_02/attempts/teacher_go_64k_20261111_02_270f1ff_3/result.json",
+      "sha256": "61757e8423edd3b76e6e614e0a6e84d01d8fb302753e55bcda1e44168bc55b68",
+      "attempt_directory": "runs/teacher_go_64k_20261111_02/attempts/teacher_go_64k_20261111_02_270f1ff_3"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_02/attempts/teacher_go_64k_20261111_02_fa327a6_2/result.json",
+      "sha256": "f3d8eea6f350b9dc46573095a7126891352c1c89802e122b2bfc1ca6633cdd57",
+      "attempt_directory": "runs/teacher_go_64k_20261111_02/attempts/teacher_go_64k_20261111_02_fa327a6_2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_02/attempts/teacher_go_64k_20261111_02_fd1f8fa_3/result.json",
+      "sha256": "4a6d670ecaff40a4c37b0fb7007ed43215c81e0d43b44e74fbfa2e98d29c0890",
+      "attempt_directory": "runs/teacher_go_64k_20261111_02/attempts/teacher_go_64k_20261111_02_fd1f8fa_3"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/0de03ad_2.json",
+      "sha256": "4797fb3b7cd4d98993038ac1664d56be9eed9a90d316ee6a4e55da05ae7ae679"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/166f4ff_2.json",
+      "sha256": "9f7db8518cf2dbe978fca43015f7d34b0bc26ee41f3cf9ad76f336b7e59f0fd2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/16be9ce_2.json",
+      "sha256": "d69642ad92b476056b56d98840a81ec6d018ae8402d04c186cd1a60505bddf7e"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/18670a5_1.json",
+      "sha256": "cb4a4a06b578f4b0ce6bb1018c2006b8df05ba281584f0bd8ea31daeed518ba1",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_18670a5_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/22cc237_1.json",
+      "sha256": "45d302f2d9b697a5f5b7d87533db4df4527eca9d68419a75c1cc374c5e941846",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_22cc237_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/23cf851_1.json",
+      "sha256": "3525aa53a0cfebf848fbb1e0c868f26ae8d33b35f64200cd934fccd7455f8042",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_23cf851_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/277d81d_3.json",
+      "sha256": "bce4944cae8489b7f88385006efc7d9e0929c92728b98237f8a80032bde5a566",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_277d81d_3"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/32616b5_3.json",
+      "sha256": "23635b4713b3be9c11e11cedfb16fb4b80260f0e3a886d9be0c699139e73b726"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/37a8675_2.json",
+      "sha256": "84858ec91039e6a588a35ef3004a279d642568cba951f346139247cbbf3b6f74",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_37a8675_2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/383cbac_1.json",
+      "sha256": "346230fc667215235793c743b7481e390a0914a5d36621d99553124616d3d31e"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/4d12842_2.json",
+      "sha256": "6cefedf772a7eddcc0c4fbf44fc33e72f2e20f168b01e5ddd62c4635ab46761f",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_4d12842_2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/66b7899_2.json",
+      "sha256": "28b1aacaf20aa57c0003a1dd2f78d111e5ebe02767df2f960d819b47a2ee00a4",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_66b7899_2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/7d26579_1.json",
+      "sha256": "442910c6d65f65205f4f35be0c43ca9e9142f24bbe80265a1fbdae2439f4ff7b",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_7d26579_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/83a7951_1.json",
+      "sha256": "eee600b3429fce1a14f8af91294273983d92aa1175c97e1f06ad40fd1f4fb63e",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_83a7951_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/9ef034e_1.json",
+      "sha256": "c2d00018e98ac1dd9f6101cd28c15a50ebea53445e66be1bb60f047efecb6184"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/a30375d_2.json",
+      "sha256": "17a84ce3057cbbf892028117ddc64aab9b842eef062ff27fa707c3bff3d8adb1",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_a30375d_2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/a97e35d_2.json",
+      "sha256": "6338009260ebd34f16a61d3dcfb13c7e71d4480d68c206e1ca30b7b26a6b6df9",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_a97e35d_2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/adb1060_1.json",
+      "sha256": "c0acf29c9b9476481eef1e18640fa6efa3e6baa076a5438e7eef9958ed13289e",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_adb1060_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/afc0fce_1.json",
+      "sha256": "2d60a6fa53bafafa6327a9be432741b748439c24217bec895a1a14250c758e97",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_afc0fce_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/cb4ee7a_1.json",
+      "sha256": "116d035d8ceda329ebaa41f2266621cbf9c404dbda9e83cefa63e0f4bdf911be",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_cb4ee7a_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/cdaaea5_3.json",
+      "sha256": "a1e2995c577b130e323e216ec85eb509b88ec6672b4cf6c9915f14406c5ed986"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/d194965_2.json",
+      "sha256": "fceb774ca718d6fb631c286570d3430726c04554ca720132621f0cf4b6a45759",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_d194965_2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/d4e9306_2.json",
+      "sha256": "4ee6127d508805cfb110a27a822584fc2cc47106a74f213e116d5cd4f246c485",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_d4e9306_2"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/d6ac34d_1.json",
+      "sha256": "da7594c2d81366a8eb1a32511422fad4453201ce64399204804ffde0839a7ea9",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_d6ac34d_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/e0fe09c_2.json",
+      "sha256": "00ac9f5630c75514f50e5323000cd46615e51bfc917ef4c8a13917b37263a5bb"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/e3d6c94_3.json",
+      "sha256": "a2434159b21ddc49d26f4860537f33587727af26f633b085880467129b54e6c3",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_e3d6c94_3"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/e70b117_1.json",
+      "sha256": "66402e6df9f62c35e81afe22cb219797c46cd2e11d6fbd01ac0b019ff7c609f7",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_e70b117_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/e7a10f8_1.json",
+      "sha256": "6327a62150fc39ad363b3a4303c4536facb843d9b1e04009ca687bebac600c5f",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_e7a10f8_1"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/ff58e36_3.json",
+      "sha256": "580050ed8a2d94216c1834c974283d3e2b4466ebf00f5da9bde33c6f68132290",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_ff58e36_3"
+    },
+    {
+      "path": "runs/teacher_go_64k_20261111_03/results/ffe6d5e_1.json",
+      "sha256": "38ac2261b35c65cc9bee69e914aff279fd66f567784ee624c53d3f13424a5175",
+      "attempt_directory": "runs/teacher_go_64k_20261111_03/attempts/teacher_go_64k_20261111_03_ffe6d5e_1"
+    }
+  ]
+}

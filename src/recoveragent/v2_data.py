@@ -11,6 +11,7 @@ from .full732_sft_data import MANIFEST as MANIFEST_SHA
 from .io import digest, read_json, write_json
 from .schema_compatibility import convert_catalogue, load_public_openapi
 from .v2_tasks import context_for, rank
+from .v2_context import sequence_limit
 
 
 def write_rows(path, rows):
@@ -25,8 +26,9 @@ def read_rows(path):
     return [json.loads(line) for line in Path(path).read_text().splitlines()]
 
 
-def encode(sample, tokenizer):
-    rows = assistant_examples(sample, tokenizer)
+def encode(sample, tokenizer, *, max_length=None):
+    max_length = sequence_limit() if max_length is None else max_length
+    rows = assistant_examples(sample, tokenizer, max_length=max_length)
     if not rows or any(sum(r["loss_mask"]) > 4096 for r in rows):
         raise ValueError("Target too long or empty; refusing silent truncation")
     boundary = sample.get("recovery", {}).get("suffix_start", 0)
@@ -40,7 +42,8 @@ def encode(sample, tokenizer):
     return rows
 
 
-def prepare_base(dataset, output, tokenizer, identity, target=96):
+def prepare_base(dataset, output, tokenizer, identity, target=96, *, max_length=None):
+    max_length = sequence_limit() if max_length is None else max_length
     dataset, output = Path(dataset), Path(output)
     if sha256(dataset / "manifest.json") != MANIFEST_SHA:
         raise ValueError("Original Teacher manifest changed")
@@ -80,7 +83,7 @@ def prepare_base(dataset, output, tokenizer, identity, target=96):
         for turn in sample["turns"]:
             turn["tools"] = [converted[t["function"]["name"]] for t in turn["tools"]]
         try:
-            encoded = encode(sample, tokenizer)
+            encoded = encode(sample, tokenizer, max_length=max_length)
         except ValueError as exc:
             if "too long" not in str(exc):
                 raise
@@ -103,6 +106,7 @@ def prepare_base(dataset, output, tokenizer, identity, target=96):
         "examples": len(rows),
         "supervised_tokens": sum(sum(r["loss_mask"]) for r in rows),
         "max_sequence_tokens": max(len(r["input_ids"]) for r in rows),
+        "sequence_limit": max_length,
         "examples_sha256": sha256(output / "examples.jsonl"),
         "no_truncation": True,
         "training_started": False,
@@ -111,10 +115,11 @@ def prepare_base(dataset, output, tokenizer, identity, target=96):
     return report
 
 
-def prepare_recovery(directory, tokenizer):
+def prepare_recovery(directory, tokenizer, *, max_length=None):
     """Use the existing real receipt verifier, not reward alone, for acceptance."""
     from .state import inspect_snapshot
 
+    max_length = sequence_limit() if max_length is None else max_length
     directory = Path(directory)
     record = read_json(directory / "trajectory.json")
     context_for(record["task_id"], training=True)
@@ -135,6 +140,7 @@ def prepare_recovery(directory, tokenizer):
         "reasons": reasons,
         "examples": 0,
         "supervised_tokens": 0,
+        "sequence_limit": max_length,
     }
     if not reasons:
         source, context, _ = inspect_snapshot(record["recovery"]["snapshot_ref"])
@@ -147,7 +153,7 @@ def prepare_recovery(directory, tokenizer):
         sample = as_demo(record)
         write_json(directory / "recovery_sample.json", sample)
         try:
-            rows = encode(sample, tokenizer)
+            rows = encode(sample, tokenizer, max_length=max_length)
         except ValueError as exc:
             if "too long" not in str(exc):
                 raise

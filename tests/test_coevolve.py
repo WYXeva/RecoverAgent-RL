@@ -285,8 +285,8 @@ def test_unknown_text_usage_is_reserved_without_retry(tmp_path, monkeypatch):
         def __init__(self, *args):
             pass
 
-        def build_text_request(self, *args):
-            return {"max_tokens": 4}
+        def build_text_request(self, messages, *args):
+            return {"max_tokens": 4, "messages": messages}
 
         def transport(self, request):
             calls.append(request)
@@ -297,23 +297,27 @@ def test_unknown_text_usage_is_reserved_without_retry(tmp_path, monkeypatch):
         module,
         "configuration",
         lambda *a, **k: {
+            "learning_context": {"max_sequence_tokens": 65536},
             "teacher": {
                 "pricing": {"input_per_million": 2, "output_per_million": 8},
                 "billing_context_tokens": 100,
-            }
+            },
         },
     )
     monkeypatch.setattr(module, "read_credentials", lambda *a: {})
     summary = {"teacher_usage_priced_cny": 0.0}
     engine = Evolution(
         config(),
-        {},
+        {"model": "synthetic"},
         {"teacher_budget_cny": 10, "appworld_root": "synthetic"},
         tmp_path,
         summary,
         1e20,
         None,
     )
+    from test_teacher_collection import CharacterTokenizer
+
+    engine.context_tokenizer = CharacterTokenizer()
     with pytest.raises(RuntimeError, match="unknown"):
         engine.text(plan()["feedback20"][0], tmp_path / "text", "synthetic", {})
     assert len(calls) == 1 and summary["teacher_usage_priced_cny"] > 0
@@ -322,7 +326,7 @@ def test_unknown_text_usage_is_reserved_without_retry(tmp_path, monkeypatch):
 
 def test_sft_handoff_allows_only_explicit_future_changes():
     old = read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
-    current = config()
+    current = read_json(ROOT / "configs/v2_round1_coevolve_goals_20261110.json")
     normalized = completed_sft_recipe(current, old)
     for key in old.keys() - {"format", "source_lock", "gpu_wall_seconds"}:
         assert normalized[key] == old[key]

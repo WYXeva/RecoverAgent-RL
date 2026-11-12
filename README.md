@@ -2,11 +2,11 @@
 
 在 AppWorld 中研究反馈驱动的任务演化、真实失败恢复和在线强化学习：同一个 Student 执行任务，Teacher 接续修复 badcase，并探索、生成可验证的新任务；通过迭代 Recovery-SFT 与当前策略 GRPO 更新模型。
 
-**[project.md](project.md) 是唯一当前主计划；[AGENTS.md](AGENTS.md) 是开发约定；[STATUS 当前摘要](docs/STATUS.md#当前摘要2026-11-09) 记录实际进度。** 后续实现从 [第8节“交付1：一轮真实学习结果”](project.md#交付-1一轮真实学习结果) 开始。
+**[project.md](project.md) 是唯一当前主计划；[AGENTS.md](AGENTS.md) 是开发约定；[STATUS 当前摘要](docs/STATUS.md) 记录实际进度。** 后续实现从 [第8节“交付1：一轮真实学习结果”](project.md#交付-1一轮真实学习结果) 开始。
 
 ## 当前起点
 
-v2 第一轮入口已实现，Qwen3.5-9B 短/最长完整样本训练烟测已通过，正式 S0 已完成181步并通过重载验收，正在进行真实反馈采样，学习闭环尚未完成。当前配置、启动命令和实际记录见[v2 执行报告](reports/v2_round1_learning_20261109.md)。已有 AppWorld 执行、恢复、数据过滤和4B Base-SFT 底座；B10 真实试点产出3条合格恢复后缀、23个 assistant 样本、5066监督 token，尚未执行 Recovery-SFT 或 GRPO。[B10 验收报告](reports/b10_teacher_recovery_execution_20261104.md)保留完整结果与局限。
+v2 第一轮已完成 Qwen3.5-9B 的 S0/S1/S2 更新与 dev24 比较，成功数为2/24、1/24、1/24，未观察到提升；GRPO因OOM未跑满原定规模，见[v2 执行报告](reports/v2_round1_learning_20261109.md)。随后已收齐[256条64k合格Teacher示范](reports/teacher_collection_64k_20261111.md)。当前软件默认全链路64k，真实64k训练与推理显存尚未验证，见[接线报告](reports/v2_context_64k_20261112.md)。
 
 新模型、场景隔离训练/开发/测试划分、预算和主实验设计以 `project.md` 为准。旧固定4B、A244/B244/C244、多检查点主算法及 P4 阶段门禁属于历史方案，不是 v2 的默认入口。本轮真实运行使用用户已授权机器与服务，具体状态见 STATUS。
 
@@ -23,7 +23,7 @@ v2 第一轮入口已实现，Qwen3.5-9B 短/最长完整样本训练烟测已�
 | 现有执行协议起点 | [execution_v6](src/recoveragent/execution_v6.py)、[Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
 | 排查模型实际输入/输出 | [LLM 请求视图](docs/LLM_VIEW.md) |
 
-当前入口为 `scripts/run_v2_round.py`；已完成S0的 `round_004` 使用固定 CPU offload 版本。用户已授权当前实例总时限延长至12小时，独立 `configs/v2_round1_resume12h_20261109.json` 已从验收后的 S0 接续 `round_005`，已用时间继续计入总时限。真实接续已完成；S0通过不表示整轮学习闭环完成。历史运行用其固定提交、配置和锁复现。
+当前入口为 `scripts/run_v2_round.py`，默认使用 `configs/v2_learning_64k_20261112.json` 及独立源码锁；输入加回复、SFT完整样本和GRPO实际轨迹统一为65,536 token，其他预算不变。本次接线未启动新实验。历史运行用其固定提交、配置和锁复现。
 
 ## 目录与本地验证
 

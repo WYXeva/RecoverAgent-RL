@@ -11,11 +11,12 @@ import time
 import traceback
 
 from .io import digest, read_json, write_json
+from .v2_context import CONFIG, sequence_limit
 from .v2_tasks import ROOT, plan, development_tasks, grpo_schedule
 
 
 def config():
-    return read_json(ROOT / "configs/v2_round1_coevolve_goals_20261110.json")
+    return read_json(CONFIG)
 
 
 def isolated(python, command, payload, destination, deadline, *, env=None):
@@ -43,6 +44,7 @@ def prepare(output, identity):
         load_tokenizer(identity, local_files_only=False),
         identity,
         target=config()["base_trajectories"],
+        max_length=sequence_limit(config()),
     )
 
 
@@ -381,7 +383,9 @@ def run(
                         {"directory": str(directory), "identity": identity},
                     )
                 else:
-                    acceptance = prepare_recovery(directory, tokenizer)
+                    acceptance = prepare_recovery(
+                        directory, tokenizer, max_length=sequence_limit(cfg)
+                    )
                 summary["recovery"].append(
                     {
                         "task_id": failure["task_id"],

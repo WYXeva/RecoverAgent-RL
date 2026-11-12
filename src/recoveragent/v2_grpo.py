@@ -15,6 +15,7 @@ from pathlib import Path
 from .io import digest, read_json, write_json
 from .sft_recipe import gradient_health, tensor_hash
 from .v2_inference import policy_id
+from .v2_context import sequence_limit, validate_request_context
 from .v2_training import load_trainable, finish_checkpoint, finalize_reload
 
 
@@ -52,7 +53,8 @@ def group_advantages(episodes):
     return [(r - mean) / (std + 1e-4) for r in rewards]
 
 
-def segments(directory, expected_policy):
+def segments(directory, expected_policy, *, max_length=None):
+    max_length = sequence_limit() if max_length is None else max_length
     rows = []
     for path in sorted((Path(directory) / "session/requests").glob("*.request.json")):
         request = read_json(path)
@@ -66,7 +68,9 @@ def segments(directory, expected_policy):
             or len(response["logprobs"]) != len(response["token_ids"])
         ):
             raise ValueError("Rollout policy/token/logprob receipt mismatch")
-        if len(request["input_token_ids"]) + len(response["token_ids"]) > 32768:
+        if max_length > 32768 or "max_input_tokens" in request:
+            validate_request_context(request, max_length)
+        if len(request["input_token_ids"]) + len(response["token_ids"]) > max_length:
             raise ValueError("GRPO segment exceeds context; no truncation")
         rows.append(
             {
@@ -179,7 +183,7 @@ def make_trainer(model, tokenizer, output, settings):
     return trainer
 
 
-def update_batch(trainer, groups):
+def update_batch(trainer, groups, *, max_length=None):
     import torch
 
     usable = [(episodes, group_advantages(episodes)) for episodes in groups]
@@ -194,7 +198,9 @@ def update_batch(trainer, groups):
         for episode, advantage in zip(episodes, advantages, strict=True):
             if advantage == 0 and trainer.beta == 0:
                 continue
-            rows = segments(episode["directory"], episode["policy"])
+            rows = segments(
+                episode["directory"], episode["policy"], max_length=max_length
+            )
             tokens = sum(len(r["completion_ids"]) for r in rows)
             for row in rows:
 
@@ -328,7 +334,7 @@ def train(
             groups.append(group)
         if not groups:
             break
-        update = update_batch(trainer, groups)
+        update = update_batch(trainer, groups, max_length=sequence_limit(config))
         audit.append(
             {
                 "batch": batch_index // 2,
@@ -346,9 +352,11 @@ def train(
             for group in groups:
                 for episode in group:
                     if episode["classification"] != "infrastructure_error":
-                        probe_ids = segments(episode["directory"], episode["policy"])[
-                            0
-                        ]["prompt_ids"][:128]
+                        probe_ids = segments(
+                            episode["directory"],
+                            episode["policy"],
+                            max_length=sequence_limit(config),
+                        )[0]["prompt_ids"][:128]
                         break
         # Save updated adapters as real private intermediate states, never replay old rollouts.
         if update["updated"]:

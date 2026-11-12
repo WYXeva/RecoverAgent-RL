@@ -12,6 +12,17 @@ from .sft_recipe import collate, gradient_health, selected_token_loss, tensor_ha
 from .v2_data import read_rows
 from .v2_model import load_base, load_tokenizer
 from .v2_tasks import context_for
+from .v2_context import sequence_limit
+
+
+def validate_training_rows(rows, max_length):
+    for row in rows:
+        context_for(row["task_id"], training=True)
+        if (
+            len(row["input_ids"]) > max_length
+            or row["labels"][: row["target_start"]] != [-100] * row["target_start"]
+        ):
+            raise ValueError("Invalid train scope, length, or loss mask")
 
 
 def verify_checkpoint(path, identity):
@@ -160,13 +171,7 @@ def train_sft(
     if torch.cuda.device_count() != 1:
         raise ValueError("This run requires one visible GPU")
     rows = read_rows(examples)
-    for row in rows:
-        context_for(row["task_id"], training=True)
-        if (
-            len(row["input_ids"]) > 32768
-            or row["labels"][: row["target_start"]] != [-100] * row["target_start"]
-        ):
-            raise ValueError("Invalid train scope, length, or loss mask")
+    validate_training_rows(rows, sequence_limit(config))
     stage = config["recovery_sft" if parent else "base_sft"]
     steps = -1
     accumulation = stage["gradient_accumulation_steps"]
@@ -313,6 +318,7 @@ def train_sft(
     probe_ids = rows[0]["input_ids"][: min(128, rows[0]["target_start"])]
     metadata = {
         "stage": "S1_recovery" if parent else "S0_base",
+        "sequence_limit": sequence_limit(config),
         "profile": profile,
         "optimizer_steps": trainer.state.global_step,
         "examples": len(rows),

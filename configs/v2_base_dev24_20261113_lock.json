@@ -1,0 +1,7 @@
+{
+  "runtime_revision": "v2_base_dev24_20261113",
+  "files": {
+    "configs/v2_base_dev24_20261113.json": "d07b88832ccdadbc23cd17a5379c4681ef479114bb3ee70ef5d997f16d718b3c",
+    "scripts/evaluate_v2_checkpoint.py": "dfe23398387741b9eb855be55c438b7b6939fcc7430a96160406881da1490973"
+  }
+}

@@ -53,14 +53,24 @@ from .harness import (
 def validate_config(config):
     from .harness import BUDGET_REVISION
     from .v2_tasks import RUNTIME as V2_RUNTIME
+    from .teacher_collection import REVISION as COLLECTION_RUNTIME
 
-    is_v2 = config.get("v2_runtime") == V2_RUNTIME
+    is_collection = config.get("v2_runtime") == COLLECTION_RUNTIME
+    is_v2 = config.get("v2_runtime") == V2_RUNTIME or is_collection
     if config.get("v2_runtime") and not is_v2:
         raise ValueError("Unknown learning runtime")
-    if is_v2:
+    if is_collection:
+        from .teacher_collection import validate_worker_config
+
+        validate_worker_config(config)
+    elif is_v2:
         from .v2_teacher import validate_config as validate_v2
 
         validate_v2(config)
+    if config.get("collection_context") and not is_collection:
+        raise ValueError("Collection context requires the new collection runtime")
+    if config.get("learning_context") and (not is_v2 or is_collection):
+        raise ValueError("Learning context requires the v2 learning runtime")
 
     if config.get("harness_budget_revision") not in {None, BUDGET_REVISION} or (
         config.get("harness_budget_revision")
@@ -378,6 +388,17 @@ def run_teacher_episode(
     if config.get("custom_research"):
         trajectory["custom_research"] = copy.deepcopy(config["custom_research"])
     messages = trajectory["messages"]
+    context_tokenizer = None
+    context_key = (
+        "collection_context" if config.get("collection_context") else "learning_context"
+    )
+    if config.get(context_key):
+        from freezegun import configure
+        from .v2_model import load_tokenizer
+
+        configure(extend_ignore_list=["transformers", "torch", "huggingface_hub"])
+        context_tokenizer = load_tokenizer(config["student"])
+        trajectory[context_key] = copy.deepcopy(config[context_key])
     try:
         if harness:
             from .evaluation import environment_check
@@ -510,6 +531,21 @@ def run_teacher_episode(
             ):
                 break
             max_tokens = min(teacher["max_new_tokens"], left)
+            if context_tokenizer is not None:
+                from .teacher_collection import context_receipt
+
+                context_audit = context_receipt(
+                    context_tokenizer,
+                    messages,
+                    tools,
+                    max_tokens,
+                    config[context_key],
+                    config["student"],
+                )
+                write_json(output / "context" / f"{index + 1:03d}.json", context_audit)
+                if not context_audit["within_budget"]:
+                    termination = "context_budget_exhausted"
+                    break
             # Conservative cost reservation uses the full provider context window,
             # not an unverified local estimate of the provider tokenizer.
             reserve = usage_cost(

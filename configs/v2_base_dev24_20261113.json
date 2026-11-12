@@ -1,0 +1,52 @@
+{
+  "format": "v2_base_dev24_20261113",
+  "source_lock": "configs/v2_base_dev24_20261113_lock.json",
+  "training_source_lock_sha256": "5ed3cd1be4223006cb62792752acc787b0aaa8e070d1278b841da01367e9b10b",
+  "model": {
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "thinking": false,
+    "tool_format": "qwen_xml"
+  },
+  "student_limits": {
+    "max_input_tokens": 65536,
+    "max_new_tokens": 4096,
+    "max_requests": 80,
+    "max_generated_tokens": 16384,
+    "wall_seconds": 1200,
+    "seed": 42,
+    "temperature": 0.8,
+    "top_p": 1.0
+  },
+  "task_ids": [
+    "d9987f6_3",
+    "d9987f6_2",
+    "d9987f6_1",
+    "50e1ac9_2",
+    "50e1ac9_1",
+    "50e1ac9_3",
+    "bde252e_1",
+    "bde252e_3",
+    "bde252e_2",
+    "9b2dc64_3",
+    "9b2dc64_2",
+    "9b2dc64_1",
+    "8a13317_1",
+    "8a13317_3",
+    "8a13317_2",
+    "c1091c7_2",
+    "c1091c7_1",
+    "c1091c7_3",
+    "258796c_1",
+    "258796c_2",
+    "258796c_3",
+    "6ea6792_3",
+    "6ea6792_2",
+    "6ea6792_1"
+  ],
+  "evaluation_reserve_seconds": 120,
+  "purpose": "evaluation_only",
+  "official_benchmark_claim": false,
+  "shutdown_policy": "user_scheduled_2026-11-13T04:30:00+08:00; checkpoint backup first; stop evaluation by04:15"
+}

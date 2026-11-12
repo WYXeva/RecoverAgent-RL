@@ -8,7 +8,6 @@ import pytest
 from recoveragent.demonstrations import sha256
 from recoveragent.io import files_manifest, read_json, write_json
 from recoveragent.v2_finish_resume import carry_s1
-from recoveragent.v2_round import config
 from recoveragent.v2_tasks import ROOT, development_tasks, grpo_schedule, plan
 
 
@@ -33,7 +32,7 @@ def test_reduced_selection_keeps_three_scenarios_and_three_plus_one_groups():
 @pytest.fixture
 def post_s1(tmp_path, monkeypatch):
     source, s0 = tmp_path / "source", tmp_path / "S0"
-    cfg = config()
+    cfg = read_json(ROOT / "configs/v2_round1_coevolve_goals_20261110.json")
     old = read_json(ROOT / "configs/v2_round1_feedback15_20261109.json")
     identity = cfg["models"][cfg["selected_model"]]
     deployment = {"job_deadline_epoch": 1000}

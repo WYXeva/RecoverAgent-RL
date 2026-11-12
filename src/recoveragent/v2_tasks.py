@@ -11,7 +11,8 @@ from .research_access import SPLIT, SPLIT_SHA, authorize_artifacts
 ROOT = Path(__file__).resolve().parents[2]
 PLAN = ROOT / "configs/v2_scenario_split_20261109.json"
 SCOPE = "full732_scenario_isolated_v2_20261109"
-RUNTIME = "v2_learning_round1_coevolve_goals_20261110"
+DEMO_FORMAT = "clean-teacher-v2-train-v1"
+RUNTIME = "v2_learning_64k_20261112"
 SEED = 20261109
 
 
@@ -84,6 +85,28 @@ def validate_context(task_id, context, *, training=False):
     if context != expected:
         raise ValueError("v2 task identity/source/role mismatch")
     return expected
+
+
+def validate_public_record(record):
+    from .answer_guard import PROTOCOL as ANSWER_PROTOCOL
+    from .execution_v6 import SYSTEM_PROMPT
+    from .harness import PROTOCOL as HARNESS_PROTOCOL, REFACTOR_REVISION
+
+    context = validate_context(
+        record["task_id"], record["custom_research"], training=True
+    )
+    if (
+        record["split"] != context["official_split"]
+        or record["scenario_id"] != context["scenario_id"]
+        or record.get("actor_prompt_variant") != "execution_v6"
+        or record.get("tool_mode") != "dynamic_discovery"
+        or record["messages"][0] != {"role": "system", "content": SYSTEM_PROMPT}
+        or record.get("answer_guard", {}).get("protocol") != ANSWER_PROTOCOL
+        or record.get("harness", {}).get("protocol") != HARNESS_PROTOCOL
+        or record.get("harness", {}).get("runtime_revision") != REFACTOR_REVISION
+    ):
+        raise ValueError("Invalid v2 train Teacher provenance or public protocol")
+    return context
 
 
 def authorize_task(root, task_id, context):
