@@ -172,6 +172,11 @@ class Evolution:
             runtime=self.cfg.get("execution_protocol", RUNTIME),
         )
         policy = TeacherPolicy(cfg, read_credentials(ROOT / ".env"))
+        if getattr(policy, "session_id", None):
+            write_json(
+                Path(directory) / "transport.json",
+                {"opencode_session_id": policy.session_id},
+            )
         request = policy.build_text_request(
             [
                 {"role": "system", "content": system},

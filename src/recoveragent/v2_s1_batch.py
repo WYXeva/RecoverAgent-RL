@@ -90,6 +90,7 @@ def carry_attempts(cfg, deployment, output, policy):
             raise ValueError("Feedback source configuration changed")
     original = dict(cfg)
     original.pop("carry_from")
+    original.pop("continuation", None)
     for key in ("format", "execution_protocol", "source_lock"):
         original[key] = old[key]
     if original != old or sha256(ROOT / old["source_lock"]) != expected["lock_sha256"]:
@@ -174,6 +175,93 @@ def carry_attempts(cfg, deployment, output, policy):
     return results
 
 
+def carry_completed(cfg, deployment, output, policy, finished):
+    """Read the frozen interrupted batch, without replaying any model request."""
+    contract = cfg["continuation"]
+    source = Path(deployment["continuation_source"])
+    summary_path = source / "feedback_summary.json"
+    if sha256(summary_path) != contract["summary_sha256"]:
+        raise ValueError("Continuation summary changed")
+    previous = read_json(source / "run_config.json")
+    if previous != read_json(ROOT / f"configs/{contract['runtime']}.json"):
+        raise ValueError("Continuation configuration changed")
+    current = dict(cfg)
+    current.pop("continuation")
+    if "continuation" in previous:
+        current["continuation"] = previous["continuation"]
+    for key in ("format", "execution_protocol", "source_lock"):
+        current[key] = previous[key]
+    if current != previous:
+        raise ValueError("Continuation changed the frozen experiment")
+    old_deployment = read_json(source / "deployment.json")
+    if any(
+        deployment[k] != old_deployment[k]
+        for k in ("job_started_epoch", "job_deadline_epoch", "s0", "appworld_root")
+    ):
+        raise ValueError("Continuation changed the resource/model boundary")
+    summary = read_json(summary_path)
+    if summary["attempted"] != contract["attempted"]:
+        raise ValueError("Continuation attempt count changed")
+    prior_carried = {}
+    if contract.get("prior_carried_sha256"):
+        path = source / "carried_completed.json"
+        if sha256(path) != contract["prior_carried_sha256"]:
+            raise ValueError("Previously carried evidence changed")
+        prior_carried = read_json(path)
+    for row in summary["results"]:
+        task = row["task_id"]
+        if task not in cfg["feedback_task_ids"] or row["policy"] != policy:
+            raise ValueError("Continuation task/policy changed")
+        if task in finished:
+            if row != finished[task]:
+                raise ValueError("Original attempt changed")
+            continue
+        if task in prior_carried:
+            if row != prior_carried[task]:
+                raise ValueError("Previously carried result changed")
+            finished[task] = row
+            continue
+        directory = source / "feedback" / task
+        if row != {**read_json(directory / "result.json"), "directory": str(directory)}:
+            raise ValueError("Continuation receipt changed")
+        if row["classification"] == "infrastructure_error":
+            if task not in contract["resolved_evaluations"]:
+                raise ValueError("Unresolved infrastructure attempt")
+            path = Path(deployment["resolved_evaluations"][task])
+            if sha256(path) != contract["resolved_evaluations"][task]:
+                raise ValueError("Reclassification evidence changed")
+            evaluation = read_json(path)
+            if (
+                row["fault"] is not None
+                or evaluation["status"] != "valid"
+                or evaluation["official"] != row["evaluation"]["official"]
+                or evaluation["task_id"] != task
+                or evaluation["experiment"] != row["experiment_name"]
+            ):
+                raise ValueError("Reclassification changed the original official score")
+            row = {
+                **row,
+                "original_classification": row["classification"],
+                "classification": "success"
+                if evaluation["success"]
+                else "natural_failure",
+                "success": evaluation["success"],
+                "evaluation": evaluation,
+                "selected_snapshot": row["snapshots"][-1]
+                if row["snapshots"] and not evaluation["success"]
+                else None,
+                "reclassification_receipt": str(path),
+            }
+        finished[task] = row
+    proof = output / "carried_completed.json"
+    if proof.exists():
+        if read_json(proof) != finished:
+            raise ValueError("Continuation evidence changed")
+    else:
+        write_json(proof, finished)
+    return finished
+
+
 def summarize(results, total):
     counts = {
         key: sum(r["classification"] == key for r in results)
@@ -218,6 +306,8 @@ def feedback(cfg, deployment, output, *, evaluation=False):
         )
         model.eval()
     finished = {} if evaluation else carry_attempts(cfg, deployment, output, policy)
+    if not evaluation:
+        finished = carry_completed(cfg, deployment, output, policy, finished)
     for task in tasks:
         directory = destination / task
         if directory.exists():
@@ -281,7 +371,7 @@ def feedback(cfg, deployment, output, *, evaluation=False):
                 try:
                     result = future.result()
                     finished[task] = result
-                    if result["classification"] == "infrastructure_error":
+                    if stops_feedback(result):
                         errors.append(task + ":infrastructure_error")
                 except Exception as exc:
                     errors.append(task + ":" + type(exc).__name__ + ":" + str(exc))
@@ -315,6 +405,15 @@ def feedback(cfg, deployment, output, *, evaluation=False):
         if errors:
             raise RuntimeError(";".join(errors))
     return read_json(output / (stage + "_summary.json"))
+
+
+def stops_feedback(result):
+    """Unknown isolated scores stay unscored; execution/environment faults stop."""
+    return result["classification"] == "infrastructure_error" and (
+        result.get("fault") is not None
+        or not result.get("evaluation")
+        or result["evaluation"].get("category") == "environment_error"
+    )
 
 
 def isolated(python, command, payload, directory, deadline):
@@ -352,6 +451,11 @@ def recover(cfg, deployment, output):
             )
         else:
             directory = output / "recovery" / task
+            previous = cfg["continuation"]["recovery_attempts"].get(task)
+            if previous:
+                directory = Path(deployment["previous_recovery_sources"][task])
+                if sha256(directory / "trajectory.json") != previous:
+                    raise ValueError("Previously attempted recovery changed")
             launch = directory.parent / (task + ".input.json")
             if not directory.exists() and not launch.exists():
                 if (

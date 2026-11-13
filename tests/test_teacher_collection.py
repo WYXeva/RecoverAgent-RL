@@ -50,10 +50,13 @@ def test_worker_identity_session_and_limits_are_frozen(monkeypatch):
 
 
 @pytest.mark.parametrize("pooled", [False, True])
+@pytest.mark.parametrize("explicit_session", [False, True])
 def test_go_header_persists_across_tool_turns_without_changing_payload(
-    monkeypatch, pooled
+    monkeypatch, pooled, explicit_session
 ):
     cfg = collection.worker_config(plan()["feedback20"][0], "synthetic")
+    if not explicit_session:
+        cfg["teacher"].pop("opencode_session_id")
     if not pooled:
         cfg["teacher"].pop("http_transport")
     payload = {
@@ -71,6 +74,7 @@ def test_go_header_persists_across_tool_turns_without_changing_payload(
     def inspect(headers, data):
         h = {k.lower(): v for k, v in headers.items()}
         assert h["authorization"] == "Bearer synthetic-secret"
+        assert h["user-agent"] == cfg["teacher"]["http_user_agent"]
         seen.append(h["x-opencode-session"])
         assert json.loads(data) == payload
         return Response(b'{"synthetic":true}')
@@ -105,7 +109,13 @@ def test_go_header_persists_across_tool_turns_without_changing_payload(
     policy = TeacherPolicy(cfg, {"DEEPSEEK_API_KEY": "synthetic-secret"})
     for _ in range(2):
         assert policy.transport(payload) == {"synthetic": True}
-    assert seen == [cfg["teacher"]["opencode_session_id"]] * 2
+    assert seen == [policy.session_id] * 2
+    other = TeacherPolicy(cfg, {"DEEPSEEK_API_KEY": "synthetic-secret"})
+    if explicit_session:
+        assert policy.session_id == cfg["teacher"]["opencode_session_id"]
+    else:
+        assert other.session_id != policy.session_id
+        assert "opencode_session_id" not in cfg["teacher"]
 
 
 class CharacterTokenizer:

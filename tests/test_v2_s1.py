@@ -8,7 +8,12 @@ import pytest
 
 from recoveragent import v2_s1_batch as batch, v2_vllm
 from recoveragent.io import read_json, write_json
-from recoveragent.v2_runtime import EVALUATION_RUNTIME, S1_RUNTIME, verify_lock
+from recoveragent.v2_runtime import (
+    EVALUATION_RUNTIME,
+    S1_PREVIOUS_RUNTIME,
+    S1_RUNTIME,
+    verify_lock,
+)
 from recoveragent.v2_teacher import configuration, validate_config
 
 
@@ -66,6 +71,8 @@ def test_batch_frozen_selection_new_lock_and_unchanged_legacy_rejection():
     assert verify_lock(S1_RUNTIME)["revision"] == S1_RUNTIME
     with pytest.raises(ValueError, match="source changed|Incomplete"):
         verify_lock(EVALUATION_RUNTIME)
+    with pytest.raises(ValueError, match="source changed|Incomplete"):
+        verify_lock(S1_PREVIOUS_RUNTIME)
 
 
 def test_teacher_uses_new_runtime_provider_and_independent_budget():
@@ -259,3 +266,96 @@ def test_prior_infrastructure_attempts_are_carried_without_replay(tmp_path):
     (source / "feedback" / first / "session/requests/001.response.json").unlink()
     with pytest.raises(FileNotFoundError):
         batch.carry_attempts(cfg, {"feedback_source": str(source)}, output, policy)
+
+
+@pytest.mark.parametrize("tamper", [None, "score", "deadline", "source", "policy"])
+def test_completed_feedback_handoff_preserves_scores_and_never_replays(
+    tmp_path, tamper
+):
+    cfg = batch.configuration()
+    previous = read_json("configs/" + cfg["continuation"]["runtime"] + ".json")
+    source, output = tmp_path / "source", tmp_path / "next"
+    task = cfg["feedback_task_ids"][3]
+    policy = {"checkpoint_id": "synthetic"}
+    deployment = dict(
+        job_started_epoch=1, job_deadline_epoch=100, s0="S0", appworld_root="root"
+    )
+    write_json(source / "run_config.json", previous)
+    write_json(source / "deployment.json", deployment)
+    official = {"success": False, "num_tests": 1, "passes": [], "failures": [{}]}
+    row = dict(
+        task_id=task,
+        policy=policy,
+        classification="infrastructure_error",
+        evaluation={"official": official},
+        fault=None,
+        experiment_name="synthetic",
+        snapshots=[{"snapshot_ref": "read-only-source"}],
+    )
+    write_json(source / "feedback" / task / "result.json", row)
+    summary = {
+        "attempted": 1,
+        "results": [{**row, "directory": str(source / "feedback" / task)}],
+    }
+    write_json(source / "feedback_summary.json", summary)
+    receipt = {
+        "status": "valid",
+        "success": False,
+        "official": official,
+        "task_id": task,
+        "experiment": "synthetic",
+    }
+    if tamper == "score":
+        receipt["official"] = {**official, "success": True}
+    write_json(tmp_path / "reclassification.json", receipt)
+    cfg["continuation"].update(
+        summary_sha256=batch.sha256(source / "feedback_summary.json"),
+        attempted=1,
+        resolved_evaluations={task: batch.sha256(tmp_path / "reclassification.json")},
+    )
+    cfg["continuation"].pop("prior_carried_sha256", None)
+    deployment.update(
+        continuation_source=str(source),
+        resolved_evaluations={task: str(tmp_path / "reclassification.json")},
+    )
+    if tamper == "deadline":
+        deployment["job_deadline_epoch"] = 200
+    elif tamper == "source":
+        (source / "feedback" / task / "result.json").write_text("{}")
+    elif tamper == "policy":
+        policy = {"checkpoint_id": "other"}
+    if tamper:
+        with pytest.raises(ValueError):
+            batch.carry_completed(cfg, deployment, output, policy, {})
+        return
+    carried = batch.carry_completed(cfg, deployment, output, policy, {})
+    assert carried[task]["classification"] == "natural_failure"
+    assert carried[task]["original_classification"] == "infrastructure_error"
+    assert carried[task]["evaluation"]["official"] == official
+    assert read_json(source / "feedback" / task / "result.json") == row
+    assert batch.carry_completed(cfg, deployment, output, policy, {}) == carried
+
+
+@pytest.mark.parametrize(
+    "classification,fault,category,stop",
+    [
+        ("success", None, "task_success", False),
+        ("natural_failure", None, "task_failure", False),
+        ("infrastructure_error", None, "unknown", False),
+        ("infrastructure_error", None, "environment_error", True),
+        ("infrastructure_error", {"type": "OutOfMemoryError"}, "unknown", True),
+    ],
+)
+def test_unknown_isolated_score_is_recorded_without_stopping_unrelated_tasks(
+    classification, fault, category, stop
+):
+    assert (
+        batch.stops_feedback(
+            dict(
+                classification=classification,
+                fault=fault,
+                evaluation={"category": category},
+            )
+        )
+        is stop
+    )

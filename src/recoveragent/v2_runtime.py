@@ -9,15 +9,21 @@ from .v2_tasks import ROOT, RUNTIME
 
 LOCK = ROOT / "configs/v2_learning_64k_20261112_lock.json"
 EVALUATION_RUNTIME = "v2_base_dev24_envfix_20261113"
-S1_RUNTIME = "v2_s1_train100_resume_20261113"
+S1_PREVIOUS_RUNTIME = "v2_s1_train100_services_20261114"
+S1_RUNTIME = "v2_s1_train100_evaluation_20261114"
+S1_SNAPSHOT_RUNTIMES = {
+    "v2_s1_train100_resume_20261113",
+    S1_PREVIOUS_RUNTIME,
+    S1_RUNTIME,
+}
 
 
 def verify_lock(runtime=RUNTIME):
-    if runtime not in {RUNTIME, EVALUATION_RUNTIME, S1_RUNTIME}:
+    if runtime not in {RUNTIME, EVALUATION_RUNTIME, *S1_SNAPSHOT_RUNTIMES}:
         raise ValueError("Unknown v2 runtime")
     lock_path = (
-        ROOT / f"configs/{S1_RUNTIME}_lock.json"
-        if runtime == S1_RUNTIME
+        ROOT / f"configs/{runtime}_lock.json"
+        if runtime in S1_SNAPSHOT_RUNTIMES
         else (
             ROOT / "configs/v2_base_dev24_envfix_20261113_lock.json"
             if runtime == EVALUATION_RUNTIME
@@ -46,9 +52,9 @@ def verify_lock(runtime=RUNTIME):
             "scripts/probe_appworld_environment.py",
             "requirements/appworld-evaluation-20261113.lock.txt",
         }
-    if runtime == S1_RUNTIME:
+    if runtime in S1_SNAPSHOT_RUNTIMES:
         required |= {
-            f"configs/{S1_RUNTIME}.json",
+            f"configs/{runtime}.json",
             "configs/v2_s1_train100_20261113.json",
             "configs/v2_s1_train100_20261113_lock.json",
             "scripts/run_v2_s1.py",
@@ -61,6 +67,11 @@ def verify_lock(runtime=RUNTIME):
             "scripts/probe_appworld_environment.py",
             "requirements/appworld-evaluation-20261113.lock.txt",
         }
+        if runtime == S1_RUNTIME:
+            required |= {
+                f"configs/{S1_PREVIOUS_RUNTIME}.json",
+                f"configs/{S1_PREVIOUS_RUNTIME}_lock.json",
+            }
     if lock.get("runtime_revision") != runtime or not required <= lock["files"].keys():
         raise ValueError("Incomplete v2 source lock")
     if lock["session_contract"]["budget_caps"]["max_input_tokens"] != sequence_limit():

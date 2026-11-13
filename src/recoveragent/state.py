@@ -57,9 +57,9 @@ def capture(
         validate_context(adapter.task_id, research)
         allowed_runtimes = {RUNTIME}
         if is_v2:
-            from .v2_runtime import S1_RUNTIME
+            from .v2_runtime import S1_SNAPSHOT_RUNTIMES
 
-            allowed_runtimes.add(S1_RUNTIME)
+            allowed_runtimes.update(S1_SNAPSHOT_RUNTIMES)
         if (
             agent_runtime is None
             or agent_runtime.get("format") not in allowed_runtimes
@@ -167,9 +167,9 @@ def inspect_snapshot(source):
         agent = read_json(source / "agent_runtime.json")
         allowed_runtimes = {RUNTIME}
         if version == 6:
-            from .v2_runtime import S1_RUNTIME
+            from .v2_runtime import S1_SNAPSHOT_RUNTIMES
 
-            allowed_runtimes.add(S1_RUNTIME)
+            allowed_runtimes.update(S1_SNAPSHOT_RUNTIMES)
         if (
             manifest["split"] != research["official_split"]
             or agent.get("format") not in allowed_runtimes

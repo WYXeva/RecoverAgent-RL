@@ -9,6 +9,7 @@ import re
 import urllib.error
 import urllib.parse
 import urllib.request
+import uuid
 from pathlib import Path
 
 from .io import canonical
@@ -255,6 +256,10 @@ class TeacherPolicy:
         self.transport = transport or self._post
         self.reasoning_by_index = {}
         self._http_session = None
+        self.session_id = self.config.get("opencode_session_id")
+        if self.config.get("provider") == "opencode_go" and not self.session_id:
+            # One policy owns one conversation, including all of its tool turns.
+            self.session_id = "ses_" + uuid.uuid4().hex
         if self.config.get("http_transport") not in {None, "requests_session_v1"}:
             raise ValueError("Unsupported Teacher HTTP transport")
 
@@ -275,8 +280,8 @@ class TeacherPolicy:
         }
         if self.config.get("http_user_agent"):
             headers["User-Agent"] = self.config["http_user_agent"]
-        if self.config.get("opencode_session_id"):
-            headers["x-opencode-session"] = self.config["opencode_session_id"]
+        if self.session_id:
+            headers["x-opencode-session"] = self.session_id
         request = urllib.request.Request(
             self.config["base_url"].rstrip("/") + "/chat/completions",
             canonical(payload).encode(),
@@ -333,8 +338,8 @@ class TeacherPolicy:
         }
         if self.config.get("http_user_agent"):
             headers["User-Agent"] = self.config["http_user_agent"]
-        if self.config.get("opencode_session_id"):
-            headers["x-opencode-session"] = self.config["opencode_session_id"]
+        if self.session_id:
+            headers["x-opencode-session"] = self.session_id
         phase, status = "request_open", None
         try:
             with self._http_session.post(

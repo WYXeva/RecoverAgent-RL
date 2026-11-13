@@ -412,6 +412,8 @@ def run_teacher_episode(
                 config["environment_contract"]
             )
         policy = TeacherPolicy(config, credentials)
+        if getattr(policy, "session_id", None):
+            trajectory["teacher_session_id"] = policy.session_id
         adapter_class = AppWorldAdapter
         if (
             config.get("custom_research")

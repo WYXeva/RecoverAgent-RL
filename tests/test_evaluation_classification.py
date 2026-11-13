@@ -121,6 +121,78 @@ def test_observer_preserves_original_tracker_and_profile(monkeypatch):
 
 
 @pytest.mark.parametrize(
+    "statement,task_file,expected",
+    [
+        ("predicted_answer = float(predicted_answer)", True, "task_answer_failure"),
+        ("ground_truth_answer = float(ground_truth_answer)", True, "unknown_exception"),
+        ("predicted_answer = int(predicted_answer)", True, "unknown_exception"),
+        ("float(predicted_answer)", True, "unknown_exception"),
+        ("predicted_answer = float(predicted_answer)", False, "unknown_exception"),
+    ],
+)
+def test_only_direct_official_predicted_number_conversion_is_task_failure(
+    tmp_path, statement, task_file, expected
+):
+    path = tmp_path / (
+        "tasks/sample_1/ground_truth/evaluation.py" if task_file else "library.py"
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    source = (
+        "predicted_answer = ground_truth_answer = 'synthetic-invalid'\n" + statement
+    )
+    path.write_text(source)
+    obs = observation(source, str(path))
+    assert obs["category"] == expected
+    result = classify_official(
+        {"success": False, "num_tests": 1, "passes": [], "failures": [{}]}, [obs]
+    )
+    assert (result["success"] is False) == (expected == "task_answer_failure")
+    assert "synthetic-invalid" not in json.dumps(obs)
+
+
+@pytest.mark.parametrize(
+    "left,right,task_call,expected",
+    [
+        ("12", "invalid", True, "task_answer_failure"),
+        ("12", None, True, "task_answer_failure"),
+        ("invalid", "12", True, "unknown_exception"),
+        ("invalid", "invalid", True, "unknown_exception"),
+        ("12", "invalid", False, "unknown_exception"),
+    ],
+)
+def test_official_float_normalizer_distinguishes_answer_from_reference_or_library(
+    tmp_path, left, right, task_call, expected
+):
+    common = tmp_path / "appworld/common/evaluation.py"
+    common.parent.mkdir(parents=True)
+    code = (
+        "def assert_plus(left, condition, right, normalize):\n"
+        "    left = normalize(left)\n"
+        "    right = normalize(right)\n"
+    )
+    common.write_text(code)
+    namespace = {}
+    exec(compile(code, str(common), "exec"), namespace)
+    path = tmp_path / (
+        "tasks/sample_1/ground_truth/evaluation.py" if task_call else "loader.py"
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    code = "test.case(ground_truth_answer, '==', predicted_answer, normalize=float)"
+    path.write_text(code)
+    values = dict(
+        test=SimpleNamespace(case=namespace["assert_plus"]),
+        ground_truth_answer=left,
+        predicted_answer=right,
+    )
+    try:
+        exec(compile(code, str(path), "exec"), values)
+    except Exception as exc:
+        obs = exception_observation(exc, exc.__traceback__, "sample_1")
+    assert obs["category"] == expected
+    assert "invalid" not in json.dumps(obs)
+
+
+@pytest.mark.parametrize(
     "arguments,expected",
     [
         ({}, {"rule": "required", "missing_fields": ["app_name"]}),

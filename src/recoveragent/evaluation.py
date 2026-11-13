@@ -1,15 +1,107 @@
 """Isolated controller-side official evaluation, with read-only exception tracing."""
 
 import argparse
+import ast
 import importlib.metadata
 import json
+import linecache
 from pathlib import Path
 import subprocess
 import sys
 
 from .io import read_json, write_json
 
-CLASSIFICATION_REVISION = "official_result_integrity_20261025"
+CLASSIFICATION_REVISION = "official_result_integrity_20261114_v2"
+
+
+def invalid_predicted_number(exc, tb):
+    """Recognize only the official conversion of the submitted numeric answer."""
+    if not isinstance(exc, ValueError) or tb is None:
+        return False
+    line = linecache.getline(tb.tb_frame.f_code.co_filename, tb.tb_lineno).strip()
+    try:
+        statement = ast.parse(line).body[0]
+    except (SyntaxError, IndexError):
+        return False
+    return (
+        isinstance(statement, ast.Assign)
+        and len(statement.targets) == 1
+        and isinstance(statement.targets[0], ast.Name)
+        and statement.targets[0].id == "predicted_answer"
+        and isinstance(statement.value, ast.Call)
+        and isinstance(statement.value.func, ast.Name)
+        and statement.value.func.id == "float"
+        and len(statement.value.args) == 1
+        and isinstance(statement.value.args[0], ast.Name)
+        and statement.value.args[0].id == "predicted_answer"
+        and not statement.value.keywords
+        and "float" not in tb.tb_frame.f_locals
+        and "float" not in tb.tb_frame.f_globals
+    )
+
+
+def invalid_normalized_answer(exc, tb, task_id):
+    """Pinned TestTracker.case(... normalize=float): only its right-hand operand.
+
+    The left/reference conversion has already succeeded. Inspect code and object
+    identity only; never expose reference values or rerun the normalization.
+    """
+    if not isinstance(exc, (ValueError, TypeError)) or tb is None:
+        return False
+    frames = []
+    while tb is not None:
+        frames.append(tb)
+        tb = tb.tb_next
+    leaf = frames[-1]
+    frame = leaf.tb_frame
+    if (
+        Path(frame.f_code.co_filename).parts[-3:]
+        != ("appworld", "common", "evaluation.py")
+        or frame.f_code.co_name != "assert_plus"
+        or frame.f_locals.get("normalize") is not float
+        or linecache.getline(frame.f_code.co_filename, leaf.tb_lineno).strip()
+        != "right = normalize(right)"
+    ):
+        return False
+    for item in frames[:-1]:
+        caller = item.tb_frame
+        if Path(caller.f_code.co_filename).parts[-4:] != (
+            "tasks",
+            task_id,
+            "ground_truth",
+            "evaluation.py",
+        ):
+            continue
+        try:
+            tree = ast.parse("".join(linecache.getlines(caller.f_code.co_filename)))
+        except SyntaxError:
+            return False
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, ast.Call)
+                and node.lineno <= item.tb_lineno <= node.end_lineno
+                and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "test"
+                and node.func.attr == "case"
+                and len(node.args) == 3
+                and isinstance(node.args[0], ast.Name)
+                and node.args[0].id == "ground_truth_answer"
+                and isinstance(node.args[1], ast.Constant)
+                and node.args[1].value == "=="
+                and isinstance(node.args[2], ast.Name)
+                and node.args[2].id == "predicted_answer"
+                and any(
+                    k.arg == "normalize"
+                    and isinstance(k.value, ast.Name)
+                    and k.value.id == "float"
+                    for k in node.keywords
+                )
+                and "predicted_answer" in caller.f_locals
+                and frame.f_locals.get("right") is caller.f_locals["predicted_answer"]
+            ):
+                return True
+    return False
 
 
 def exception_observation(exc, tb, task_id):
@@ -31,13 +123,17 @@ def exception_observation(exc, tb, task_id):
         category = "environment_error"
     elif isinstance(exc, AssertionError):
         category = "task_assertion"
+    elif invalid_normalized_answer(exc, tb, task_id):
+        category = "task_answer_failure"
     else:
         while tb is not None and tb.tb_next is not None:
             tb = tb.tb_next
         parts = Path(tb.tb_frame.f_code.co_filename).parts if tb else ()
         direct_task = parts[-4:] == ("tasks", task_id, "ground_truth", "evaluation.py")
         category = (
-            "task_state_failure"
+            "task_answer_failure"
+            if direct_task and invalid_predicted_number(exc, tb)
+            else "task_state_failure"
             if direct_task
             and isinstance(exc, (KeyError, IndexError, UnboundLocalError))
             else "unknown_exception"
