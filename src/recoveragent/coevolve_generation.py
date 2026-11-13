@@ -21,7 +21,7 @@ from .teacher import (
     response_usage,
     usage_cost,
 )
-from .v2_tasks import ROOT, context_for
+from .v2_tasks import ROOT, RUNTIME, context_for
 from .v2_teacher import configuration
 
 QUALITY_REVISION = "coevolve_goal_quality_v1"
@@ -97,6 +97,10 @@ class Evolution:
         self.output, self.summary = Path(output), summary
         self.deadline, self.isolated = deadline, isolated
         self.settings = cfg["task_evolution"]
+        self.cost_key = (
+            "teacher_usage_priced_"
+            + cfg.get("teacher", {}).get("pricing", {}).get("currency", "CNY").lower()
+        )
         self.signals = SignalLedger(**self.settings["signals"])
         self.pool, self.attempts, self.consumed_events = [], [], set()
         self.cycle = 0
@@ -150,9 +154,10 @@ class Evolution:
         if time.monotonic() >= self.deadline:
             raise TimeoutError("CoEvolve shared run deadline reached")
         remaining = (
-            self.deployment["teacher_budget_cny"]
-            - self.summary["teacher_usage_priced_cny"]
-        )
+            self.deployment["teacher_budget_amount"]
+            if "teacher_budget_amount" in self.deployment
+            else self.deployment["teacher_budget_cny"]
+        ) - self.summary[self.cost_key]
         if remaining <= 0:
             raise RuntimeError("Teacher technical reservation exhausted")
         return remaining
@@ -164,6 +169,7 @@ class Evolution:
             self.deployment["appworld_root"],
             self.remaining(),
             recovery=False,
+            runtime=self.cfg.get("execution_protocol", RUNTIME),
         )
         policy = TeacherPolicy(cfg, read_credentials(ROOT / ".env"))
         request = policy.build_text_request(
@@ -203,9 +209,14 @@ class Evolution:
         write_json(directory / "request.json", request)
         write_json(
             directory / "reservation.json",
-            {"cost_cny": reserve, "billed_cost": None, "automatic_retries": 0},
+            {
+                "cost_" + price.get("currency", "CNY").lower(): reserve,
+                "currency": price.get("currency", "CNY"),
+                "billed_cost": None,
+                "automatic_retries": 0,
+            },
         )
-        self.summary["teacher_usage_priced_cny"] += reserve
+        self.summary[self.cost_key] += reserve
         started = time.monotonic()
         try:
             response = policy.transport(request)
@@ -216,7 +227,8 @@ class Evolution:
                 directory / "unknown_usage.json",
                 {
                     "type": type(exc).__name__,
-                    "reserved_cny": reserve,
+                    "reserved_" + price.get("currency", "CNY").lower(): reserve,
+                    "currency": price.get("currency", "CNY"),
                     "automatic_retries": 0,
                 },
             )
@@ -224,7 +236,7 @@ class Evolution:
                 "CoEvolve Teacher usage unknown; retained, no retry"
             ) from exc
         cost = usage_cost(usage, price)
-        self.summary["teacher_usage_priced_cny"] += cost - reserve
+        self.summary[self.cost_key] += cost - reserve
         write_json(
             directory / "usage.json",
             {
@@ -250,6 +262,7 @@ class Evolution:
                 self.deployment["appworld_root"],
                 self.remaining(),
                 recovery=False,
+                runtime=self.cfg.get("execution_protocol", RUNTIME),
             ),
             "task_id": source,
             "output": str(directory),
@@ -264,9 +277,9 @@ class Evolution:
             self.deadline,
         )
         record = read_json(Path(directory) / "trajectory.json")
-        self.summary["teacher_usage_priced_cny"] += record["usage"][
-            "usage_priced_cost"
-        ] + record["usage"].get("unknown_cost_reservation", 0)
+        self.summary[self.cost_key] += record["usage"]["usage_priced_cost"] + record[
+            "usage"
+        ].get("unknown_cost_reservation", 0)
         if record["status"] != "valid":
             raise RuntimeError(
                 "CoEvolve exploration infrastructure exception; no retry"
@@ -449,9 +462,7 @@ class Evolution:
                 "pool": self.pool,
                 "attempts": self.attempts,
                 "signals": self.signals.export(),
-                "teacher_usage_priced_cny_including_prior_run": self.summary[
-                    "teacher_usage_priced_cny"
-                ],
+                self.cost_key + "_including_prior_run": self.summary[self.cost_key],
             },
         )
         self.summary["coevolve"] = {

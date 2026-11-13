@@ -55,9 +55,14 @@ def capture(
         from .schema_snapshot import snapshot_revision
 
         validate_context(adapter.task_id, research)
+        allowed_runtimes = {RUNTIME}
+        if is_v2:
+            from .v2_runtime import S1_RUNTIME
+
+            allowed_runtimes.add(S1_RUNTIME)
         if (
             agent_runtime is None
-            or agent_runtime.get("format") != RUNTIME
+            or agent_runtime.get("format") not in allowed_runtimes
             or task_memory is not None
             or snapshot_revision({"versions": adapter.versions}) != SCHEMA_REVISION
         ):
@@ -160,9 +165,14 @@ def inspect_snapshot(source):
 
         research = validate_context(manifest["task_id"], manifest["custom_research"])
         agent = read_json(source / "agent_runtime.json")
+        allowed_runtimes = {RUNTIME}
+        if version == 6:
+            from .v2_runtime import S1_RUNTIME
+
+            allowed_runtimes.add(S1_RUNTIME)
         if (
             manifest["split"] != research["official_split"]
-            or agent.get("format") != RUNTIME
+            or agent.get("format") not in allowed_runtimes
             or "memory" in agent
             or snapshot_revision(manifest) != SCHEMA_REVISION
         ):

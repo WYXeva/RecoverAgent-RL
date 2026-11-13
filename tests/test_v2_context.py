@@ -15,7 +15,7 @@ from recoveragent.v2_context import sequence_limit, validate_request_context
 from recoveragent.v2_grpo import segments
 from recoveragent.v2_round import config
 from recoveragent.v2_tasks import context_for, plan
-from recoveragent.v2_runtime import EVALUATION_RUNTIME
+from recoveragent.v2_runtime import S1_RUNTIME
 from recoveragent.v2_teacher import configuration, validate_config
 import test_nullable_recovery as fixtures
 from test_student_batch import Tokenizer
@@ -109,7 +109,7 @@ def test_student_window_is_bound_to_lock_and_backend(worlds, tmp_path, monkeypat
         tool_mode="dynamic_discovery",
         protocol_harness=True,
         answer_guard=True,
-        execution_protocol=EVALUATION_RUNTIME,
+        execution_protocol=S1_RUNTIME,
         model_contract=model,
         **config()["student_limits"],
     )

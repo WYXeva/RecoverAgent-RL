@@ -46,9 +46,9 @@ def verify_student_runtime(runtime):
     Historical runtime locks remain immutable and use their original checkouts.
     """
     from .v2_tasks import RUNTIME as V2_RUNTIME
-    from .v2_runtime import EVALUATION_RUNTIME
+    from .v2_runtime import EVALUATION_RUNTIME, S1_RUNTIME
 
-    if runtime in {V2_RUNTIME, EVALUATION_RUNTIME}:
+    if runtime in {V2_RUNTIME, EVALUATION_RUNTIME, S1_RUNTIME}:
         from .v2_runtime import verify_lock as verify_v2
 
         return verify_v2(runtime)
@@ -194,10 +194,10 @@ class StudentSession:
             from .v2_tasks import RUNTIME as V2_RUNTIME
 
             validate_identity(model_contract)
-            from .v2_runtime import EVALUATION_RUNTIME
+            from .v2_runtime import EVALUATION_RUNTIME, S1_RUNTIME
 
             if (
-                execution_protocol not in {V2_RUNTIME, EVALUATION_RUNTIME}
+                execution_protocol not in {V2_RUNTIME, EVALUATION_RUNTIME, S1_RUNTIME}
                 or memory_config
                 or memory_state
             ):

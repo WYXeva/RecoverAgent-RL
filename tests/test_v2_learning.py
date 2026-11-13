@@ -12,6 +12,7 @@ from recoveragent import state, student, p3c
 from recoveragent.adapter import call_code
 from recoveragent.io import read_json, write_json
 from recoveragent.v2_tasks import plan, context_for, RUNTIME
+from recoveragent.v2_runtime import S1_RUNTIME
 from recoveragent.v2_model import parse_native, NativeTokenizer
 from recoveragent.v2_data import mix_recovery
 from recoveragent.v2_grpo import group_advantages, segments
@@ -344,13 +345,11 @@ def test_generator_real_proposal_required_and_negative_evaluator(monkeypatch):
 
 def test_new_lock_and_immutable_historical_lock_rejection():
     from recoveragent.teacher_collection import verify_lock as previous_collection
-    from recoveragent.v2_runtime import EVALUATION_RUNTIME, verify_lock
+    from recoveragent.v2_runtime import S1_RUNTIME, verify_lock
     from recoveragent.b10_pilot import verify_lock as old
 
     assert (
-        verify_lock(EVALUATION_RUNTIME)["session_contract"]["budget_caps"][
-            "max_input_tokens"
-        ]
+        verify_lock(S1_RUNTIME)["session_contract"]["budget_caps"]["max_input_tokens"]
         == 65536
     )
     with pytest.raises(ValueError):
@@ -361,7 +360,10 @@ def test_new_lock_and_immutable_historical_lock_rejection():
         old()
 
 
-def test_real_entry_wiring_with_synthetic_generator(worlds, tmp_path, monkeypatch):
+@pytest.mark.parametrize("runtime", [RUNTIME, S1_RUNTIME])
+def test_real_entry_wiring_with_synthetic_generator(
+    worlds, tmp_path, monkeypatch, runtime
+):
     from recoveragent import v2_episode as entry
     from freezegun import freeze_time
     import time
@@ -419,6 +421,7 @@ def test_real_entry_wiring_with_synthetic_generator(worlds, tmp_path, monkeypatc
                 "output": str(tmp_path / "episode"),
                 "appworld_root": "synthetic",
                 "purpose": "feedback",
+                "execution_protocol": runtime,
                 "model": model,
                 "checkpoint_id": "S0_synthetic",
                 "student_limits": {
@@ -440,3 +443,8 @@ def test_real_entry_wiring_with_synthetic_generator(worlds, tmp_path, monkeypatc
     assert manifest["format_version"] == 6
     assert context["messages"][-1]["role"] in {"tool", "user"}
     assert result["usage"]["model_requests"] == 2
+    restored = worlds(task, context_for(task))
+    messages, tools, _ = restore_teacher_start(
+        restored, source, tmp_path / "takeover", {}
+    )
+    assert messages[:-1] == context["messages"] and tools == context["tools"]

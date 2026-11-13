@@ -101,7 +101,9 @@ def generate(
     }
 
 
-def episode(config, model, tokenizer, *, python, deadline, token_ledger=None):
+def episode(
+    config, model, tokenizer, *, python, deadline, token_ledger=None, generate_fn=None
+):
     output = Path(config["output"])
     config_path = output.parent / (output.name + ".config.json")
     write_json(config_path, config)
@@ -134,7 +136,7 @@ def episode(config, model, tokenizer, *, python, deadline, token_ledger=None):
                     return value["result"]
                 request = value["request"]
                 try:
-                    response = generate(
+                    response = (generate_fn or generate)(
                         model,
                         tokenizer,
                         request,

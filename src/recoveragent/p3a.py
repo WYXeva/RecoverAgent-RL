@@ -53,10 +53,11 @@ from .harness import (
 def validate_config(config):
     from .harness import BUDGET_REVISION
     from .v2_tasks import RUNTIME as V2_RUNTIME
+    from .v2_runtime import S1_RUNTIME
     from .teacher_collection import REVISION as COLLECTION_RUNTIME
 
     is_collection = config.get("v2_runtime") == COLLECTION_RUNTIME
-    is_v2 = config.get("v2_runtime") == V2_RUNTIME or is_collection
+    is_v2 = config.get("v2_runtime") in {V2_RUNTIME, S1_RUNTIME} or is_collection
     if config.get("v2_runtime") and not is_v2:
         raise ValueError("Unknown learning runtime")
     if is_collection:
@@ -404,6 +405,12 @@ def run_teacher_episode(
             from .evaluation import environment_check
 
             trajectory["environment_check"] = environment_check()
+        if config.get("environment_contract"):
+            from .appworld_environment import verify_environment
+
+            trajectory["environment_contract"] = verify_environment(
+                config["environment_contract"]
+            )
         policy = TeacherPolicy(config, credentials)
         adapter_class = AppWorldAdapter
         if (
@@ -434,6 +441,17 @@ def run_teacher_episode(
             adapter.configure_schema_compatibility(
                 config["schema_compatibility_revision"], output
             )
+        if config.get("environment_contract"):
+            from .appworld_environment import require_usable_execution
+
+            original_execute = adapter.execute
+
+            def checked_execute(*args, **kwargs):
+                result = original_execute(*args, **kwargs)
+                require_usable_execution(result[0], args[0], output)
+                return result
+
+            adapter.execute = checked_execute
         trajectory["scenario_id"] = adapter.world.task.generator_id
         if exploration is not None:
             from .v2_generator import apply_instruction, exploration_instruction

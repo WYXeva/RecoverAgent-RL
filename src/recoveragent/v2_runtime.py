@@ -9,15 +9,20 @@ from .v2_tasks import ROOT, RUNTIME
 
 LOCK = ROOT / "configs/v2_learning_64k_20261112_lock.json"
 EVALUATION_RUNTIME = "v2_base_dev24_envfix_20261113"
+S1_RUNTIME = "v2_s1_train100_resume_20261113"
 
 
 def verify_lock(runtime=RUNTIME):
-    if runtime not in {RUNTIME, EVALUATION_RUNTIME}:
+    if runtime not in {RUNTIME, EVALUATION_RUNTIME, S1_RUNTIME}:
         raise ValueError("Unknown v2 runtime")
     lock_path = (
-        ROOT / "configs/v2_base_dev24_envfix_20261113_lock.json"
-        if runtime == EVALUATION_RUNTIME
-        else LOCK
+        ROOT / f"configs/{S1_RUNTIME}_lock.json"
+        if runtime == S1_RUNTIME
+        else (
+            ROOT / "configs/v2_base_dev24_envfix_20261113_lock.json"
+            if runtime == EVALUATION_RUNTIME
+            else LOCK
+        )
     )
     lock = read_json(lock_path)
     required = {
@@ -38,6 +43,21 @@ def verify_lock(runtime=RUNTIME):
         required |= {
             "configs/v2_base_dev24_envfix_20261113.json",
             "scripts/evaluate_v2_checkpoint.py",
+            "scripts/probe_appworld_environment.py",
+            "requirements/appworld-evaluation-20261113.lock.txt",
+        }
+    if runtime == S1_RUNTIME:
+        required |= {
+            f"configs/{S1_RUNTIME}.json",
+            "configs/v2_s1_train100_20261113.json",
+            "configs/v2_s1_train100_20261113_lock.json",
+            "scripts/run_v2_s1.py",
+            "scripts/probe_v2_vllm.py",
+            "scripts/probe_v2_s1_worker.py",
+            "configs/teacher_collection_64k_quarantine_20261111.json",
+            "configs/v2_base_sft_64k_20261112.json",
+            "configs/v2_base_sft_64k_20261112_lock.json",
+            "scripts/train_v2_base_64k.py",
             "scripts/probe_appworld_environment.py",
             "requirements/appworld-evaluation-20261113.lock.txt",
         }

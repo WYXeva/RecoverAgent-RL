@@ -39,6 +39,9 @@ def run(config, generate):
     started = now()
     try:
         environment_check()
+        from freezegun import configure
+
+        configure(extend_ignore_list=["transformers", "torch", "huggingface_hub"])
         if config.get("environment_contract"):
             from .appworld_environment import verify_environment
 
@@ -210,7 +213,14 @@ def run(config, generate):
                     fault["terminal_save_error_type"] = type(save_exc).__name__
     finally:
         if adapter:
-            adapter.close()
+            try:
+                adapter.close()
+            except Exception as exc:
+                cleanup = {"type": type(exc).__name__, "message": str(exc)}
+                if fault is None:
+                    fault = {"phase": "cleanup", **cleanup}
+                else:
+                    fault["cleanup"] = cleanup
     valid = (
         fault is None and evaluation is not None and evaluation.get("status") == "valid"
     )

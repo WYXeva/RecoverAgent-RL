@@ -169,13 +169,19 @@ def prepare_recovery(directory, tokenizer, *, max_length=None):
     return result
 
 
-def mix_recovery(recovery, normal):
-    """One pass over real suffixes; token-weighted 50/50 loss, no fake duplicates."""
+def mix_recovery(recovery, normal, *, recovery_fraction=0.5):
+    """One pass over suffixes; configurable token-weighted replay, no duplicates."""
+    if not 0 < recovery_fraction < 1:
+        raise ValueError("Recovery fraction must be between zero and one")
     if not recovery or not normal:
         raise ValueError("Recovery mix needs both real suffix and normal examples")
     # Select complete normal trajectories close to the suffix token count. The
     # residual weighting balances tokens without duplicating a short suffix.
-    target = sum(sum(r["loss_mask"]) for r in recovery)
+    target = (
+        sum(sum(r["loss_mask"]) for r in recovery)
+        * (1 - recovery_fraction)
+        / recovery_fraction
+    )
     grouped = {}
     for row in normal:
         context_for(row["task_id"], training=True)
@@ -205,7 +211,11 @@ def mix_recovery(recovery, normal):
                 {
                     **row,
                     "mix_kind": kind,
-                    "example_weight": 0.5
+                    "example_weight": (
+                        recovery_fraction
+                        if kind == "recovery"
+                        else 1 - recovery_fraction
+                    )
                     * total_examples
                     * sum(row["loss_mask"])
                     / tokens,

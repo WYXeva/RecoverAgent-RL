@@ -8,13 +8,21 @@ from .v2_context import CONFIG, sequence_limit
 from .v2_tasks import ROOT, RUNTIME, context_for
 
 
-def configuration(task_id, identity, root, remaining_cost, *, recovery=True):
-    frozen = read_json(CONFIG)
+def configuration(
+    task_id, identity, root, remaining_cost, *, recovery=True, runtime=RUNTIME
+):
+    from .v2_runtime import S1_RUNTIME
+
+    if runtime not in {RUNTIME, S1_RUNTIME}:
+        raise ValueError("Unknown Teacher learning runtime")
+    frozen = read_json(
+        ROOT / f"configs/{runtime}.json" if runtime == S1_RUNTIME else CONFIG
+    )
     config = copy.deepcopy(
         read_json(ROOT / frozen["teacher_config_template"])["teacher_config"]
     )
     config.update(
-        v2_runtime=RUNTIME,
+        v2_runtime=runtime,
         custom_research=context_for(task_id, training=True),
         appworld_root=str(root),
         student=identity,
@@ -26,11 +34,13 @@ def configuration(task_id, identity, root, remaining_cost, *, recovery=True):
         config.pop("recovery_protocol")
     config["authorization"] = {
         "approved": True,
-        "currency": "CNY",
+        "currency": frozen["teacher"]["pricing"]["currency"],
         "max_cost": remaining_cost,
         "reference": "User-authorized v2 round1; remaining shared run ledger cap",
     }
     config["limits"]["episode_cost"] = remaining_cost
+    if frozen.get("environment_contract"):
+        config["environment_contract"] = frozen["environment_contract"]
     config.update(
         remaining_cost=remaining_cost,
         remaining_requests=80,
@@ -43,7 +53,7 @@ def validate_config(config):
     from .v2_model import validate_identity
     from .v2_runtime import verify_lock
 
-    verify_lock()
+    verify_lock(config["v2_runtime"])
     validate_identity(config["student"])
     cost = config["authorization"]["max_cost"]
     if type(cost) not in (int, float) or not math.isfinite(cost) or cost <= 0:
@@ -54,6 +64,7 @@ def validate_config(config):
         config["appworld_root"],
         cost,
         recovery=bool(config.get("recovery_protocol")),
+        runtime=config["v2_runtime"],
     )
     if config != expected:
         raise ValueError("v2 Teacher configuration changed")

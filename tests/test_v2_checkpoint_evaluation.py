@@ -16,7 +16,8 @@ def configuration():
 def test_evaluation_source_and_frozen_dev24():
     path = Path("configs/v2_base_dev24_envfix_20261113.json")
     cfg = read_json(path)
-    assert len(entry.verify_evaluation_source(cfg, path)) == 64
+    with pytest.raises(ValueError, match="source changed|source lock"):
+        entry.verify_evaluation_source(cfg, path)
     assert cfg["task_ids"] == configuration()["task_ids"]
     assert cfg["student_limits"] == configuration()["student_limits"]
     with pytest.raises(ValueError, match="source lock|source changed"):
