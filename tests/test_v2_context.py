@@ -14,7 +14,8 @@ from recoveragent.schema_compatibility import SCHEMA_REVISION
 from recoveragent.v2_context import sequence_limit, validate_request_context
 from recoveragent.v2_grpo import segments
 from recoveragent.v2_round import config
-from recoveragent.v2_tasks import RUNTIME, context_for, plan
+from recoveragent.v2_tasks import context_for, plan
+from recoveragent.v2_runtime import EVALUATION_RUNTIME
 from recoveragent.v2_teacher import configuration, validate_config
 import test_nullable_recovery as fixtures
 from test_student_batch import Tokenizer
@@ -23,7 +24,7 @@ from test_teacher_collection import CharacterTokenizer
 worlds = fixtures.worlds
 
 
-def test_current_window_and_other_budgets_are_consistent():
+def test_current_window_and_other_budgets_are_consistent(current_v2_unit_lock):
     cfg = config()
     previous = read_json("configs/v2_round1_coevolve_goals_20261110.json")
     assert cfg["student_limits"] == {
@@ -108,7 +109,7 @@ def test_student_window_is_bound_to_lock_and_backend(worlds, tmp_path, monkeypat
         tool_mode="dynamic_discovery",
         protocol_harness=True,
         answer_guard=True,
-        execution_protocol=RUNTIME,
+        execution_protocol=EVALUATION_RUNTIME,
         model_contract=model,
         **config()["student_limits"],
     )

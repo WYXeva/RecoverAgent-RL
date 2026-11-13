@@ -14,12 +14,49 @@ from scripts.train_v2_base_64k import validate_stage, verify_source
 CONFIG = ROOT / "configs/v2_base_dev24_20261113.json"
 
 
-def verify_evaluation_source(cfg):
+def verify_evaluation_source(cfg, config_path=CONFIG):
     training = read_json(TRAIN_CONFIG)
-    if verify_source(training) != cfg["training_source_lock_sha256"]:
+    if (
+        cfg["task_ids"] != development_tasks(24)
+        or cfg["student_limits"] != training["student_limits"]
+        or cfg["model"] != training["models"][training["selected_model"]]
+    ):
+        raise ValueError("Evaluation tasks, model, or budgets changed")
+    fixed_environment = cfg.get("environment_contract") is not None
+    if fixed_environment:
+        from recoveragent.appworld_environment import REVISION
+        from recoveragent.v2_runtime import EVALUATION_RUNTIME, verify_lock
+
+        if (
+            cfg["environment_contract"] != REVISION
+            or cfg.get("execution_protocol") != EVALUATION_RUNTIME
+        ):
+            raise ValueError("Unknown evaluation environment contract")
+        verify_lock(EVALUATION_RUNTIME)
+        # The old training lock is immutable provenance, not the runtime lock
+        # for this new evaluation. Every current dependency is checked below.
+        if sha256(ROOT / training["source_lock"]) != cfg["training_source_lock_sha256"]:
+            raise ValueError("Training source lock provenance changed")
+    elif verify_source(training) != cfg["training_source_lock_sha256"]:
         raise ValueError("Training source lock differs from evaluation contract")
     lock = read_json(ROOT / cfg["source_lock"])
-    required = {str(CONFIG.relative_to(ROOT)), "scripts/evaluate_v2_checkpoint.py"}
+    required = {
+        str(Path(config_path).resolve().relative_to(ROOT)),
+        "scripts/evaluate_v2_checkpoint.py",
+    }
+    if fixed_environment:
+        required |= {
+            str(p.relative_to(ROOT)) for p in (ROOT / "src/recoveragent").glob("*.py")
+        }
+        required |= {
+            str(TRAIN_CONFIG.relative_to(ROOT)),
+            training["source_lock"],
+            "scripts/train_v2_base_64k.py",
+            "scripts/probe_appworld_environment.py",
+            "requirements/appworld-evaluation-20261113.lock.txt",
+        }
+        if lock.get("runtime_revision") != cfg["format"]:
+            raise ValueError("Evaluation source lock revision differs")
     if not required <= lock["files"].keys():
         raise ValueError("Incomplete evaluation source lock")
     for name, expected in lock["files"].items():
@@ -27,12 +64,6 @@ def verify_evaluation_source(cfg):
             raise ValueError("Invalid evaluation lock path")
         if sha256(ROOT / name) != expected:
             raise ValueError("Evaluation source changed: " + name)
-    if (
-        cfg["task_ids"] != development_tasks(24)
-        or cfg["student_limits"] != training["student_limits"]
-        or cfg["model"] != training["models"][training["selected_model"]]
-    ):
-        raise ValueError("Evaluation tasks, model, or budgets changed")
     return sha256(ROOT / cfg["source_lock"])
 
 
@@ -56,6 +87,39 @@ def accept_checkpoint(checkpoint, backup, cfg):
     ) != sha256(checkpoint / "checkpoint_receipt.json"):
         raise ValueError("Verified off-machine checkpoint backup required first")
     return receipt
+
+
+def accept_environment_probe(path, cfg):
+    if not cfg.get("environment_contract"):
+        return None
+    from recoveragent.appworld_environment import VERSIONS
+
+    if not path:
+        raise ValueError("Completed CPU environment probes required before model load")
+    probe = read_json(path)
+    expected = {
+        "amazon",
+        "file_system",
+        "gmail",
+        "phone",
+        "simple_note",
+        "splitwise",
+        "spotify",
+        "todoist",
+        "venmo",
+    }
+    if (
+        probe.get("passed") is not True
+        or probe.get("model_requests") != 0
+        or {row["app"] for row in probe.get("cases", [])} != expected
+        or len(probe["cases"]) != len(expected)
+        or not all(row.get("passed") is True for row in probe["cases"])
+        or probe["environment"].get("revision") != cfg["environment_contract"]
+        or probe["environment"].get("versions") != VERSIONS
+        or probe["environment"].get("snapshot_roundtrip") is not True
+    ):
+        raise ValueError("Environment probe evidence is incomplete or incompatible")
+    return {"path": str(Path(path).resolve()), "sha256": sha256(path)}
 
 
 def summarize(tasks, results, *, reason):
@@ -116,9 +180,11 @@ def run_tasks(cfg, output, dispatch, *, deadline, clock=time.monotonic):
 
 
 def run(args):
-    cfg = read_json(CONFIG)
-    source_sha = verify_evaluation_source(cfg)
+    config_path = Path(args.config)
+    cfg = read_json(config_path)
+    source_sha = verify_evaluation_source(cfg, config_path)
     receipt = accept_checkpoint(args.checkpoint, args.backup_receipt, cfg)
+    environment_probe = accept_environment_probe(args.environment_probe, cfg)
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=False)
     write_json(output / "run_config.json", cfg)
@@ -134,6 +200,7 @@ def run(args):
             "source_lock_sha256": source_sha,
             "deadline_epoch": args.deadline_epoch,
             "backup_receipt": read_json(args.backup_receipt),
+            "environment_probe": environment_probe,
         },
     )
     deadline = time.monotonic() + max(0, args.deadline_epoch - time.time())
@@ -165,6 +232,9 @@ def run(args):
             "appworld_root": args.appworld_root,
             "student_limits": cfg["student_limits"],
         }
+        if cfg.get("environment_contract"):
+            request["environment_contract"] = cfg["environment_contract"]
+            request["execution_protocol"] = cfg["execution_protocol"]
         return episode(
             request, model, tokenizer, python=args.worker_python, deadline=deadline
         )
@@ -174,6 +244,8 @@ def run(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--config", default=str(CONFIG))
+    parser.add_argument("--environment-probe")
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--backup-receipt", required=True)
     parser.add_argument("--output", required=True)

@@ -46,11 +46,12 @@ def verify_student_runtime(runtime):
     Historical runtime locks remain immutable and use their original checkouts.
     """
     from .v2_tasks import RUNTIME as V2_RUNTIME
+    from .v2_runtime import EVALUATION_RUNTIME
 
-    if runtime == V2_RUNTIME:
+    if runtime in {V2_RUNTIME, EVALUATION_RUNTIME}:
         from .v2_runtime import verify_lock as verify_v2
 
-        return verify_v2()
+        return verify_v2(runtime)
     from .nullable_recovery_runtime import RUNTIME as NULLABLE_RUNTIME, verify_lock
 
     if runtime == NULLABLE_RUNTIME:
@@ -193,7 +194,13 @@ class StudentSession:
             from .v2_tasks import RUNTIME as V2_RUNTIME
 
             validate_identity(model_contract)
-            if execution_protocol != V2_RUNTIME or memory_config or memory_state:
+            from .v2_runtime import EVALUATION_RUNTIME
+
+            if (
+                execution_protocol not in {V2_RUNTIME, EVALUATION_RUNTIME}
+                or memory_config
+                or memory_state
+            ):
                 raise ValueError(
                     "New model requires explicit v2 runtime without Memory"
                 )

@@ -8,10 +8,18 @@ from .v2_context import CONFIG, sequence_limit
 from .v2_tasks import ROOT, RUNTIME
 
 LOCK = ROOT / "configs/v2_learning_64k_20261112_lock.json"
+EVALUATION_RUNTIME = "v2_base_dev24_envfix_20261113"
 
 
-def verify_lock():
-    lock = read_json(LOCK)
+def verify_lock(runtime=RUNTIME):
+    if runtime not in {RUNTIME, EVALUATION_RUNTIME}:
+        raise ValueError("Unknown v2 runtime")
+    lock_path = (
+        ROOT / "configs/v2_base_dev24_envfix_20261113_lock.json"
+        if runtime == EVALUATION_RUNTIME
+        else LOCK
+    )
+    lock = read_json(lock_path)
     required = {
         str(p.relative_to(ROOT)) for p in (ROOT / "src/recoveragent").glob("*.py")
     }
@@ -26,7 +34,14 @@ def verify_lock():
         "third_party/agentevolver/SOURCE.json",
         "third_party/agentevolver/task_abstraction_prompt.txt",
     }
-    if lock.get("runtime_revision") != RUNTIME or not required <= lock["files"].keys():
+    if runtime == EVALUATION_RUNTIME:
+        required |= {
+            "configs/v2_base_dev24_envfix_20261113.json",
+            "scripts/evaluate_v2_checkpoint.py",
+            "scripts/probe_appworld_environment.py",
+            "requirements/appworld-evaluation-20261113.lock.txt",
+        }
+    if lock.get("runtime_revision") != runtime or not required <= lock["files"].keys():
         raise ValueError("Incomplete v2 source lock")
     if lock["session_contract"]["budget_caps"]["max_input_tokens"] != sequence_limit():
         raise ValueError("v2 configuration/source lock context mismatch")
@@ -38,7 +53,7 @@ def verify_lock():
         ):
             raise ValueError("v2 execution source changed: " + name)
     return {
-        "revision": RUNTIME,
-        "lock_sha256": sha256(LOCK),
+        "revision": runtime,
+        "lock_sha256": sha256(lock_path),
         "session_contract": lock["session_contract"],
     }

@@ -13,6 +13,9 @@ dependencies = ["jsonschema==4.25.1"]
 appworld = [
   "appworld @ https://codeload.github.com/StonyBrookNLP/appworld/zip/42b5bcf3cd334fee33f0c37c02070a9f5807add5",
   "pydantic==2.12.3",
+  "sqlmodel==0.0.24",
+  "SQLAlchemy==2.0.52",
+  "freezegun==1.5.1",
 ]
 
 [project.scripts]

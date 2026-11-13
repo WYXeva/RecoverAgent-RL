@@ -233,7 +233,7 @@ def test_historical_locks_are_not_resigned():
 
 @pytest.mark.parametrize("runtime", ["collection", "learning"])
 def test_v2_clean_teacher_export_replays_guards_and_durable_receipts(
-    tmp_path, monkeypatch, runtime
+    tmp_path, monkeypatch, runtime, current_v2_unit_lock
 ):
     from recoveragent import APPWORLD_REVISION, evaluation, v2_model
     from recoveragent.demonstrations import as_demo, validate_demo, validate_receipts

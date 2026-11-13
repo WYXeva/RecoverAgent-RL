@@ -1,6 +1,7 @@
 """Single-checkpoint evaluation, synthetic only; no model or AppWorld calls."""
 
 import copy
+from pathlib import Path
 
 import pytest
 
@@ -13,7 +14,13 @@ def configuration():
 
 
 def test_evaluation_source_and_frozen_dev24():
-    assert len(entry.verify_evaluation_source(configuration())) == 64
+    path = Path("configs/v2_base_dev24_envfix_20261113.json")
+    cfg = read_json(path)
+    assert len(entry.verify_evaluation_source(cfg, path)) == 64
+    assert cfg["task_ids"] == configuration()["task_ids"]
+    assert cfg["student_limits"] == configuration()["student_limits"]
+    with pytest.raises(ValueError, match="source lock|source changed"):
+        entry.verify_evaluation_source(configuration())
 
 
 @pytest.mark.parametrize("field", ["task_ids", "student_limits", "model"])
@@ -109,3 +116,43 @@ def test_checkpoint_backup_required_before_loading(tmp_path, monkeypatch):
     write_json(backup, {"verified_locally": True, "checkpoint_receipt_sha256": "wrong"})
     with pytest.raises(ValueError, match="off-machine checkpoint backup"):
         entry.accept_checkpoint(checkpoint, backup, configuration())
+
+
+def test_environment_probe_required_and_all_apps_checked(tmp_path):
+    from recoveragent.appworld_environment import REVISION, VERSIONS
+    from recoveragent.io import write_json
+
+    cfg = {"environment_contract": REVISION}
+    with pytest.raises(ValueError, match="before model load"):
+        entry.accept_environment_probe(None, cfg)
+    evidence = {
+        "passed": True,
+        "model_requests": 0,
+        "environment": {
+            "revision": REVISION,
+            "versions": VERSIONS,
+            "snapshot_roundtrip": True,
+        },
+        "cases": [
+            {"app": app, "passed": True}
+            for app in [
+                "amazon",
+                "file_system",
+                "gmail",
+                "phone",
+                "simple_note",
+                "splitwise",
+                "spotify",
+                "todoist",
+                "venmo",
+            ]
+        ],
+    }
+    path = tmp_path / "good.json"
+    write_json(path, evidence)
+    assert len(entry.accept_environment_probe(path, cfg)["sha256"]) == 64
+    evidence["cases"][0]["passed"] = False
+    path = tmp_path / "bad.json"
+    write_json(path, evidence)
+    with pytest.raises(ValueError, match="incomplete or incompatible"):
+        entry.accept_environment_probe(path, cfg)

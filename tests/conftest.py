@@ -15,6 +15,22 @@ from recoveragent.io import read_json, write_json
 
 
 @pytest.fixture
+def current_v2_unit_lock(tmp_path, monkeypatch):
+    """Test historical Teacher behavior without re-signing its release lock."""
+    from recoveragent import v2_runtime
+
+    lock = read_json(v2_runtime.LOCK)
+    names = set(lock["files"]) | {
+        str(p.relative_to(v2_runtime.ROOT))
+        for p in (v2_runtime.ROOT / "src/recoveragent").glob("*.py")
+    }
+    lock["files"] = {name: sha256(v2_runtime.ROOT / name) for name in names}
+    path = tmp_path / "synthetic_v2_unit_lock.json"
+    write_json(path, lock)
+    monkeypatch.setattr(v2_runtime, "LOCK", path)
+
+
+@pytest.fixture
 def current_v6_unit_lock(tmp_path, monkeypatch):
     from recoveragent import student
 

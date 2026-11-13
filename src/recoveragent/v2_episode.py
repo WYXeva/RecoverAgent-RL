@@ -29,6 +29,7 @@ def run(config, generate):
     training = config["purpose"] in {"feedback", "grpo"}
     context = context_for(task, training=training)
     checkpoints, fault, evaluation = [], None, None
+    environment = None
     costs = {
         "model_seconds": 0.0,
         "environment_seconds": 0.0,
@@ -38,6 +39,11 @@ def run(config, generate):
     started = now()
     try:
         environment_check()
+        if config.get("environment_contract"):
+            from .appworld_environment import verify_environment
+
+            environment = verify_environment(config["environment_contract"])
+            write_json(directory / "environment.json", environment)
         adapter = AppWorldAdapter(
             config["appworld_root"],
             task,
@@ -52,7 +58,12 @@ def run(config, generate):
         def timed_execute(*args, **kwargs):
             before = now()
             try:
-                return execute(*args, **kwargs)
+                response = execute(*args, **kwargs)
+                if environment is not None:
+                    from .appworld_environment import require_usable_execution
+
+                    require_usable_execution(response[0], args[0], directory)
+                return response
             finally:
                 costs["environment_seconds"] += now() - before
 
@@ -95,13 +106,13 @@ def run(config, generate):
             checkpoint_id=config["checkpoint_id"],
             clock=now,
             model_contract=config["model"],
-            execution_protocol=RUNTIME,
+            execution_protocol=config.get("execution_protocol", RUNTIME),
             protocol_harness=True,
             answer_guard=True,
             harness_revision=REFACTOR_REVISION,
             **config["student_limits"],
         )
-        session.runtime_revision = RUNTIME
+        session.runtime_revision = config.get("execution_protocol", RUNTIME)
         session.harness = ProtocolHarness(
             "dynamic_discovery",
             revision=REFACTOR_REVISION,
@@ -186,6 +197,17 @@ def run(config, generate):
             costs["evaluation_seconds"] += now() - before
     except Exception as exc:
         fault = {"type": type(exc).__name__, "message": str(exc)}
+        if environment is not None:
+            if session and not (directory / "history.json").exists():
+                write_json(
+                    directory / "history.json",
+                    {"messages": session.messages, "tools": session.tools},
+                )
+            if adapter:
+                try:
+                    adapter.save_terminal()
+                except Exception as save_exc:
+                    fault["terminal_save_error_type"] = type(save_exc).__name__
     finally:
         if adapter:
             adapter.close()
@@ -212,6 +234,7 @@ def run(config, generate):
         "costs": costs,
         "termination": session.termination if session else None,
         "fault": fault,
+        "environment": environment,
         "wall_seconds": now() - started,
         "snapshots": checkpoints,
         "selected_snapshot": checkpoints[-1]
