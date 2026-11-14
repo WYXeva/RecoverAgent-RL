@@ -61,7 +61,9 @@ def response():
     )
 
 
-def test_batch_frozen_selection_new_lock_and_unchanged_legacy_rejection():
+def test_batch_frozen_selection_new_lock_and_unchanged_legacy_rejection(
+    current_s1_unit_lock,
+):
     cfg = batch.configuration()
     assert len(set(cfg["feedback_task_ids"])) == 100
     assert not set(cfg["feedback_task_ids"]) & set(
@@ -75,7 +77,7 @@ def test_batch_frozen_selection_new_lock_and_unchanged_legacy_rejection():
         verify_lock(S1_PREVIOUS_RUNTIME)
 
 
-def test_teacher_uses_new_runtime_provider_and_independent_budget():
+def test_teacher_uses_new_runtime_provider_and_independent_budget(current_s1_unit_lock):
     cfg = batch.configuration()
     t = configuration(
         cfg["feedback_task_ids"][0],
@@ -215,7 +217,9 @@ def test_progress_appends_evidence_and_refreshes_latest_without_touching_prior(
     assert read_json(tmp_path / "progress/feedback/00002.json") == {"attempted": 2}
 
 
-def test_prior_infrastructure_attempts_are_carried_without_replay(tmp_path):
+def test_prior_infrastructure_attempts_are_carried_without_replay(
+    tmp_path, current_s1_unit_lock
+):
     cfg = batch.configuration()
     old = read_json("configs/" + cfg["carry_from"]["runtime"] + ".json")
     source = tmp_path / "old"
@@ -270,7 +274,7 @@ def test_prior_infrastructure_attempts_are_carried_without_replay(tmp_path):
 
 @pytest.mark.parametrize("tamper", [None, "score", "deadline", "source", "policy"])
 def test_completed_feedback_handoff_preserves_scores_and_never_replays(
-    tmp_path, tamper
+    tmp_path, tamper, current_s1_unit_lock
 ):
     cfg = batch.configuration()
     previous = read_json("configs/" + cfg["continuation"]["runtime"] + ".json")

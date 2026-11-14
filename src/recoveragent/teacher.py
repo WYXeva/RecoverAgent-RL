@@ -163,6 +163,10 @@ def preflight(config, credentials):
 
 def normalize_message(response, max_calls=1, *, allow_reasoning=False):
     """Preserve native batches; reject malformed/oversized batches atomically."""
+    if "responses_raw" in response:
+        from .teacher_responses import validate_projection
+
+        validate_projection(response)
     choices = response.get("choices", [])
     if len(choices) != 1:
         raise ValueError("Expected one choice")
@@ -213,6 +217,10 @@ def normalize_message(response, max_calls=1, *, allow_reasoning=False):
 
 
 def response_usage(response):
+    if "responses_raw" in response:
+        from .teacher_responses import validate_projection
+
+        validate_projection(response)
     usage = response["usage"]
     prompt, output = usage["prompt_tokens"], usage["completion_tokens"]
     cached = usage.get(
@@ -255,6 +263,7 @@ class TeacherPolicy:
         self.key = credentials[self.config["api_key_env"]]
         self.transport = transport or self._post
         self.reasoning_by_index = {}
+        self.responses_by_index = {}
         self._http_session = None
         self.session_id = self.config.get("opencode_session_id")
         if self.config.get("provider") == "opencode_go" and not self.session_id:
@@ -262,14 +271,38 @@ class TeacherPolicy:
             self.session_id = "ses_" + uuid.uuid4().hex
         if self.config.get("http_transport") not in {None, "requests_session_v1"}:
             raise ValueError("Unsupported Teacher HTTP transport")
+        if self.config.get("api_protocol") not in {None, "openai_responses_v1"}:
+            raise ValueError("Unsupported Teacher API protocol")
 
     def remember_response(self, index, response):
+        if self.config.get("api_protocol") == "openai_responses_v1":
+            from .teacher_responses import validate_projection
+
+            validate_projection(response)
+            self.responses_by_index[index] = copy.deepcopy(
+                response["responses_raw"]["output"]
+            )
         if reasoning_enabled(self.config):
             reasoning = response["choices"][0]["message"].get("reasoning_content")
             if reasoning is not None:
                 if not isinstance(reasoning, str):
                     raise ValueError("Provider reasoning must be text")
                 self.reasoning_by_index[index] = reasoning
+
+    def _endpoint(self):
+        suffix = (
+            "/responses"
+            if self.config.get("api_protocol") == "openai_responses_v1"
+            else "/chat/completions"
+        )
+        return self.config["base_url"].rstrip("/") + suffix
+
+    def _response(self, raw):
+        if self.config.get("api_protocol") == "openai_responses_v1":
+            from .teacher_responses import project_response
+
+            return project_response(raw)
+        return raw
 
     def _post(self, payload):
         if self.config.get("http_transport") == "requests_session_v1":
@@ -283,7 +316,7 @@ class TeacherPolicy:
         if self.session_id:
             headers["x-opencode-session"] = self.session_id
         request = urllib.request.Request(
-            self.config["base_url"].rstrip("/") + "/chat/completions",
+            self._endpoint(),
             canonical(payload).encode(),
             headers,
         )
@@ -293,7 +326,7 @@ class TeacherPolicy:
                 request, timeout=self.config["timeout_seconds"]
             ) as response:
                 phase, status = "response_json", getattr(response, "status", None)
-                return json.load(response)
+                return self._response(json.load(response))
         except urllib.error.HTTPError as exc:
             # Never persist provider error text: it can echo prompts or credentials.
             diagnostic = None
@@ -343,7 +376,7 @@ class TeacherPolicy:
         phase, status = "request_open", None
         try:
             with self._http_session.post(
-                self.config["base_url"].rstrip("/") + "/chat/completions",
+                self._endpoint(),
                 data=canonical(payload).encode(),
                 headers=headers,
                 timeout=self.config["timeout_seconds"],
@@ -365,7 +398,7 @@ class TeacherPolicy:
                     raise TeacherTransportError(
                         f"Teacher HTTP {status}; usage unknown", diagnostic=diagnostic
                     )
-                return response.json()
+                return self._response(response.json())
         except TeacherTransportError:
             raise
         except Exception as exc:
@@ -382,6 +415,15 @@ class TeacherPolicy:
 
     def build_request(self, messages, tools, max_tokens):
         validate_history(messages)
+        if self.config.get("api_protocol") == "openai_responses_v1":
+            from .teacher_responses import build_request
+
+            payload = build_request(
+                messages, tools, max_tokens, self.config, self.responses_by_index
+            )
+            if len(canonical(payload).encode()) > self.config["max_request_bytes"]:
+                raise TeacherBlocked("REQUEST_SIZE_LIMIT")
+            return payload
         payload = {
             "model": self.config["model"],
             "messages": provider_history(messages, self.reasoning_by_index),

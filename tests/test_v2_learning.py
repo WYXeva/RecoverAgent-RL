@@ -345,13 +345,13 @@ def test_generator_real_proposal_required_and_negative_evaluator(monkeypatch):
 
 def test_new_lock_and_immutable_historical_lock_rejection():
     from recoveragent.teacher_collection import verify_lock as previous_collection
+    from recoveragent.teacher_followup import verify_lock as followup_lock
     from recoveragent.v2_runtime import S1_RUNTIME, verify_lock
     from recoveragent.b10_pilot import verify_lock as old
 
-    assert (
-        verify_lock(S1_RUNTIME)["session_contract"]["budget_caps"]["max_input_tokens"]
-        == 65536
-    )
+    assert len(followup_lock()) == 64
+    with pytest.raises(ValueError):
+        verify_lock(S1_RUNTIME)
     with pytest.raises(ValueError):
         verify_lock()
     with pytest.raises(ValueError):

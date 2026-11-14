@@ -55,12 +55,18 @@ def validate_config(config):
     from .v2_tasks import RUNTIME as V2_RUNTIME
     from .v2_runtime import S1_RUNTIME
     from .teacher_collection import REVISION as COLLECTION_RUNTIME
+    from .teacher_followup import REVISION as FOLLOWUP_RUNTIME
 
-    is_collection = config.get("v2_runtime") == COLLECTION_RUNTIME
+    is_followup = config.get("v2_runtime") == FOLLOWUP_RUNTIME
+    is_collection = config.get("v2_runtime") == COLLECTION_RUNTIME or is_followup
     is_v2 = config.get("v2_runtime") in {V2_RUNTIME, S1_RUNTIME} or is_collection
     if config.get("v2_runtime") and not is_v2:
         raise ValueError("Unknown learning runtime")
-    if is_collection:
+    if is_followup:
+        from .teacher_followup import validate_worker_config
+
+        validate_worker_config(config)
+    elif is_collection:
         from .teacher_collection import validate_worker_config
 
         validate_worker_config(config)

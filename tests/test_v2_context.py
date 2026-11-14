@@ -87,7 +87,9 @@ def test_complete_64k_sft_preserves_targets_and_rejects_overflow(monkeypatch, re
         v2_training.validate_training_rows(rows, 65536)
 
 
-def test_student_window_is_bound_to_lock_and_backend(worlds, tmp_path, monkeypatch):
+def test_student_window_is_bound_to_lock_and_backend(
+    worlds, tmp_path, monkeypatch, current_s1_unit_lock
+):
     class SizedTokenizer(Tokenizer):
         count = 61440
 

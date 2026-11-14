@@ -124,6 +124,7 @@ def validate_receipts(trajectory, directory):
     totals = {"prompt_tokens": 0, "generated_tokens": 0, "cached_prompt_tokens": 0}
     cost, calls = 0.0, 0
     reasoning_by_index = {}
+    responses_by_index = {}
     with_reasoning = reasoning_enabled(trajectory["teacher"])
     predictor = validate_predictor_receipts(trajectory, directory)
     validate_guard_record(trajectory)
@@ -144,7 +145,21 @@ def validate_receipts(trajectory, directory):
             raise ValueError("Provider receipt changed")
         index = turn["assistant_index"]
         expected_messages = provider_history(messages[:index], reasoning_by_index)
-        if (
+        responses = trajectory["teacher"].get("api_protocol") == "openai_responses_v1"
+        if responses:
+            from .teacher_responses import build_request, validate_projection
+
+            expected_request = build_request(
+                expected_messages,
+                turn["tools"],
+                request["max_output_tokens"],
+                trajectory["teacher"],
+                responses_by_index,
+            )
+            if request != expected_request:
+                raise ValueError("Actual Responses Teacher context mismatch")
+            validate_projection(response)
+        elif (
             request["messages"] != expected_messages
             or request["tools"] != turn["tools"]
         ):
@@ -153,7 +168,7 @@ def validate_receipts(trajectory, directory):
             "model"
         ] or not response_model_matches(trajectory["teacher"], response["model"]):
             raise ValueError("Teacher model identity mismatch")
-        if request.get("thinking") != {
+        if not responses and request.get("thinking") != {
             "type": "enabled" if with_reasoning else "disabled"
         }:
             raise ValueError("Unexpected thinking protocol")
@@ -211,6 +226,8 @@ def validate_receipts(trajectory, directory):
             reasoning = response["choices"][0]["message"].get("reasoning_content")
             if reasoning is not None:
                 reasoning_by_index[index] = reasoning
+        if responses and "protocol_rejection" not in turn:
+            responses_by_index[index] = response["responses_raw"]["output"]
         usage = response_usage(response)
         if usage != turn["usage"]:
             raise ValueError("Per-turn usage mismatch")

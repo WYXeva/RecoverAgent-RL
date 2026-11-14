@@ -31,6 +31,37 @@ def current_v2_unit_lock(tmp_path, monkeypatch):
 
 
 @pytest.fixture
+def current_s1_unit_lock(tmp_path, monkeypatch):
+    """Exercise frozen S1 semantics in a temporary tree after Teacher-only changes.
+
+    This never updates a production lock or the separately running S1 checkout.
+    """
+    from recoveragent import v2_runtime
+
+    original = v2_runtime.ROOT
+    root = tmp_path / "synthetic_s1_source_tree"
+    lock_name = f"configs/{v2_runtime.S1_RUNTIME}_lock.json"
+    lock = read_json(original / lock_name)
+    names = set(lock["files"]) | {
+        str(p.relative_to(original))
+        for p in (original / "src/recoveragent").glob("*.py")
+    }
+    for name in names | {
+        str(p.relative_to(original)) for p in (original / "configs").glob("*_lock.json")
+    }:
+        target = root / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(original / name, target)
+    lock["files"] = {name: sha256(root / name) for name in names}
+    (root / lock_name).unlink()
+    write_json(root / lock_name, lock)
+    monkeypatch.setattr(v2_runtime, "ROOT", root)
+    monkeypatch.setattr(
+        v2_runtime, "CONFIG", root / v2_runtime.CONFIG.relative_to(original)
+    )
+
+
+@pytest.fixture
 def current_v6_unit_lock(tmp_path, monkeypatch):
     from recoveragent import student
 
