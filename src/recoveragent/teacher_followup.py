@@ -24,7 +24,8 @@ CONFIG = ROOT / "configs/teacher_followup_format_20261114.json"
 LOCK = ROOT / "configs/teacher_followup_format_20261114_lock.json"
 ESCALATION = "v2_teacher_escalation_20261114"
 LOCAL_ESCALATION = "v2_teacher_escalation_local_20261114"
-RUNTIMES = {REVISION, ESCALATION, LOCAL_ESCALATION}
+RETRY = "v2_teacher_retry_20261114"
+RUNTIMES = {REVISION, ESCALATION, LOCAL_ESCALATION, RETRY}
 
 
 def paths(revision=REVISION):
@@ -39,6 +40,11 @@ def paths(revision=REVISION):
         return (
             ROOT / "configs/teacher_escalation_local_20261114.json",
             ROOT / "configs/teacher_escalation_local_20261114_lock.json",
+        )
+    if revision == RETRY:
+        return (
+            ROOT / "configs/teacher_retry_20261114.json",
+            ROOT / "configs/teacher_retry_20261114_lock.json",
         )
     raise ValueError("Unknown Teacher follow-up revision")
 
@@ -74,6 +80,12 @@ def verify_lock(revision=REVISION):
             "scripts/run_teacher_escalation.py",
             cfg["prior_followup"]["config"],
             cfg["prior_followup"]["source_lock"],
+        }
+    if revision == RETRY:
+        required |= {
+            "scripts/retry_teacher_followup.py",
+            cfg["retry_source"]["config"],
+            cfg["retry_source"]["source_lock"],
         }
     if lock.get("revision") != revision or not required <= lock["files"].keys():
         raise ValueError("Incomplete follow-up source lock")
@@ -128,7 +140,7 @@ def worker_config(task, run_id, root, teacher_name, *, revision=REVISION):
         environment_contract=cfg["environment_contract"],
         protocol_lock=str(paths(revision)[1].relative_to(ROOT)),
         remaining_requests=80,
-        remaining_generated_tokens=16384,
+        remaining_generated_tokens=cfg.get("max_generated_tokens", 16384),
         remaining_cost=cfg["episode_cost_cap_usd"],
     )
     value["authorization"] = {
@@ -138,6 +150,8 @@ def worker_config(task, run_id, root, teacher_name, *, revision=REVISION):
         "reference": "User authorized fresh Teacher attempts after failed recovery, and GPT fallback at the same endpoint/key; no subscription changes.",
     }
     value["limits"]["episode_cost"] = cfg["episode_cost_cap_usd"]
+    value["limits"]["episode_generated_tokens"] = value["remaining_generated_tokens"]
+    value["limits"]["total_generated_tokens"] = value["remaining_generated_tokens"]
     return value
 
 

@@ -240,6 +240,8 @@ def test_training_loads_s0_for_both_smokes_and_formal_and_stops_on_failure(
 
 
 def test_upgraded_source_lock_and_historical_lock_separation():
-    assert len(followup.verify_lock(escalation.REVISION)) == 64
+    assert len(followup.verify_lock(followup.RETRY)) == 64
+    with pytest.raises(ValueError, match="source|Incomplete"):
+        followup.verify_lock(escalation.REVISION)
     with pytest.raises(ValueError, match="source"):
         followup.verify_lock()

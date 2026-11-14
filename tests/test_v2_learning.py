@@ -346,11 +346,11 @@ def test_generator_real_proposal_required_and_negative_evaluator(monkeypatch):
 def test_new_lock_and_immutable_historical_lock_rejection():
     from recoveragent.teacher_collection import verify_lock as previous_collection
     from recoveragent.teacher_followup import verify_lock as followup_lock
-    from recoveragent.teacher_followup import LOCAL_ESCALATION
+    from recoveragent.teacher_followup import RETRY
     from recoveragent.v2_runtime import S1_RUNTIME, verify_lock
     from recoveragent.b10_pilot import verify_lock as old
 
-    assert len(followup_lock(LOCAL_ESCALATION)) == 64
+    assert len(followup_lock(RETRY)) == 64
     with pytest.raises(ValueError):
         followup_lock()
     with pytest.raises(ValueError):

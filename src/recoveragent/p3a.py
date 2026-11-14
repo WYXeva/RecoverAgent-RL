@@ -169,6 +169,13 @@ def validate_config(config):
     }
     if config.get("harness_budget_revision") == BUDGET_REVISION:
         caps["episode_wall_seconds"] = 1200
+    if is_followup:
+        from .teacher_followup import RETRY
+
+        if config["v2_runtime"] == RETRY:
+            # This independent retry config was explicitly authorized for 32k
+            # cumulative output; historical collection caps remain unchanged.
+            caps["episode_generated_tokens"] = 32768
     profile = config.get("collection_profile", "pilot")
     if profile not in {"pilot", "scenario_expansion_v1"}:
         raise ValueError("Unknown collection profile")

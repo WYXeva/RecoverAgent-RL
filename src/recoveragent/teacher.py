@@ -67,7 +67,7 @@ class TeacherTransportError(RuntimeError):
         self.diagnostic = diagnostic
 
 
-def http_error_diagnostic(body):
+def http_error_diagnostic(body, retry_after=None):
     """Bounded evidence, never provider text, credentials or request content."""
     text = body.decode("utf-8", errors="replace").lower()
     fields = {
@@ -79,13 +79,20 @@ def http_error_diagnostic(body):
         "schema": "schema" in text,
         "rate_limit": "rate limit" in text or "rate_limit" in text,
     }
-    return {
+    result = {
         "body_prefix_sha256": hashlib.sha256(body).hexdigest(),
         "body_bytes_read": len(body),
         "body_may_be_truncated": len(body) == 65537,
         "keyword_matches_only": fields,
         "raw_text_retained": False,
     }
+    if retry_after is not None:
+        # Numeric delay only; never copy arbitrary response headers into evidence.
+        delay = str(retry_after).strip()
+        if delay.isdecimal() and len(delay) <= 9:
+            result["retry_after_seconds"] = int(delay)
+    result["go_usage_limit"] = "gousagelimiterror" in text
+    return result
 
 
 def read_credentials(path=None):
@@ -332,7 +339,9 @@ class TeacherPolicy:
             diagnostic = None
             if self.config.get("http_error_diagnostics") == "keyword_hash_v1":
                 try:
-                    diagnostic = http_error_diagnostic(exc.read(65537))
+                    diagnostic = http_error_diagnostic(
+                        exc.read(65537), exc.headers.get("Retry-After")
+                    )
                 except Exception:
                     diagnostic = {"error_body_unavailable": True}
             raise TeacherTransportError(
@@ -391,7 +400,8 @@ class TeacherPolicy:
                     if self.config.get("http_error_diagnostics") == "keyword_hash_v1":
                         try:
                             diagnostic = http_error_diagnostic(
-                                response.raw.read(65537, decode_content=True)
+                                response.raw.read(65537, decode_content=True),
+                                response.headers.get("Retry-After"),
                             )
                         except Exception:
                             diagnostic = {"error_body_unavailable": True}

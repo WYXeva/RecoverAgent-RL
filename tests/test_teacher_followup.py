@@ -284,7 +284,7 @@ def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
 def test_new_source_lock_and_old_collection_lock_reject_changes():
     from recoveragent import teacher_collection
 
-    assert len(followup.verify_lock(followup.LOCAL_ESCALATION)) == 64
+    assert len(followup.verify_lock(followup.RETRY)) == 64
     with pytest.raises(ValueError, match="source"):
         followup.verify_lock()
     with pytest.raises(ValueError, match="source"):
