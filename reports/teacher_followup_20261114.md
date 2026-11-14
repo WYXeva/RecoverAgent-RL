@@ -32,9 +32,21 @@
 
 上述测试使用合成环境，不代表45题已完成或GPT更强。首个启动因私有凭据文件仅含key、未包含基础网址而在请求前停止；0模型请求，两个worker启动记录保留在`followup_001`。启动环境显式沿用原网址后，新run `followup_002`完成首题真实DeepSeek和GPT尝试：两次均声明完成但未通过官方验收，0基础设施异常；累计20次请求、184,874输入/5,067生成token、201.08秒，配置费率估价USD0.029665。官方失败未导出为合格示范。随后两个独立worker继续剩余44题。
 
+## 真实阻塞与独立格式约定（11:05，UTC+8）
+
+初版完成7次真实尝试：4次DeepSeek、3次GPT，0成功/0合格，0服务异常；75请求、838,242输入/25,444生成token，累计episode792.80秒，配置费率估价USD0.097692。3个任务已完成两个模型尝试，另1题只完成DeepSeek。新题调度已暂停并等待活跃worker结束，原记录通过归档与744文件SHA回传核验。
+
+最早两个金额问答中，两模型都把金额写成带`$`的字符串（其中一题还含千分位逗号），官方数值解析因此失败。此事实说明换模型不能自动解决公开输出契约缺口；没有据此判定数值本身正确，也没有剥离符号后重新评分。
+
+增加独立`public_numeric_answer_format_v1`：作为公开任务JSON的`answer_format_contract`字段，要求单一金额/计数答案采用JSON数字，并明确保留名称、标识符、多值、百分比和用户指定格式。原instruction、execution_v6系统提示、Schema、Harness、评分及答案均不改；不识别task ID、不访问评分器、不替模型转换数值。DeepSeek/GPT共享同一条公开规则，导出时验证版本和实际可见规则；该字段位于用户上下文，loss全部屏蔽。
+
+新配置/锁`teacher_followup_format_20261114`、新源码目录与run只读承接旧7次尝试，逐项核对config/source、trajectory及evaluation SHA；不重发同一模型/任务slot，不覆盖初版结果。原45题上限不变，已完成的3题不追加第三次尝试；继续余下42题的未执行模型slot，最多再83次。旧、新提示分别留痕，不能将补采成功率变化解释成纯模型切换效果。
+
+新增及相关测试66 passed；完整1058 passed/1 skipped；Ruff221文件通过。真实新run已启动，源码锁SHA `f701ba9afc2af5d56aac7c2dbb4d1238bf9cfcd137e4c8f1596735d255801d68`。原Student dev24继续原提示，未重评或修改旧分数。
+
 ## 私有位置与启动
 
-远端根：`/root/gpufree-data/recoveragent_teacher_followup_20261114_01/`；本地运行资料：`runs/teacher_followup_20261114_01/`。复用已验证的CPU AppWorld/tokenizer环境，不启动新的GPU模型或训练。原S1 dev24仍由原进程独立运行。
+当前远端根：`/root/gpufree-data/recoveragent_teacher_followup_20261114_02/`、输出`runs/followup_003/`；本地运行资料：`runs/teacher_followup_20261114_02/`。初版目录`*_01`、run001/002及其源码/锁/归档保留。复用已验证的CPU AppWorld/tokenizer环境，不启动新的GPU模型或训练。原S1 dev24仍由原进程独立运行。
 
 在独立源码目录、原CPU环境中（`deployment.json`保存已授权机器的数据根、凭据路径及原23:47:24绝对截止时间）：
 
@@ -45,8 +57,8 @@ export HF_HUB_OFFLINE=1
 export DEEPSEEK_BASE_URL=https://opencode.ai/inference/go/openai/v1
 PYTHON=/root/gpufree-data/recoveragent_s1_20261113_01/worker_env/bin/python
 # 新run准备一次；已有run只执行collect接续，不重做prepare。
-"$PYTHON" scripts/collect_teacher_followup.py prepare --output runs/followup_002 --deployment deployment.json
-"$PYTHON" scripts/collect_teacher_followup.py collect --output runs/followup_002
+"$PYTHON" scripts/collect_teacher_followup.py prepare --output runs/followup_003 --deployment deployment.json
+"$PYTHON" scripts/collect_teacher_followup.py collect --output runs/followup_003
 ```
 
 完成后导出独立`export/successes.jsonl`与manifest，报告DeepSeek/GPT各自尝试、官方成功、过滤/暂缓和用量。远端独立守护负责控制器异常退出后的接续和结束归档，本地只读观察器负责SSH重连、归档回传及逐文件SHA校验；不重复已登记的付费尝试。当前尚无补采完整统计，不声称模型效果提升。

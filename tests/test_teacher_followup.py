@@ -229,6 +229,11 @@ def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
     )
     assert record["status"] == "valid", record
     assert record["reward"] == 1 and len(invoked) == 1
+    from recoveragent.teacher_answer_format import NOTICE
+
+    public = json.loads(record["messages"][1]["content"])
+    assert public["instruction"] == "fake task"
+    assert public["answer_format_contract"] == NOTICE
     assert record["start_kind"] == "original_initial" and not record.get("recovery")
     validate_demo(as_demo(record))
     validate_receipts(record, directory)

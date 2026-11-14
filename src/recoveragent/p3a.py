@@ -493,6 +493,8 @@ def run_teacher_episode(
             trajectory.update(mode="teacher_recovery", start_kind="checkpoint")
             trajectory["initial_state_hash"] = adapter.fingerprint()
         else:
+            from .teacher_answer_format import public_task as teacher_public_task
+
             messages.extend(
                 [
                     {
@@ -502,7 +504,8 @@ def run_teacher_episode(
                     {
                         "role": "user",
                         "content": json.dumps(
-                            adapter.public_task(), ensure_ascii=False
+                            teacher_public_task(adapter.public_task(), teacher),
+                            ensure_ascii=False,
                         ),
                     },
                 ]

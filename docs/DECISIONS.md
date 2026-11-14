@@ -273,3 +273,11 @@ train100第12题的官方验收完整返回失败，但`float(predicted_answer)`
 同一OpenCode Go服务公开并实际支持gpt-6-luna的Responses接口，原生及共享Teacher适配器各两轮工具探针通过。新增薄接口保留原始响应、实际wire请求和工具Schema，在导出时复核映射；不删除Harness验证、不修改execution_v6。单题64k/80请求/16384生成/1200秒预算和原24小时作业截止不变，不购买或改账单。生产源码独立部署，历史锁保留拒绝行为；旧逻辑单元测试使用临时测试锁，不能作为生产运行放行。
 
 当前软件完整1056 passed/1 skipped，Ruff通过；首题真实DeepSeek及GPT从头尝试均官方失败，保留实际记录；已继续其余44题，尚无45题完成结论。详见[补采记录](../reports/teacher_followup_20261114.md)。
+
+## D121 — Teacher金额输出的公开格式约定；原失败只读承接（2026-11-14）
+
+从头补采初版7次尝试（4 DeepSeek/3 GPT）均官方失败。最早两道金额问答中，两模型都提交了带货币符号的字符串，官方float解析失败；这不是找不到工具或网络故障。暂停新题、等待当前worker结束，保存75次请求和全部真实结果，归档及744文件SHA通过。不能把带符号答案转为数值后重评分，不能据此认定本来应该成功。
+
+独立public_numeric_answer_format_v1只在Teacher公开任务JSON中增加格式规则：单一金额/计数用JSON number；保留明确要求的标识符、文本、多值或其他格式。原instruction、execution_v6、Schema、Harness与官方评分不变，规则不读取task ID/隐藏答案。完整可见提示和revision留痕，规则本身及其他用户上下文不监督。
+
+新配置/锁teacher_followup_format_20261114承接原7个已付费模型/任务slot，校验来源config/source/trajectory/evaluation SHA，不重跑；继续固定45题中尚未执行的slot，最多90次新增尝试的总上限不变。旧提示尝试与新提示尝试分开标注，收集效果不视为纯GPT对DeepSeek对照。已训练S1及原dev24继续原提示。66项针对性、完整1058 passed/1 skipped、Ruff通过；新run已启动，结果待实跑。

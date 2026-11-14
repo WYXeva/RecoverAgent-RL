@@ -91,6 +91,9 @@ def validate_public_record(record):
     from .answer_guard import PROTOCOL as ANSWER_PROTOCOL
     from .execution_v6 import SYSTEM_PROMPT
     from .harness import PROTOCOL as HARNESS_PROTOCOL, REFACTOR_REVISION
+    from .teacher_answer_format import validate_record as validate_answer_format
+
+    validate_answer_format(record)
 
     context = validate_context(
         record["task_id"], record["custom_research"], training=True

@@ -19,9 +19,9 @@ from .demonstrations import sha256
 from .io import digest, files_manifest, read_json, write_json
 from .v2_tasks import ROOT, context_for
 
-REVISION = "v2_teacher_followup_20261114"
-CONFIG = ROOT / "configs/teacher_followup_20261114.json"
-LOCK = ROOT / "configs/teacher_followup_20261114_lock.json"
+REVISION = "v2_teacher_followup_format_20261114"
+CONFIG = ROOT / "configs/teacher_followup_format_20261114.json"
+LOCK = ROOT / "configs/teacher_followup_format_20261114_lock.json"
 
 
 def configuration():
@@ -41,6 +41,8 @@ def verify_lock():
         "configs/v2_scenario_split_20261109.json",
         "configs/unified_task_split_full_pool_candidate.json",
         "requirements/appworld-evaluation-20261113.lock.txt",
+        configuration()["carry_from"]["config"],
+        configuration()["carry_from"]["source_lock"],
     }
     if lock.get("revision") != REVISION or not required <= lock["files"].keys():
         raise ValueError("Incomplete follow-up source lock")
@@ -127,6 +129,29 @@ def prepare(output, deployment):
     if sha256(summary_path) != cfg["source_recovery_summary_sha256"]:
         raise ValueError("Original recovery summary changed")
     selected = select_tasks(read_json(summary_path))
+    previous = Path(deployment["previous_output"])
+    if (
+        sha256(previous / "config.json") != cfg["carry_from"]["config_sha256"]
+        or read_json(previous / "campaign.json")["source_lock_sha256"]
+        != cfg["carry_from"]["source_lock_sha256"]
+    ):
+        raise ValueError("Previous follow-up config/source changed")
+    carried = {}
+    for path in sorted((previous / "attempts").glob("*/result.json")):
+        result = read_json(path)
+        if (
+            result["task_id"] not in selected
+            or result["teacher"] not in cfg["teacher_order"]
+        ):
+            raise ValueError("Unexpected previous Teacher attempt")
+        if result.get("trajectory_sha256") != sha256(path.with_name("trajectory.json")):
+            raise ValueError("Previous Teacher trajectory changed")
+        if result.get("evaluation_sha256") != sha256(path.with_name("evaluation.json")):
+            raise ValueError("Previous Teacher official result changed")
+        key = result["task_id"] + ":" + result["teacher"]
+        if key in carried:
+            raise ValueError("Duplicate previous Teacher model/task attempt")
+        carried[key] = {"path": str(path.resolve()), "sha256": sha256(path)}
     output.mkdir(parents=True, exist_ok=False)
     write_json(output / "config.json", cfg)
     write_json(output / "deployment.json", deployment)
@@ -140,6 +165,7 @@ def prepare(output, deployment):
             "start_kind": "original_initial",
             "existing_recovery_suffixes": cfg["existing_eligible_recovery_suffixes"],
             "new_data_kind": "full_teacher_demonstration_not_recovery_suffix",
+            "carried_attempts": carried,
         },
     )
 
@@ -204,6 +230,16 @@ def running_worker(directory):
 
 def attempt(output, task, teacher_name, deployment):
     from .p3a import interrupted_usage
+
+    source = (
+        read_json(output / "campaign.json")
+        .get("carried_attempts", {})
+        .get(task + ":" + teacher_name)
+    )
+    if source:
+        if sha256(source["path"]) != source["sha256"]:
+            raise ValueError("Carried Teacher attempt changed")
+        return {**read_json(source["path"]), "carried_from": source}
 
     directory = (output / "attempts" / f"{output.name}_{task}_{teacher_name}").resolve()
     result_path = directory / "result.json"
@@ -296,6 +332,12 @@ def summary(output, status):
     results = [
         read_json(p) for p in sorted((output / "attempts").glob("*/result.json"))
     ]
+    for source in (
+        read_json(output / "campaign.json").get("carried_attempts", {}).values()
+    ):
+        if sha256(source["path"]) != source["sha256"]:
+            raise ValueError("Carried Teacher result changed")
+        results.append(read_json(source["path"]))
     cfg = configuration()
     value = {
         "status": status,
