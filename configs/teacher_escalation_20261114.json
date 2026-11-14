@@ -1,0 +1,205 @@
+{
+  "revision": "v2_teacher_escalation_20261114",
+  "template": "configs/b10_execution_budget_20261105.json",
+  "source_config": "configs/v2_s1_train100_evaluation_20261114.json",
+  "source_recovery_summary_sha256": "32f08144eb4145603f0874c2d54c733319d4955ecd37ef37a00cc84b8c0bc1f8",
+  "existing_eligible_recovery_suffixes": 18,
+  "task_ids": [
+    "eb5ad85_1",
+    "f3a6713_2",
+    "166f4ff_1",
+    "21abae1_2",
+    "0de03ad_3",
+    "6c2c621_3",
+    "8d42650_3",
+    "ec655df_2",
+    "c8f5f44_2",
+    "4fab96f_3",
+    "9016950_3",
+    "e0fe09c_3",
+    "8749218_1",
+    "f6936d4_3",
+    "efc3cea_2",
+    "ce73d68_2",
+    "432dc7a_3",
+    "ec437da_2",
+    "166f4ff_3",
+    "652485c_1",
+    "83a7951_2",
+    "d0b1f43_1",
+    "6d59d90_1",
+    "5238afc_2",
+    "9871968_1",
+    "92fe421_3",
+    "7b97e6d_1",
+    "76f2c72_1",
+    "634f342_2",
+    "988af8e_2",
+    "21abae1_3",
+    "432dc7a_1",
+    "30e8586_2",
+    "30e8586_3",
+    "cdaaea5_2",
+    "80acbaf_2",
+    "36705ae_2",
+    "6c2c621_1",
+    "383cbac_1",
+    "59bcfc8_2",
+    "21abae1_1",
+    "96bf160_3",
+    "cdaaea5_3",
+    "ec655df_1",
+    "f861c32_1"
+  ],
+  "student": {
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "thinking": false,
+    "tool_format": "qwen_xml"
+  },
+  "teachers": {
+    "deepseek_pro": {
+      "provider": "opencode_go",
+      "base_url": "https://opencode.ai/inference/go/openai/v1",
+      "allowed_host": "opencode.ai",
+      "api_key_env": "DEEPSEEK_API_KEY",
+      "model": "deepseek-v4-pro",
+      "revision": "OpenCode Go DeepSeek V4 Pro service alias; /models and two-turn tools probe verified 2026-11-14; not immutable weights.",
+      "revision_is_immutable": false,
+      "revision_source": "https://opencode.ai/docs/console/go/",
+      "thinking": true,
+      "reasoning_protocol": "provider_reasoning_audit_only_v1",
+      "temperature": 0.2,
+      "timeout_seconds": 120,
+      "max_new_tokens": 4096,
+      "max_tool_calls_per_turn": null,
+      "max_request_bytes": 4194304,
+      "billing_context_tokens": 1048576,
+      "pricing": {
+        "currency": "USD",
+        "input_per_million": 1.32,
+        "cached_input_per_million": 0.044,
+        "output_per_million": 3.96,
+        "source": "https://opencode.ai/docs/console/go/#usage-limits",
+        "checked_at": "2026-11-14",
+        "basis": "Published DeepSeek V4 Pro peak-rate upper estimate. Existing Go account; not actual billing; no subscription or extra-usage changes."
+      },
+      "http_user_agent": "RecoverAgent-RL/0.2",
+      "response_identity_protocol": "model_response_id_v1",
+      "response_model_aliases": [],
+      "http_error_diagnostics": "keyword_hash_v1",
+      "http_transport": "requests_session_v1",
+      "answer_format_contract": "public_numeric_answer_format_v1"
+    }
+  },
+  "teacher_order": [
+    "deepseek_pro"
+  ],
+  "context": {
+    "max_sequence_tokens": 65536,
+    "basis": "Pinned Qwen3.5-9B native non-thinking template, visible public history plus tools plus reserved reply; same exact tokenizer for SFT export. Provider token accounting is recorded separately.",
+    "truncate": false
+  },
+  "environment_contract": "appworld_naive_datetime_20261113",
+  "episode_cost_cap_usd": 20.0,
+  "concurrency": 2,
+  "max_attempts_per_model_per_task": 1,
+  "start_kind": "original_initial",
+  "fallback_rule": "Only remaining noneligible tasks after the frozen 45-task Flash/Luna campaign; one fresh attempt per explicitly configured upgraded model.",
+  "training_enabled": true,
+  "prior_followup": {
+    "config": "configs/teacher_followup_format_20261114.json",
+    "config_sha256": "aa94e9646eac3e40e431f63a1dd21045ce13fd771edab76eeb4f364cd8aef24d",
+    "source_lock": "configs/teacher_followup_format_20261114_lock.json",
+    "source_lock_sha256": "f701ba9afc2af5d56aac7c2dbb4d1238bf9cfcd137e4c8f1596735d255801d68",
+    "revision": "v2_teacher_followup_format_20261114"
+  },
+  "requested_gpt_upgrade": {
+    "status": "deferred_model_unavailable",
+    "available_gpt_ids": [
+      "gpt-5.6-luna",
+      "gpt-6-luna"
+    ],
+    "reason": "Same endpoint /models lists only Luna variants; cannot label one a higher-tier GPT.",
+    "requested_model": "gpt-5.6-sol",
+    "probe_http_status": 400,
+    "probe_error": "Model is unavailable.",
+    "probe_body_sha256": "f195ebdcacf468e3d1aee939d20ee04347824156cde96789d6308029cad4bb22",
+    "rule": "User said DeepSeek first; GPT 5.6 Sol later. Continue with verified Pro and qualified data; do not substitute Luna as a higher-tier model. No GPT task attempt or GPT success claimed."
+  },
+  "training": {
+    "models": {
+      "primary": {
+        "model": "Qwen/Qwen3.5-9B",
+        "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+        "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+        "thinking": false,
+        "tool_format": "qwen_xml"
+      },
+      "fallback": {
+        "model": "Qwen/Qwen3-8B",
+        "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+        "chat_template_sha256": "a55ee1b1660128b7098723e0abcd92caa0788061051c62d51cbe87d9cf1974d8",
+        "thinking": false,
+        "tool_format": "qwen_json"
+      }
+    },
+    "selected_model": "primary",
+    "s0": {
+      "checkpoint_receipt_sha256": "828251a14a515d2e8703d54c529abbdb1c5d1b05b4ae17d9566dc7aa92d1064b",
+      "adapter_sha256": "5da6444aa979e2ce0957b3bba82bd239ba0f59fad40024a7ea0a35b7f4534966",
+      "optimizer_steps": 658
+    },
+    "recovery_sft": {
+      "epochs": 1,
+      "learning_rate": 2e-05,
+      "gradient_accumulation_steps": 8,
+      "recovery_supervised_token_fraction": 0.5
+    },
+    "base_sft": {
+      "epochs": 1,
+      "learning_rate": 5e-05,
+      "gradient_accumulation_steps": 8
+    },
+    "lora": {
+      "r": 16,
+      "lora_alpha": 32,
+      "lora_dropout": 0.0,
+      "bias": "none",
+      "task_type": "CAUSAL_LM",
+      "target_modules": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj"
+      ]
+    },
+    "activation_offload": "cpu",
+    "student_limits": {
+      "max_input_tokens": 65536,
+      "max_new_tokens": 4096,
+      "max_requests": 80,
+      "max_generated_tokens": 16384,
+      "wall_seconds": 1200,
+      "seed": 42,
+      "temperature": 0.8,
+      "top_p": 1.0
+    },
+    "source_lock": "configs/teacher_escalation_20261114_lock.json",
+    "format": "v2_teacher_escalation_20261114",
+    "normal_replay_tasks": 24,
+    "normal_replay_selection": "one complete original successful trajectory per train scenario, deterministic v2 rank; no dev results",
+    "normal_mix_selection": "all_new_full_demos_and_replay",
+    "output_name": "S1_teacher_retrained"
+  },
+  "training_source_files": {
+    "data/recovery_examples.jsonl": "2da5923c93e0a6bc92cfdf870649407199c93e3e8ae405447e54bf46c855ac8f",
+    "data/normal/preparation.json": "2fb97cb5784f357cd1e9e59402463f844ec3c532b86d9701519b652225190f88",
+    "data/normal/examples.jsonl": "3503254041efc4c9dff4630eca57521ce0a81887019d6785a3a16f42e32291f4",
+    "data/normal/samples.jsonl": "215d17df3cf3ee61836b89c28c5e66f2635321ad28ad101a77ca287e96356166"
+  }
+}

@@ -169,7 +169,7 @@ def prepare_recovery(directory, tokenizer, *, max_length=None):
     return result
 
 
-def mix_recovery(recovery, normal, *, recovery_fraction=0.5):
+def mix_recovery(recovery, normal, *, recovery_fraction=0.5, select_normal=True):
     """One pass over suffixes; configurable token-weighted replay, no duplicates."""
     if not 0 < recovery_fraction < 1:
         raise ValueError("Recovery fraction must be between zero and one")
@@ -187,7 +187,7 @@ def mix_recovery(recovery, normal, *, recovery_fraction=0.5):
         context_for(row["task_id"], training=True)
         grouped.setdefault(row.get("trajectory_id", row["task_id"]), []).append(row)
     selected, count = [], 0
-    while grouped:
+    while grouped and select_normal:
         key = min(
             grouped,
             key=lambda k: (
@@ -200,7 +200,8 @@ def mix_recovery(recovery, normal, *, recovery_fraction=0.5):
             break
         selected.extend(grouped.pop(key))
         count += tokens
-    normal = selected
+    if select_normal:
+        normal = selected
     result = []
     total_examples = len(recovery) + len(normal)
     for kind, rows in [("recovery", recovery), ("normal", normal)]:

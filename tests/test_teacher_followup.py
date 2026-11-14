@@ -162,8 +162,9 @@ def test_responses_two_turns_preserve_schema_arguments_observations_and_raw_usag
         normalize_message(project_response(raw))
 
 
+@pytest.mark.parametrize("turn_count", [1, 2])
 def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
-    tmp_path, monkeypatch
+    tmp_path, monkeypatch, turn_count
 ):
     from recoveragent import (
         APPWORLD_REVISION,
@@ -196,6 +197,27 @@ def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
         def configure_schema_compatibility(self, revision, output):
             assert revision == "schema_nullable_compatibility_v2"
 
+        def initial_tools(self):
+            return super().initial_tools() + [
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "unit__read",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {},
+                            "additionalProperties": False,
+                        },
+                    },
+                }
+            ]
+
+        def execute(self, name, arguments, tools):
+            if name == "unit__read":
+                self.value += 1
+                return "public observation", tools
+            return super().execute(name, arguments, tools)
+
     monkeypatch.setattr(p3a, "AppWorldAdapter", World)
     monkeypatch.setattr(v2_model, "load_tokenizer", lambda _: ToolTokenizer())
     monkeypatch.setattr(evaluation, "environment_check", lambda: {"synthetic": True})
@@ -215,8 +237,17 @@ def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
 
     def transport(request):
         assert "messages" not in request and request["input"][1]["content"]
+        if invoked:
+            assert request["input"][2]["type"] == "function_call"
+            assert request["input"][2]["id"] == "fc_synthetic"
+            assert request["input"][2]["name"] == "unit__read"
         invoked.append(request)
-        return project_response(raw_response())
+        raw = raw_response()
+        if turn_count == 2 and len(invoked) == 1:
+            raw["output"][0].update(name="unit__read", arguments="{}")
+        else:
+            raw["output"][0]["call_id"] = "call_finish"
+        return project_response(raw)
 
     monkeypatch.setattr(
         p3a,
@@ -228,7 +259,7 @@ def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
         cfg, task, directory, {"DEEPSEEK_API_KEY": "synthetic"}
     )
     assert record["status"] == "valid", record
-    assert record["reward"] == 1 and len(invoked) == 1
+    assert record["reward"] == 1 and len(invoked) == turn_count
     from recoveragent.teacher_answer_format import NOTICE
 
     public = json.loads(record["messages"][1]["content"])
@@ -253,6 +284,8 @@ def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
 def test_new_source_lock_and_old_collection_lock_reject_changes():
     from recoveragent import teacher_collection
 
-    assert len(followup.verify_lock()) == 64
+    assert len(followup.verify_lock(followup.LOCAL_ESCALATION)) == 64
+    with pytest.raises(ValueError, match="source"):
+        followup.verify_lock()
     with pytest.raises(ValueError, match="source"):
         teacher_collection.verify_lock()

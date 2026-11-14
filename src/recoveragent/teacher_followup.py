@@ -22,29 +22,60 @@ from .v2_tasks import ROOT, context_for
 REVISION = "v2_teacher_followup_format_20261114"
 CONFIG = ROOT / "configs/teacher_followup_format_20261114.json"
 LOCK = ROOT / "configs/teacher_followup_format_20261114_lock.json"
+ESCALATION = "v2_teacher_escalation_20261114"
+LOCAL_ESCALATION = "v2_teacher_escalation_local_20261114"
+RUNTIMES = {REVISION, ESCALATION, LOCAL_ESCALATION}
 
 
-def configuration():
-    return read_json(CONFIG)
+def paths(revision=REVISION):
+    if revision == REVISION:
+        return CONFIG, LOCK
+    if revision == ESCALATION:
+        return (
+            ROOT / "configs/teacher_escalation_20261114.json",
+            ROOT / "configs/teacher_escalation_20261114_lock.json",
+        )
+    if revision == LOCAL_ESCALATION:
+        return (
+            ROOT / "configs/teacher_escalation_local_20261114.json",
+            ROOT / "configs/teacher_escalation_local_20261114_lock.json",
+        )
+    raise ValueError("Unknown Teacher follow-up revision")
 
 
-def verify_lock():
-    lock = read_json(LOCK)
+def configuration(revision=REVISION):
+    return read_json(paths(revision)[0])
+
+
+def output_revision(output):
+    campaign = output / "campaign.json"
+    return read_json(campaign)["revision"] if campaign.exists() else REVISION
+
+
+def verify_lock(revision=REVISION):
+    config_path, lock_path = paths(revision)
+    cfg, lock = configuration(revision), read_json(lock_path)
     required = {
         str(p.relative_to(ROOT)) for p in (ROOT / "src/recoveragent").glob("*.py")
     }
     required |= {
-        str(CONFIG.relative_to(ROOT)),
+        str(config_path.relative_to(ROOT)),
         "scripts/collect_teacher_followup.py",
-        configuration()["template"],
-        configuration()["source_config"],
+        cfg["template"],
+        cfg["source_config"],
         "configs/v2_scenario_split_20261109.json",
         "configs/unified_task_split_full_pool_candidate.json",
         "requirements/appworld-evaluation-20261113.lock.txt",
-        configuration()["carry_from"]["config"],
-        configuration()["carry_from"]["source_lock"],
     }
-    if lock.get("revision") != REVISION or not required <= lock["files"].keys():
+    if "carry_from" in cfg:
+        required |= {cfg["carry_from"]["config"], cfg["carry_from"]["source_lock"]}
+    if revision in {ESCALATION, LOCAL_ESCALATION}:
+        required |= {
+            "scripts/run_teacher_escalation.py",
+            cfg["prior_followup"]["config"],
+            cfg["prior_followup"]["source_lock"],
+        }
+    if lock.get("revision") != revision or not required <= lock["files"].keys():
         raise ValueError("Incomplete follow-up source lock")
     for name, expected in lock["files"].items():
         if (
@@ -53,7 +84,7 @@ def verify_lock():
             or sha256(ROOT / name) != expected
         ):
             raise ValueError("Follow-up source changed: " + name)
-    return sha256(LOCK)
+    return sha256(lock_path)
 
 
 def select_tasks(summary):
@@ -75,18 +106,18 @@ def select_tasks(summary):
     return selected
 
 
-def worker_config(task, run_id, root, teacher_name):
-    cfg = configuration()
+def worker_config(task, run_id, root, teacher_name, *, revision=REVISION):
+    cfg = configuration(revision)
     if task not in cfg["task_ids"] or teacher_name not in cfg["teacher_order"]:
         raise ValueError("Task/model is outside frozen follow-up campaign")
     value = copy.deepcopy(read_json(ROOT / cfg["template"])["teacher_config"])
     value.pop("recovery_protocol")
     teacher = copy.deepcopy(cfg["teachers"][teacher_name])
     teacher["opencode_session_id"] = (
-        "ses_" + digest([REVISION, run_id, task, teacher_name])[:32]
+        "ses_" + digest([revision, run_id, task, teacher_name])[:32]
     )
     value.update(
-        v2_runtime=REVISION,
+        v2_runtime=revision,
         collection_run_id=run_id,
         followup_teacher=teacher_name,
         custom_research=context_for(task, training=True),
@@ -95,7 +126,7 @@ def worker_config(task, run_id, root, teacher_name):
         teacher=teacher,
         collection_context=cfg["context"],
         environment_contract=cfg["environment_contract"],
-        protocol_lock=str(LOCK.relative_to(ROOT)),
+        protocol_lock=str(paths(revision)[1].relative_to(ROOT)),
         remaining_requests=80,
         remaining_generated_tokens=16384,
         remaining_cost=cfg["episode_cost_cap_usd"],
@@ -111,12 +142,14 @@ def worker_config(task, run_id, root, teacher_name):
 
 
 def validate_worker_config(config):
-    verify_lock()
+    revision = config["v2_runtime"]
+    verify_lock() if revision == REVISION else verify_lock(revision)
     expected = worker_config(
         config["custom_research"]["task_id"],
         config["collection_run_id"],
         config["appworld_root"],
         config["followup_teacher"],
+        revision=revision,
     )
     if config != expected:
         raise ValueError("Follow-up worker differs from frozen configuration")
@@ -243,7 +276,13 @@ def attempt(output, task, teacher_name, deployment):
 
     directory = (output / "attempts" / f"{output.name}_{task}_{teacher_name}").resolve()
     result_path = directory / "result.json"
-    cfg = worker_config(task, output.name, deployment["appworld_root"], teacher_name)
+    cfg = worker_config(
+        task,
+        output.name,
+        deployment["appworld_root"],
+        teacher_name,
+        revision=output_revision(output),
+    )
     claim = directory.with_suffix(".claim.json")
     directory.parent.mkdir(parents=True, exist_ok=True)
     if not claim.exists():
@@ -309,7 +348,7 @@ def run_task(output, task, deployment):
     if path.exists():
         return read_json(path)
     results = []
-    for name in configuration()["teacher_order"]:
+    for name in configuration(output_revision(output))["teacher_order"]:
         if (
             time.time() + 1500 > deployment["deadline_epoch"]
             or (output / "STOP").exists()
@@ -338,11 +377,12 @@ def summary(output, status):
         if sha256(source["path"]) != source["sha256"]:
             raise ValueError("Carried Teacher result changed")
         results.append(read_json(source["path"]))
-    cfg = configuration()
+    campaign = read_json(output / "campaign.json")
+    cfg = configuration(campaign["revision"])
     value = {
         "status": status,
         "updated_epoch": time.time(),
-        "planned_tasks": len(cfg["task_ids"]),
+        "planned_tasks": len(campaign["task_ids"]),
         "finished_tasks": len(list((output / "results").glob("*.json"))),
         "attempts": len(results),
         "existing_eligible_recovery_suffixes": cfg[
@@ -385,22 +425,24 @@ def summary(output, status):
 
 
 def collect(output, limit_tasks=None):
-    lock_sha = verify_lock()
+    revision = output_revision(output)
+    lock_sha = verify_lock(revision)
     campaign, deployment = (
         read_json(output / "campaign.json"),
         read_json(output / "deployment.json"),
     )
-    if (
-        campaign["source_lock_sha256"] != lock_sha
-        or read_json(output / "config.json") != configuration()
-    ):
+    if campaign["source_lock_sha256"] != lock_sha or read_json(
+        output / "config.json"
+    ) != configuration(revision):
         raise ValueError("Campaign source/config changed")
     with (output / "collector.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         selected = (
             campaign["task_ids"][:limit_tasks] if limit_tasks else campaign["task_ids"]
         )
-        with ThreadPoolExecutor(max_workers=configuration()["concurrency"]) as pool:
+        with ThreadPoolExecutor(
+            max_workers=configuration(revision)["concurrency"]
+        ) as pool:
             futures = [
                 pool.submit(run_task, output, task, deployment) for task in selected
             ]
@@ -440,13 +482,13 @@ def export(output):
     write_json(
         directory / "manifest.json",
         {
-            "revision": REVISION,
+            "revision": output_revision(output),
             "kind": "full_teacher_demonstrations",
             "count": len(samples),
             "new_recovery_suffixes": 0,
             "sources": sources,
             "files": files_manifest(directory),
-            "source_lock_sha256": sha256(LOCK),
+            "source_lock_sha256": sha256(paths(output_revision(output))[1]),
         },
     )
 

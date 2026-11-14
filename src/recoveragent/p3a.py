@@ -55,9 +55,9 @@ def validate_config(config):
     from .v2_tasks import RUNTIME as V2_RUNTIME
     from .v2_runtime import S1_RUNTIME
     from .teacher_collection import REVISION as COLLECTION_RUNTIME
-    from .teacher_followup import REVISION as FOLLOWUP_RUNTIME
+    from .teacher_followup import RUNTIMES as FOLLOWUP_RUNTIMES
 
-    is_followup = config.get("v2_runtime") == FOLLOWUP_RUNTIME
+    is_followup = config.get("v2_runtime") in FOLLOWUP_RUNTIMES
     is_collection = config.get("v2_runtime") == COLLECTION_RUNTIME or is_followup
     is_v2 = config.get("v2_runtime") in {V2_RUNTIME, S1_RUNTIME} or is_collection
     if config.get("v2_runtime") and not is_v2:
@@ -694,7 +694,10 @@ def run_teacher_episode(
                 event["format_error"] = type(exc).__name__ + ": " + str(exc)
                 termination = "invalid_completion"
                 break
-            if reasoning_enabled(teacher):
+            if (
+                reasoning_enabled(teacher)
+                or teacher.get("api_protocol") == "openai_responses_v1"
+            ):
                 policy.remember_response(len(messages), response)
             messages.append(message)
             verdicts = guard.inspect(calls) if guard else [None] * len(calls)
