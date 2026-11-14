@@ -1,6 +1,6 @@
 # 检查点恢复失败后的从头示范补采
 
-状态：首题已完成DeepSeek和GPT两次真实执行及官方评分，均失败；正在继续余下44题。尚未完成45题补采。2026-11-14。
+状态：11月14日11:25（UTC+8）已完成7题、14次真实尝试，0新增合格示范、0服务异常；仍在继续冻结45题补采。原18条恢复后缀保留。
 
 用户要求：Teacher不能从检查点恢复时改从头执行；DeepSeek仍不行则改GPT，密钥和网址不变。原S1已训练完成，这次补采独立保存，不改写原63次恢复、18条合格后缀、S1权重或dev24结果。
 
@@ -42,11 +42,11 @@
 
 新配置/锁`teacher_followup_format_20261114`、新源码目录与run只读承接旧7次尝试，逐项核对config/source、trajectory及evaluation SHA；不重发同一模型/任务slot，不覆盖初版结果。原45题上限不变，已完成的3题不追加第三次尝试；继续余下42题的未执行模型slot，最多再83次。旧、新提示分别留痕，不能将补采成功率变化解释成纯模型切换效果。
 
-新增及相关测试66 passed；完整1058 passed/1 skipped；Ruff221文件通过。真实新run已启动，源码锁SHA `f701ba9afc2af5d56aac7c2dbb4d1238bf9cfcd137e4c8f1596735d255801d68`。原Student dev24继续原提示，未重评或修改旧分数。
+新增及相关测试66 passed；完整1058 passed/1 skipped；Ruff221文件通过。真实新run已启动，源码锁SHA `f701ba9afc2af5d56aac7c2dbb4d1238bf9cfcd137e4c8f1596735d255801d68`。原Student dev24使用原提示，最终6/24；未重评或修改旧分数。
 
 ## 私有位置与启动
 
-当前远端根：`/root/gpufree-data/recoveragent_teacher_followup_20261114_02/`、输出`runs/followup_003/`；本地运行资料：`runs/teacher_followup_20261114_02/`。初版目录`*_01`、run001/002及其源码/锁/归档保留。复用已验证的CPU AppWorld/tokenizer环境，不启动新的GPU模型或训练。原S1 dev24仍由原进程独立运行。
+当前远端根：`/root/gpufree-data/recoveragent_teacher_followup_20261114_02/`、输出`runs/followup_003/`；本地运行资料：`runs/teacher_followup_20261114_02/`。初版目录`*_01`、run001/002及其源码/锁/归档保留。复用已验证的CPU AppWorld/tokenizer环境，不启动新的GPU模型或训练。原S1 dev24已独立完成6/24，未使用这次新增提示或补采数据。
 
 在独立源码目录、原CPU环境中（`deployment.json`保存已授权机器的数据根、凭据路径及原23:47:24绝对截止时间）：
 
@@ -62,3 +62,5 @@ PYTHON=/root/gpufree-data/recoveragent_s1_20261113_01/worker_env/bin/python
 ```
 
 完成后导出独立`export/successes.jsonl`与manifest，报告DeepSeek/GPT各自尝试、官方成功、过滤/暂缓和用量。远端独立守护负责控制器异常退出后的接续和结束归档，本地只读观察器负责SSH重连、归档回传及逐文件SHA校验；不重复已登记的付费尝试。当前尚无补采完整统计，不声称模型效果提升。
+
+45题难度为Easy8、Medium16、Hard21，是此前恢复未成功的子集，不能当作随机Teacher能力测评。已核对前10次完成尝试的初态SHA，全部与对应Student原始初态相同；没有把旧失败状态带入从头尝试。新数据仍按官方验收和完整编码准入，不为提高计数改分、追加同题尝试或放宽过滤。

@@ -281,3 +281,9 @@ train100第12题的官方验收完整返回失败，但`float(predicted_answer)`
 独立public_numeric_answer_format_v1只在Teacher公开任务JSON中增加格式规则：单一金额/计数用JSON number；保留明确要求的标识符、文本、多值或其他格式。原instruction、execution_v6、Schema、Harness与官方评分不变，规则不读取task ID/隐藏答案。完整可见提示和revision留痕，规则本身及其他用户上下文不监督。
 
 新配置/锁teacher_followup_format_20261114承接原7个已付费模型/任务slot，校验来源config/source/trajectory/evaluation SHA，不重跑；继续固定45题中尚未执行的slot，最多90次新增尝试的总上限不变。旧提示尝试与新提示尝试分开标注，收集效果不视为纯GPT对DeepSeek对照。已训练S1及原dev24继续原提示。66项针对性、完整1058 passed/1 skipped、Ruff通过；新run已启动，结果待实跑。
+
+## D122 — 当前S1 dev24完成，实测未提升；完整归档断点回传（2026-11-14）
+
+固定dev24在相同原始状态、首轮输入/工具/采样条件下，S0为9/24，S1为6/24，0基础设施异常；3项Amazon退步、0新增成功。S1错误分别涉及支付卡处理、购物车/规格/数量及颜色选择。此次44步更新与重载真实成立，但效果下降；没有用新Teacher提示重评来改写成绩。正常数据仅3条长示范达到一半监督token，下一次混合首先关注任务/动作覆盖，不能把这一解释写成已证明的因果。
+
+S1累计1106模型请求、112367生成token、9786.41秒episode时间；GPU推理正常退出并空闲。约1.48GB最终归档在回传，因原SCP速度低而改用SSH字节偏移续传，保留下载前缀，结束后流式检查51,814文件SHA，不在C盘复制解压大文件。已验收的独立checkpoint备份保留；完整归档尚未标记本地通过。Teacher补采仍在独立CPU/API进程继续，不自动训练新的S1或启动S2。
