@@ -267,16 +267,29 @@ def prepare_training(output, deployment):
 
 
 def train(output, deployment):
+    return train_from_s0(
+        output,
+        deployment,
+        configuration()["training"],
+        revision=REVISION,
+        source_lock_sha256=followup.verify_lock(REVISION),
+        worker_script=ROOT / "scripts/run_teacher_escalation.py",
+    )
+
+
+def train_from_s0(
+    output, deployment, cfg, *, revision, source_lock_sha256, worker_script
+):
+    """Shared short/long/formal sequence, each independently starting at S0."""
     from .v2_s1_batch import checkpoint
 
-    cfg = configuration()["training"]
     parent = checkpoint(deployment["s0"], cfg, initial=True)
     examples = output / "training_data/examples.jsonl"
     manifest = read_json(examples.parent / "manifest.json")
     if (
         sha256(examples) != manifest["examples_sha256"]
-        or manifest["revision"] != REVISION
-        or manifest["source_lock_sha256"] != followup.verify_lock(REVISION)
+        or manifest["revision"] != revision
+        or manifest["source_lock_sha256"] != source_lock_sha256
         or manifest["expected_parent"] != cfg["s0"]
     ):
         raise ValueError("Frozen retraining examples changed")
@@ -304,7 +317,7 @@ def train(output, deployment):
                 subprocess.run(
                     [
                         deployment["gpu_python"],
-                        str(ROOT / "scripts/run_teacher_escalation.py"),
+                        str(worker_script),
                         "train-worker",
                         "--input",
                         str(request),

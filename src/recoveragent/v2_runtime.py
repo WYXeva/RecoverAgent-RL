@@ -11,10 +11,12 @@ LOCK = ROOT / "configs/v2_learning_64k_20261112_lock.json"
 EVALUATION_RUNTIME = "v2_base_dev24_envfix_20261113"
 S1_PREVIOUS_RUNTIME = "v2_s1_train100_services_20261114"
 S1_RUNTIME = "v2_s1_train100_evaluation_20261114"
+S1_RETRAIN_RUNTIME = "v2_s1_retrain_20261114"
 S1_SNAPSHOT_RUNTIMES = {
     "v2_s1_train100_resume_20261113",
     S1_PREVIOUS_RUNTIME,
     S1_RUNTIME,
+    S1_RETRAIN_RUNTIME,
 }
 
 
@@ -71,6 +73,13 @@ def verify_lock(runtime=RUNTIME):
             required |= {
                 f"configs/{S1_PREVIOUS_RUNTIME}.json",
                 f"configs/{S1_PREVIOUS_RUNTIME}_lock.json",
+            }
+        if runtime == S1_RETRAIN_RUNTIME:
+            required |= {
+                "scripts/retrain_v2_s1.py",
+                f"configs/{S1_RUNTIME}.json",
+                f"configs/{S1_RUNTIME}_lock.json",
+                "configs/teacher_escalation_local_20261114.json",
             }
     if lock.get("runtime_revision") != runtime or not required <= lock["files"].keys():
         raise ValueError("Incomplete v2 source lock")

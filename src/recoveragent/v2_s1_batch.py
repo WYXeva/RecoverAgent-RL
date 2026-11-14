@@ -336,7 +336,7 @@ def feedback(cfg, deployment, output, *, evaluation=False):
             "output": str(directory),
             "purpose": "evaluation" if evaluation else "feedback",
             "environment_contract": cfg["environment_contract"],
-            "execution_protocol": S1_RUNTIME,
+            "execution_protocol": cfg.get("execution_protocol", S1_RUNTIME),
         }
         tokenizer = load_tokenizer(identity)
         backend = (
