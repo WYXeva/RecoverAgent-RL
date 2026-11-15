@@ -103,7 +103,7 @@ def test_new_runtime_preserves_evaluation_and_old_locks_still_reject():
     from recoveragent.student import verify_student_runtime
     from recoveragent.v2_runtime import verify_lock, S1_RUNTIME
 
-    from recoveragent import v2_s1_short
+    from recoveragent import v2_s1_short_eval as v2_s1_short
 
     cfg = v2_s1_short.configuration()
     assert cfg["dev_task_ids"] == plan()["dev24"]

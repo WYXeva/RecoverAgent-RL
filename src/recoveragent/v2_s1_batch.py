@@ -300,8 +300,11 @@ def feedback(cfg, deployment, output, *, evaluation=False, evaluation_model="s1"
     destination = output / stage
     destination.mkdir(parents=True, exist_ok=True)
     deadline = time.monotonic() + max(0, deployment["job_deadline_epoch"] - time.time())
+    vllm_evaluation = (
+        evaluation and cfg["inference"].get("evaluation_backend") == "vllm"
+    )
     model = None
-    if evaluation:
+    if evaluation and not vllm_evaluation:
         from peft import PeftModel
         from .v2_model import load_base
 
@@ -345,13 +348,22 @@ def feedback(cfg, deployment, output, *, evaluation=False, evaluation_model="s1"
         if "answer_format_contract" in cfg:
             request["answer_format_contract"] = cfg["answer_format_contract"]
         tokenizer = load_tokenizer(identity)
-        backend = (
-            None
-            if evaluation
-            else Backend(
-                deployment["vllm_url"], deployment["vllm_receipt"], policy, "S0_base"
+        if vllm_evaluation:
+            binding = deployment["vllm_models"][evaluation_model]
+            backend = Backend(
+                deployment["vllm_url"], binding["receipt"], policy, binding["name"]
             )
-        )
+        else:
+            backend = (
+                None
+                if evaluation
+                else Backend(
+                    deployment["vllm_url"],
+                    deployment["vllm_receipt"],
+                    policy,
+                    "S0_base",
+                )
+            )
         result = episode(
             request,
             model,

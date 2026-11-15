@@ -17,7 +17,7 @@ from recoveragent.v2_training import training_schedule
 
 
 def test_frozen_320_plan_covers_all_pools_and_exact_token_objectives():
-    cfg = entry.configuration()
+    cfg = read_json("configs/v2_s1_short_20261115.json")
     frozen = read_json(cfg["training_plan"])
     assert sha256(cfg["training_plan"]) == cfg["training_plan_sha256"]
     assert cfg["data_pools"]["old_replay"]["tasks"] == 256
@@ -173,7 +173,7 @@ def test_teacher_and_generated_solver_receive_shared_notice(
 def test_new_teacher_and_student_protocol_same_and_historical_configuration_unchanged():
     from recoveragent.v2_teacher import configuration
 
-    cfg = entry.configuration()
+    cfg = read_json("configs/v2_s1_short_20261115.json")
     task = next(r["task_id"] for r in plan()["rows"] if r["role"] == "train")
     teacher = configuration(
         task,
@@ -189,13 +189,17 @@ def test_new_teacher_and_student_protocol_same_and_historical_configuration_unch
     )
 
 
-def test_both_checkpoints_dispatch_identical_evaluation_contract(tmp_path, monkeypatch):
+@pytest.mark.parametrize("backend", ["transformers_native_bf16", "vllm"])
+def test_both_checkpoints_dispatch_identical_evaluation_contract(
+    tmp_path, monkeypatch, backend
+):
     import sys
     import time
     from types import SimpleNamespace
     from recoveragent import v2_s1_batch as batch, v2_model, v2_inference
 
-    cfg = entry.configuration()
+    cfg = read_json("configs/v2_s1_short_20261115.json")
+    cfg["inference"]["evaluation_backend"] = backend
     cfg["dev_task_ids"] = cfg["dev_task_ids"][:2]
     model = SimpleNamespace(eval=lambda: None)
     monkeypatch.setitem(
@@ -205,16 +209,34 @@ def test_both_checkpoints_dispatch_identical_evaluation_contract(tmp_path, monke
             PeftModel=SimpleNamespace(from_pretrained=lambda *a, **kw: model)
         ),
     )
-    monkeypatch.setattr(v2_model, "load_base", lambda *_: model)
+
+    def load_base(*args):
+        assert backend != "vllm", "vLLM evaluation must not load a second GPU model"
+        return model
+
+    monkeypatch.setattr(v2_model, "load_base", load_base)
     monkeypatch.setattr(v2_model, "load_tokenizer", lambda *_: object())
     monkeypatch.setattr(
         batch, "checkpoint", lambda path, *a, **kw: {"adapter_sha256_after": path}
     )
     seen = []
+    bindings = []
+
+    def bind(url, proof, policy, name):
+        bindings.append((url, proof, policy, name))
+        return SimpleNamespace(policy=policy, name=name)
+
+    monkeypatch.setattr("recoveragent.v2_vllm.Backend", bind)
 
     def episode(request, *args, **kwargs):
         seen.append(copy.deepcopy(request))
-        assert kwargs["generate_fn"] is None
+        if backend == "vllm":
+            assert (
+                kwargs["generate_fn"].policy["checkpoint_id"]
+                == request["checkpoint_id"]
+            )
+        else:
+            assert kwargs["generate_fn"] is None
         return {"classification": "natural_failure", "task_id": request["task_id"]}
 
     monkeypatch.setattr(v2_inference, "episode", episode)
@@ -224,6 +246,11 @@ def test_both_checkpoints_dispatch_identical_evaluation_contract(tmp_path, monke
         "appworld_root": "same_world",
         "worker_python": "synthetic",
         "job_deadline_epoch": time.time() + 99999,
+        "vllm_url": "http://127.0.0.1:18000",
+        "vllm_models": {
+            "s0": {"name": "S0_base", "receipt": "s0_proof"},
+            "s1": {"name": "S1_short40", "receipt": "s1_proof"},
+        },
     }
     for key in ("s0", "s1"):
         batch.feedback(cfg, deploy, tmp_path, evaluation=True, evaluation_model=key)
@@ -234,6 +261,13 @@ def test_both_checkpoints_dispatch_identical_evaluation_contract(tmp_path, monke
             k: v for k, v in b.items() if k not in {"checkpoint_id", "output"}
         }
         assert a["answer_format_contract"] == PROTOCOL
+    if backend == "vllm":
+        assert [b[-1] for b in bindings] == [
+            "S0_base",
+            "S0_base",
+            "S1_short40",
+            "S1_short40",
+        ]
 
 
 def test_formal_entry_drives_40_updates_and_reload_of_step20(tmp_path, monkeypatch):
@@ -243,7 +277,7 @@ def test_formal_entry_drives_40_updates_and_reload_of_step20(tmp_path, monkeypat
     from recoveragent import v2_training as training
     from recoveragent.v2_data import write_rows
 
-    cfg = entry.configuration()
+    cfg = read_json("configs/v2_s1_short_20261115.json")
     observed = []
     optimizer = NS(state_dict=lambda: {"synthetic": True})
     model = NS(train=lambda: None)

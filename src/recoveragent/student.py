@@ -51,6 +51,7 @@ def verify_student_runtime(runtime):
         S1_RUNTIME,
         S1_RETRAIN_RUNTIME,
         S1_SHORT_RUNTIME,
+        S1_SHORT_VLLM_RUNTIME,
     )
 
     if runtime in {
@@ -59,6 +60,7 @@ def verify_student_runtime(runtime):
         S1_RUNTIME,
         S1_RETRAIN_RUNTIME,
         S1_SHORT_RUNTIME,
+        S1_SHORT_VLLM_RUNTIME,
     }:
         from .v2_runtime import verify_lock as verify_v2
 
@@ -210,6 +212,7 @@ class StudentSession:
                 S1_RUNTIME,
                 S1_RETRAIN_RUNTIME,
                 S1_SHORT_RUNTIME,
+                S1_SHORT_VLLM_RUNTIME,
             )
 
             if (
@@ -220,6 +223,7 @@ class StudentSession:
                     S1_RUNTIME,
                     S1_RETRAIN_RUNTIME,
                     S1_SHORT_RUNTIME,
+                    S1_SHORT_VLLM_RUNTIME,
                 }
                 or memory_config
                 or memory_state

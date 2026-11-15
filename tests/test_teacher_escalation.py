@@ -240,9 +240,9 @@ def test_training_loads_s0_for_both_smokes_and_formal_and_stops_on_failure(
 
 
 def test_upgraded_source_lock_and_historical_lock_separation():
-    from recoveragent.v2_runtime import S1_SHORT_RUNTIME, verify_lock
+    from recoveragent.v2_runtime import S1_SHORT_VLLM_RUNTIME, verify_lock
 
-    assert len(verify_lock(S1_SHORT_RUNTIME)["lock_sha256"]) == 64
+    assert len(verify_lock(S1_SHORT_VLLM_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError, match="source|Incomplete"):
         followup.verify_lock(followup.RETRY)
     with pytest.raises(ValueError, match="source|Incomplete"):

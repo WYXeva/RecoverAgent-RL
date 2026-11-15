@@ -347,10 +347,10 @@ def test_new_lock_and_immutable_historical_lock_rejection():
     from recoveragent.teacher_collection import verify_lock as previous_collection
     from recoveragent.teacher_followup import verify_lock as followup_lock
     from recoveragent.teacher_followup import RETRY
-    from recoveragent.v2_runtime import S1_RUNTIME, S1_SHORT_RUNTIME, verify_lock
+    from recoveragent.v2_runtime import S1_RUNTIME, S1_SHORT_VLLM_RUNTIME, verify_lock
     from recoveragent.b10_pilot import verify_lock as old
 
-    assert len(verify_lock(S1_SHORT_RUNTIME)["lock_sha256"]) == 64
+    assert len(verify_lock(S1_SHORT_VLLM_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError):
         followup_lock(RETRY)
     with pytest.raises(ValueError):

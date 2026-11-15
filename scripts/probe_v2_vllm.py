@@ -15,10 +15,16 @@ from recoveragent.v2_s1_batch import checkpoint, configuration
 from recoveragent.v2_vllm import request_payload, response_receipt
 
 
-def probe(deployment, output):
-    cfg = configuration()
+def probe(deployment, output, *, cfg=None, checkpoint_key="s0"):
+    cfg = configuration() if cfg is None else cfg
+    binding = deployment.get("vllm_models", {}).get(
+        checkpoint_key, {"name": "S0_base", "receipt": deployment.get("vllm_receipt")}
+    )
+    model_name = binding["name"]
     identity = cfg["models"][cfg["selected_model"]]
-    checkpoint_receipt = checkpoint(deployment["s0"], cfg, initial=True)
+    checkpoint_receipt = checkpoint(
+        deployment[checkpoint_key], cfg, initial=checkpoint_key == "s0"
+    )
     verify_weights(identity)
     tokenizer = load_tokenizer(identity)
     policy = {
@@ -35,7 +41,6 @@ def probe(deployment, output):
         "--logprobs-mode": "processed_logprobs",
         "--model": deployment["model_snapshot"],
         "--max-num-seqs": str(cfg["inference"]["max_num_seqs"]),
-        "--lora-modules": "S0_base=" + deployment["s0"],
         "--host": "127.0.0.1",
         "--port": "18000",
     }
@@ -46,6 +51,11 @@ def probe(deployment, output):
         raise ValueError(
             "Server command differs from frozen checkpoint/context configuration"
         )
+    if (
+        "--lora-modules" not in command
+        or model_name + "=" + deployment[checkpoint_key] not in command
+    ):
+        raise ValueError("Requested checkpoint is not bound to the LoRA server")
     version = subprocess.check_output(
         [
             deployment["vllm_python"],
@@ -60,13 +70,14 @@ def probe(deployment, output):
     http.trust_env = False
     models = http.get(deployment["vllm_url"] + "/v1/models", timeout=10).json()["data"]
     if not any(
-        m["id"] == "S0_base" and m.get("root") == deployment["s0"] for m in models
+        m["id"] == model_name and m.get("root") == deployment[checkpoint_key]
+        for m in models
     ):
-        raise ValueError("Accepted S0 adapter is not served")
+        raise ValueError("Accepted adapter is not served")
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
 
-    def run(label, messages, reserve, model="S0_base"):
+    def run(label, messages, reserve, model=model_name):
         text = tokenizer.apply_chat_template(
             messages,
             tools=[],
@@ -157,7 +168,7 @@ def probe(deployment, output):
         "probes": [short, repeated, base, *long],
         "server_command": command,
         "vllm_version": version,
-        "model_name": "S0_base",
+        "model_name": model_name,
         "max_model_len": 65536,
         "dtype": "bfloat16",
         "logprobs_mode": "processed_logprobs",
@@ -165,7 +176,7 @@ def probe(deployment, output):
         "checked_at_epoch": time.time(),
     }
     write_json(output / "summary.json", summary)
-    write_json(deployment["vllm_receipt"], summary)
+    write_json(binding["receipt"], summary)
     print(
         json.dumps(
             {

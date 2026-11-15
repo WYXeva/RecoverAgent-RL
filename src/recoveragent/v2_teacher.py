@@ -11,9 +11,9 @@ from .v2_tasks import ROOT, RUNTIME, context_for
 def configuration(
     task_id, identity, root, remaining_cost, *, recovery=True, runtime=RUNTIME
 ):
-    from .v2_runtime import S1_RUNTIME, S1_SHORT_RUNTIME
+    from .v2_runtime import S1_RUNTIME, S1_SHORT_RUNTIME, S1_SHORT_VLLM_RUNTIME
 
-    if runtime not in {RUNTIME, S1_RUNTIME, S1_SHORT_RUNTIME}:
+    if runtime not in {RUNTIME, S1_RUNTIME, S1_SHORT_RUNTIME, S1_SHORT_VLLM_RUNTIME}:
         raise ValueError("Unknown Teacher learning runtime")
     frozen = read_json(
         ROOT / f"configs/{runtime}.json" if runtime != RUNTIME else CONFIG

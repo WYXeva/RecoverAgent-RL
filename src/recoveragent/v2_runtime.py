@@ -13,12 +13,14 @@ S1_PREVIOUS_RUNTIME = "v2_s1_train100_services_20261114"
 S1_RUNTIME = "v2_s1_train100_evaluation_20261114"
 S1_RETRAIN_RUNTIME = "v2_s1_retrain_20261114"
 S1_SHORT_RUNTIME = "v2_s1_short_20261115"
+S1_SHORT_VLLM_RUNTIME = "v2_s1_short_vllm_20261115"
 S1_SNAPSHOT_RUNTIMES = {
     "v2_s1_train100_resume_20261113",
     S1_PREVIOUS_RUNTIME,
     S1_RUNTIME,
     S1_RETRAIN_RUNTIME,
     S1_SHORT_RUNTIME,
+    S1_SHORT_VLLM_RUNTIME,
 }
 
 
@@ -76,7 +78,7 @@ def verify_lock(runtime=RUNTIME):
                 f"configs/{S1_PREVIOUS_RUNTIME}.json",
                 f"configs/{S1_PREVIOUS_RUNTIME}_lock.json",
             }
-        if runtime in {S1_RETRAIN_RUNTIME, S1_SHORT_RUNTIME}:
+        if runtime in {S1_RETRAIN_RUNTIME, S1_SHORT_RUNTIME, S1_SHORT_VLLM_RUNTIME}:
             required |= {
                 "scripts/retrain_v2_s1.py",
                 f"configs/{S1_RUNTIME}.json",
@@ -85,6 +87,15 @@ def verify_lock(runtime=RUNTIME):
             }
         if runtime == S1_SHORT_RUNTIME:
             required.add("scripts/train_v2_s1_short.py")
+        if runtime == S1_SHORT_VLLM_RUNTIME:
+            required |= {
+                f"configs/{S1_SHORT_RUNTIME}.json",
+                f"configs/{S1_SHORT_RUNTIME}_lock.json",
+                f"configs/{S1_SHORT_RUNTIME}_plan.json",
+                "scripts/evaluate_v2_s1_short_vllm.py",
+                "requirements/v2-vllm-20261115.txt",
+                "requirements/v2-vllm-20261115.lock.txt",
+            }
     if lock.get("runtime_revision") != runtime or not required <= lock["files"].keys():
         raise ValueError("Incomplete v2 source lock")
     if lock["session_contract"]["budget_caps"]["max_input_tokens"] != sequence_limit():

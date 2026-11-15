@@ -284,9 +284,9 @@ def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
 def test_new_source_lock_and_old_collection_lock_reject_changes():
     from recoveragent import teacher_collection
 
-    from recoveragent.v2_runtime import S1_SHORT_RUNTIME, verify_lock
+    from recoveragent.v2_runtime import S1_SHORT_VLLM_RUNTIME, verify_lock
 
-    assert len(verify_lock(S1_SHORT_RUNTIME)["lock_sha256"]) == 64
+    assert len(verify_lock(S1_SHORT_VLLM_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError, match="source|Incomplete"):
         followup.verify_lock(followup.RETRY)
     with pytest.raises(ValueError, match="source"):
