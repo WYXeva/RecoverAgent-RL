@@ -279,20 +279,24 @@ def summarize(results, total):
     }
 
 
-def feedback(cfg, deployment, output, *, evaluation=False):
+def feedback(cfg, deployment, output, *, evaluation=False, evaluation_model="s1"):
     from .v2_inference import episode
     from .v2_model import load_tokenizer
     from .v2_vllm import Backend
 
     identity = cfg["models"][cfg["selected_model"]]
-    model_path = deployment["s1"] if evaluation else deployment["s0"]
-    saved = checkpoint(model_path, cfg, initial=not evaluation)
+    if evaluation_model not in {"s0", "s1"}:
+        raise ValueError("Unknown evaluation checkpoint")
+    model_path = deployment[evaluation_model] if evaluation else deployment["s0"]
+    saved = checkpoint(
+        model_path, cfg, initial=not evaluation or evaluation_model == "s0"
+    )
     policy = {
         **identity,
         "checkpoint_id": digest({"adapter_sha256": saved["adapter_sha256_after"]}),
     }
     tasks = cfg["dev_task_ids"] if evaluation else cfg["feedback_task_ids"]
-    stage = "evaluation_S1" if evaluation else "feedback"
+    stage = "evaluation_" + evaluation_model.upper() if evaluation else "feedback"
     destination = output / stage
     destination.mkdir(parents=True, exist_ok=True)
     deadline = time.monotonic() + max(0, deployment["job_deadline_epoch"] - time.time())
@@ -338,6 +342,8 @@ def feedback(cfg, deployment, output, *, evaluation=False):
             "environment_contract": cfg["environment_contract"],
             "execution_protocol": cfg.get("execution_protocol", S1_RUNTIME),
         }
+        if "answer_format_contract" in cfg:
+            request["answer_format_contract"] = cfg["answer_format_contract"]
         tokenizer = load_tokenizer(identity)
         backend = (
             None

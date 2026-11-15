@@ -159,6 +159,27 @@ def finalize_reload(
     return receipt
 
 
+def training_schedule(stage, profile):
+    """The same schedule feeds TrainingArguments and the optimizer receipt check."""
+    if profile not in {"short", "long", "formal"}:
+        raise ValueError("Unknown training profile")
+    schedule = {
+        "num_train_epochs": stage.get("epochs", 1),
+        "max_steps": stage.get("max_steps", -1),
+        "per_device_train_batch_size": stage.get("per_device_train_batch_size", 1),
+        "gradient_accumulation_steps": stage["gradient_accumulation_steps"],
+    }
+    if schedule["max_steps"] != -1 and schedule["max_steps"] <= 0:
+        raise ValueError("Invalid optimizer step limit")
+    if profile != "formal":
+        schedule.update(
+            max_steps=2 if profile == "short" else 1,
+            per_device_train_batch_size=1,
+            gradient_accumulation_steps=1,
+        )
+    return schedule
+
+
 def train_sft(
     config, identity, examples, output, *, parent=None, profile="formal", deadline=None
 ):
@@ -173,17 +194,16 @@ def train_sft(
     rows = read_rows(examples)
     validate_training_rows(rows, sequence_limit(config))
     stage = config["recovery_sft" if parent else "base_sft"]
-    steps = -1
-    accumulation = stage["gradient_accumulation_steps"]
+    schedule = training_schedule(stage, profile)
+    steps = schedule["max_steps"]
+    accumulation = schedule["gradient_accumulation_steps"]
     if profile == "short":
         rows = sorted(
             (r for r in rows if len(r["input_ids"]) <= 8192),
             key=lambda r: len(r["input_ids"]),
         )[:4]
-        steps, accumulation = 2, 1
     elif profile == "long":
         rows = [max(rows, key=lambda r: len(r["input_ids"]))]
-        steps, accumulation = 1, 1
     elif profile != "formal":
         raise ValueError("Unknown training profile")
     if not rows:
@@ -199,9 +219,11 @@ def train_sft(
             "profile": profile,
             "parent": str(parent) if parent else None,
             "data_sha256": sha256(examples),
+            "effective_schedule": schedule,
         },
     )
-    set_seed(20261109)
+    seed = config.get("training_seed", 20261109)
+    set_seed(seed)
     started = time.monotonic()
     torch.cuda.reset_peak_memory_stats()
     model = load_trainable(identity, config["lora"], parent)
@@ -209,6 +231,8 @@ def train_sft(
     before = tensor_hash(get_peft_model_state_dict(model))
     gradients, losses = [], []
     step_started = [None]
+    intermediate = []
+    probe_ids = rows[0]["input_ids"][: min(128, rows[0]["target_start"])]
 
     class Health(TrainerCallback):
         def on_step_begin(self, args, state, control, **kwargs):
@@ -239,6 +263,35 @@ def train_sft(
                 losses.append({"step": state.global_step, **logs})
                 write_json(output / "loss_logs" / f"{len(losses):05d}.json", losses[-1])
 
+        def on_step_end(self, args, state, control, **kwargs):
+            if profile != "formal" or state.global_step not in stage.get(
+                "checkpoint_steps", []
+            ):
+                return
+            directory = output / f"checkpoint-{state.global_step}"
+            directory.mkdir(exist_ok=False)
+            metadata = {
+                "stage": "S1_recovery",
+                "profile": "intermediate",
+                "optimizer_steps": state.global_step,
+                "sequence_limit": sequence_limit(config),
+                "data_sha256": sha256(examples),
+                "effective_schedule": schedule,
+            }
+            after, probe = finish_checkpoint(
+                kwargs["model"],
+                tokenizer,
+                directory,
+                identity,
+                before,
+                parent=parent,
+                metadata=metadata,
+                probe_ids=probe_ids,
+            )
+            torch.save(kwargs["optimizer"].state_dict(), directory / "optimizer.pt")
+            intermediate.append((directory, after, probe, metadata))
+            kwargs["model"].train()
+
     class SuffixTrainer(Trainer):
         def compute_loss(
             self, model, inputs, return_outputs=False, num_items_in_batch=None
@@ -256,11 +309,8 @@ def train_sft(
 
     args = TrainingArguments(
         output_dir=str(output / "trainer"),
-        num_train_epochs=1,
-        max_steps=steps,
+        **schedule,
         learning_rate=stage["learning_rate"],
-        per_device_train_batch_size=1,
-        gradient_accumulation_steps=accumulation,
         bf16=True,
         fp16=False,
         gradient_checkpointing=True,
@@ -270,8 +320,8 @@ def train_sft(
         eval_strategy="no",
         report_to=[],
         remove_unused_columns=False,
-        seed=20261109,
-        data_seed=20261109,
+        seed=seed,
+        data_seed=seed,
         dataloader_num_workers=0,
         optim="adamw_torch",
         max_grad_norm=1.0,
@@ -286,7 +336,10 @@ def train_sft(
     expected_steps = (
         steps
         if steps > 0
-        else math.ceil(len(trainer.get_train_dataloader()) / accumulation)
+        else math.ceil(
+            math.ceil(len(trainer.get_train_dataloader()) / accumulation)
+            * schedule["num_train_epochs"]
+        )
     )
     try:
         trainer.train()
@@ -315,11 +368,11 @@ def train_sft(
     write_json(output / "loss_curve.json", losses)
     write_json(output / "gradients.json", gradients)
     torch.save(trainer.optimizer.state_dict(), output / "optimizer.pt")
-    probe_ids = rows[0]["input_ids"][: min(128, rows[0]["target_start"])]
     metadata = {
         "stage": "S1_recovery" if parent else "S0_base",
         "sequence_limit": sequence_limit(config),
         "profile": profile,
+        "effective_schedule": schedule,
         "optimizer_steps": trainer.state.global_step,
         "examples": len(rows),
         "data_sha256": sha256(examples),
@@ -341,6 +394,17 @@ def train_sft(
     del trainer, model
     gc.collect()
     torch.cuda.empty_cache()
+    for directory, saved_hash, expected_probe, saved_metadata in intermediate:
+        finalize_reload(
+            directory,
+            identity,
+            before,
+            saved_hash,
+            expected_probe,
+            probe_ids,
+            parent,
+            saved_metadata,
+        )
     return finalize_reload(
         output, identity, before, after, probe, probe_ids, parent, metadata
     )

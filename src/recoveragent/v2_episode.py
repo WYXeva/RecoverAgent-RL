@@ -95,6 +95,9 @@ def run(config, generate):
                 )
         else:
             public = adapter.public_task()
+        from .teacher_answer_format import public_task as format_public_task
+
+        public = format_public_task(public, config)
         initial_hash = adapter.fingerprint()
         session = StudentSession(
             adapter,

@@ -11,12 +11,12 @@ from .v2_tasks import ROOT, RUNTIME, context_for
 def configuration(
     task_id, identity, root, remaining_cost, *, recovery=True, runtime=RUNTIME
 ):
-    from .v2_runtime import S1_RUNTIME
+    from .v2_runtime import S1_RUNTIME, S1_SHORT_RUNTIME
 
-    if runtime not in {RUNTIME, S1_RUNTIME}:
+    if runtime not in {RUNTIME, S1_RUNTIME, S1_SHORT_RUNTIME}:
         raise ValueError("Unknown Teacher learning runtime")
     frozen = read_json(
-        ROOT / f"configs/{runtime}.json" if runtime == S1_RUNTIME else CONFIG
+        ROOT / f"configs/{runtime}.json" if runtime != RUNTIME else CONFIG
     )
     config = copy.deepcopy(
         read_json(ROOT / frozen["teacher_config_template"])["teacher_config"]

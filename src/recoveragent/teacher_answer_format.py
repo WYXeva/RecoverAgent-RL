@@ -1,4 +1,4 @@
-"""Versioned, public answer-format notice for fresh Teacher demonstrations only."""
+"""Shared, opt-in public answer format; historical inputs are never rewritten."""
 
 import copy
 import json
@@ -16,12 +16,14 @@ RULE = (
 NOTICE = {"revision": PROTOCOL, "rule": RULE}
 
 
-def public_task(task, teacher):
+def public_task(task, settings):
     value = copy.deepcopy(task)
-    protocol = teacher.get("answer_format_contract")
+    protocol = settings.get("answer_format_contract")
     if protocol is not None:
         if protocol != PROTOCOL:
-            raise ValueError("Unknown Teacher answer format contract")
+            raise ValueError("Unknown public answer format contract")
+        if value.get("answer_format_contract", NOTICE) != NOTICE:
+            raise ValueError("Conflicting public answer format contract")
         value["answer_format_contract"] = copy.deepcopy(NOTICE)
     return value
 

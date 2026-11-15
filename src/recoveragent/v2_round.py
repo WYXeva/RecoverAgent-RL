@@ -206,6 +206,9 @@ def run(
                 "appworld_root": deployment["appworld_root"],
                 "student_limits": {**cfg["student_limits"], "seed": seed},
             }
+            for key in ("answer_format_contract", "execution_protocol"):
+                if key in cfg:
+                    request[key] = cfg[key]
             if generated:
                 request["generated_task"] = generated
             result = episode(

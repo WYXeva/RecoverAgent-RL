@@ -333,6 +333,17 @@ def train_from_s0(
             or receipt["data_sha256"] != manifest["examples_sha256"]
         ):
             raise ValueError("Retraining did not load the accepted S0/profile")
+        if profile == "formal" and "max_steps" in cfg["recovery_sft"]:
+            if receipt["optimizer_steps"] != cfg["recovery_sft"]["max_steps"]:
+                raise ValueError("Formal optimizer count differs from configuration")
+            for step in cfg["recovery_sft"].get("checkpoint_steps", []):
+                saved = checkpoint(target / f"checkpoint-{step}", cfg)
+                if (
+                    saved["optimizer_steps"] != step
+                    or saved["adapter_sha256_before"] != parent["adapter_sha256_after"]
+                    or saved["data_sha256"] != manifest["examples_sha256"]
+                ):
+                    raise ValueError("Intermediate checkpoint lineage changed")
         accepted = output / (name + "_accepted.json")
         if accepted.exists():
             if read_json(accepted) != receipt:

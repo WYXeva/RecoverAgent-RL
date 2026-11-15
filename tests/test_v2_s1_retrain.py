@@ -103,11 +103,15 @@ def test_new_runtime_preserves_evaluation_and_old_locks_still_reject():
     from recoveragent.student import verify_student_runtime
     from recoveragent.v2_runtime import verify_lock, S1_RUNTIME
 
-    cfg = retrain.configuration()
+    from recoveragent import v2_s1_short
+
+    cfg = v2_s1_short.configuration()
     assert cfg["dev_task_ids"] == plan()["dev24"]
-    assert verify_student_runtime(retrain.RUNTIME)["revision"] == retrain.RUNTIME
-    assert len(cfg["data_groups"]["fresh_full"]["task_ids"]) == 21
-    for old in (S1_RUNTIME,):
+    assert (
+        verify_student_runtime(v2_s1_short.RUNTIME)["revision"] == v2_s1_short.RUNTIME
+    )
+    assert cfg["data_pools"]["fresh_full"]["tasks"] == 21
+    for old in (S1_RUNTIME, retrain.RUNTIME):
         with pytest.raises(ValueError, match="source|Incomplete"):
             verify_lock(old)
     with pytest.raises(ValueError, match="source|Incomplete"):

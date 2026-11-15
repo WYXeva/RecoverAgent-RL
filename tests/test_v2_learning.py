@@ -347,10 +347,10 @@ def test_new_lock_and_immutable_historical_lock_rejection():
     from recoveragent.teacher_collection import verify_lock as previous_collection
     from recoveragent.teacher_followup import verify_lock as followup_lock
     from recoveragent.teacher_followup import RETRY
-    from recoveragent.v2_runtime import S1_RUNTIME, S1_RETRAIN_RUNTIME, verify_lock
+    from recoveragent.v2_runtime import S1_RUNTIME, S1_SHORT_RUNTIME, verify_lock
     from recoveragent.b10_pilot import verify_lock as old
 
-    assert len(verify_lock(S1_RETRAIN_RUNTIME)["lock_sha256"]) == 64
+    assert len(verify_lock(S1_SHORT_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError):
         followup_lock(RETRY)
     with pytest.raises(ValueError):
@@ -365,12 +365,15 @@ def test_new_lock_and_immutable_historical_lock_rejection():
         old()
 
 
-@pytest.mark.parametrize("runtime", [RUNTIME, S1_RUNTIME])
+@pytest.mark.parametrize("runtime", [RUNTIME, S1_RUNTIME, "v2_s1_short_20261115"])
+@pytest.mark.parametrize("generated", [False, True])
 def test_real_entry_wiring_with_synthetic_generator(
-    worlds, tmp_path, monkeypatch, runtime
+    worlds, tmp_path, monkeypatch, runtime, generated
 ):
     from recoveragent import v2_episode as entry
     from freezegun import freeze_time
+    from recoveragent.teacher_answer_format import NOTICE, PROTOCOL
+    from recoveragent import v2_generator
     import time
 
     task = plan()["feedback20"][0]
@@ -412,8 +415,34 @@ def test_real_entry_wiring_with_synthetic_generator(
     clock = {"now": 100.0}
     monkeypatch.setattr(time, "clock_gettime", lambda _: clock["now"])
     remaining = []
+    generated_payload = None
+    if generated:
+        generated_payload = {
+            "task_id": "synthetic_generated",
+            "instruction": "Return count as a JSON number.",
+            "validation": {
+                "results": [
+                    {
+                        "initial_state_hash": worlds(
+                            task, context_for(task)
+                        ).fingerprint()
+                    }
+                ]
+            },
+        }
+        monkeypatch.setattr(v2_generator, "validate_task", lambda *args: None)
+        monkeypatch.setattr(v2_generator, "apply_instruction", lambda *args: None)
+        monkeypatch.setattr(
+            v2_generator,
+            "evaluate",
+            lambda *args: {"status": "valid", "success": False},
+        )
 
     def generate(request):
+        visible = json.loads(request["messages"][1]["content"])
+        assert visible["answer_format_contract"] == NOTICE
+        if generated:
+            assert visible["instruction"] == generated_payload["instruction"]
         remaining.append(request["remaining_wall_seconds"])
         clock["now"] += 17
         return receipt(next(responses))(request)
@@ -427,6 +456,8 @@ def test_real_entry_wiring_with_synthetic_generator(
                 "appworld_root": "synthetic",
                 "purpose": "feedback",
                 "execution_protocol": runtime,
+                "answer_format_contract": PROTOCOL,
+                **({"generated_task": generated_payload} if generated else {}),
                 "model": model,
                 "checkpoint_id": "S0_synthetic",
                 "student_limits": {
@@ -453,3 +484,5 @@ def test_real_entry_wiring_with_synthetic_generator(
         restored, source, tmp_path / "takeover", {}
     )
     assert messages[:-1] == context["messages"] and tools == context["tools"]
+    assert json.loads(messages[1]["content"])["answer_format_contract"] == NOTICE
+    assert sum(PROTOCOL in str(m) for m in messages) == 1
