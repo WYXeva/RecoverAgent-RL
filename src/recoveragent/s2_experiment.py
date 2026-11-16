@@ -721,9 +721,22 @@ def main():
         from .s2_backend import BackendRuntime
 
         if s2_execution().get("background_generation"):
-            raise ValueError(
-                "Synchronous regeneration cannot share the background Teacher budget; finish it in its original execution before handoff"
-            )
+            from .s2_background import enqueue_regeneration
+
+            deployment = read_json(args.deployment)
+            runtime = BackendRuntime(cfg, deployment, args.output / "gpu")
+            with (args.output / "controller.lock").open("a") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                experiment = Experiment(
+                    cfg,
+                    load_bundle(deployment["initial_bundle"]),
+                    deployment,
+                    args.output / "evolve",
+                    "evolve",
+                    runtime,
+                )
+                enqueue_regeneration(experiment, args.window, args.attempt)
+            return
         deployment = read_json(args.deployment)
         runtime = BackendRuntime(cfg, deployment, args.output / "gpu")
         with (args.output / "controller.lock").open("a") as lock:

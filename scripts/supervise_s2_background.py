@@ -157,6 +157,14 @@ def main():
                         known[p.pid] = p.create_time()
                 except psutil.NoSuchProcess:
                     pass
+        for path in (output / "evolve/generation").glob("*/handoff_process.json"):
+            for identity in read_json(path)["processes"]:
+                try:
+                    p = psutil.Process(identity["pid"])
+                    if p.create_time() == identity["create_time"]:
+                        known[p.pid] = p.create_time()
+                except psutil.NoSuchProcess:
+                    pass
         launch("teacher")
         launch("student")
         while time.time() < deployment["deadline_epoch"]:

@@ -242,7 +242,7 @@ def test_training_loads_s0_for_both_smokes_and_formal_and_stops_on_failure(
 def test_upgraded_source_lock_and_historical_lock_separation(monkeypatch):
     from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_background_20261117")
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_admission_20261117")
     assert len(verify_lock(S2_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError, match="source|Incomplete"):
         followup.verify_lock(followup.RETRY)

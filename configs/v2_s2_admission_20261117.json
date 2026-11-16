@@ -1,0 +1,13 @@
+{
+  "revision": "v2_s2_admission_20261117",
+  "protocol_runtime": "v2_s2_static_evolve_20261116",
+  "rollout_concurrency": 2,
+  "evaluation_concurrency": 1,
+  "teacher_priced_cost_limit": false,
+  "background_generation": true,
+  "skip_cuda_oom": true,
+  "curriculum_admission": true,
+  "feedback_alignment_gate": false,
+  "public_answer_contract": "public_object_v1",
+  "authorization": "User requested explicit multi-value answer support, simpler subtasks as new tasks, removal of the feedback-alignment gate, and one new generation batch. Existing models, results, budgets and absolute deadline retained."
+}

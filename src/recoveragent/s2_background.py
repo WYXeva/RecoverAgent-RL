@@ -13,6 +13,52 @@ from .s2_schedule import select_contexts
 from .s2_state import atomic, evidence
 
 
+def enqueue_regeneration(experiment, window, attempt):
+    """One explicitly requested new-policy generation; retain previous outcomes."""
+    import re
+    from .v2_runtime import s2_execution
+
+    if (
+        not s2_execution().get("curriculum_admission")
+        or experiment.state["pending"] is not None
+    ):
+        raise ValueError(
+            "New-policy regeneration requires its explicit execution and a group boundary"
+        )
+    if re.fullmatch(r"[a-z0-9_]{1,48}", attempt or "") is None:
+        raise ValueError("Invalid regeneration attempt")
+    original_path = experiment.state["feedback_windows"][str(window)]
+    original = read_json(original_path)
+    job = job_record(
+        experiment.output,
+        window,
+        original["selected"],
+        experiment.state["pool"],
+        retry_id=attempt,
+        original_batch=original_path,
+    )
+    job.update(
+        config_sha256=digest(experiment.cfg),
+        admission_execution=s2_execution()["revision"],
+        user_requested_regeneration=True,
+    )
+    path = Path(job["directory"]) / "background_job.json"
+    if path.exists():
+        saved = read_json(path)
+        if (
+            saved["selected"] != job["selected"]
+            or saved.get("admission_execution") != job["admission_execution"]
+        ):
+            raise ValueError("Regeneration identity changed")
+    else:
+        atomic(path, job)
+    experiment.state.setdefault("background_jobs", {})[f"retry_{window}_{attempt}"] = (
+        str(path)
+    )
+    experiment.save()
+    return path
+
+
 def job_record(output, end, events, pool, *, retry_id=None, original_batch=None):
     """Freeze four-trajectory feedback before later Student groups can change it."""
     output = Path(output).resolve()
@@ -269,6 +315,13 @@ def worker(cfg, deployment, bundle, output):
                 if job["config_sha256"] != digest(cfg):
                     raise ValueError("Background Teacher config changed")
                 directory = Path(job["directory"])
+                handoff = directory / "handoff_process.json"
+                if handoff.exists() and any(
+                    external_active({"external_process": p})
+                    for p in read_json(handoff)["processes"]
+                ):
+                    waiting_external = True
+                    break
                 if (directory / "published/batch.json").exists() or (
                     directory / "cancelled.json"
                 ).exists():

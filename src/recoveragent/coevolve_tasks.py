@@ -21,6 +21,11 @@ VERSION = "coevolve_appworld_task_v2"
 
 def answer_comparison(instruction):
     """Public, narrow scalar contract; never infer IDs/text from the reference."""
+    from .coevolve_answers import comparison
+
+    structured = comparison(instruction)
+    if structured is not None:
+        return structured
     from .answer_guard import public_contract
 
     public = public_contract(instruction)
@@ -48,6 +53,10 @@ def answer_comparison(instruction):
 
 
 def answer_matches(actual, expected, comparison):
+    if comparison["kind"] == "public_object_v1":
+        from .coevolve_answers import matches
+
+        return matches(actual, expected, comparison["fields"])
     if comparison["kind"] == "exact_json":
         return canonical(actual) == canonical(expected)
     from .answer_guard import numeric_representation

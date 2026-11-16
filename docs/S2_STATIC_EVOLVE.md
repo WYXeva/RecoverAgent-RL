@@ -116,3 +116,25 @@ nohup "$S2_PY" -u scripts/supervise_s2_background.py \
 监督器同时管理 `run_v2_s2.py resume --mode evolve` 与 `run_v2_s2.py feedback-worker`；只有一个Teacher预算写入者。当前源拒绝在后台执行版下额外启动同步 `regenerate`，避免双重消费；已有原版本重跑通过只读产物移交接续，不中断付费请求。
 
 用户允许跳过OOM：推理异常保留unknown和实际请求预留，在组边界重启后端；训练明确CUDA OOM保存跳过回执，丢弃该工作进程未验收更新，沿用之前的有效actor/optimizer，继续后续组。其他非有限梯度、来源/哈希或重载错误不冒充OOM。监督器每10秒写状态，对可恢复进程错误至多连续自动接续3次；有Student进展后重置连续失败计数。原始日志、恢复次数和停机原因见 `supervision/`，汇总由已有report函数生成。资源截止后保存进度并停作业，不自动租机、续费或重置时限。
+
+
+## 简化子任务与多值答案准入（2026-11-17）
+
+用户最新指定执行版 `v2_s2_admission_20261117`，保留后台队列和OOM处理。较少对象、条件、操作或仅练一个组件都可以成为新任务；取消 `feedback_fit` Teacher调用和拒绝门槛。完全相同的任务和纯措辞/格式变化仍不是新的实质任务。
+
+多值提案可给出 `answer_fields`（字段名→number/integer/string/boolean）。构造新任务时将其渲染为公开JSON答案说明；购物车基价、税额、总价这一明确三值请求也有公开文本规则支持。三方使用同一比较契约，不在执行后删单位、猜答案字段或改写模型输出；缺字段、多字段、错类型和错值仍失败。历史无此声明的任务保留原比较方式。原始提案与渲染后的提案分别保存，新任务标注 `coevolve_curriculum_quality_v2`。
+
+当前后台监督器使用同一启动命令，只把执行变量设置为：
+
+```bash
+export RECOVERAGENT_S2_EXECUTION=v2_s2_admission_20261117
+```
+
+按用户要求重新生成一次时，在Student完整组边界、控制器锁释放后，先将原窗口的冻结四轨迹选择入队，然后启动/接续监督器：
+
+```bash
+"$S2_PY" scripts/run_v2_s2.py regenerate --window 8 --attempt admission_v2_001 \
+  --deployment "$S2_DEPLOYMENT" --output "$S2_OUTPUT"
+```
+
+新输出为 `generation/window_008_retry_admission_v2_001/`，旧候选/成功/拒绝记录不修改；同尝试ID不重复入队。该次重做有独立用户授权，计入额外生成成本，不伪装成原首批首次结果。

@@ -42,6 +42,7 @@ class GroupEvolution(Evolution):
         self.budget_root = Path(budget_root)
         self.active_event = None
         self.priced_cost_limit = s2_execution().get("teacher_priced_cost_limit", True)
+        self.curriculum_admission = s2_execution().get("curriculum_admission", False)
 
     def remaining(self):
         if not self.priced_cost_limit:
@@ -286,6 +287,14 @@ class GroupEvolution(Evolution):
             "For forgetting cite only supplied successes BEFORE this group; within-group success is not forgetting. "
             "Preserve the six output fields. Outcome flags are task-level signals, not hidden scoring details."
         )
+        if self.curriculum_admission:
+            prompt = CONTEXT_PROMPT + (
+                " Analyze all four attempts. Compare successes and failures, and separate observed evidence "
+                "from hypotheses about missing skills. For all_failed, consider simpler component tasks; "
+                "retrieval itself may still be weak even if later steps also fail. Do not require a new task "
+                "to retain every operation of the parent. For forgetting cite only success BEFORE this group. "
+                "Preserve the six output fields and all four trajectory references."
+            )
         try:
             result = self.text(event["task_id"], directory, prompt, content)
         except ContextTooLong:
@@ -316,6 +325,8 @@ class GroupEvolution(Evolution):
 
     def quality(self, task, directory):
         result = super().quality(task, directory)
+        if self.curriculum_admission:
+            return result
         judgment = self.text(
             task["source_task_id"],
             Path(directory) / "feedback_fit",
