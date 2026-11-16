@@ -29,3 +29,18 @@ Teacher全队列前驱检查保证一个预算写入者。监督器可保留并�
 私有输出仍为 `/root/gpufree-data/recoveragent_s2_20261116_01/runs/static_evolve_003/`；受控移交回执 `continuations/review_v1_001/switch_result.json`。最新state及来源证据回传本地 `runs/v2_s2_20261116_01/retrieval/review_20261117/` 并核验各文件SHA。新代码不覆盖旧产物/源码锁。
 
 完整S2仍在进行，未获得新的轮末dev或最终test结果，不把部署完成称为五轮完成。
+
+
+## 02:40接续修正与真实复核
+
+原GPU更新在02:31附近成功保存，但首次监督器在进程退出过渡时触发“Adopted process is not the expected training worker”，暂未提交到学习state。保留这一错误与约9分钟调度停顿；不是训练失败，也没有重新更新相同组。
+
+独立执行修正版 `v2_s2_supervised_20261117`，源码 `010049dc6ba183b77029d7d31705c041d6a706c3`，198文件锁SHA `e2b931adbfa8f0e2046a57495ef20daf68e90b8ec112778ec63e68298f58dbb7`，包SHA `fa18e972514852d96dfe932101ee5c3db132b5969f05419afee9bc63962d969a`。处理退出时的空argv/进程消失，并按实际身份继承原Teacher进程33376，避免中断正在执行的Solver。原review锁不重签。新增合成竞态/进程继承测试，相关35 passed、完整1189 passed、Ruff260文件通过。
+
+02:40监督器33898和Student33899已正常运行、disabled为空。真实第五次训练回执复用并提交：5253.54秒，gradient_tensors=256，L2=0.06885324，LoRA SHA `1a344757ce295a3358fb7c084bcf31974e82c98c5a0bbb0517fef4e9d6fe0fda`，optimizer SHA `e860db65d737ac56e352c03468694cdfc78c46f0017c12e949acb59836412724`，reload_passed=true。optimizer文件另经SHA核验。Student正进入第21组，旧20组结果不变。
+
+新版生成批已完成：4context、8探索、8候选，自动通过4、独立公开证据纠正2、重复拒绝2，合格6。新增合格包括习惯汇总笔记、指定收件人转发与附件读回、跨应用徒步邀请、购物车三金额JSON回答；前两条误判纠正为连续习惯区间和分页金额统计。原评审与成功验收回执保留。购物车多值题已真实通过共享公开答案契约。
+
+自动逐批复核已经真实运行：11个候选记录中，5个原接纳身份/验收核对、2个已有人工纠正免重审、3个确认纯重复而维持拒绝、1个旧贴合拒绝按新政策接纳。新接纳 `coevolve_db16dbaac5dc7821d415e70f` 要求统计指定日期内另一睡眠习惯的yes总天数，和最长连续区间/创建笔记目标不同；独立Solver与positive/noop/omit_completion/wrong_answer分别为true/false/false/false。不是把“偏离反馈”改成教师错误，也不重复计为新增候选。
+
+任务池18→21，目前为初始9＋运行中新增12。已产生真实复核结果和后续采样，尚无新的轮末dev结论。接续回执 `continuations/review_v1_001/supervised_handoff.json` 与原错误事件均保留，旧Teacher仍用其原来源快照，新Student和监督器用修正版；两份源码及Teacher规则相同部分均可核验。后续队列/复核/报告自动继续，原绝对截止不变。
