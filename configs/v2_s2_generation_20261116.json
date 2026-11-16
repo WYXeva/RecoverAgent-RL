@@ -1,0 +1,8 @@
+{
+  "revision": "v2_s2_generation_20261116",
+  "protocol_runtime": "v2_s2_static_evolve_20261116",
+  "rollout_concurrency": 2,
+  "evaluation_concurrency": 1,
+  "teacher_priced_cost_limit": false,
+  "authorization": "2026-11-16 user requested task regeneration without billing blocking it; request/token limits and existing instance deadline remain unchanged."
+}

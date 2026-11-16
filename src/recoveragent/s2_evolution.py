@@ -13,6 +13,7 @@ from .coevolve_generation import (
 )
 from .io import digest, read_json, write_json
 from .s2_state import evidence
+from .v2_runtime import s2_execution
 
 
 def rejection_reason(exc):
@@ -40,6 +41,14 @@ class GroupEvolution(Evolution):
         super().__init__(*args, **kwargs)
         self.budget_root = Path(budget_root)
         self.active_event = None
+        self.priced_cost_limit = s2_execution().get("teacher_priced_cost_limit", True)
+
+    def remaining(self):
+        if not self.priced_cost_limit:
+            # A finite per-operation allowance; the user removed only the
+            # cumulative price gate, not request/token/deadline limits.
+            return self.cfg["s2"]["teacher_budget"]["priced_cost"]
+        return super().remaining()
 
     def usage(self):
         total = {
@@ -52,7 +61,7 @@ class GroupEvolution(Evolution):
         }
         for claim in self.budget_root.glob("**/s2_operation.json"):
             operation = read_json(claim)
-            directory = claim.parent
+            directory = Path(operation.get("output", claim.parent))
             usage = None
             if (
                 operation["kind"] == "execute"
@@ -84,7 +93,7 @@ class GroupEvolution(Evolution):
                 )
         return total
 
-    def reserve(self, directory, kind):
+    def reserve(self, directory, kind, *, output=None):
         limits = self.cfg["s2"]["teacher_budget"]
         usage = self.usage()
         requests = 80 if kind == "execute" else 1
@@ -106,15 +115,43 @@ class GroupEvolution(Evolution):
             )
             / 1e6,
         }
-        if any(usage[k] + reserve[k] > limits[k] for k in limits):
+        if any(
+            usage[k] + reserve[k] > limits[k]
+            for k in limits
+            if k != "priced_cost" or self.priced_cost_limit
+        ):
             raise RuntimeError("S2 separate Teacher budget exhausted")
         write_json(
-            Path(directory) / "s2_operation.json", {"kind": kind, "reserve": reserve}
+            Path(directory) / "s2_operation.json",
+            {
+                "kind": kind,
+                "reserve": reserve,
+                **({"output": str(output)} if output is not None else {}),
+            },
         )
         self.summary[self.cost_key] = usage["priced_cost"]
 
     def execute(self, source, directory, exploration):
-        self.reserve(directory, "execute")
+        from .p3a import validate_config
+        from .v2_teacher import configuration
+        from .v2_tasks import RUNTIME
+
+        validate_config(
+            configuration(
+                source,
+                self.identity,
+                self.deployment["appworld_root"],
+                self.remaining(),
+                recovery=False,
+                runtime=self.cfg.get("execution_protocol", RUNTIME),
+            )
+        )
+        directory = Path(directory)
+        # run_teacher_episode owns its create-once output directory. The
+        # reservation must not create it before that real entry is called.
+        self.reserve(
+            directory.with_name(directory.name + ".budget"), "execute", output=directory
+        )
         return super().execute(source, directory, exploration)
 
     def raw_text(self, source, directory, system, content):
@@ -183,8 +220,15 @@ class GroupEvolution(Evolution):
             return {"tasks": tasks}
 
     def summarize_history(self, source, directory, item, messages, offset=0):
-        content = {"trajectory": item, "message_start": offset, "messages": messages}
-        prompt = "Summarize all supplied public interaction evidence for later group comparison. Retain observed failures, constraints, actions/results and exact message indices. Return JSON {summary: string, evidence_refs: [{message_index: integer}]}. Do not infer hidden answers or scores."
+        content = {
+            "trajectory": item,
+            "message_start": offset,
+            "messages": [
+                {"message_index": offset + i, "message": message}
+                for i, message in enumerate(messages)
+            ],
+        }
+        prompt = "Summarize all supplied public interaction evidence for later group comparison. Retain observed failures, constraints, actions/results and exact message indices. Return JSON {summary: string, evidence_refs: [{message_index: integer}]}. Copy message_index exactly from the supplied indexed entries; these are GLOBAL zero-based indices, never number this fragment locally. Do not infer hidden answers or scores."
         try:
             summary = self.text(source, directory, prompt, content)
             refs = summary.get("evidence_refs")
@@ -193,7 +237,8 @@ class GroupEvolution(Evolution):
                 or not isinstance(refs, list)
                 or not refs
                 or any(
-                    type(r.get("message_index")) is not int
+                    not isinstance(r, dict)
+                    or type(r.get("message_index")) is not int
                     or not offset <= r["message_index"] < offset + len(messages)
                     for r in refs
                 )

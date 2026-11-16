@@ -14,7 +14,7 @@
 
 每分支训练预算为64,000模型请求、13,107,200生成token。评价单独规划597个slot：S0 dev24一次、两分支各5次dev24、S0/两分支最佳轮各test111一次，最多9,781,248生成token。其中S0 dev24的24项本次复用历史记录，新增评价计划为573项；旧基线cost字段为历史用量，不再计作本次新增消耗，原001重复开销单列。每slot仍为80请求、16,384生成token、单回复4096、1200秒，失败不重试挑结果；中断可能使实际完整轨迹少于规划slot，报告另列。
 
-Teacher生成/验证另设有限总预算：40,000请求、16,000,000生成token、172,800秒调用累计时间、USD100按已有价格配置的技术估价上限，任一用尽即停止新增Teacher调用，仍可继续Student。未知用量保留预留，真实返回用量再核销；估价不是平台实际账单。实例绝对截止同时约束所有阶段，这些调用预算不延长GPU授权。
+Teacher生成/验证保留40,000请求、16,000,000生成token、172,800秒调用累计时间等上限。2026-11-16用户要求“不必管账单，重新生产任务”，新执行版 `v2_s2_generation_20261116` 停用累计USD100技术估价拦截，但继续记录用量、未知预留和价格估算，不修改原实验配置。每次调用的有限授权、请求/token/时间上限及实例绝对截止不变；旧执行版仍保留原价格上限。估价不是实际账单。
 
 ## 准备私有数据与部署
 
@@ -46,7 +46,7 @@ export PYTHONPATH="$PWD/src:$PWD"
 export HF_HOME=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
-export RECOVERAGENT_S2_EXECUTION=v2_s2_parallel_20261116
+export RECOVERAGENT_S2_EXECUTION=v2_s2_generation_20261116
 S2_PY=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python
 S2_RUN=/root/gpufree-data/recoveragent_s2_20261116_01/runs/static_evolve_002
 S2_DEPLOY="$PWD/runs/s2_private/deployment.json"
@@ -68,6 +68,19 @@ S2_DEPLOY="$PWD/runs/s2_private/deployment.json"
 ```
 
 `resume`恢复当前轮、原队列、池、近期反馈、RNG、窗口、actor/optimizer；完整receipt复用，已派发且无完整结果的slot保留unknown，不重发。未提交更新从保存parent重做，不重复提交已完成更新。Teacher中断context保留已接纳题与未知成本，不重复付费探索。`evaluate`只接续最终test，要求两个分支均已完成五轮dev，不绕过主流程选模型；已经执行过的评价不重试。
+
+用户明确要求重做零候选失败窗口时，先在保存边界停止旧调度器，再使用独立的新尝试ID：
+
+```bash
+"$S2_PY" scripts/run_v2_s2.py regenerate --window 8 --attempt user_001 \
+  --deployment "$S2_DEPLOY" --output "$S2_RUN"
+"$S2_PY" scripts/run_v2_s2.py resume --mode evolve \
+  --deployment "$S2_DEPLOY" --output "$S2_RUN"
+```
+
+重做复用原窗口选出的四份组级反馈，不使用后续轨迹；新输出位于 `generation/window_008_retry_user_001/`。原 `window_008`、评分、actor/optimizer和队列保留；新合格题立即进入后续槽。原窗口已有候选时拒绝重复出题；同一尝试ID可恢复已保存结果，不重复发请求。报告分别统计常规批次与显式重做批次。`regenerate`与训练调度共用控制器锁，不允许两个进程并发修改任务池。
+
+新执行版修复真实Teacher入口未接受S2 runtime、预算文件抢先创建Teacher输出目录、摘要分片未逐条给出全局编号三个阻塞。预留文件改为相邻 `.budget/`，仍从真实轨迹核销；摘要校验继续严格拒绝无效引用。186文件新锁覆盖全部修改依赖，历史锁未重签。该软件修复不等同于真实候选或验收成功，实际结果另记。
 
 当前按用户21:13的指示优先 `--mode evolve`，不是重新运行Static。远端监督器为 `controller_evolve.py`，输出仍为 `static_evolve_002`；Static停在20组/6次更新，Evolve从共同S0独立开始。后续恢复Static用同一output的 `resume --mode static`，不要另建空白目录重跑基线。原绝对截止11月17日13:31:44不变，分支切换不重新获得24小时。两分支未全部完成五轮时不启动最终test。
 

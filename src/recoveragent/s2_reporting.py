@@ -70,7 +70,8 @@ def generation_counts(batches):
                 if not attempt.get("accepted"):
                     rejected[attempt.get("rejection_category", "unknown")] += 1
     return {
-        "batches": len(batches),
+        "batches": sum("retry_of_window" not in b for b in batches),
+        "regeneration_batches": sum("retry_of_window" in b for b in batches),
         **{
             key: sum(b[key] for b in batches)
             for key in (
@@ -216,6 +217,13 @@ def summarize_round(state, round_index, baseline):
                 for end, path in state["feedback_windows"].items()
                 if round_index * 40 < int(end) <= (round_index + 1) * 40
             ]
+            + [
+                read_json(path)
+                for path in state.get("feedback_regenerations", {}).values()
+                if round_index * 40
+                < read_json(path)["completed_groups"]
+                <= (round_index + 1) * 40
+            ]
         ),
         "dev": score(evaluated),
         "dev_cost": evaluation_cost(evaluated),
@@ -254,6 +262,7 @@ def report(output, state, baseline):
         "optimizer_steps": state["optimizer_steps"],
         "generation": generation_counts(
             [read_json(p) for p in state["feedback_windows"].values()]
+            + [read_json(p) for p in state.get("feedback_regenerations", {}).values()]
         ),
         "selected": best_round(state["round_evaluations"])
         if len(rounds) == 5

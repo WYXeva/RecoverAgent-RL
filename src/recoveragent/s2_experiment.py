@@ -4,6 +4,7 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 import copy
 import fcntl
+import re
 import time
 from pathlib import Path
 
@@ -366,9 +367,20 @@ class Experiment:
         self.state["storage_through"] = end
         self.save()
 
-    def feedback(self):
-        end = len(self.state["groups"])
-        if (
+    def feedback(self, *, retry_window=None, retry_id=None):
+        end = len(self.state["groups"]) if retry_window is None else retry_window
+        retry = retry_window is not None
+        if retry and (
+            self.state["mode"] != "evolve"
+            or self.state["pending"] is not None
+            or not isinstance(retry_id, str)
+            or re.fullmatch(r"[a-z0-9_]{1,48}", retry_id) is None
+            or str(end) not in self.state["feedback_windows"]
+        ):
+            raise ValueError(
+                "Regeneration requires a completed evolve window and a new attempt ID"
+            )
+        if not retry and (
             not end
             or end % 8
             or end == 200
@@ -381,8 +393,30 @@ class Experiment:
         from .v2_round import isolated
 
         self.runtime.stop()
-        directory = self.output / "generation" / f"window_{end:03d}"
-        events = select_contexts(self.state["events"][-8:])
+        if retry:
+            original = read_json(self.state["feedback_windows"][str(end)])
+            if original["candidate_count"] or original["accepted"]:
+                raise ValueError(
+                    "Only a zero-candidate failed window may be regenerated"
+                )
+            directory = (
+                self.output / "generation" / f"window_{end:03d}_retry_{retry_id}"
+            )
+            events = original["selected"]
+            if directory.name in self.state.get("feedback_regenerations", {}):
+                return
+            prior = [
+                read_json(p)
+                for p in self.state.get("feedback_regenerations", {}).values()
+                if read_json(p)["completed_groups"] == end
+            ]
+            if any(p["candidate_count"] for p in prior):
+                raise ValueError(
+                    "This window already produced candidates in a regeneration"
+                )
+        else:
+            directory = self.output / "generation" / f"window_{end:03d}"
+            events = select_contexts(self.state["events"][-8:])
         evidence(
             directory / "selection.json",
             {"groups": list(range(end - 8, end)), "selected": events},
@@ -413,6 +447,8 @@ class Experiment:
             context_name = (
                 f"s2_{digest(str(self.output.resolve()))[:12]}_w{end:03d}_c{i}"
             )
+            if retry:
+                context_name += "_retry_" + retry_id
             result = engine.run_context(event, directory / context_name)
             results.append(result)
             known = {t["task_id"] for t in self.state["pool"]}
@@ -435,9 +471,22 @@ class Experiment:
             "explorations": sum(r["explorations"] for r in results),
             "accepted": sum(len(r["accepted"]) for r in results),
             "teacher_usage_cumulative": engine.usage(),
+            **(
+                {
+                    "retry_of_window": end,
+                    "original_batch": self.state["feedback_windows"][str(end)],
+                }
+                if retry
+                else {}
+            ),
         }
         evidence(directory / "batch.json", batch)
-        self.state["feedback_windows"][str(end)] = str(directory / "batch.json")
+        if retry:
+            self.state.setdefault("feedback_regenerations", {})[directory.name] = str(
+                directory / "batch.json"
+            )
+        else:
+            self.state["feedback_windows"][str(end)] = str(directory / "batch.json")
         self.state["teacher_usage"] = engine.usage()
         self.save()
 
@@ -592,24 +641,39 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "command",
-        choices=["prepare", "run", "resume", "evaluate", "report", "update-worker"],
+        choices=[
+            "prepare",
+            "run",
+            "resume",
+            "evaluate",
+            "report",
+            "update-worker",
+            "regenerate",
+        ],
     )
     parser.add_argument("--output", type=Path)
     parser.add_argument("--deployment", type=Path)
     parser.add_argument("--archive", type=Path)
     parser.add_argument("--mode", choices=["static", "evolve", "both"], default="both")
     parser.add_argument("--input", type=Path)
+    parser.add_argument("--window", type=int)
+    parser.add_argument("--attempt")
     args = parser.parse_args()
     if args.command == "update-worker" and args.input is None:
         parser.error("update-worker requires --input")
     if args.command != "update-worker" and args.output is None:
         parser.error("--output is required")
-    if args.command in {"run", "resume", "evaluate"} and args.deployment is None:
+    if (
+        args.command in {"run", "resume", "evaluate", "regenerate"}
+        and args.deployment is None
+    ):
         parser.error("--deployment is required")
     if args.command == "prepare" and args.archive is None:
         parser.error("prepare requires --archive")
     if args.command == "resume" and not (args.output / "experiment.json").exists():
         parser.error("resume requires an existing experiment output")
+    if args.command == "regenerate" and (args.window is None or args.attempt is None):
+        parser.error("regenerate requires --window and --attempt")
     if args.command == "update-worker":
         from .s2_update import update
 
@@ -624,6 +688,36 @@ def main():
         prepare(args.archive, args.output)
     elif args.command in {"run", "resume"}:
         run(cfg, read_json(args.deployment), args.output, args.mode)
+    elif args.command == "regenerate":
+        from .s2_backend import BackendRuntime
+
+        deployment = read_json(args.deployment)
+        runtime = BackendRuntime(cfg, deployment, args.output / "gpu")
+        with (args.output / "controller.lock").open("a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            runtime.available(1320)
+            evidence(
+                args.output / "executions" / (s2_execution()["revision"] + ".json"),
+                {
+                    "settings": s2_execution(),
+                    "source": verify_lock(S2_RUNTIME),
+                    "experiment_config_sha256": digest(cfg),
+                    "prior_source_lock_sha256": sha256(ROOT / cfg["source_lock"]),
+                    "deadline_epoch": deployment["deadline_epoch"],
+                },
+            )
+            experiment = Experiment(
+                cfg,
+                load_bundle(deployment["initial_bundle"]),
+                deployment,
+                args.output / "evolve",
+                "evolve",
+                runtime,
+            )
+            try:
+                experiment.feedback(retry_window=args.window, retry_id=args.attempt)
+            finally:
+                runtime.stop()
     elif args.command == "report":
         baseline = read_json(args.output / "baseline/results.json")
         for branch in ("static", "evolve"):
