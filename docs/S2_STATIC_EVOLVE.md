@@ -51,14 +51,14 @@ S2_PY=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/pyth
 S2_RUN=/root/gpufree-data/recoveragent_s2_20261116_01/runs/static_evolve_002
 S2_DEPLOY="$PWD/runs/s2_private/deployment.json"
 
-"$S2_PY" scripts/run_v2_s2.py run --mode both \
+"$S2_PY" scripts/run_v2_s2.py run --mode evolve \
   --deployment "$S2_DEPLOY" --output "$S2_RUN"
 ```
 
 `both`先读取S0 dev24基线缓存，随后static、evolve各自五轮，最后自动选最佳轮并完成三份test111。当前002已按5118份SHA证据导入整套旧基线，包含原1项未知，不再生成S0 dev24；`baseline_reuse.json`保留来源及跨物理GPU说明。原001误重跑的记录另存、不参与主比较。空白新output若无经核验缓存才会执行S0基线，勿误用新output重复评价。也可用相同output先 `--mode static`，之后 `--mode evolve`；复用已完成基线，两个分支不共享actor或optimizer。不在同一GPU并发两分支。
 
 ```bash
-"$S2_PY" scripts/run_v2_s2.py resume --mode both \
+"$S2_PY" scripts/run_v2_s2.py resume --mode evolve \
   --deployment "$S2_DEPLOY" --output "$S2_RUN"
 
 "$S2_PY" scripts/run_v2_s2.py report --output "$S2_RUN"
@@ -68,6 +68,8 @@ S2_DEPLOY="$PWD/runs/s2_private/deployment.json"
 ```
 
 `resume`恢复当前轮、原队列、池、近期反馈、RNG、窗口、actor/optimizer；完整receipt复用，已派发且无完整结果的slot保留unknown，不重发。未提交更新从保存parent重做，不重复提交已完成更新。Teacher中断context保留已接纳题与未知成本，不重复付费探索。`evaluate`只接续最终test，要求两个分支均已完成五轮dev，不绕过主流程选模型；已经执行过的评价不重试。
+
+当前按用户21:13的指示优先 `--mode evolve`，不是重新运行Static。远端监督器为 `controller_evolve.py`，输出仍为 `static_evolve_002`；Static停在20组/6次更新，Evolve从共同S0独立开始。后续恢复Static用同一output的 `resume --mode static`，不要另建空白目录重跑基线。原绝对截止11月17日13:31:44不变，分支切换不重新获得24小时。两分支未全部完成五轮时不启动最终test。
 
 并发执行版 `v2_s2_parallel_20261116` 使用独立执行配置和184文件源码锁，保留原实验配置、协议版本、历史锁和state binding。原锁在新源码上仍拒绝；必须显式设置上面的执行版本，子进程继承并核验同一新锁。每组最多2个独立AppWorld进程共享已预热的vLLM服务，线程分别持有HTTP session，按member序号收齐4条后才允许后续更新。Static/Evolve使用相同并发；dev/test仍串行。启动保存 `executions/v2_s2_parallel_20261116.json`，每组记录并发和本次调度墙钟时间。执行版本切换不重置actor、optimizer、任务队列或资源截止；在完整组边界停止旧控制器，再用新源码及原output续跑，不能同时运行两个控制器。
 
