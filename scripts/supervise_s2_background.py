@@ -41,6 +41,73 @@ def retryable(error_type, message, seconds_left):
     }
 
 
+def adopted_update_ready(record, cfg, deployment, state):
+    """Adopt only the exact in-flight update; never start a second GPU worker."""
+    import psutil
+    from recoveragent.demonstrations import sha256
+    from recoveragent.io import write_json
+    from recoveragent.s2_background import external_active
+    from recoveragent.s2_backend import cuda_oom, oom_update_result
+
+    end = record["groups_through"]
+    if state["updated_through"] >= end:
+        return True
+    payload_path = Path(record["payload"])
+    if sha256(payload_path) != record["payload_sha256"]:
+        raise ValueError("Adopted update payload hash changed")
+    payload = read_json(payload_path)
+    request = {
+        "actor": state["actor"],
+        "s0": deployment["s0"],
+        "optimizer": state["optimizer"],
+        "optimizer_sha256": state["optimizer_sha256"],
+        "optimizer_steps": state["optimizer_steps"],
+        "groups": [read_json(p)["episodes"] for p in state["groups"][-2:]],
+        "group_ids": [end - 2, end - 1],
+    }
+    if (
+        state["pending"] is not None
+        or len(state["groups"]) != end
+        or end % 2
+        or payload["request"] != request
+        or payload["config"] != cfg
+    ):
+        raise ValueError("Adopted update identity/configuration changed")
+    if external_active({"external_process": record}):
+        command = psutil.Process(record["pid"]).cmdline()
+        if "update-worker" not in command or str(payload_path) not in command:
+            raise ValueError("Adopted process is not the expected training worker")
+        return False
+    result_path = Path(payload["output"]) / "result.json"
+    if not result_path.exists():
+        log_path = payload_path.with_suffix(".log")
+        if not log_path.exists() or not cuda_oom(log_path.read_text()):
+            raise RuntimeError(
+                "Preserved training worker exited without a verified result"
+            )
+        write_json(result_path, oom_update_result(request, log_path))
+    result = read_json(result_path)
+    if result.get("updated"):
+        if (
+            result.get("reload_passed") is not True
+            or result["optimizer_steps"] != request["optimizer_steps"] + 1
+        ):
+            raise ValueError("Preserved update reload/step verification failed")
+    elif result != oom_update_result(request, payload_path.with_suffix(".log")):
+        raise ValueError("Unverified preserved update result")
+    return True
+
+
+def continuation_mode(output, settings):
+    evolve = read_json(Path(output) / "evolve/state.json")
+    return (
+        "both"
+        if settings.get("finish_static_after_evolve")
+        and len(evolve["round_evaluations"]) == 5
+        else "evolve"
+    )
+
+
 def main():
     import psutil
     from recoveragent.s2_experiment import configuration
@@ -64,13 +131,15 @@ def main():
     runtime = BackendRuntime(cfg, deployment, output / "gpu")
     prefix = [deployment["worker_python"], "-u", "-m", "recoveragent.s2_experiment"]
     common = ["--deployment", str(args.deployment.resolve()), "--output", str(output)]
+    student_mode = continuation_mode(output, s2_execution())
     commands = {
-        "student": prefix + ["resume", "--mode", "evolve"] + common,
+        "student": prefix + ["resume", "--mode", student_mode] + common,
         "teacher": prefix + ["feedback-worker"] + common,
     }
     processes, known, restarts, disabled = {}, {}, {"student": 0, "teacher": 0}, {}
     owned = {"student": {}, "teacher": {}}
     last_progress = None
+    adopted = deployment.get("adopted_update")
     log_handles = []
 
     def event(kind, **details):
@@ -165,11 +234,30 @@ def main():
                         known[p.pid] = p.create_time()
                 except psutil.NoSuchProcess:
                     pass
+        if adopted:
+            known[adopted["pid"]] = adopted["create_time"]
         launch("teacher")
-        launch("student")
+        if not adopted:
+            launch("student")
         while time.time() < deployment["deadline_epoch"]:
-            state_path = output / "evolve/state.json"
+            active_branch = "static" if student_mode == "both" else "evolve"
+            state_path = output / active_branch / "state.json"
             state = read_json(state_path)
+            if adopted and "student" not in processes and "student" not in disabled:
+                try:
+                    if adopted_update_ready(adopted, cfg, deployment, state):
+                        event(
+                            "adopted_update_finished",
+                            groups_through=adopted["groups_through"],
+                        )
+                        launch("student")
+                except (ValueError, RuntimeError, OSError) as exc:
+                    disabled["student"] = "preserved update failed; " + str(exc)
+                    event(
+                        "adopted_update_failed",
+                        error_type=type(exc).__name__,
+                        reason=str(exc),
+                    )
             progress = (
                 len(state["groups"]),
                 state["optimizer_steps"],
@@ -180,7 +268,7 @@ def main():
                     restarts["student"] = 0
                 last_progress = progress
                 report(
-                    output / "evolve",
+                    output / active_branch,
                     state,
                     read_json(output / "baseline/results.json"),
                 )
@@ -195,6 +283,19 @@ def main():
                 if p.poll() is None or label in disabled:
                     continue
                 if p.returncode == 0:
+                    if (
+                        label == "student"
+                        and student_mode == "evolve"
+                        and continuation_mode(output, s2_execution()) == "both"
+                    ):
+                        student_mode = "both"
+                        commands["student"] = (
+                            prefix + ["resume", "--mode", "both"] + common
+                        )
+                        last_progress = None
+                        event("continue_static_and_final_test")
+                        launch("student")
+                        continue
                     disabled[label] = "completed"
                     event("completed", role=label)
                     continue
@@ -241,10 +342,18 @@ def main():
                     disabled[label] = "failed; see immutable receipts and logs"
             value = {
                 "stage": "running",
-                "phase": "student_and_teacher_parallel",
+                "phase": "student_and_teacher_parallel"
+                if "student" in processes
+                else "preserved_update_and_teacher",
                 "updated_epoch": time.time(),
+                "active_branch": active_branch,
                 "deadline_epoch": deployment["deadline_epoch"],
-                "student_pid": processes["student"].pid,
+                "student_pid": processes["student"].pid
+                if "student" in processes
+                else None,
+                "adopted_training_pid": adopted["pid"]
+                if adopted and "student" not in processes
+                else None,
                 "teacher_pid": processes["teacher"].pid,
                 "groups": progress[0],
                 "optimizer_steps": progress[1],

@@ -323,8 +323,8 @@ class GroupEvolution(Evolution):
         evidence(Path(directory) / "context_result.json", result)
         return result
 
-    def quality(self, task, directory):
-        result = super().quality(task, directory)
+    def quality(self, task, directory, *, review=False):
+        result = super().quality(task, directory, review=review)
         if self.curriculum_admission:
             return result
         judgment = self.text(

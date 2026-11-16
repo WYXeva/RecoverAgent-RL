@@ -11,6 +11,7 @@ from recoveragent.v2_runtime import (
     S2_GENERATION_EXECUTION,
     S2_BACKGROUND_EXECUTION,
     S2_ADMISSION_EXECUTION,
+    S2_REVIEW_EXECUTION,
     S2_PARALLEL_EXECUTION,
     S2_RUNTIME,
     verify_lock,
@@ -100,7 +101,10 @@ def test_new_execution_lock_explicit_old_lock_still_rejects(monkeypatch):
     with pytest.raises(ValueError, match="source changed|Incomplete"):
         verify_lock(S2_RUNTIME)
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_ADMISSION_EXECUTION)
-    assert verify_lock(S2_RUNTIME)["execution_revision"] == S2_ADMISSION_EXECUTION
+    with pytest.raises(ValueError, match="source changed|Incomplete"):
+        verify_lock(S2_RUNTIME)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_REVIEW_EXECUTION)
+    assert verify_lock(S2_RUNTIME)["execution_revision"] == S2_REVIEW_EXECUTION
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "unregistered")
     with pytest.raises(ValueError, match="Unknown S2 execution"):
         verify_lock(S2_RUNTIME)

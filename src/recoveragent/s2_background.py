@@ -120,7 +120,7 @@ def enqueue(experiment):
     experiment.save()
 
 
-def publish_result(directory, index, result_path):
+def publish_result(directory, index, result_path, *, prefix="context"):
     # The original synchronous worker writes result.json directly. Its tiny
     # write may still be in flight during a live handoff; retry the read later.
     try:
@@ -128,7 +128,7 @@ def publish_result(directory, index, result_path):
     except (FileNotFoundError, json.JSONDecodeError):
         return
     atomic(
-        Path(directory) / "published" / f"context_{index}.json",
+        Path(directory) / "published" / f"{prefix}_{index}.json",
         {"path": str(result_path), "sha256": sha256(result_path)},
     )
 
@@ -145,38 +145,41 @@ def collect(experiment):
             raise ValueError("Background feedback config changed")
         directory = Path(job["directory"])
         for i, event in enumerate(job["selected"]):
-            publication = directory / "published" / f"context_{i}.json"
-            if not publication.exists():
-                continue
-            receipt = read_json(publication)
-            if sha256(receipt["path"]) != receipt["sha256"]:
-                raise ValueError("Background Teacher receipt changed")
-            key = str(publication)
-            previous = state.setdefault("background_imports", {}).get(key)
-            if previous is not None:
-                if previous != receipt["sha256"]:
-                    raise ValueError("Imported Teacher receipt changed")
-                continue
-            result = read_json(receipt["path"])
-            if result["event_sha256"] != digest(event):
-                raise ValueError("Background Teacher used different group evidence")
-            known = {t["task_id"]: t for t in state["pool"]}
-            for task in result["accepted"]:
-                if task["task_id"] in known:
-                    if known[task["task_id"]] != task:
-                        raise ValueError("Generated task identity changed")
+            for prefix in ("context", "review_context"):
+                publication = directory / "published" / f"{prefix}_{i}.json"
+                if not publication.exists():
                     continue
-                state["pool"].append(task)
-                known[task["task_id"]] = task
-                state["lineage"][task["task_id"]] = {
-                    **result["lineage"],
-                    "round": (job["completed_groups"] - 1) // 40,
-                    "admitted_before_group": len(state["groups"]),
-                    "background_job": str(job_path),
-                }
-            state["teacher_usage"] = result["teacher_usage_after"]
-            state["background_imports"][key] = receipt["sha256"]
-            changed = True
+                receipt = read_json(publication)
+                if sha256(receipt["path"]) != receipt["sha256"]:
+                    raise ValueError("Background Teacher receipt changed")
+                key = str(publication)
+                previous = state.setdefault("background_imports", {}).get(key)
+                if previous is not None:
+                    if previous != receipt["sha256"]:
+                        raise ValueError("Imported Teacher receipt changed")
+                    continue
+                result = read_json(receipt["path"])
+                if result["event_sha256"] != digest(event):
+                    raise ValueError("Background Teacher used different group evidence")
+                known = {t["task_id"]: t for t in state["pool"]}
+                for task in result["accepted"]:
+                    if task["task_id"] in known:
+                        if known[task["task_id"]] != task:
+                            raise ValueError("Generated task identity changed")
+                        continue
+                    state["pool"].append(task)
+                    known[task["task_id"]] = task
+                    state["lineage"][task["task_id"]] = {
+                        **result["lineage"],
+                        "round": (job["completed_groups"] - 1) // 40,
+                        "admitted_before_group": len(state["groups"]),
+                        "background_job": str(job_path),
+                    }
+                state["teacher_usage"] = result["teacher_usage_after"]
+                state["background_imports"][key] = receipt["sha256"]
+                if prefix == "review_context":
+                    state.setdefault("generation_reviews", {})[key] = receipt["path"]
+                changed = True
         done = directory / "published" / "batch.json"
         if done.exists():
             receipt = read_json(done)
@@ -199,20 +202,23 @@ def collect(experiment):
         experiment.save()
 
 
-def process_job(job, cfg, deployment, bundle, deadline):
+def process_job(job, cfg, deployment, bundle, deadline, *, review_only=False):
     """Use the existing generator and admission, without a GPU runtime or state writer."""
     from .v2_round import isolated
 
     if job["config_sha256"] != digest(cfg):
         raise ValueError("Background Teacher config changed")
     directory = Path(job["directory"])
-    evidence(
-        directory / "selection.json",
-        {
-            "groups": list(range(job["completed_groups"] - 8, job["completed_groups"])),
-            "selected": job["selected"],
-        },
-    )
+    if not review_only:
+        evidence(
+            directory / "selection.json",
+            {
+                "groups": list(
+                    range(job["completed_groups"] - 8, job["completed_groups"])
+                ),
+                "selected": job["selected"],
+            },
+        )
     engine = GroupEvolution(
         cfg,
         cfg["models"][cfg["selected_model"]],
@@ -232,7 +238,7 @@ def process_job(job, cfg, deployment, bundle, deadline):
     pool = {t["task_id"]: t for t in job["initial_pool"]}
     # Include earlier accepted jobs for novelty even if the Student was updating
     # when this job was enqueued. These are public train task definitions only.
-    for publication in directory.parent.glob("*/published/context_*.json"):
+    for publication in directory.parent.glob("*/published/*context_*.json"):
         record = read_json(publication)
         if sha256(record["path"]) != record["sha256"]:
             raise ValueError("Published generation evidence changed")
@@ -251,11 +257,38 @@ def process_job(job, cfg, deployment, bundle, deadline):
             )
             return
         engine.pool = copy.deepcopy(list(pool.values()))
-        result = engine.run_context(event, Path(context_path))
+        original_path = Path(context_path) / "s2_context_result.json"
+        if review_only and not original_path.exists():
+            continue
+        result = (
+            read_json(original_path)
+            if review_only
+            else engine.run_context(event, Path(context_path))
+        )
         results.append(result)
         for task in result["accepted"]:
             pool[task["task_id"]] = task
-        publish_result(directory, i, Path(context_path) / "s2_context_result.json")
+        if not review_only:
+            publish_result(directory, i, original_path)
+        from .v2_runtime import s2_execution
+
+        if s2_execution().get("review_generated_tasks") and not job.get(
+            "user_requested_adjudication"
+        ):
+            from .s2_review import REVISION, review_context
+
+            engine.pool = copy.deepcopy(list(pool.values()))
+            reviewed = review_context(engine, event, Path(context_path), result)
+            for task in reviewed["accepted"]:
+                pool[task["task_id"]] = task
+            publish_result(
+                directory,
+                i,
+                Path(context_path) / REVISION / "context_result.json",
+                prefix="review_context",
+            )
+    if review_only:
+        return
     batch = {
         "completed_groups": job["completed_groups"],
         "selected": job["selected"],
@@ -310,6 +343,35 @@ def worker(cfg, deployment, bundle, output):
         while time.monotonic() + 120 < deadline:
             jobs = sorted(root.glob("*/background_job.json"))
             waiting_external = False
+            # Inspect ALL predecessors before any paid review/generation, even if
+            # a lexically earlier completed job is eligible for retrospective review.
+            for path in jobs:
+                job = read_json(path)
+                if job["config_sha256"] != digest(cfg):
+                    raise ValueError("Background Teacher config changed")
+                handoff = path.parent / "handoff_process.json"
+                live = external_active(job) or (
+                    handoff.exists()
+                    and any(
+                        external_active({"external_process": p})
+                        for p in read_json(handoff)["processes"]
+                    )
+                )
+                if live:
+                    waiting_external = True
+                    for i, context in enumerate(job["contexts"]):
+                        publish_result(
+                            job["directory"],
+                            i,
+                            Path(context) / "s2_context_result.json",
+                        )
+            if waiting_external:
+                atomic(
+                    root / "worker_status.json",
+                    {"stage": "waiting_external", "updated_epoch": time.time()},
+                )
+                time.sleep(2)
+                continue
             for path in jobs:
                 job = read_json(path)
                 if job["config_sha256"] != digest(cfg):
@@ -325,6 +387,30 @@ def worker(cfg, deployment, bundle, output):
                 if (directory / "published/batch.json").exists() or (
                     directory / "cancelled.json"
                 ).exists():
+                    from .v2_runtime import s2_execution
+
+                    if (
+                        s2_execution().get("review_generated_tasks")
+                        and not job.get("user_requested_adjudication")
+                        and not (root / "student_finished.json").exists()
+                        and any(
+                            not (
+                                directory / "published" / f"review_context_{i}.json"
+                            ).exists()
+                            for i in range(len(job["contexts"]))
+                        )
+                    ):
+                        atomic(
+                            root / "worker_status.json",
+                            {
+                                "stage": "reviewing",
+                                "job": str(path),
+                                "updated_epoch": time.time(),
+                            },
+                        )
+                        process_job(
+                            job, cfg, deployment, bundle, deadline, review_only=True
+                        )
                     continue
                 if job.get("external_process"):
                     for i, context in enumerate(job["contexts"]):

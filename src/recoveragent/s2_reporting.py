@@ -225,6 +225,7 @@ def summarize_round(state, round_index, baseline):
                 <= (round_index + 1) * 40
             ]
         ),
+        "generation_reviews": review_counts(state, round_index),
         "dev": score(evaluated),
         "dev_cost": evaluation_cost(evaluated),
         "paired_vs_s0": paired(baseline, evaluated),
@@ -242,6 +243,20 @@ def best_round(round_evaluations):
     return min(
         round_evaluations.values(), key=lambda r: (-r["counts"]["success"], r["round"])
     )
+
+
+def review_counts(state, round_index=None):
+    reviews = [read_json(p) for p in state.get("generation_reviews", {}).values()]
+    if round_index is not None:
+        reviews = [r for r in reviews if r["lineage"]["group_id"] // 40 == round_index]
+    statuses = Counter(a["status"] for r in reviews for a in r["attempts"])
+    return {
+        "contexts": len(reviews),
+        "candidates_checked": sum(r["reviewed_candidates"] for r in reviews),
+        "corrected_and_validated": sum(r["corrected_candidates"] for r in reviews),
+        "decisions": dict(statuses),
+        "records": [r["lineage"]["review_directory"] for r in reviews],
+    }
 
 
 def report(output, state, baseline):
@@ -264,6 +279,7 @@ def report(output, state, baseline):
             [read_json(p) for p in state["feedback_windows"].values()]
             + [read_json(p) for p in state.get("feedback_regenerations", {}).values()]
         ),
+        "generation_reviews": review_counts(state),
         "selected": best_round(state["round_evaluations"])
         if len(rounds) == 5
         else None,

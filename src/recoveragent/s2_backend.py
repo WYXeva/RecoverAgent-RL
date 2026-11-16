@@ -23,6 +23,19 @@ def cuda_oom(text):
     )
 
 
+def oom_update_result(request, log_path):
+    return {
+        "updated": False,
+        "reason": "cuda_oom_skipped_update",
+        "actor": request["actor"],
+        "optimizer": request.get("optimizer"),
+        "optimizer_sha256": request.get("optimizer_sha256"),
+        "optimizer_steps": request["optimizer_steps"],
+        "group_ids": request["group_ids"],
+        "error_log": str(log_path),
+    }
+
+
 class BackendRuntime:
     def __init__(self, config, deployment, output):
         self.cfg, self.deployment, self.output = config, deployment, Path(output)
@@ -333,19 +346,7 @@ class BackendRuntime:
                 raise
             # The worker owns a separate model/optimizer. Never adopt partial
             # files from its failed update; retain the last verified parent.
-            write_json(
-                attempt / "result.json",
-                {
-                    "updated": False,
-                    "reason": "cuda_oom_skipped_update",
-                    "actor": request["actor"],
-                    "optimizer": request.get("optimizer"),
-                    "optimizer_sha256": request.get("optimizer_sha256"),
-                    "optimizer_steps": request["optimizer_steps"],
-                    "group_ids": request["group_ids"],
-                    "error_log": str(log_path),
-                },
-            )
+            write_json(attempt / "result.json", oom_update_result(request, log_path))
         finally:
             write_json(
                 directory / (attempt.name + ".timing.json"),

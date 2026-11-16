@@ -123,7 +123,7 @@ def test_feedback_alignment_gate_is_removed_without_a_shadow_teacher_call(
 ):
     e = engine(tmp_path)
     e.curriculum_admission = True
-    monkeypatch.setattr(Evolution, "quality", lambda *args: {"passed": True})
+    monkeypatch.setattr(Evolution, "quality", lambda *args, **kwargs: {"passed": True})
     monkeypatch.setattr(
         e, "text", lambda *args: pytest.fail("Alignment review must not run")
     )
