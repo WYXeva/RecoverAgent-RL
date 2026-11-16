@@ -14,6 +14,7 @@ S1_RUNTIME = "v2_s1_train100_evaluation_20261114"
 S1_RETRAIN_RUNTIME = "v2_s1_retrain_20261114"
 S1_SHORT_RUNTIME = "v2_s1_short_20261115"
 S1_SHORT_VLLM_RUNTIME = "v2_s1_short_vllm_20261115"
+S2_RUNTIME = "v2_s2_static_evolve_20261116"
 S1_SNAPSHOT_RUNTIMES = {
     "v2_s1_train100_resume_20261113",
     S1_PREVIOUS_RUNTIME,
@@ -21,6 +22,7 @@ S1_SNAPSHOT_RUNTIMES = {
     S1_RETRAIN_RUNTIME,
     S1_SHORT_RUNTIME,
     S1_SHORT_VLLM_RUNTIME,
+    S2_RUNTIME,
 }
 
 
@@ -94,6 +96,13 @@ def verify_lock(runtime=RUNTIME):
                 f"configs/{S1_SHORT_RUNTIME}_plan.json",
                 "scripts/evaluate_v2_s1_short_vllm.py",
                 "requirements/v2-vllm-20261115.txt",
+                "requirements/v2-vllm-20261115.lock.txt",
+            }
+        if runtime == S2_RUNTIME:
+            required |= {
+                "scripts/run_v2_s2.py",
+                "configs/v2_s2_inputs_20261116.json",
+                "configs/v2_s1_short_vllm_20261115.json",
                 "requirements/v2-vllm-20261115.lock.txt",
             }
     if lock.get("runtime_revision") != runtime or not required <= lock["files"].keys():

@@ -11,7 +11,9 @@ from recoveragent.v2_runtime import verify_lock, S1_SHORT_RUNTIME
 
 
 def test_backend_switch_preserves_training_lock_and_both_inference_budgets():
-    cfg = entry.configuration()
+    with pytest.raises(ValueError, match="source|Incomplete"):
+        entry.configuration()
+    cfg = read_json(f"configs/{entry.RUNTIME}.json")
     before = read_json(f"configs/{S1_SHORT_RUNTIME}.json")
     assert cfg["student_limits"] == before["student_limits"]
     assert cfg["answer_format_contract"] == before["answer_format_contract"]
@@ -27,7 +29,7 @@ def test_backend_switch_preserves_training_lock_and_both_inference_budgets():
 def test_candidate_binding_rejects_wrong_weights_before_server_use(
     tmp_path, monkeypatch, damage
 ):
-    cfg = copy.deepcopy(entry.configuration())
+    cfg = copy.deepcopy(read_json(f"configs/{entry.RUNTIME}.json"))
     saved = {
         "adapter_sha256_after": "candidate",
         "optimizer_steps": 40,

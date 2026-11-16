@@ -65,11 +65,23 @@ def plan():
     return frozen
 
 
-def context_for(task_id, *, training=False):
+def context_for(task_id, *, training=False, final_test=False):
     frozen = plan()
     row = next((r for r in frozen["rows"] if r["task_id"] == task_id), None)
-    if row is None or row["role"] == "test" or (training and row["role"] != "train"):
+    if (
+        row is None
+        or (row["role"] == "test" and not final_test)
+        or (training and row["role"] != "train")
+    ):
         raise ValueError("Task is outside this v2 execution/training scope")
+    if final_test:
+        from .v2_runtime import S2_RUNTIME
+
+        config = read_json(ROOT / f"configs/{S2_RUNTIME}.json")
+        if training or row["role"] != "test" or task_id not in config["test_task_ids"]:
+            raise ValueError(
+                "Final test is evaluation-only and must use the frozen list"
+            )
     return {
         "scope": SCOPE,
         **row,
@@ -77,11 +89,15 @@ def context_for(task_id, *, training=False):
         "source_row_sha256": digest(row),
         "public_redistribution": False,
         "official_benchmark_claim": False,
+        **({"final_test_protocol": S2_RUNTIME} if final_test else {}),
     }
 
 
 def validate_context(task_id, context, *, training=False):
-    expected = context_for(task_id, training=training)
+    from .v2_runtime import S2_RUNTIME
+
+    final_test = context.get("final_test_protocol") == S2_RUNTIME
+    expected = context_for(task_id, training=training, final_test=final_test)
     if context != expected:
         raise ValueError("v2 task identity/source/role mismatch")
     return expected

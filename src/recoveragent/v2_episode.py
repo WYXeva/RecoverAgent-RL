@@ -27,7 +27,19 @@ def run(config, generate):
     if config["purpose"] not in {"feedback", "grpo", "evaluation"}:
         raise ValueError("Unknown episode purpose")
     training = config["purpose"] in {"feedback", "grpo"}
-    context = context_for(task, training=training)
+    final_test = config.get("final_test", False)
+    if final_test:
+        from .v2_runtime import S2_RUNTIME
+
+        if (
+            training
+            or config.get("execution_protocol") != S2_RUNTIME
+            or config.get("generated_task")
+        ):
+            raise ValueError(
+                "Frozen test tasks are available only to S2 final evaluation"
+            )
+    context = context_for(task, training=training, final_test=final_test)
     checkpoints, fault, evaluation = [], None, None
     environment = None
     costs = {

@@ -15,7 +15,7 @@ from recoveragent.v2_s1_batch import checkpoint, configuration
 from recoveragent.v2_vllm import request_payload, response_receipt
 
 
-def probe(deployment, output, *, cfg=None, checkpoint_key="s0"):
+def probe(deployment, output, *, cfg=None, checkpoint_key="s0", full_window=True):
     cfg = configuration() if cfg is None else cfg
     binding = deployment.get("vllm_models", {}).get(
         checkpoint_key, {"name": "S0_base", "receipt": deployment.get("vllm_receipt")}
@@ -157,9 +157,11 @@ def probe(deployment, output, *, cfg=None, checkpoint_key="s0"):
             content = content + " x" * delta if delta > 0 else content[: 2 * delta]
         raise ValueError("Cannot construct exact synthetic context")
 
-    inputs = [long_input(label) for label in ("A", "B")]
-    with ThreadPoolExecutor(max_workers=2) as pool:
-        long = list(pool.map(lambda i: run(f"long_{i}", inputs[i], 16), range(2)))
+    long = []
+    if full_window:
+        inputs = [long_input(label) for label in ("A", "B")]
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            long = list(pool.map(lambda i: run(f"long_{i}", inputs[i], 16), range(2)))
     summary = {
         "passed": True,
         "synthetic_only": True,
