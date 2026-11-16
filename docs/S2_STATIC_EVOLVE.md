@@ -46,6 +46,7 @@ export PYTHONPATH="$PWD/src:$PWD"
 export HF_HOME=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
+export RECOVERAGENT_S2_EXECUTION=v2_s2_parallel_20261116
 S2_PY=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python
 S2_RUN=/root/gpufree-data/recoveragent_s2_20261116_01/runs/static_evolve_002
 S2_DEPLOY="$PWD/runs/s2_private/deployment.json"
@@ -67,6 +68,8 @@ S2_DEPLOY="$PWD/runs/s2_private/deployment.json"
 ```
 
 `resume`恢复当前轮、原队列、池、近期反馈、RNG、窗口、actor/optimizer；完整receipt复用，已派发且无完整结果的slot保留unknown，不重发。未提交更新从保存parent重做，不重复提交已完成更新。Teacher中断context保留已接纳题与未知成本，不重复付费探索。`evaluate`只接续最终test，要求两个分支均已完成五轮dev，不绕过主流程选模型；已经执行过的评价不重试。
+
+并发执行版 `v2_s2_parallel_20261116` 使用独立执行配置和184文件源码锁，保留原实验配置、协议版本、历史锁和state binding。原锁在新源码上仍拒绝；必须显式设置上面的执行版本，子进程继承并核验同一新锁。每组最多2个独立AppWorld进程共享已预热的vLLM服务，线程分别持有HTTP session，按member序号收齐4条后才允许后续更新。Static/Evolve使用相同并发；dev/test仍串行。启动保存 `executions/v2_s2_parallel_20261116.json`，每组记录并发和本次调度墙钟时间。执行版本切换不重置actor、optimizer、任务队列或资源截止；在完整组边界停止旧控制器，再用新源码及原output续跑，不能同时运行两个控制器。
 
 首次vLLM启动运行既有加载/短请求/缓存/双64k探针，后续actor重新绑定并核对权重。训练worker独立加载当前actor和固定S0 reference，检查有限梯度、参数变化和保存重载后才能发布新actor。真实64k GRPO的显存、吞吐与收益尚未验证；OOM/非有限梯度/重载失败停止并留日志，不能把CPU微型测试当显存验收。
 

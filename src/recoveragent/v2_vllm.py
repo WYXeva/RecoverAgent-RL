@@ -1,6 +1,7 @@
 """Token-exact client for an isolated, pinned vLLM LoRA server."""
 
 import math
+import threading
 import time
 
 from .io import read_json
@@ -95,8 +96,16 @@ class Backend:
         if not url.startswith("http://127.0.0.1:"):
             raise ValueError("This private runtime requires a local vLLM server")
         self.url, self.identity, self.model_name = url, identity, model_name
-        self.http = requests.Session()
-        self.http.trust_env = False
+        self._sessions = threading.local()
+        self._session_factory = requests.Session
+
+    @property
+    def http(self):
+        # Requests sessions contain mutable connection/cookie state.
+        if not hasattr(self._sessions, "http"):
+            self._sessions.http = self._session_factory()
+            self._sessions.http.trust_env = False
+        return self._sessions.http
 
     def __call__(
         self,

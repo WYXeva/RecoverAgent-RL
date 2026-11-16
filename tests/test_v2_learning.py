@@ -343,13 +343,14 @@ def test_generator_real_proposal_required_and_negative_evaluator(monkeypatch):
         accept(task, checks)
 
 
-def test_new_lock_and_immutable_historical_lock_rejection():
+def test_new_lock_and_immutable_historical_lock_rejection(monkeypatch):
     from recoveragent.teacher_collection import verify_lock as previous_collection
     from recoveragent.teacher_followup import verify_lock as followup_lock
     from recoveragent.teacher_followup import RETRY
     from recoveragent.v2_runtime import S1_RUNTIME, S2_RUNTIME, verify_lock
     from recoveragent.b10_pilot import verify_lock as old
 
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_parallel_20261116")
     assert len(verify_lock(S2_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError):
         followup_lock(RETRY)

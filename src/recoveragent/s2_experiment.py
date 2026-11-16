@@ -1,6 +1,7 @@
 """Static/evolve S2 orchestration; existing model, environment and training workers."""
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import copy
 import fcntl
 import time
@@ -13,7 +14,7 @@ from .s2_schedule import GroupFeedback, TaskQueue, select_contexts
 from .s2_state import atomic, binding, evidence, unknown_episode
 from .s2_reporting import best_round, evaluation_cost, paired, report, score
 from .s2_storage import archive_requests, paired_inputs
-from .v2_runtime import S2_RUNTIME, verify_lock
+from .v2_runtime import S2_RUNTIME, s2_execution, verify_lock
 from .v2_tasks import ROOT, plan
 
 
@@ -218,8 +219,17 @@ class Experiment:
         if self.runtime.policy(self.state["actor"]) != policy:
             raise ValueError("Pending group actor changed")
         directory = self.output / "groups" / f"{index:03d}"
-        episodes = []
-        for member in range(4):
+        workers = s2_execution()["rollout_concurrency"]
+        needs_rollout = any(
+            not (directory / f"member_{member}.receipt.json").exists()
+            and not (directory / f"member_{member}/result.json").exists()
+            and not (directory / f"member_{member}.claim.json").exists()
+            for member in range(4)
+        )
+        if workers > 1 and needs_rollout:
+            self.runtime.prepare_rollouts(self.state["actor"])
+
+        def member_rollout(member):
             self.runtime.available(self.cfg["student_limits"]["wall_seconds"] + 120)
             seed = self.cfg["s2"]["seed"] + index * 4 + member
             path = directory / f"member_{member}"
@@ -270,12 +280,24 @@ class Experiment:
                 > self.cfg["student_limits"]["max_generated_tokens"]
             ):
                 raise ValueError("Training rollout exceeded the per-episode budget")
-            episodes.append(result)
+            return result
+
+        started = time.monotonic()
+        if workers == 1:
+            episodes = [member_rollout(member) for member in range(4)]
+        else:
+            with ThreadPoolExecutor(max_workers=workers) as executor:
+                # map returns slot order, independent of completion order.
+                episodes = list(executor.map(member_rollout, range(4)))
         ledger = GroupFeedback(
             self.cfg["task_evolution"]["signals"], self.state["feedback_state"]
         )
         event = ledger.observe(index, episodes)
         group = {"index": index, "task": task, "episodes": episodes, "event": event}
+        group["execution"] = {
+            **s2_execution(),
+            "wall_seconds_this_invocation": time.monotonic() - started,
+        }
         path = directory / "group.json"
         evidence(path, group)
         self.state["groups"].append(str(path))
@@ -478,6 +500,16 @@ def run(config, deployment, output, mode):
             },
         )
         runtime = BackendRuntime(config, deployment, output / "gpu")
+        evidence(
+            output / "executions" / (s2_execution()["revision"] + ".json"),
+            {
+                "settings": s2_execution(),
+                "source": verify_lock(S2_RUNTIME),
+                "experiment_config_sha256": digest(config),
+                "prior_source_lock_sha256": sha256(ROOT / config["source_lock"]),
+                "deadline_epoch": deployment["deadline_epoch"],
+            },
+        )
         try:
             runtime.available(1320)
             baseline = evaluate(

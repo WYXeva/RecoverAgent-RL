@@ -202,6 +202,13 @@ class BackendRuntime:
                 archive_requests(row["directory"])
         retain_committed(state, output)
 
+    def prepare_rollouts(self, actor):
+        # Start the shared service/tokenizer on the controller thread before workers.
+        # No actor switch is allowed until the whole group has returned.
+        self.serve(actor)
+        if self.tokenizer is None:
+            self.tokenizer = load_tokenizer(self.identity)
+
     def rollout(
         self, actor, task, directory, seed, *, evaluation=False, final_test=False
     ):

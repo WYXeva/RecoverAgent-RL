@@ -1,5 +1,6 @@
 """One new source lock for the v2 run; historical locks are never re-signed."""
 
+import os
 from pathlib import Path
 
 from .demonstrations import sha256
@@ -15,6 +16,18 @@ S1_RETRAIN_RUNTIME = "v2_s1_retrain_20261114"
 S1_SHORT_RUNTIME = "v2_s1_short_20261115"
 S1_SHORT_VLLM_RUNTIME = "v2_s1_short_vllm_20261115"
 S2_RUNTIME = "v2_s2_static_evolve_20261116"
+S2_PARALLEL_EXECUTION = "v2_s2_parallel_20261116"
+
+
+def s2_execution():
+    revision = os.environ.get("RECOVERAGENT_S2_EXECUTION")
+    if revision is None:
+        return {"revision": "original_serial", "rollout_concurrency": 1}
+    if revision != S2_PARALLEL_EXECUTION:
+        raise ValueError("Unknown S2 execution revision")
+    return read_json(ROOT / f"configs/{revision}.json")
+
+
 S1_SNAPSHOT_RUNTIMES = {
     "v2_s1_train100_resume_20261113",
     S1_PREVIOUS_RUNTIME,
@@ -38,6 +51,9 @@ def verify_lock(runtime=RUNTIME):
             else LOCK
         )
     )
+    execution = s2_execution() if runtime == S2_RUNTIME else None
+    if execution and execution["revision"] != "original_serial":
+        lock_path = ROOT / f"configs/{execution['revision']}_lock.json"
     lock = read_json(lock_path)
     required = {
         str(p.relative_to(ROOT)) for p in (ROOT / "src/recoveragent").glob("*.py")
@@ -105,6 +121,18 @@ def verify_lock(runtime=RUNTIME):
                 "configs/v2_s1_short_vllm_20261115.json",
                 "requirements/v2-vllm-20261115.lock.txt",
             }
+            if execution["revision"] != "original_serial":
+                required |= {
+                    f"configs/{execution['revision']}.json",
+                    f"configs/{S2_RUNTIME}_lock.json",
+                }
+                if (
+                    lock.get("execution_revision") != execution["revision"]
+                    or execution["protocol_runtime"] != runtime
+                    or execution["rollout_concurrency"] != 2
+                    or execution["evaluation_concurrency"] != 1
+                ):
+                    raise ValueError("S2 execution settings changed")
     if lock.get("runtime_revision") != runtime or not required <= lock["files"].keys():
         raise ValueError("Incomplete v2 source lock")
     if lock["session_contract"]["budget_caps"]["max_input_tokens"] != sequence_limit():
@@ -116,8 +144,11 @@ def verify_lock(runtime=RUNTIME):
             or sha256(ROOT / name) != expected
         ):
             raise ValueError("v2 execution source changed: " + name)
-    return {
+    result = {
         "revision": runtime,
         "lock_sha256": sha256(lock_path),
         "session_contract": lock["session_contract"],
     }
+    if execution and execution["revision"] != "original_serial":
+        result["execution_revision"] = execution["revision"]
+    return result

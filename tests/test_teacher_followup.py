@@ -281,11 +281,12 @@ def test_real_teacher_loop_uses_responses_and_exports_only_assistant(
         validate_receipts(record, directory)
 
 
-def test_new_source_lock_and_old_collection_lock_reject_changes():
+def test_new_source_lock_and_old_collection_lock_reject_changes(monkeypatch):
     from recoveragent import teacher_collection
 
     from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
 
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_parallel_20261116")
     assert len(verify_lock(S2_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError, match="source|Incomplete"):
         followup.verify_lock(followup.RETRY)

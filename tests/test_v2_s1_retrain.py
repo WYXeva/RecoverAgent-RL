@@ -98,7 +98,7 @@ def test_changed_or_leaking_sources_rejected(tmp_path, change):
         retrain.load_groups(tmp_path, manifest, cfg)
 
 
-def test_new_runtime_preserves_evaluation_and_old_locks_still_reject():
+def test_new_runtime_preserves_evaluation_and_old_locks_still_reject(monkeypatch):
     from recoveragent import teacher_followup
     from recoveragent.student import verify_student_runtime
     from recoveragent.v2_runtime import verify_lock, S1_RUNTIME
@@ -106,6 +106,7 @@ def test_new_runtime_preserves_evaluation_and_old_locks_still_reject():
     from recoveragent import s2_experiment as current
     from recoveragent.v2_runtime import S2_RUNTIME
 
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_parallel_20261116")
     cfg = current.configuration()
     assert cfg["dev_task_ids"] == plan()["dev24"]
     assert verify_student_runtime(S2_RUNTIME)["revision"] == S2_RUNTIME
