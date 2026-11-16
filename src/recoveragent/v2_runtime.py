@@ -18,13 +18,18 @@ S1_SHORT_VLLM_RUNTIME = "v2_s1_short_vllm_20261115"
 S2_RUNTIME = "v2_s2_static_evolve_20261116"
 S2_PARALLEL_EXECUTION = "v2_s2_parallel_20261116"
 S2_GENERATION_EXECUTION = "v2_s2_generation_20261116"
+S2_BACKGROUND_EXECUTION = "v2_s2_background_20261117"
 
 
 def s2_execution():
     revision = os.environ.get("RECOVERAGENT_S2_EXECUTION")
     if revision is None:
         return {"revision": "original_serial", "rollout_concurrency": 1}
-    if revision not in {S2_PARALLEL_EXECUTION, S2_GENERATION_EXECUTION}:
+    if revision not in {
+        S2_PARALLEL_EXECUTION,
+        S2_GENERATION_EXECUTION,
+        S2_BACKGROUND_EXECUTION,
+    }:
         raise ValueError("Unknown S2 execution revision")
     return read_json(ROOT / f"configs/{revision}.json")
 

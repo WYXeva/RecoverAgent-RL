@@ -9,6 +9,7 @@ import pytest
 from recoveragent.io import read_json, write_json
 from recoveragent.v2_runtime import (
     S2_GENERATION_EXECUTION,
+    S2_BACKGROUND_EXECUTION,
     S2_PARALLEL_EXECUTION,
     S2_RUNTIME,
     verify_lock,
@@ -86,13 +87,16 @@ def test_resume_serial_pending_without_replay_or_binding_change(tmp_path, monkey
 
 def test_new_execution_lock_explicit_old_lock_still_rejects(monkeypatch):
     monkeypatch.delenv("RECOVERAGENT_S2_EXECUTION", raising=False)
-    with pytest.raises(ValueError, match="source changed"):
+    with pytest.raises(ValueError, match="source changed|Incomplete"):
         verify_lock(S2_RUNTIME)
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_PARALLEL_EXECUTION)
-    with pytest.raises(ValueError, match="source changed"):
+    with pytest.raises(ValueError, match="source changed|Incomplete"):
         verify_lock(S2_RUNTIME)
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GENERATION_EXECUTION)
-    assert verify_lock(S2_RUNTIME)["execution_revision"] == S2_GENERATION_EXECUTION
+    with pytest.raises(ValueError, match="source changed|Incomplete"):
+        verify_lock(S2_RUNTIME)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_BACKGROUND_EXECUTION)
+    assert verify_lock(S2_RUNTIME)["execution_revision"] == S2_BACKGROUND_EXECUTION
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "unregistered")
     with pytest.raises(ValueError, match="Unknown S2 execution"):
         verify_lock(S2_RUNTIME)

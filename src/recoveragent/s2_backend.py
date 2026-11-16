@@ -11,6 +11,16 @@ from .v2_inference import episode
 from .v2_model import load_tokenizer
 from .v2_training import verify_checkpoint
 from .v2_vllm import Backend
+from .v2_runtime import s2_execution
+
+
+def cuda_oom(text):
+    value = str(text).lower()
+    return (
+        "cuda out of memory" in value
+        or "torch.outofmemoryerror" in value
+        or "torch.cuda.outofmemoryerror" in value
+    )
 
 
 class BackendRuntime:
@@ -205,6 +215,9 @@ class BackendRuntime:
     def prepare_rollouts(self, actor):
         # Start the shared service/tokenizer on the controller thread before workers.
         # No actor switch is allowed until the whole group has returned.
+        if getattr(self, "restart_after_group", False):
+            self.stop()
+            self.restart_after_group = False
         self.serve(actor)
         if self.tokenizer is None:
             self.tokenizer = load_tokenizer(self.identity)
@@ -251,6 +264,13 @@ class BackendRuntime:
                 result = unknown_episode(
                     task, policy, directory, str(exc), seed, self.cfg["student_limits"]
                 )
+        if s2_execution().get("skip_cuda_oom") and (
+            cuda_oom(result.get("fault", {}))
+            or (directory / "backend_failure.json").exists()
+        ):
+            # Threads finish the current group before the controller restarts
+            # vLLM. Already attempted trajectories remain unknown, not replayed.
+            self.restart_after_group = True
         return {**result, "directory": str(directory), "seed": seed}
 
     def update(self, request, directory):
@@ -305,6 +325,27 @@ class BackendRuntime:
                     stderr=subprocess.STDOUT,
                     timeout=max(1, self.deadline - time.monotonic()),
                 )
+        except subprocess.CalledProcessError:
+            log_path = directory / (attempt.name + ".log")
+            if not s2_execution().get("skip_cuda_oom") or not cuda_oom(
+                log_path.read_text()
+            ):
+                raise
+            # The worker owns a separate model/optimizer. Never adopt partial
+            # files from its failed update; retain the last verified parent.
+            write_json(
+                attempt / "result.json",
+                {
+                    "updated": False,
+                    "reason": "cuda_oom_skipped_update",
+                    "actor": request["actor"],
+                    "optimizer": request.get("optimizer"),
+                    "optimizer_sha256": request.get("optimizer_sha256"),
+                    "optimizer_steps": request["optimizer_steps"],
+                    "group_ids": request["group_ids"],
+                    "error_log": str(log_path),
+                },
+            )
         finally:
             write_json(
                 directory / (attempt.name + ".timing.json"),

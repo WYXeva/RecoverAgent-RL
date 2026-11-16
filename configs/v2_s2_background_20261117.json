@@ -1,0 +1,10 @@
+{
+  "revision": "v2_s2_background_20261117",
+  "protocol_runtime": "v2_s2_static_evolve_20261116",
+  "rollout_concurrency": 2,
+  "evaluation_concurrency": 1,
+  "teacher_priced_cost_limit": false,
+  "background_generation": true,
+  "skip_cuda_oom": true,
+  "authorization": "2026-11-17 user requested background Teacher task generation while Student continues training; immutable group feedback and admission at subsequent group boundaries, existing resource deadline unchanged."
+}

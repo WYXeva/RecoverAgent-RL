@@ -97,3 +97,22 @@ S2_DEPLOY="$PWD/runs/s2_private/deployment.json"
 现有数据盘只剩约14GiB，故新S2采用有限保留：保留每轮actor+optimizer和最新可续跑状态，已提交且被替代的中间参数文件可删除，但SHA、更新/重载证明及 `retention.json` 保留；被退休的中间actor不再宣称可加载。历史S0、旧训练和旧数据不参与清理。
 
 提交更新或评价完成后，重复的请求JSON压缩为 `session/requests.tar.gz`，逐成员SHA验证后才移除散文件；token/logprob原件完整保留，未提交更新前不清理。审计时可将压缩包解到独立目录。公开交互历史单独保留供反馈使用。仍需监测实际盘占用；压缩与有限checkpoint保留不保证1600长轨迹一定可容纳，不自动删历史产物来续跑。
+
+
+## Teacher后台生成与无人值守接续（2026-11-17）
+
+用户要求减少等待后，新执行版为 `v2_s2_background_20261117`。Student每8组保存不可变反馈作业后立即继续；单个CPU/API Teacher worker顺序处理队列，复用原四轨迹context、探索和验收。仅Student控制器写学习状态，新合格任务在完整任务组边界导入一次。生成滞后与未实际入训数量如实记录，不将“已入队”算成已生成。运行中的旧Teacher允许在原state目录完成，新Student接续使用独立state目录，模型、更新和生成日志仍可共享有身份核验的原产物。
+
+在新源码目录使用原实例绝对deadline的deployment启动；断开SSH后监督器仍运行。同一命令也用于接续，已有轨迹/更新不重复消费：
+
+```bash
+export RECOVERAGENT_S2_EXECUTION=v2_s2_background_20261117
+export PYTHONPATH="$PWD/src:$PWD"
+nohup "$S2_PY" -u scripts/supervise_s2_background.py \
+  --deployment "$S2_DEPLOYMENT" --output "$S2_OUTPUT" \
+  > "$S2_OUTPUT/supervision-launch.log" 2>&1 < /dev/null &
+```
+
+监督器同时管理 `run_v2_s2.py resume --mode evolve` 与 `run_v2_s2.py feedback-worker`；只有一个Teacher预算写入者。当前源拒绝在后台执行版下额外启动同步 `regenerate`，避免双重消费；已有原版本重跑通过只读产物移交接续，不中断付费请求。
+
+用户允许跳过OOM：推理异常保留unknown和实际请求预留，在组边界重启后端；训练明确CUDA OOM保存跳过回执，丢弃该工作进程未验收更新，沿用之前的有效actor/optimizer，继续后续组。其他非有限梯度、来源/哈希或重载错误不冒充OOM。监督器每10秒写状态，对可恢复进程错误至多连续自动接续3次；有Student进展后重置连续失败计数。原始日志、恢复次数和停机原因见 `supervision/`，汇总由已有report函数生成。资源截止后保存进度并停作业，不自动租机、续费或重置时限。

@@ -368,6 +368,12 @@ class Experiment:
         self.save()
 
     def feedback(self, *, retry_window=None, retry_id=None):
+        if s2_execution().get("background_generation") and retry_window is None:
+            from .s2_background import collect, enqueue
+
+            collect(self)
+            enqueue(self)
+            return
         end = len(self.state["groups"]) if retry_window is None else retry_window
         retry = retry_window is not None
         if retry and (
@@ -525,6 +531,14 @@ class Experiment:
                     self.save()
                 report(self.output, self.state, baseline)
             if end == 200:
+                if (
+                    s2_execution().get("background_generation")
+                    and self.state["mode"] == "evolve"
+                ):
+                    atomic(
+                        self.output / "generation/student_finished.json",
+                        {"completed_groups": end},
+                    )
                 return self.state
             self.group()
 
@@ -649,6 +663,7 @@ def main():
             "report",
             "update-worker",
             "regenerate",
+            "feedback-worker",
         ],
     )
     parser.add_argument("--output", type=Path)
@@ -664,7 +679,7 @@ def main():
     if args.command != "update-worker" and args.output is None:
         parser.error("--output is required")
     if (
-        args.command in {"run", "resume", "evaluate", "regenerate"}
+        args.command in {"run", "resume", "evaluate", "regenerate", "feedback-worker"}
         and args.deployment is None
     ):
         parser.error("--deployment is required")
@@ -684,13 +699,31 @@ def main():
         update(cfg, payload["request"], payload["output"])
         return
     cfg = configuration()
-    if args.command == "prepare":
+    if args.command == "feedback-worker":
+        from .s2_background import worker
+
+        if not s2_execution().get("background_generation"):
+            raise ValueError(
+                "Background Teacher requires its explicit execution revision"
+            )
+        deployment = read_json(args.deployment)
+        worker(
+            cfg,
+            deployment,
+            load_bundle(deployment["initial_bundle"]),
+            args.output / "evolve",
+        )
+    elif args.command == "prepare":
         prepare(args.archive, args.output)
     elif args.command in {"run", "resume"}:
         run(cfg, read_json(args.deployment), args.output, args.mode)
     elif args.command == "regenerate":
         from .s2_backend import BackendRuntime
 
+        if s2_execution().get("background_generation"):
+            raise ValueError(
+                "Synchronous regeneration cannot share the background Teacher budget; finish it in its original execution before handoff"
+            )
         deployment = read_json(args.deployment)
         runtime = BackendRuntime(cfg, deployment, args.output / "gpu")
         with (args.output / "controller.lock").open("a") as lock:
