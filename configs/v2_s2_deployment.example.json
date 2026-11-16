@@ -3,7 +3,7 @@
   "initial_bundle": "/root/gpufree-data/recoveragent_s2_20261116_01/initial_bundle",
   "appworld_root": "/root/gpufree-data/recoveragent_s1_retrain_20261114_01/appworld_root",
   "worker_python": "/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python",
-  "training_python": "/root/gpufree-data/recoveragent_s1_retrain_20261114_01/env/bin/python",
+  "training_python": "/root/gpufree-data/recoveragent_s2_20261116_01/training_env/bin/python",
   "vllm_python": "/root/recoveragent-vllm-20261115/env/bin/python",
   "model_snapshot": "/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache/hub/models--Qwen--Qwen3.5-9B/snapshots/c202236235762e1c871ad0ccb60c8ee5ba337b9a",
   "deadline_epoch": null

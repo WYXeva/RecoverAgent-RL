@@ -2,7 +2,7 @@
 
 入口是 `scripts/run_v2_s2.py`，固定读取 `configs/v2_s2_static_evolve_20261116.json` 及独立源码锁。两分支从同一验收S0各自开始，只做GRPO；Recovery-SFT不在本阶段运行。训练采样、S0基线、各轮dev24与最终test111均使用同版本vLLM、同GPU、64k、公开数字格式和既定单题预算。
 
-本次交付的软件与数据准备见[验收报告](../reports/s2_static_evolve_implementation_20261116.md)。没有执行新的9B S2、Teacher请求或真实任务。2026-11-16只读检查：既有L40S可SSH连接、GPU空闲；原GPU作业截止为11月15日21:13:36（UTC+8），已过期。正式运行需要明确的新授权截止时间，不能将示例的null自动换成“现在+24小时”。未新增租机、充值、服务或恢复已停止的Teacher补采。
+软件与数据准备见[验收报告](../reports/s2_static_evolve_implementation_20261116.md)。随后用户明确授权本次从启动起24小时，已于2026-11-16 13:31:44（UTC+8）启动，截止11月17日13:31:44；当前真实进度见[运行记录](../reports/s2_static_evolve_run_20261116.md)。仅使用既有L40S，不租机或充值。示例deadline仍为null，续跑使用私有deployment中同一绝对截止时间，不自动重新计时，也不重启已停止的Teacher补采。
 
 ## 固定实验
 
@@ -28,14 +28,14 @@ PYTHONPATH=src:. .venv/bin/python scripts/run_v2_s2.py prepare \
 
 该步骤已在本地实际完成；仅从原归档校验导入9个已验收任务定义和train100的公开历史，不重新采集或更改任务。配置 `v2_s2_inputs_20261116.json` 固定整个归档SHA及109个成员SHA。将完整bundle目录复制到部署路径即可，加载时重建公开历史路径，不改历史消息。
 
-在新目录部署**本次提交的完整源码**，包括 `src/`、`scripts/`、`configs/`、`requirements/`、`third_party/`；以新锁验证，不重签旧锁。复用现有三个Python环境和基座缓存，默认路径见 `configs/v2_s2_deployment.example.json`。不要把新源码覆盖旧冻结运行目录。部署代码根目录需要既有私有 `.env`，使用现有Teacher凭据；不要将其提交。Static不调用Teacher。
+在新目录部署**本次提交的完整源码**，包括 `src/`、`scripts/`、`configs/`、`requirements/`、`third_party/`；以新锁验证，不重签旧锁。复用现有推理/CPU环境与基座缓存；GRPO训练使用独立依赖环境，默认路径见 `configs/v2_s2_deployment.example.json`。不要把新源码覆盖旧冻结运行目录。部署代码根目录需要既有私有 `.env`，使用现有Teacher凭据；不要将其提交。Static不调用Teacher。
 
 ```bash
 mkdir -p runs/s2_private
 cp configs/v2_s2_deployment.example.json runs/s2_private/deployment.json
 ```
 
-按实际新目录填写 `initial_bundle` 等路径，并在获得新的资源时限后将 `deadline_epoch` 填为该**绝对UTC epoch秒数**。程序拒绝null和过期截止，不读取历史配置中的相对小时数。既有环境参考：训练 `env/bin/python`（Torch2.10/Transformers5.23开发版/PEFT），AppWorld与tokenizer `worker_env/bin/python`，推理独立vLLM0.19环境。实际版本以当前实例和启动探针回执为准，不在此命令自动升级安装。
+按实际新目录填写 `initial_bundle` 等路径，并在获得新的资源时限后将 `deadline_epoch` 填为该**绝对UTC epoch秒数**。程序拒绝null和过期截止，不读取历史配置中的相对小时数。当前部署：新 `training_env/bin/python` 通过只读`.pth`复用已验收SFT环境的Torch2.10/Transformers5.23开发版/PEFT，再独立安装 `requirements/v2-learning.txt` 中固定commit的TRL和datasets5.1.0；旧训练环境缺这两项，未被升级或改写。AppWorld与tokenizer使用既有 `worker_env/bin/python`，推理使用独立vLLM0.19环境。实际依赖冻结在私有run的 `training_environment.lock.txt`，不要直接给旧SFT环境升级包。
 
 ## 启动、续跑、评价
 

@@ -1,0 +1,31 @@
+# S2 Static / Evolve 真实运行记录
+
+状态：**已启动，尚未完成**。本记录截至2026-11-16 13:39:27（UTC+8）；实时私有状态见 `runs/v2_s2_20261116_01/latest_status.json`。
+
+用户明确授权本批从启动起24小时，仅使用当前实例，不租机或充值。正式启动为11月16日13:31:44，绝对截止为11月17日13:31:44；到期保存当前进度并停止作业，不自动重新计时。
+
+## 冻结设置与部署
+
+- 执行源码 `dbcae9b726d7868b83b0b6fd5a3a7278f21a58f2`；182文件源码锁SHA `bcb487768326609fbbb95225dabdbaee16c479f9778ac813fa95b3a53f27e493`。
+- 两分支分别从验收Qwen3.5-9B S0开始，64k、BF16 LoRA、公开数字格式、vLLM0.19.0；不继承S1。初始池train100+既有9条生成题，分别5轮×40组×4条，GRPO LR1e-6、KL0.001，固定S0 reference。
+- 当前L40S 46068MiB；启动前GPU空闲，数据盘约14GiB可用。远端根目录 `/root/gpufree-data/recoveragent_s2_20261116_01/`，输出 `runs/static_evolve_001/`。S0与基座只读引用原验收目录。
+- 已重新核验部署归档、9题+100历史bundle、验收S0、基座分片和tokenizer模板。现有软件验收仍见[实现报告](s2_static_evolve_implementation_20261116.md)，不把历史软件通过冒充新真实训练。
+
+启动检查发现旧SFT环境没有TRL和datasets。在新run建立独立 `training_env`，通过只读`.pth`引用原Torch2.10/Transformers5.23开发版/PEFT0.21.2，另安装固定TRL源码commit `4ae4d34a86f385511c85fa14caedc2178095d0b8` 和datasets5.1.0。原SFT环境未改写。新环境导入GRPOTrainer/GRPOConfig通过；依赖冻结SHA `f10bf809020013c6c67f5ddb60ea880aabbaa95f46f7ccd3c55b212780f388a1`。
+
+## 已发生的真实执行
+
+1. vLLM加载S0，短请求、缓存一致性、基座对照及双64k合成探针通过。探针是推理连通性证据，不是任务评分或训练显存证明。
+2. 新S0 dev24开始，首题 `d9987f6_3` 官方成功。截至13:39:27，完成2/24、2成功、0失败、0未知；81请求、7,233生成token。不能外推整个dev24成功率。
+3. Static训练组0、Evolve训练组0、真实GRPO optimizer更新0。后续按冻结配置执行，不为获得早期成功缩小或更换任务。
+4. Teacher只读模型列表查询HTTP200，配置的 `deepseek-v4.1-flash` 存在，0生成请求；尚未确认生成额度可用，也没有新增候选或合格任务。
+
+完整64k GRPO显存、首个实际更新、五轮学习曲线及最终test仍未验证。24小时是作业上限，不保证足够完成1600训练slot与597评价slot。
+
+## 连续运行和保存
+
+远端持久控制器独立于SSH，子进程按同一绝对deadline运行；到期或执行异常退出时保留模型/optimizer、队列、池、反馈、当前轮及已登记slot。OOM、非有限梯度或重载失败会停止留日志，不假装通过。已有配置的恒定奖励跳过与零更新轮继续规则不变。
+
+`supervisor.json` 记录进程阶段，`runs/static_evolve_001/status.json` 记录实验停止/结束原因，私有 `saved_records.json` 在退出时保存记录SHA。本地只读监测持续回传进度，SSH短暂中断会重连，不中断远端模型进程；它不自动重发已派发轨迹或延长预算。
+
+启动7份元数据已回传并核验；本地归档SHA `219f576aab575ad3bb2ad07d90a216bc6a0dee140e319ea3305740501a68fd7c`。后续模型与原始数据仍留私有目录。训练、续跑、汇总及最终评价命令见[运行说明](../docs/S2_STATIC_EVOLVE.md)，续跑使用同一deployment和output。

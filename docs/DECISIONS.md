@@ -368,3 +368,6 @@ Student两分支同执行次数、协议与单题预算，Teacher生成/验证�
 新运行独立配置/源码锁与输出，保留actor、optimizer/RNG、任务池、反馈、队列和进度；已派发中断slot留unknown且不重发，已提交更新不重复消费。为现有磁盘空间，仅新run退休已替代中间权重，轮末和最新模型/optimizer保留；原请求token/logprob逐成员SHA核验压缩，历史数据不清理。
 
 当前交付为软件与只读资产准备：完整1136 passed/2 skipped、Ruff通过，另CPU微型训练4项通过；9B S2与新的真实AppWorld/Teacher执行均为0。既有机器在线但原授权绝对截止已过期，启动命令要求新的授权deadline，不默认为续租或延长。具体命令、证据和未验证项见[S2运行说明](S2_STATIC_EVOLVE.md)及[验收报告](../reports/s2_static_evolve_implementation_20261116.md)。
+
+
+D129执行补充（2026-11-16 13:31:44 UTC+8）：用户明确选择“24小时，到期保存进度”，本批新绝对截止为11月17日13:31:44，旧截止不再作为本次启动阻塞。既有L40S上以独立run启动相同配置；正式阶段顺序为新S0 dev24、Static五轮、Evolve五轮、最佳轮统一test，未缩小规模。原SFT环境没有TRL/datasets，因此新training_env只读引用其已验收栈，独立安装固定TRL commit及datasets5.1.0，旧环境不变。真实vLLM短/缓存/双64k探针通过，首个基线任务官方成功；这不构成GRPO更新或学习收益证据。到期保存并停作业，后续续跑不得自动延长预算。
