@@ -1,6 +1,6 @@
 # S2：Static / Evolve 五轮运行说明
 
-入口是 `scripts/run_v2_s2.py`，固定读取 `configs/v2_s2_static_evolve_20261116.json` 及独立源码锁。两分支从同一验收S0各自开始，只做GRPO；Recovery-SFT不在本阶段运行。训练采样、S0基线、各轮dev24与最终test111均使用同版本vLLM、同GPU、64k、公开数字格式和既定单题预算。
+入口是 `scripts/run_v2_s2.py`，固定读取 `configs/v2_s2_static_evolve_20261116.json` 及独立源码锁。两分支从同一验收S0各自开始，只做GRPO；Recovery-SFT不在本阶段运行。训练采样、各轮dev24与最终test111使用当前GPU、固定vLLM版本、64k、公开数字格式和既定单题预算。S0 dev24完整复用20261115同协议结果；旧基线同型号L40S但物理GPU不同，该限制在报告中披露。
 
 软件与数据准备见[验收报告](../reports/s2_static_evolve_implementation_20261116.md)。随后用户明确授权本次从启动起24小时，已于2026-11-16 13:31:44（UTC+8）启动，截止11月17日13:31:44；当前真实进度见[运行记录](../reports/s2_static_evolve_run_20261116.md)。仅使用既有L40S，不租机或充值。示例deadline仍为null，续跑使用私有deployment中同一绝对截止时间，不自动重新计时，也不重启已停止的Teacher补采。
 
@@ -12,7 +12,7 @@
 - 每context两次独立干净探索、合并证据、抽象最多2题。只有合并输入实测超窗才分开各抽象最多1题；其他失败不触发此回退。保留源码模板和六个context字段，context全量超窗才进行可追溯摘要。原始消息、动作引用与验收记录保留。
 - 复用新颖性、独立Solver、semantic judge、正负程序验收，并核对反馈贴合。新题立即加入后续未执行槽；第五轮最后不出题，总计至多24批/96context/192候选。已有9题不占新增额度。
 
-每分支训练预算为64,000模型请求、13,107,200生成token。评价单独规划597个slot：S0 dev24一次、两分支各5次dev24、S0/两分支最佳轮各test111一次，最多9,781,248生成token。每slot仍为80请求、16,384生成token、单回复4096、1200秒，失败不重试挑结果；中断可能使实际完整轨迹少于规划slot，报告另列。
+每分支训练预算为64,000模型请求、13,107,200生成token。评价单独规划597个slot：S0 dev24一次、两分支各5次dev24、S0/两分支最佳轮各test111一次，最多9,781,248生成token。其中S0 dev24的24项本次复用历史记录，新增评价计划为573项；旧基线cost字段为历史用量，不再计作本次新增消耗，原001重复开销单列。每slot仍为80请求、16,384生成token、单回复4096、1200秒，失败不重试挑结果；中断可能使实际完整轨迹少于规划slot，报告另列。
 
 Teacher生成/验证另设有限总预算：40,000请求、16,000,000生成token、172,800秒调用累计时间、USD100按已有价格配置的技术估价上限，任一用尽即停止新增Teacher调用，仍可继续Student。未知用量保留预留，真实返回用量再核销；估价不是平台实际账单。实例绝对截止同时约束所有阶段，这些调用预算不延长GPU授权。
 
@@ -47,14 +47,14 @@ export HF_HOME=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
 S2_PY=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python
-S2_RUN=/root/gpufree-data/recoveragent_s2_20261116_01/runs/static_evolve_001
+S2_RUN=/root/gpufree-data/recoveragent_s2_20261116_01/runs/static_evolve_002
 S2_DEPLOY="$PWD/runs/s2_private/deployment.json"
 
 "$S2_PY" scripts/run_v2_s2.py run --mode both \
   --deployment "$S2_DEPLOY" --output "$S2_RUN"
 ```
 
-`both`先记录S0 dev24，随后static、evolve各自五轮，最后自动选最佳轮并完成三份test111。也可用相同output先 `--mode static`，之后 `--mode evolve`；复用已完成基线，两个分支不共享actor或optimizer。不在同一GPU并发两分支。
+`both`先读取S0 dev24基线缓存，随后static、evolve各自五轮，最后自动选最佳轮并完成三份test111。当前002已按5118份SHA证据导入整套旧基线，包含原1项未知，不再生成S0 dev24；`baseline_reuse.json`保留来源及跨物理GPU说明。原001误重跑的记录另存、不参与主比较。空白新output若无经核验缓存才会执行S0基线，勿误用新output重复评价。也可用相同output先 `--mode static`，之后 `--mode evolve`；复用已完成基线，两个分支不共享actor或optimizer。不在同一GPU并发两分支。
 
 ```bash
 "$S2_PY" scripts/run_v2_s2.py resume --mode both \
