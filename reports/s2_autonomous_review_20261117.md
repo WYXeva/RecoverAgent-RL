@@ -19,4 +19,13 @@ Teacher全队列前驱检查保证一个预算写入者。监督器可保留并�
 
 ## 真实执行
 
-部署及最新任务入池回执在完成实际切换后追加。本轮完整S2仍在进行，不把代码完成称为五轮完成。
+02:29:37（UTC+8）在原20组的完整边界完成真实接管，源码 `23b2e1657c2c124857f740da0c39feca30056f05`。新source包SHA `25f6ef271229a48cbf76d866977398e9265667f3b62fdc14f6a74949448af12d`，源码锁SHA `4457d0969742973b6b5ca717a9c5782452296fe834859b8c5d0d92b6fbcf0053`，远端196文件校验通过。
+
+- 保留原GPU worker25993，使用原payload SHA `8efa5c2d49a4b811a1d882d4d27963b1fc8d267893c4494e37a44ada0cac7e00`；新监督器33375等待其结果，未启动第二个训练进程。02:30 GPU100%，原更新已进行约86分钟。当前仍4次已提交更新，不能提前计为5次。
+- 在控制器锁下导入7条已验收题，池11→18：旧窗口16已完成的3条、当前新批自动通过2条、人工证据复核2条。后者ID `coevolve_bc9e198bc6cf12d4e12e0a84` 与 `coevolve_21e5c3f88c40053ac7ef28b0` 已在实际state；尚未被Student采样，不能算已参与更新。
+- 原actor、optimizer、更新步数、20组记录与采样队列逐字段不变；Static state SHA仍为 `ceb90241b0c01b3ae4f4bdf3b5a69329dedb817cdba97aef236f983af59f5083`。Evolve80条为13成功/67失败/0未知。
+- 新Teacher worker33376实际处于 `waiting_external`，原独立Teacher26958继续最后context；已支付操作未中断。全局互斥检查真实生效。每context自动复核已部署，但此时尚未发出新版本的首次复核模型请求；原两项纠正的真实验收已在此前完成。
+
+私有输出仍为 `/root/gpufree-data/recoveragent_s2_20261116_01/runs/static_evolve_003/`；受控移交回执 `continuations/review_v1_001/switch_result.json`。最新state及来源证据回传本地 `runs/v2_s2_20261116_01/retrieval/review_20261117/` 并核验各文件SHA。新代码不覆盖旧产物/源码锁。
+
+完整S2仍在进行，未获得新的轮末dev或最终test结果，不把部署完成称为五轮完成。
