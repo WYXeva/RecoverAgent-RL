@@ -1,0 +1,17 @@
+{
+  "revision": "v2_s2_supervised_20261117",
+  "protocol_runtime": "v2_s2_static_evolve_20261116",
+  "rollout_concurrency": 2,
+  "evaluation_concurrency": 1,
+  "teacher_priced_cost_limit": false,
+  "background_generation": true,
+  "skip_cuda_oom": true,
+  "curriculum_admission": true,
+  "feedback_alignment_gate": false,
+  "public_answer_contract": "public_object_v1",
+  "authorization": "User authorized autonomous S2 continuation within the existing deadline, checking every generated context for erroneous semantic or duplicate judgments and admitting corrected tasks only after the existing validation. One bounded review per rejected candidate; original records retained.",
+  "review_generated_tasks": true,
+  "review_revision": "generated_task_review_v1",
+  "finish_static_after_evolve": true,
+  "continuation": "Preserve the existing review Teacher during supervisor handoff; handle training worker exit races without duplicating paid work."
+}

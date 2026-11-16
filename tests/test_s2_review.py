@@ -261,6 +261,11 @@ def test_adopted_update_waits_exact_worker_then_verifies_result(tmp_path, monkey
         ),
     )
     assert not adopted_update_ready(record, {}, {"s0": "S0"}, state)
+    # A worker can exit between the liveness read and reading /proc argv.
+    monkeypatch.setattr(
+        psutil, "Process", lambda pid: SimpleNamespace(cmdline=lambda: [])
+    )
+    assert not adopted_update_ready(record, {}, {"s0": "S0"}, state)
     wrong = copy.deepcopy(state)
     wrong["actor"] = "different"
     with pytest.raises(ValueError, match="identity/configuration"):
@@ -290,3 +295,36 @@ def test_evolve_priority_before_static_final_continuation(tmp_path):
     atomic(tmp_path / "evolve/state.json", {"round_evaluations": [1] * 5})
     assert continuation_mode(tmp_path, settings) == "both"
     assert continuation_mode(tmp_path, {}) == "evolve"
+
+
+def test_teacher_handoff_preserves_live_process_and_restarts_unknown_exit(
+    tmp_path, monkeypatch
+):
+    import psutil
+    from types import SimpleNamespace
+    from scripts.supervise_s2_background import InheritedTeacher
+    from recoveragent import s2_background
+
+    record = {"pid": 42, "create_time": 123, "source_directory": "/original/source"}
+    process = SimpleNamespace(
+        create_time=lambda: 123,
+        cwd=lambda: "/original/source",
+        cmdline=lambda: [
+            "python",
+            "-m",
+            "recoveragent.s2_experiment",
+            "feedback-worker",
+            "--output",
+            str(tmp_path),
+        ],
+    )
+    monkeypatch.setattr(psutil, "Process", lambda pid: process)
+    p = InheritedTeacher(record, tmp_path)
+    monkeypatch.setattr(s2_background, "external_active", lambda *a: True)
+    assert p.poll() is None and p.pid == 42
+    monkeypatch.setattr(s2_background, "external_active", lambda *a: False)
+    assert p.poll() == 1  # Unobserved exit is not declared successful.
+    write_json(tmp_path / "evolve/generation/student_finished.json", {})
+    assert p.poll() == 0
+    with pytest.raises(ValueError, match="identity"):
+        InheritedTeacher({**record, "create_time": 999}, tmp_path)

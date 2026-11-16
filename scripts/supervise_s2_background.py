@@ -74,7 +74,12 @@ def adopted_update_ready(record, cfg, deployment, state):
     ):
         raise ValueError("Adopted update identity/configuration changed")
     if external_active({"external_process": record}):
-        command = psutil.Process(record["pid"]).cmdline()
+        try:
+            command = psutil.Process(record["pid"]).cmdline()
+        except psutil.NoSuchProcess:
+            return False  # Recheck its saved result on the next poll.
+        if not command or not external_active({"external_process": record}):
+            return False  # Linux can expose empty argv while the worker exits.
         if "update-worker" not in command or str(payload_path) not in command:
             raise ValueError("Adopted process is not the expected training worker")
         return False
@@ -96,6 +101,44 @@ def adopted_update_ready(record, cfg, deployment, state):
     elif result != oom_update_result(request, payload_path.with_suffix(".log")):
         raise ValueError("Unverified preserved update result")
     return True
+
+
+class InheritedTeacher:
+    """Observe an existing Teacher without interrupting its paid subprocess."""
+
+    def __init__(self, record, output):
+        import psutil
+
+        self.pid, self.started = record["pid"], record["create_time"]
+        process = psutil.Process(self.pid)
+        command = process.cmdline()
+        if (
+            process.create_time() != self.started
+            or process.cwd() != record["source_directory"]
+            or "recoveragent.s2_experiment" not in command
+            or "feedback-worker" not in command
+            or "--output" not in command
+            or command[command.index("--output") + 1] != str(output)
+        ):
+            raise ValueError("Inherited Teacher identity changed")
+        self.returncode = None
+        self.output = Path(output)
+
+    def poll(self):
+        from recoveragent.s2_background import external_active
+
+        if external_active(
+            {"external_process": {"pid": self.pid, "create_time": self.started}}
+        ):
+            return None
+        # The former parent's OS exit status is unavailable. A finished learning
+        # queue needs no Teacher; otherwise resume receipts as an unknown exit.
+        self.returncode = (
+            0
+            if (self.output / "evolve/generation/student_finished.json").exists()
+            else 1
+        )
+        return self.returncode
 
 
 def continuation_mode(output, settings):
@@ -140,6 +183,7 @@ def main():
     owned = {"student": {}, "teacher": {}}
     last_progress = None
     adopted = deployment.get("adopted_update")
+    inherited_teacher = deployment.get("inherited_teacher")
     log_handles = []
 
     def event(kind, **details):
@@ -195,6 +239,21 @@ def main():
                 pass
 
     def launch(label):
+        nonlocal inherited_teacher
+        if label == "teacher" and inherited_teacher:
+            from recoveragent.s2_background import external_active
+
+            record, inherited_teacher = inherited_teacher, None
+            if external_active({"external_process": record}):
+                try:
+                    p = InheritedTeacher(record, output)
+                except psutil.NoSuchProcess:
+                    pass  # It exited during handoff; start the existing resume path.
+                else:
+                    processes[label] = p
+                    remember(p, label)
+                    event("inherited_teacher", pid=p.pid, source=record)
+                    return
         log = (folder / (label + ".log")).open("a")
         log_handles.append(log)
         p = subprocess.Popen(

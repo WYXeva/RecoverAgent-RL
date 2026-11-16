@@ -142,10 +142,12 @@ export RECOVERAGENT_S2_EXECUTION=v2_s2_admission_20261117
 
 ## 逐批误判复核与自主接续
 
-当前新源码选择 `RECOVERAGENT_S2_EXECUTION=v2_s2_review_20261117`，使用同名配置和新锁。上面的监督器启动命令保持不变；只在旧监督器已经退出时启动，不并行写同一个state。当前远端输出仍为 `runs/static_evolve_003`，S0基线与历史轨迹继续复用。
+当前新源码选择 `RECOVERAGENT_S2_EXECUTION=v2_s2_supervised_20261117`，使用同名配置和新锁。上面的监督器启动命令保持不变；只在旧监督器已经退出时启动，不并行写同一个state。当前远端输出仍为 `runs/static_evolve_003`，S0基线与历史轨迹继续复用。
 
 每个完成context保存 `generated_task_review_v1/context_result.json`，通过 `published/review_context_N.json` 发布。语义拒绝复用原Solver，重复拒绝复用quality与完整Solver验收；真实错误/重复和证据不足不放行。原判及复核分列，`generation_reviews` 与summary可追溯更正题及后续入训。复核请求计入原Teacher有限request/token/time预算，不增加候选数。
 
 私有deployment可记录一次受控移交的 `adopted_update`（PID、创建时间、原payload路径及SHA、groups_through）。监督器验证这些值，保留正在计算的原进程；原结果通过后才由已有resume入口提交，Teacher可同时继续。该字段必须来自真实进程与原请求，不能用来改写预期值或放行不一致。常规续跑不需要手工填写该字段。
 
 配置 `finish_static_after_evolve=true` 在Evolve五轮评价完成后接续原Static，并走原最佳轮/test流程；不会因转分支重置资源截止。`supervision/status.json` 记录实际分支、进程、更新及错误，原始结果和停机原因保留。
+
+监督器的受控移交还可记录 `inherited_teacher`：真实PID、创建时间和原源码目录。新监督器核验同一feedback-worker与output后继续监管原进程，不中断正在执行的Solver或重复启动第二个Teacher；新启动的子进程使用新锁。原GPU更新退出的过渡窗口延后检查其保存结果，不将空argv误判为换了进程。
