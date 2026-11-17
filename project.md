@@ -2,11 +2,11 @@
 
 更新：2026-11-18。本文是唯一当前设计与实施计划，事实见 [STATUS](docs/STATUS.md)。
 
-当前执行安排：已完成共享Judge的Solver参考与三态结果修复，并对固定旧证据做8次真实复验。Venmo四条判为成功/失败/成功/失败，原未翻页误罚消失；邮件完整草稿发送通过、漏草稿失败；两份Solver准入通过，六条Student结论及理由符合人工核对。**本轮结束，正式实验仍暂停。**没有新环境执行、GPU服务、参数更新或dev/test。见[固定复验报告](reports/s2_judge_reference_fix_20261118.md)。
+当前执行安排：用户确认Judge固定复验后，已于11月18日00:23启动**一轮Evolve＋dev24，最多24小时**。先取得当前协议S0 dev24基线，再执行40组×4次及轮末dev24；Static/test不启动。使用现有L40S、同一S0、最新Solver参考/三态Judge与独立目录。监督器与后台Teacher分开运行，截止为11月19日00:23。见[启动记录](reports/s2_evolve_round1_launch_20261118.md)；前次[固定复验](reports/s2_judge_reference_fix_20261118.md)通过不等于已有学习收益。
 
 当前主线：**四次 Student 真实反馈 → 必要时一次探索 → 三字段任务生成 → 干净初态 Solver → 共享 LLM Judge → 入池 → 正常四次 GRPO 采样与学习**。当前准备版 `v2_s2_judge_reference_20261117`（保留轻量生成及40组/轮末dev后停设置）、奖励身份 `coevolve_llm_reward_v2`，Judge调用身份 `coevolve_judge_reference_v2`；保留已修复的解析、严格 Schema、一次完成纠错和无效整组排除。生成题不再使用数据库目标契约、字段元数据、契约 repair、业务hash或答案全文比较，原始 train/dev/test 继续官方验收。
 
-Judge继续使用Flash/enabled/high/8192；本次按用户要求更新提示、参考输入及三态协议，不反复调用至通过。旧误罚和原件保留，新结论单列；有限案例通过不等于泛化可靠性。旧9题的Solver原件已本地准备为新协议候选，旧准入不能直接作为新共同池；后续获准运行时只读复用适用证据进行一次新Judge准入。
+Judge继续使用Flash/enabled/high/8192与已验收的新提示、参考输入及三态协议，不反复调用至通过。旧误罚和原件保留，新结论单列；有限案例通过不等于泛化可靠性。本轮旧9题复用Solver原件形成8题共同初始池，其中1题复用刚完成的同协议准入、其余8题各判一次，1题不接纳。没有重跑Solver；生成不足由原始训练题补位。
 
 当前实验仍为 **S2 Static / Evolve 五轮 GRPO 对照**：两分支各自从同一验收 S0 开始，原始范围为固定 train100。Qwen3.5-9B、64k、LoRA、vLLM、公开数字格式、每组四次、每两组一次更新机会及固定 dev/test 不变。Recovery-SFT 保留为前阶段结果，不在这组对照中继续更新。新协议必须使用独立运行目录，不接续旧奖励协议的 actor、训练步数或评价回执。
 

@@ -1,8 +1,10 @@
 # 当前Judge参考证据与三态结果（2026-11-18）
 
+用户已于11月18日重新授权运行一轮Evolve和dev24；00:23启动，11月19日00:23到期。当前协议8题初始池已准备，S0基线正在运行。使用既有监督器；新运行路径、有限预算及续跑命令见[启动记录](../reports/s2_evolve_round1_launch_20261118.md)。以下固定复验段落描述启动前已完成的结果。
+
 使用 `RECOVERAGENT_S2_EXECUTION=v2_s2_judge_reference_20261117` 与独立237文件锁。Solver准入的reference为空，Student评分须提供同题同初态的已准入Solver事实；true/false/null映射为有效1/有效0/无效奖励。Flash/enabled/high/8192不变，完整参考参与上下文、预算与缓存绑定。原始题仍官方评分。
 
-固定Venmo四条＋邮件两条Student旧证据的真实判断均与人工核对一致，两份Solver也通过；8次Judge、不重跑环境。本轮结束，正式Evolve/GPU/dev暂不启动。实际回执和复验命令见[报告](../reports/s2_judge_reference_fix_20261118.md)。旧9题仅在本地准备为新协议待Judge候选；后续需一次新准入形成共同池，使用新运行目录和当批授权截止。下列旧锁和旧命令只作历史记录，不能接续新协议。
+固定Venmo四条＋邮件两条Student旧证据的真实判断均与人工核对一致，两份Solver也通过；8次Judge、不重跑环境。该固定复验阶段已结束，实际回执和复验命令见[报告](../reports/s2_judge_reference_fix_20261118.md)。正式运行采用上述新池、新目录与新截止。下列旧锁和旧命令只作历史记录，不能接续新协议。
 
 ## 前次Judge固定10例复核（2026-11-17）
 
