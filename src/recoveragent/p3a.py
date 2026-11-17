@@ -485,6 +485,10 @@ def run_teacher_episode(
                 from .todoist_goal import prepare
 
                 prepare(adapter, exploration["task"])
+                if "success_conditions" in exploration["task"]:
+                    from .coevolve_goal import prepare as prepare_goal
+
+                    prepare_goal(adapter, exploration["task"])
                 if "goal_contract" in exploration["task"]:
                     adapter.coevolve_goal_task = exploration["task"]
             trajectory["generator_exploration"] = {
@@ -531,7 +535,7 @@ def run_teacher_episode(
                     {"role": "user", "content": validation_hint(exploration["task"])}
                 )
         if config.get("answer_guard_protocol") and not recovery_source:
-            guard = AnswerGuard(adapter.public_task()["instruction"])
+            guard = AnswerGuard.from_public_task(json.loads(messages[1]["content"]))
         if guard is not None:
             trajectory["answer_guard"] = guard.summary()
             usage.update(tool_requests=0, harness_rejections=0)
@@ -642,6 +646,7 @@ def run_teacher_episode(
             usage["unknown_cost_reservation"] = 0.0
             usage["unknown_generation_reservation"] = 0
             usage["model_turns"] += 1
+            message = None
             try:
                 message = normalize_message(
                     response,
@@ -649,7 +654,13 @@ def run_teacher_episode(
                     allow_reasoning=reasoning_enabled(teacher),
                 )
                 if harness:
-                    check_batch(message, messages, tools, require_action=True)
+                    check_batch(
+                        message,
+                        messages,
+                        tools,
+                        require_action=True,
+                        answer_contract=guard.output_contract if guard else None,
+                    )
                 # Check IDs against the existing history before any dispatch.
                 calls = message.get("tool_calls", [])
                 if calls and not harness:
@@ -679,6 +690,19 @@ def run_teacher_episode(
                         ):
                             raise ValueError("Completion must be the last batch call")
             except (ValueError, KeyError, TypeError, ValidationError) as exc:
+                from .v2_model import ParserContractError
+                from .completion_contract import completion_attempt
+
+                if isinstance(exc, ParserContractError):
+                    trajectory.update(
+                        reward_valid=False,
+                        failure_origin="parser_harness",
+                        submission_fault={
+                            "stage": "schema_contract",
+                            "reason": str(exc),
+                        },
+                    )
+                    raise
                 if harness:
                     event.update(
                         harness.rejection_event(
@@ -688,6 +712,11 @@ def run_teacher_episode(
                                 for c in response.get("choices", [])
                             ),
                             guard=guard,
+                            completion_attempt=completion_attempt(message)
+                            or any(
+                                completion_attempt(choice.get("message"))
+                                for choice in response.get("choices", [])
+                            ),
                         )
                     )
                     feedback = event["feedback"]
@@ -878,6 +907,10 @@ def run_teacher_episode(
                 else "infrastructure_error"
             ),
         )
+        from .coevolve_goal import ScoringGap
+
+        if isinstance(exc, ScoringGap):
+            trajectory["scoring_gap"] = str(exc)
         if harness:
             if isinstance(exc, TeacherTransportError):
                 trajectory["provider_error"] = provider_error_record(exc)

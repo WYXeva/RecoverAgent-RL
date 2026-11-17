@@ -24,9 +24,15 @@ def run(config, generate):
     directory.mkdir(parents=True, exist_ok=False)
     experiment = directory.name + "_" + digest(str(directory))[:12]
     task, adapter, session = config["task_id"], None, None
-    if config["purpose"] not in {"feedback", "grpo", "evaluation"}:
+    if config["purpose"] not in {"feedback", "grpo", "evaluation", "protocol_probe"}:
         raise ValueError("Unknown episode purpose")
-    training = config["purpose"] in {"feedback", "grpo"}
+    training = config["purpose"] in {"feedback", "grpo", "protocol_probe"}
+    probe = config["purpose"] == "protocol_probe"
+    if (
+        probe
+        and config.get("completion_contract_revision") != "completion_submission_v2"
+    ):
+        raise ValueError("Protocol probe requires the new submission contract")
     final_test = config.get("final_test", False)
     if final_test:
         from .v2_runtime import S2_RUNTIME
@@ -42,6 +48,7 @@ def run(config, generate):
     context = context_for(task, training=training, final_test=final_test)
     checkpoints, fault, evaluation = [], None, None
     environment = None
+    accepted_submission = None
     costs = {
         "model_seconds": 0.0,
         "environment_seconds": 0.0,
@@ -91,14 +98,31 @@ def run(config, generate):
             if generated.get("generator") == "coevolve_appworld_task_v2":
                 from . import coevolve_tasks as generated_backend
 
-            generated_backend.validate_task(generated, task)
+            if probe:
+                # A frozen diagnostic definition is not admitted training data.
+                # It has its own identity; no old validation/hash is edited to pass.
+                generated_backend.validate_task(
+                    generated, task, require_validation=False
+                )
+            else:
+                generated_backend.validate_task(generated, task)
             apply_instruction(adapter, generated["instruction"])
             if "goal_contract" in generated:
                 from .todoist_goal import prepare
 
                 prepare(adapter, generated)
+            if "success_conditions" in generated:
+                from .coevolve_goal import prepare as prepare_goal
+
+                prepare_goal(adapter, generated)
+            elif config.get("completion_contract_revision"):
+                from .coevolve_goal import ScoringGap
+
+                raise ScoringGap(
+                    "Generated task needs revalidation with public success conditions"
+                )
             public = public_task(adapter.public_task(), generated)
-            if (
+            if not probe and (
                 adapter.fingerprint()
                 != generated["validation"]["results"][0]["initial_state_hash"]
             ):
@@ -193,8 +217,24 @@ def run(config, generate):
             directory / "history.json",
             {"messages": session.messages, "tools": session.tools},
         )
+        if config.get("completion_contract_revision"):
+            current = adapter.world.requester.request(
+                "supervisor", "show_active_task", track=False
+            )
+            if current.get("status") in {"success", "fail"}:
+                accepted_submission = {
+                    "status": current["status"],
+                    "answer": current.get("answer"),
+                }
         if generated:
-            if "goal_contract" in generated:
+            if "success_conditions" in generated:
+                from .coevolve_goal import evidence as goal_evidence
+
+                write_json(
+                    directory / "goal_evidence.json",
+                    goal_evidence(adapter, generated, session.messages),
+                )
+            if "goal_contract" in generated or "success_conditions" in generated:
                 evaluation = generated_backend.evaluate(
                     adapter, generated, session.messages
                 )
@@ -215,6 +255,16 @@ def run(config, generate):
             costs["evaluation_seconds"] += now() - before
     except Exception as exc:
         fault = {"type": type(exc).__name__, "message": str(exc)}
+        from .coevolve_goal import ScoringGap
+
+        if isinstance(exc, ScoringGap):
+            fault["origin"] = "scorer"
+            evaluation = {
+                "status": "scoring_gap",
+                "success": None,
+                "reward_valid": False,
+                "reason": str(exc),
+            }
         if environment is not None:
             if session and not (directory / "history.json").exists():
                 write_json(
@@ -237,7 +287,11 @@ def run(config, generate):
                 else:
                     fault["cleanup"] = cleanup
     valid = (
-        fault is None and evaluation is not None and evaluation.get("status") == "valid"
+        fault is None
+        and not (session and session.reward_fault)
+        and evaluation is not None
+        and evaluation.get("status") == "valid"
+        and evaluation.get("reward_valid", True)
     )
     result = {
         "task_id": task,
@@ -250,15 +304,28 @@ def run(config, generate):
         "custom_research": context,
         "evaluation": evaluation,
         "success": evaluation["success"] if valid else None,
+        "reward_valid": bool(valid),
+        "accepted_submission": accepted_submission,
+        "failure_origin": "parser_harness"
+        if session and session.reward_fault
+        else "scorer"
+        if evaluation and evaluation.get("status") in {"needs_semantic", "scoring_gap"}
+        else "environment"
+        if fault
+        else "model"
+        if valid and not evaluation["success"]
+        else None,
         "classification": "success"
         if valid and evaluation["success"]
         else "natural_failure"
         if valid
+        else "scoring_gap"
+        if evaluation and evaluation.get("status") == "scoring_gap"
         else "infrastructure_error",
         "usage": copy.deepcopy(session.usage) if session else {},
         "costs": costs,
         "termination": session.termination if session else None,
-        "fault": fault,
+        "fault": fault or (session.reward_fault if session else None),
         "environment": environment,
         "wall_seconds": now() - started,
         "snapshots": checkpoints,

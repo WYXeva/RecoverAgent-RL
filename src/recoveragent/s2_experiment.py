@@ -239,8 +239,11 @@ class Experiment:
             if receipt.exists():
                 result = read_json(receipt)
             elif (path / "result.json").exists():
+                raw = read_json(path / "result.json")
+                if s2_execution().get("completion_contract_revision"):
+                    raw = self.runtime.finalize_reward(raw, path)
                 result = {
-                    **read_json(path / "result.json"),
+                    **raw,
                     "directory": str(path),
                     "seed": seed,
                 }

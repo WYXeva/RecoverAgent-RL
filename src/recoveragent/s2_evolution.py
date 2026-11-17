@@ -43,6 +43,7 @@ class GroupEvolution(Evolution):
         self.active_event = None
         self.priced_cost_limit = s2_execution().get("teacher_priced_cost_limit", True)
         self.curriculum_admission = s2_execution().get("curriculum_admission", False)
+        self.public_goals = bool(s2_execution().get("public_goal_revision"))
 
     def remaining(self):
         if not self.priced_cost_limit:

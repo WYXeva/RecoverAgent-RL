@@ -22,6 +22,14 @@ VERSION = "coevolve_appworld_task_v2"
 def answer_comparison(instruction):
     """Public, narrow scalar contract; never infer IDs/text from the reference."""
     from .coevolve_answers import comparison
+    from .completion_contract import MARKER, from_instruction
+
+    if MARKER in instruction:
+        return {
+            "kind": "public_goal_output_v1",
+            "output": from_instruction(instruction),
+            "instruction_sha256": digest(instruction),
+        }
 
     structured = comparison(instruction)
     if structured is not None:
@@ -114,6 +122,13 @@ def capture_terminal(adapter, trajectory):
         "answer": current.get("answer"),
         "business_sha256": business_hash(adapter),
     }
+    task = getattr(adapter, "public_goal_task", None)
+    if task:
+        from .coevolve_goal import evidence, objective
+
+        observed = evidence(adapter, task, trajectory["messages"])
+        trajectory["goal_evidence"] = observed
+        trajectory["coevolve_terminal"]["goal_evaluation"] = objective(task, observed)
     goal_task = getattr(adapter, "coevolve_goal_task", None)
     if goal_task:
         from .todoist_goal import satisfied
@@ -179,6 +194,18 @@ def candidate(proposal, explorations, context):
 
         task["goal_contract"] = copy.deepcopy(proposal["goal_contract"])
         task["instruction"] = instruction(task["goal_contract"])
+    if "success_conditions" in proposal:
+        from .coevolve_goal import validate
+        from .completion_contract import render
+
+        if "goal_contract" in task:
+            raise ValueError("Use one goal scoring revision")
+        task["success_conditions"] = copy.deepcopy(
+            validate(proposal["success_conditions"])
+        )
+        task["instruction"] = render(
+            task["instruction"], task["success_conditions"]["output"]
+        )
     return {**task, "task_id": identify(task)}
 
 
@@ -220,6 +247,23 @@ def attach_reference(task, trajectory, judgment):
             expected_answer=expected,
             reward_scope="public_todoist_goal_and_readback",
         )
+    if "success_conditions" in task:
+        from .coevolve_goal import REVISION, objective, finish_semantic, ScoringGap
+
+        if judgment.get("contract_complete") is not True:
+            raise ScoringGap("Goal coverage has not been verified before admission")
+
+        result = objective(task, trajectory["goal_evidence"])
+        if result["status"] == "needs_semantic":
+            result = finish_semantic(result, judgment["goal_semantic"])
+        if result["success"] is not True or not result["reward_valid"]:
+            raise ValueError("Solver did not satisfy frozen public goal conditions")
+        task["execution_contract"].update(
+            revision=REVISION,
+            reward_scope="public_goal_conditions",
+            goal_spec_sha256=digest(task["success_conditions"]),
+            reference_goal_evaluation=result,
+        )
     task["task_id"] = identify(task)
     return task
 
@@ -233,6 +277,21 @@ def validate_task(task, source_task_id, *, require_validation=True):
     ):
         raise ValueError("CoEvolve generated task identity/source changed")
     revision = VERSION
+    if "success_conditions" in task:
+        from .coevolve_goal import REVISION, validate
+        from .completion_contract import from_instruction
+
+        revision = REVISION
+        validate(task["success_conditions"])
+        if (
+            from_instruction(task["instruction"])
+            != task["success_conditions"]["output"]
+        ):
+            raise ValueError("Public answer contract differs from goal scorer")
+        if require_validation and task["execution_contract"][
+            "goal_spec_sha256"
+        ] != digest(task["success_conditions"]):
+            raise ValueError("Frozen success conditions changed")
     if "goal_contract" in task:
         from .todoist_goal import REVISION, instruction
 
@@ -253,6 +312,12 @@ def validate_task(task, source_task_id, *, require_validation=True):
 
 
 def evaluate(adapter, task, messages=None):
+    if "success_conditions" in task:
+        from .coevolve_goal import evaluate as evaluate_goal
+
+        result = evaluate_goal(adapter, task, messages or [])
+        result["business_sha256_diagnostic"] = business_hash(adapter)
+        return result
     contract = task["execution_contract"]
     if "goal_contract" in task:
         from .todoist_goal import REVISION, satisfied
@@ -287,6 +352,17 @@ def evaluate(adapter, task, messages=None):
 
 
 def validation_modes(task):
+    if "success_conditions" in task:
+        return {
+            "positive": True,
+            "noop": False,
+            "omit_completion": False,
+            **(
+                {"wrong_answer": False}
+                if task["success_conditions"]["output"]["required"]
+                else {}
+            ),
+        }
     if "goal_contract" in task:
         from .todoist_goal import validation_modes as goal_modes
 
@@ -335,6 +411,10 @@ def replay(adapter, task, trajectory, mode, output):
     from .todoist_goal import prepare, perturb
 
     prepare(adapter, task)
+    if "success_conditions" in task:
+        from .coevolve_goal import prepare as prepare_goal
+
+        prepare_goal(adapter, task)
     initial = adapter.fingerprint()
     if initial != task["execution_contract"]["initial_state_hash"]:
         raise ValueError("Generated initial state changed")

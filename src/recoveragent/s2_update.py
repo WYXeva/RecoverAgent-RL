@@ -45,7 +45,10 @@ def update(config, request, output, *, device="cuda"):
         g
         for g in groups
         if all(
-            type(e["success"]) is bool and e["classification"] != "infrastructure_error"
+            e.get("reward_valid", True) is True
+            and type(e["success"]) is bool
+            and e["classification"] != "infrastructure_error"
+            and not e.get("fault")
             for e in g
         )
     ]

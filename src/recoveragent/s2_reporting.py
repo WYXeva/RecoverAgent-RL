@@ -5,11 +5,14 @@ from pathlib import Path
 
 from .io import read_json
 from .s2_state import atomic
+from .reward_validity import valid_reward
 
 
 def score(rows):
     counts = Counter(
-        "success"
+        "unknown"
+        if not valid_reward(r)
+        else "success"
         if r["success"] is True
         else "failure"
         if r["success"] is False
@@ -36,39 +39,67 @@ def evaluation_cost(rows):
         },
         "episode_seconds_known": sum(r.get("wall_seconds") or 0 for r in rows),
         "billed_cost": None,
+        "reward_judge_usage": {
+            key: sum(r.get("reward_judge_usage", {}).get(key, 0) for r in rows)
+            for key in (
+                "requests",
+                "input_tokens",
+                "generated_tokens",
+                "seconds",
+                "priced_cost",
+                "unknown_reservations",
+            )
+        },
     }
 
 
 def paired(baseline, rows):
-    old = {r["task_id"]: r["success"] for r in baseline}
+    old = {r["task_id"]: r["success"] if valid_reward(r) else None for r in baseline}
     return {
         "gains": [
             r["task_id"]
             for r in rows
-            if old[r["task_id"]] is False and r["success"] is True
+            if old[r["task_id"]] is False and r["success"] is True and valid_reward(r)
         ],
         "regressions": [
             r["task_id"]
             for r in rows
-            if old[r["task_id"]] is True and r["success"] is False
+            if old[r["task_id"]] is True and r["success"] is False and valid_reward(r)
         ],
         "unknown_pairs": [
             r["task_id"]
             for r in rows
-            if old[r["task_id"]] is None or r["success"] is None
+            if old[r["task_id"]] is None or not valid_reward(r)
         ],
     }
 
 
 def generation_counts(batches):
     rejected = Counter()
+    candidate_issues = Counter()
     for batch in batches:
         for context in batch["contexts"]:
             if context.get("error"):
                 rejected[context["error"]["category"]] += 1
             for attempt in context.get("attempts", []):
                 if not attempt.get("accepted"):
-                    rejected[attempt.get("rejection_category", "unknown")] += 1
+                    category = attempt.get("rejection_category", "unknown")
+                    rejected[category] += 1
+                    candidate_issues[
+                        "scoring_capability"
+                        if category
+                        in {
+                            "deferred_scoring",
+                            "deferred_contract",
+                            "unsupported_validation",
+                        }
+                        else "task_defect"
+                        if category
+                        in {"duplicate", "duplicate_goal", "rejected_quality"}
+                        else "solver_failure"
+                        if category == "solver_failed"
+                        else "other_or_unknown"
+                    ] += 1
     return {
         "batches": sum("retry_of_window" not in b for b in batches),
         "regeneration_batches": sum("retry_of_window" in b for b in batches),
@@ -83,6 +114,7 @@ def generation_counts(batches):
             )
         },
         "rejected_operations_by_reason": dict(rejected),
+        "candidate_issues_by_origin": dict(candidate_issues),
     }
 
 
@@ -183,10 +215,10 @@ def summarize_round(state, round_index, baseline):
         "trajectories": len(groups) * 4,
         "trajectory_count_basis": "scheduled_attempt_slots; incomplete slots are not complete rollouts",
         "scored_trajectories": sum(
-            type(e["success"]) is bool for g in groups for e in g["episodes"]
+            valid_reward(e) for g in groups for e in g["episodes"]
         ),
         "unknown_trajectory_slots": sum(
-            e["success"] is None for g in groups for e in g["episodes"]
+            not valid_reward(e) for g in groups for e in g["episodes"]
         ),
         "started_model_trajectories": sum(
             e["usage"].get("model_requests", 0) > 0
@@ -208,6 +240,9 @@ def summarize_round(state, round_index, baseline):
             u.get("training_wall_seconds", 0) for u in updates
         ),
         "teacher_cost_cumulative": teacher_usage,
+        "reward_judge_cost_this_round": evaluation_cost(
+            [e for g in groups for e in g["episodes"]]
+        )["reward_judge_usage"],
         "teacher_cost_this_round": {
             k: v - prior_usage.get(k, 0) for k, v in teacher_usage.items()
         },

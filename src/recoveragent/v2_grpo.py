@@ -17,6 +17,7 @@ from .sft_recipe import gradient_health, tensor_hash
 from .v2_inference import policy_id
 from .v2_context import sequence_limit, validate_request_context
 from .v2_training import load_trainable, finish_checkpoint, finalize_reload
+from .reward_validity import valid_reward
 
 
 class NoPolicyUpdate(ValueError):
@@ -42,10 +43,7 @@ def group_advantages(episodes):
     }
     if len(keys) != 1:
         raise ValueError("GRPO task, initial state or policy differs within group")
-    if any(
-        e["classification"] == "infrastructure_error" or type(e["success"]) is not bool
-        for e in episodes
-    ):
+    if not all(valid_reward(e) for e in episodes):
         return None
     rewards = [float(e["success"]) for e in episodes]
     mean = sum(rewards) / 4

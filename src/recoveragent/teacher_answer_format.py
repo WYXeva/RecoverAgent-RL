@@ -18,6 +18,12 @@ NOTICE = {"revision": PROTOCOL, "rule": RULE}
 
 def public_task(task, settings):
     value = copy.deepcopy(task)
+    if settings.get("completion_contract_revision") is not None:
+        from .completion_contract import REVISION, NOTICE as COMPLETION_NOTICE
+
+        if settings["completion_contract_revision"] != REVISION:
+            raise ValueError("Unknown completion contract")
+        value["completion_contract"] = copy.deepcopy(COMPLETION_NOTICE)
     protocol = settings.get("answer_format_contract")
     if protocol is not None:
         if protocol != PROTOCOL:

@@ -43,6 +43,12 @@ def configuration(
     )
     if not recovery:
         config.pop("recovery_protocol")
+    if runtime == S2_RUNTIME:
+        from .v2_runtime import s2_execution
+
+        revision = s2_execution().get("completion_contract_revision")
+        if revision:
+            config["teacher"]["completion_contract_revision"] = revision
     config["authorization"] = {
         "approved": True,
         "currency": frozen["teacher"]["pricing"]["currency"],

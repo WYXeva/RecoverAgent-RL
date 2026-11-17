@@ -101,6 +101,11 @@ def schema_error_detail(error):
         detail["allowed_fields"] = sorted(properties)
     elif error.validator == "type":
         detail["expected_type"] = error.validator_value
+    elif error.validator in {"anyOf", "oneOf"}:
+        from .v2_model import _schema_types
+
+        detail["expected_types"] = sorted(_schema_types(error.schema))
+        detail["alternatives"] = [schema_error_detail(child) for child in error.context]
     return detail
 
 
@@ -119,7 +124,9 @@ def observed_tokens(messages):
     return tokens
 
 
-def check_batch(message, messages, tools, *, require_action=False):
+def check_batch(
+    message, messages, tools, *, require_action=False, answer_contract=None
+):
     calls = message.get("tool_calls", [])
     try:
         validate_history(
@@ -137,6 +144,18 @@ def check_batch(message, messages, tools, *, require_action=False):
         f = call["function"]
         if f["name"] not in visible:
             raise ProtocolViolation("invisible_tool", f["name"])
+        if f["name"] == "supervisor__complete_task" and answer_contract:
+            from .completion_contract import schema_conflict
+            from .v2_model import ParserContractError
+
+            try:
+                public_args = strict_arguments(f["arguments"])
+            except (ValueError, TypeError):
+                public_args = {}
+            if schema_conflict(public_args, tools, answer_contract):
+                raise ParserContractError(
+                    "Public output contract conflicts with tool Schema"
+                )
         try:
             args = strict_arguments(f["arguments"])
             call_code(f["name"], args, tools)
@@ -204,9 +223,42 @@ class ProtocolHarness:
             feedback["schema_error"] = schema_error
         return {"role": "user", "content": canonical(feedback)}
 
-    def rejection_event(self, exc, *, truncated, guard):
+    def rejection_event(self, exc, *, truncated, guard, completion_attempt=False):
         code, function = rejection_details(exc, truncated=truncated)
         pending = bool(guard and guard.pending)
+        if (
+            guard
+            and guard.revision
+            and (
+                pending or completion_attempt or function == "supervisor__complete_task"
+            )
+        ):
+            detail = getattr(exc, "schema_error", None) or {
+                "field": "tool_call",
+                "expected": "complete, well-formed tool call",
+                "problem": str(exc),
+            }
+            feedback = {
+                "role": "user",
+                "content": canonical(guard.format_rejection(detail)),
+            }
+            self.rejections += 1
+            self.stopped = guard.stopped
+            return {
+                "protocol_rejection": code,
+                "failure_category": "protocol",
+                "failure_origin": "model",
+                "rejection_stage": "schema"
+                if getattr(exc, "schema_error", None)
+                else "parse",
+                "completion_rejection": True,
+                "rejected_function": function,
+                "supervise": False,
+                "feedback": feedback,
+                "appworld_dispatched_count": 0,
+                "dispatched_count": 0,
+                "tool_results": [],
+            }
         feedback = self.reject(
             code,
             answer_pending=pending,
@@ -478,7 +530,7 @@ def validate_record(record):
         revision=record["harness"].get("runtime_revision"),
         budget_revision=record["harness"].get("budget_revision"),
     )
-    guard = AnswerGuard(json.loads(messages[1]["content"])["instruction"])
+    guard = AnswerGuard.from_public_task(json.loads(messages[1]["content"]))
     cursor = 2
     if record.get("recovery"):
         from .recovery_suffix import initial_guard
@@ -497,16 +549,32 @@ def validate_record(record):
                 raise ValueError(
                     "Unexpected-stop correction requires the reviewed runtime"
                 )
-            feedback = h.reject(
-                t["protocol_rejection"],
-                answer_pending=guard.pending,
-                tool_name=t.get("rejected_function"),
-                # Details are part of visible harness feedback, not an Assistant
-                # target. validate_receipts independently recomputes them from
-                # the immutable provider response and this turn's schema.
-                schema_error=json.loads(t["feedback"]["content"]).get("schema_error"),
+            feedback = (
+                h.reject(
+                    t["protocol_rejection"],
+                    answer_pending=guard.pending,
+                    tool_name=t.get("rejected_function"),
+                    # Details are part of visible harness feedback, not an Assistant
+                    # target. validate_receipts independently recomputes them from
+                    # the immutable provider response and this turn's schema.
+                    schema_error=json.loads(t["feedback"]["content"]).get(
+                        "schema_error"
+                    ),
+                )
+                if not t.get("completion_rejection")
+                else {
+                    "role": "user",
+                    "content": canonical(
+                        guard.format_rejection(
+                            json.loads(t["feedback"]["content"])["detail"]
+                        )
+                    ),
+                }
             )
-            if guard.pending:
+            if t.get("completion_rejection"):
+                h.rejections += 1
+                h.stopped = guard.stopped
+            elif guard.pending:
                 guard.inspect([])
             if (
                 t.get("supervise") is not False

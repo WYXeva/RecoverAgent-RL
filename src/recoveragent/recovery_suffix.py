@@ -22,7 +22,7 @@ HANDOFF = {
 
 
 def initial_guard(messages, recovery):
-    guard = AnswerGuard(json.loads(messages[1]["content"])["instruction"])
+    guard = AnswerGuard.from_public_task(json.loads(messages[1]["content"]))
     state = copy.deepcopy(recovery["initial_answer_guard"])
     if (
         set(state) != set(vars(guard))

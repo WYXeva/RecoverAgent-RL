@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+import math
 import re
 
 from .io import canonical
@@ -72,13 +73,87 @@ def _schema_types(schema):
     return types
 
 
-def _parameter(text, schema):
+class ParserContractError(ValueError):
+    """A compliant raw answer cannot be represented by the advertised interface."""
+
+
+def verify_native_answer(raw, parsed, schema, contract):
+    """Audit conversion against the actual XML + public types, never old prose.
+
+    This does not repair the call: a demonstrated parser conversion bug stops it.
+    """
+    from .completion_contract import scalar
+    from jsonschema import Draft202012Validator
+
+    raw = raw.removeprefix("\n").removesuffix("\n")
+    types = _schema_types(schema)
+    if scalar(contract) and re.fullmatch(
+        r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?", raw.strip()
+    ):
+        value = json.loads(raw)
+        if (type(value) is int or math.isfinite(value)) and Draft202012Validator(
+            contract["schema"]
+        ).is_valid(value):
+            if type(parsed) not in (int, float) or parsed != value:
+                raise ParserContractError(
+                    "Parser changed a compliant raw numeric answer"
+                )
+            return
+    explicit_text = (
+        contract
+        and contract["encoding"] == "value"
+        and contract["schema"]["type"] == "string"
+    )
+    if (
+        "string" in types
+        and (raw not in {"null", "None"} or explicit_text)
+        and parsed != raw
+    ):
+        raise ParserContractError("Parser changed schema-allowed answer text")
+
+
+def _parameter(text, schema, *, answer_contract=None):
     # Delimiters add exactly one newline on each side; preserve string whitespace.
     if text.startswith("\n"):
         text = text[1:]
     if text.endswith("\n"):
         text = text[:-1]
     types = _schema_types(schema)
+    from .completion_contract import scalar
+
+    if (
+        answer_contract
+        and answer_contract["encoding"] == "value"
+        and answer_contract["schema"]["type"] == "string"
+        and "string" in types
+    ):
+        return text
+    if scalar(answer_contract) and re.fullmatch(
+        r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?", text.strip()
+    ):
+        number = json.loads(text)
+        if type(number) is int or math.isfinite(number):
+            from jsonschema import Draft202012Validator
+
+            if Draft202012Validator(answer_contract["schema"]).is_valid(number):
+                if not types.intersection({"number", "integer"}):
+                    raise ParserContractError(
+                        "Public numeric answer conflicts with tool Schema"
+                    )
+                return number
+    if answer_contract and answer_contract["encoding"] == "json_string":
+        from .completion_contract import decode
+        from jsonschema import ValidationError
+
+        try:
+            decode(text, answer_contract)
+        except (ValueError, TypeError, ValidationError):
+            pass  # A real model format error, handled by the shared submit check.
+        else:
+            if "string" not in types:
+                raise ParserContractError(
+                    "Public JSON-text answer conflicts with tool Schema"
+                )
     if types == {"string"} or ("string" in types and text not in {"null", "None"}):
         return text
     if text in {"None", "null"} and "null" in types:
@@ -96,7 +171,16 @@ def _parameter(text, schema):
         return text  # Shared JSON Schema validation will reject a wrong scalar type.
 
 
-def parse_native(text, call_prefix, finish_reason, tools, identity):
+def parse_native(
+    text,
+    call_prefix,
+    finish_reason,
+    tools,
+    identity,
+    *,
+    answer_contract=None,
+    audit_conversion=False,
+):
     from .student import parse_batch
 
     if identity["tool_format"] == "qwen_json":
@@ -135,7 +219,21 @@ def parse_native(text, call_prefix, finish_reason, tools, identity):
             key, value = parameter.groups()
             if key in arguments or "<parameter=" in value or "<tool_call>" in value:
                 raise ValueError("Duplicate or ambiguous native parameter")
-            arguments[key] = _parameter(value, properties.get(key, {}))
+            arguments[key] = _parameter(
+                value,
+                properties.get(key, {}),
+                answer_contract=answer_contract
+                if name == "supervisor__complete_task" and key == "answer"
+                else None,
+            )
+            if (
+                key == "answer"
+                and name == "supervisor__complete_task"
+                and (answer_contract is not None or audit_conversion)
+            ):
+                verify_native_answer(
+                    value, arguments[key], properties.get(key, {}), answer_contract
+                )
             body = body[parameter.end() :]
         calls.append(
             {

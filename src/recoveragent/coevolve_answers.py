@@ -30,6 +30,13 @@ def validate_fields(fields):
 def prepare_proposal(proposal):
     prepared = copy.deepcopy(proposal)
     query = prepared["query"].strip()
+    if "success_conditions" in prepared:
+        from .coevolve_goal import validate
+        from .completion_contract import render
+
+        spec = validate(prepared["success_conditions"])
+        prepared["query"] = render(query, spec["output"])
+        return prepared
     fields = prepared.get("answer_fields")
     # This exact public request names all three values. No hidden/reference
     # answer is used to infer their names or types.

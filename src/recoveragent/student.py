@@ -324,9 +324,10 @@ class StudentSession:
                 or (not is_v6 and ANSWER_RULES not in messages[0]["content"])
             ):
                 raise ValueError("Student answer guard must be declared in the prompt")
-            self.answer_guard = AnswerGuard(
-                json.loads(messages[1]["content"])["instruction"]
+            self.answer_guard = AnswerGuard.from_public_task(
+                json.loads(messages[1]["content"])
             )
+        self.reward_fault = None
         self.messages, self.tools = copy.deepcopy(messages), copy.deepcopy(tools)
         self.tool_mode = tool_mode
         self.identity = {
@@ -704,12 +705,49 @@ class StudentSession:
                         response["finish_reason"],
                         request["tools"],
                         self.model_contract,
+                        answer_contract=self.answer_guard.output_contract
+                        if self.answer_guard
+                        else None,
+                        audit_conversion=bool(
+                            self.answer_guard and self.answer_guard.revision
+                        ),
                     )
+                if self.answer_guard and self.answer_guard.revision:
+                    event["submission_attempt"] = {
+                        "raw_output": text,
+                        "parsed_calls": message.get("tool_calls", []),
+                        "visible_schema_sha256": digest(request["tools"]),
+                    }
                 if self.harness:
                     check_batch(
-                        message, self.messages, request["tools"], require_action=True
+                        message,
+                        self.messages,
+                        request["tools"],
+                        require_action=True,
+                        answer_contract=self.answer_guard.output_contract
+                        if self.answer_guard
+                        else None,
                     )
             except (ValueError, KeyError, TypeError) as exc:
+                from .v2_model import ParserContractError
+                from .completion_contract import completion_attempt
+
+                if isinstance(exc, ParserContractError):
+                    self.reward_fault = {
+                        "origin": "parser_harness",
+                        "stage": "parse_schema_contract",
+                        "reason": str(exc),
+                    }
+                    self.stopped, self.termination = True, "submission_system_fault"
+                    event.update(
+                        status=self.termination,
+                        reward_valid=False,
+                        fault=self.reward_fault,
+                        raw_output=text,
+                        appworld_dispatched_count=0,
+                        supervise=False,
+                    )
+                    return event
                 if not self.harness:
                     raise
                 event.update(
@@ -717,6 +755,7 @@ class StudentSession:
                         exc,
                         truncated=response["finish_reason"] == "length",
                         guard=self.answer_guard,
+                        completion_attempt=completion_attempt(text),
                     )
                 )
                 self.messages.append(event["feedback"])
@@ -790,6 +829,20 @@ class StudentSession:
                     result,
                     executed=verdict is None,
                 )
+                if (
+                    self.answer_guard
+                    and self.answer_guard.revision
+                    and f["name"] == "supervisor__complete_task"
+                ):
+                    event.setdefault("completion_submissions", []).append(
+                        {
+                            "arguments": json.loads(f["arguments"]),
+                            "executed": verdict is None,
+                            "rejection_stage": "answer_contract" if verdict else None,
+                            "failure_origin": "model" if verdict else None,
+                            "tool_result": result,
+                        }
+                    )
             validate_history(self.messages)
             batch_open = False
             if (

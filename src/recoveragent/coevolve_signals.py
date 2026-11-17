@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .io import digest, read_json
 from .v2_tasks import context_for
+from .reward_validity import valid_reward
 
 
 def interaction_triplets(messages, rollout_id):
@@ -84,12 +85,9 @@ class SignalLedger:
             raise ValueError(
                 "Boundary signal requires one task, policy and initial state"
             )
-        usable = [
-            r
-            for r in episodes
-            if r["classification"] != "infrastructure_error"
-            and type(r["success"]) is bool
-        ]
+        usable = [r for r in episodes if valid_reward(r)]
+        if group and (len(episodes) != 4 or len(usable) != 4):
+            return []
         boundary = (
             group
             and len(usable) == len(episodes)

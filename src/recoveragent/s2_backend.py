@@ -12,6 +12,7 @@ from .v2_model import load_tokenizer
 from .v2_training import verify_checkpoint
 from .v2_vllm import Backend
 from .v2_runtime import s2_execution
+from .reward_validity import valid_reward
 
 
 def cuda_oom(text):
@@ -258,6 +259,12 @@ class BackendRuntime:
             "execution_protocol": self.cfg["execution_protocol"],
             "answer_format_contract": self.cfg["answer_format_contract"],
         }
+        if s2_execution().get("completion_contract_revision"):
+            request["completion_contract_revision"] = s2_execution()[
+                "completion_contract_revision"
+            ]
+        if task.get("diagnostic_goal_probe"):
+            request["purpose"] = "protocol_probe"
         # v2_episode expects an omitted generated_task for original tasks.
         if request["generated_task"] is None:
             request.pop("generated_task")
@@ -277,6 +284,7 @@ class BackendRuntime:
                 result = unknown_episode(
                     task, policy, directory, str(exc), seed, self.cfg["student_limits"]
                 )
+        result = self.finalize_reward(result, directory)
         if s2_execution().get("skip_cuda_oom") and (
             cuda_oom(result.get("fault", {}))
             or (directory / "backend_failure.json").exists()
@@ -286,19 +294,28 @@ class BackendRuntime:
             self.restart_after_group = True
         return {**result, "directory": str(directory), "seed": seed}
 
+    def finalize_reward(self, result, directory):
+        path = Path(directory) / "reward_result.json"
+        if path.exists():
+            saved = read_json(path)
+            if saved["raw_result_sha256"] != digest(result):
+                raise ValueError("Reward receipt does not match raw episode")
+            return saved["result"]
+        if (result.get("evaluation") or {}).get(
+            "status"
+        ) != "needs_semantic" or result.get("fault"):
+            return result
+        from .s2_reward import score
+
+        judged = score(self, result, directory)
+        write_json(path, {"raw_result_sha256": digest(result), "result": judged})
+        return judged
+
     def update(self, request, directory):
         from .v2_grpo import group_advantages
 
-        usable = [
-            g
-            for g in request["groups"]
-            if all(
-                type(e["success"]) is bool
-                and e["classification"] != "infrastructure_error"
-                for e in g
-            )
-        ]
-        if not any(any(group_advantages(g)) for g in usable):
+        usable = [g for g in request["groups"] if all(valid_reward(e) for e in g)]
+        if not any(any(group_advantages(g) or []) for g in usable):
             return {
                 "updated": False,
                 "reason": "no_scorable_reward_variation",

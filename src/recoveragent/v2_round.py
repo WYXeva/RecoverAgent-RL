@@ -355,6 +355,8 @@ def run(
                 r
                 for r in summary["feedback"]
                 if r["classification"] == "natural_failure"
+                and r.get("reward_valid", True) is True
+                and not r.get("fault")
             ]
             for i, failure in enumerate(failures[: cfg["recovery_attempts"]]):
                 if not failure["selected_snapshot"]:

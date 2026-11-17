@@ -68,7 +68,17 @@ def numeric_representation(value):
 
 
 class AnswerGuard:
-    def __init__(self, instruction):
+    revision = None
+    output_contract = None
+
+    def __init__(self, instruction, *, revision=None):
+        from .completion_contract import REVISION, from_instruction
+
+        if revision not in {None, REVISION}:
+            raise ValueError("Unknown completion submission contract")
+        if revision:
+            self.revision = revision
+            self.output_contract = from_instruction(instruction)
         self.contract = public_contract(instruction)
         self.pending = False
         self.stopped = False
@@ -83,6 +93,8 @@ class AnswerGuard:
         A retry consumes the next model response, even if it has no completion.
         The entire retry batch is rejected if it is not the promised single call.
         """
+        if self.revision:
+            return self._inspect_completion(calls)
         if self.stopped:
             raise ValueError("Answer correction already exhausted")
         retry = self.pending
@@ -125,6 +137,83 @@ class AnswerGuard:
             # Ambiguous representations are not converted, guessed, or retried.
         return verdicts
 
+    @classmethod
+    def from_public_task(cls, task):
+        from .completion_contract import NOTICE
+
+        notice = task.get("completion_contract")
+        if notice is not None and notice != NOTICE:
+            raise ValueError("Unknown public completion notice")
+        return cls(task["instruction"], revision=notice["revision"] if notice else None)
+
+    def format_rejection(self, detail):
+        """Shared one-reply budget for XML, Schema and answer format failures."""
+        retry = self.pending or self.correction_used
+        self.correction_used = retry
+        self.pending = not retry
+        self.stopped = retry
+        if self.first_submission_valid is None:
+            self.first_submission_valid = False
+        if retry:
+            self.correction_valid = False
+        return {
+            "source": "recoveragent_harness",
+            "protocol": self.revision,
+            "error": "harness_format_error",
+            "code": "completion_format",
+            "appworld_executed": False,
+            "whole_batch_rejected": True,
+            "retry_allowed": not retry,
+            "detail": detail,
+            "message": (
+                "This batch was NOT executed. Correct the reported field/structure. "
+                "The next reply is the single correction opportunity and must contain "
+                "only complete_task. Do not omit a required answer. If unable, use status=fail."
+                if not retry
+                else "This batch was NOT executed. The one completion correction is exhausted."
+            ),
+        }
+
+    def _inspect_completion(self, calls):
+        from .completion_contract import issue, scalar
+
+        if self.stopped:
+            raise ValueError("Completion correction already exhausted")
+        retry = self.pending
+        if retry and (len(calls) != 1 or calls[0]["function"]["name"] != COMPLETE):
+            error = self.format_rejection(
+                {"field": "tool_calls", "expected": "one complete_task"}
+            )
+            return [error] * len(calls)
+        for call in calls:
+            if call["function"]["name"] != COMPLETE:
+                continue
+            args = call["function"]["arguments"]
+            args = json.loads(args) if isinstance(args, str) else args
+            detail = issue(args, self.output_contract)
+            number = numeric_representation(args.get("answer"))
+            if (
+                retry
+                and self.expected is not None
+                and args.get("status", "success") == "success"
+                and number != self.expected
+            ):
+                detail = {
+                    "field": "answer",
+                    "expected": "same numeric value",
+                    "problem": "value changed",
+                }
+            if detail:
+                if not retry and scalar(self.output_contract) and number is not None:
+                    self.expected = number
+                return [self.format_rejection(detail)] * len(calls)
+            if self.first_submission_valid is None:
+                self.first_submission_valid = True
+            if retry:
+                self.pending, self.correction_used = False, True
+                self.correction_valid = args.get("status", "success") == "success"
+        return [None] * len(calls)
+
     def _error(self, code, retry_allowed):
         return {
             "source": "recoveragent_harness",
@@ -147,6 +236,14 @@ class AnswerGuard:
     def summary(self):
         return {
             "protocol": PROTOCOL,
+            **(
+                {
+                    "completion_revision": self.revision,
+                    "output_contract": self.output_contract,
+                }
+                if self.revision
+                else {}
+            ),
             "contract": self.contract,
             "first_submission_valid": self.first_submission_valid,
             "correction_used": self.correction_used,
@@ -163,7 +260,7 @@ def validate_guard_record(record):
             raise ValueError("Supervision override requires a declared answer guard")
         return
     messages = record["messages"]
-    guard = AnswerGuard(json.loads(messages[1]["content"])["instruction"])
+    guard = AnswerGuard.from_public_task(json.loads(messages[1]["content"]))
     if record.get("recovery"):
         from .recovery_suffix import initial_guard
 
@@ -177,7 +274,11 @@ def validate_guard_record(record):
         validate_record(record)  # Exact v6 plus real controls; replay below unchanged.
     for turn in record["turns"]:
         if "protocol_rejection" in turn and "harness" in record:
-            if guard.pending:
+            if turn.get("completion_rejection"):
+                guard.format_rejection(
+                    json.loads(turn["feedback"]["content"])["detail"]
+                )
+            elif guard.pending:
                 guard.inspect([])
             continue
         index = turn["assistant_index"]

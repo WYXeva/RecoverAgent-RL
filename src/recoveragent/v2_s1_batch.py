@@ -456,6 +456,8 @@ def recover(cfg, deployment, output):
         r
         for r in feedback_summary["results"]
         if r["classification"] == "natural_failure"
+        and r.get("reward_valid", True) is True
+        and not r.get("fault")
     ]
     for failure in failures:
         task, source = failure["task_id"], failure["selected_snapshot"]
