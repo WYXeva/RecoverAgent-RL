@@ -9,7 +9,14 @@ from .v2_tasks import ROOT, RUNTIME, context_for
 
 
 def configuration(
-    task_id, identity, root, remaining_cost, *, recovery=True, runtime=RUNTIME
+    task_id,
+    identity,
+    root,
+    remaining_cost,
+    *,
+    recovery=True,
+    runtime=RUNTIME,
+    purpose=None,
 ):
     from .v2_runtime import (
         S1_RUNTIME,
@@ -49,6 +56,17 @@ def configuration(
         revision = s2_execution().get("completion_contract_revision")
         if revision:
             config["teacher"]["completion_contract_revision"] = revision
+    if purpose is not None:
+        if (
+            runtime != S2_RUNTIME
+            or recovery
+            or purpose not in {"s2_text", "s2_exploration", "s2_solver"}
+        ):
+            raise ValueError("Independent Teacher context is scoped to S2 CoEvolve")
+        settings = s2_execution().get("teacher_context")
+        if settings:
+            config["teacher_purpose"] = purpose
+            config["teacher_context"] = copy.deepcopy(settings)
     config["authorization"] = {
         "approved": True,
         "currency": frozen["teacher"]["pricing"]["currency"],
@@ -82,6 +100,7 @@ def validate_config(config):
         cost,
         recovery=bool(config.get("recovery_protocol")),
         runtime=config["v2_runtime"],
+        purpose=config.get("teacher_purpose"),
     )
     if config != expected:
         raise ValueError("v2 Teacher configuration changed")

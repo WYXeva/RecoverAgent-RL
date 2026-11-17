@@ -149,6 +149,9 @@ class GroupEvolution(Evolution):
                 self.remaining(),
                 recovery=False,
                 runtime=self.cfg.get("execution_protocol", RUNTIME),
+                purpose="s2_solver"
+                if exploration["mode"] == "validation"
+                else "s2_exploration",
             )
         )
         directory = Path(directory)
@@ -160,6 +163,10 @@ class GroupEvolution(Evolution):
         return super().execute(source, directory, exploration)
 
     def raw_text(self, source, directory, system, content):
+        if s2_execution().get("teacher_context"):
+            # The parent checks the actual built provider request with the scoped
+            # Teacher tokenizer/window. Do not apply a second Student prefilter.
+            return super().text(source, directory, system, content)
         # Measure first: an overflow consumes no paid reservation.
         from .teacher_collection import context_receipt
         from .v2_model import load_tokenizer
@@ -184,6 +191,10 @@ class GroupEvolution(Evolution):
             raise ContextTooLong("Measured S2 text input exceeds 64k")
         self.reserve(directory, "text")
         return super().text(source, directory, system, content)
+
+    def before_text_request(self, directory):
+        if s2_execution().get("teacher_context"):
+            self.reserve(directory, "text")
 
     def text(self, source, directory, system, content):
         if self.light_generation:

@@ -1,6 +1,7 @@
 """One explicit LLM reward contract for Solver admission and Student sampling."""
 
 import copy
+import subprocess
 from pathlib import Path
 
 from .coevolve_signals import interaction_triplets
@@ -223,11 +224,16 @@ def admit(engine, task, directory, *, reference_path=None, expected_initial=None
         if not reference_path.exists():
             if solver.exists():
                 raise JudgeError("Interrupted Solver; no automatic paid repeat")
-            reference = engine.execute(
-                task["source_task_id"],
-                solver,
-                {"mode": "validation", "task": task, "scoring_revision": REVISION},
-            )
+            try:
+                reference = engine.execute(
+                    task["source_task_id"],
+                    solver,
+                    {"mode": "validation", "task": task, "scoring_revision": REVISION},
+                )
+            except subprocess.SubprocessError as exc:
+                raise JudgeError(
+                    "Solver execution infrastructure error; retain logs"
+                ) from exc
         else:
             reference = read_json(reference_path)
     else:

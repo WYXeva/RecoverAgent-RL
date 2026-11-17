@@ -15,7 +15,10 @@ from recoveragent.io import digest, read_json, write_json
 from recoveragent.s2_reward import finalize
 from recoveragent.s2_schedule import GroupFeedback
 from recoveragent.v2_grpo import group_advantages
-from recoveragent.v2_runtime import S2_LIGHT_EXECUTION, S2_GOAL_REPAIR_EXECUTION
+from recoveragent.v2_runtime import (
+    S2_TEACHER_CONTEXT_EXECUTION,
+    S2_GOAL_REPAIR_EXECUTION,
+)
 from test_s2_evolution import engine
 from test_s2_experiment import cfg, make_group, FakeRuntime
 from test_coevolve import history
@@ -23,7 +26,7 @@ from test_coevolve import history
 
 @pytest.fixture
 def lightweight(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_LIGHT_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_TEACHER_CONTEXT_EXECUTION)
 
 
 def proposal():
@@ -191,6 +194,30 @@ def test_failed_judge_call_invalid_and_business_false_valid():
         finalize(official, lambda _: pytest.fail("official score must not call Judge"))
         == official
     )
+
+
+def test_solver_worker_crash_is_deferred_not_business_failure(
+    tmp_path, monkeypatch, lightweight
+):
+    import subprocess
+
+    e = engine(tmp_path)
+    monkeypatch.setattr(e, "raw_text", lambda *a: {"tasks": [proposal()]})
+    monkeypatch.setattr(
+        e,
+        "execute",
+        lambda *a: (_ for _ in ()).throw(subprocess.CalledProcessError(1, "worker")),
+    )
+    group = make_group(tmp_path, "feedback", [False] * 4)
+    event = GroupFeedback(cfg()["task_evolution"]["signals"]).observe(0, group)
+    e.generate(
+        event["task_id"],
+        e.context(event, tmp_path / "context"),
+        tmp_path / "generation",
+    )
+    assert not e.pool and len(e.attempts) == 1
+    assert e.attempts[0]["quality_status"] == "deferred_judge"
+    assert "infrastructure" in e.attempts[0]["reason"]
 
 
 def test_shared_judge_admission_reward_and_synthetic_update_resume(

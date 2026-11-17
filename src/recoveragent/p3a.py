@@ -409,7 +409,9 @@ def run_teacher_episode(
     context_key = (
         "collection_context" if config.get("collection_context") else "learning_context"
     )
-    if config.get(context_key):
+    if config.get("teacher_context"):
+        trajectory["teacher_context"] = copy.deepcopy(config["teacher_context"])
+    elif config.get(context_key):
         from freezegun import configure
         from .v2_model import load_tokenizer
 
@@ -613,6 +615,14 @@ def run_teacher_episode(
                 "request_id": request_id,
             }
             payload = policy.build_request(messages, tools, max_tokens)
+            if config.get("teacher_context"):
+                from .teacher_context import receipt
+
+                context_audit = receipt(payload, config["teacher_context"])
+                write_json(output / "context" / f"{request_id}.json", context_audit)
+                if not context_audit["within_budget"]:
+                    termination = "context_budget_exhausted"
+                    break
             write_json(output / "requests" / f"{request_id}.request.json", payload)
             # Persist the reservation before entering a possibly interrupted request.
             write_json(

@@ -211,6 +211,9 @@ class Evolution:
             self.remaining(),
             recovery=False,
             runtime=self.cfg.get("execution_protocol", RUNTIME),
+            purpose="s2_text"
+            if self.cfg.get("execution_protocol", "").startswith("v2_s2_")
+            else None,
         )
         policy = TeacherPolicy(cfg, read_credentials(ROOT / ".env"))
         if getattr(policy, "session_id", None):
@@ -230,19 +233,25 @@ class Evolution:
         from .teacher_collection import context_receipt
         from .v2_model import load_tokenizer
 
-        if not hasattr(self, "context_tokenizer"):
-            self.context_tokenizer = load_tokenizer(self.identity)
-        context = context_receipt(
-            self.context_tokenizer,
-            request["messages"],
-            [],
-            request["max_tokens"],
-            cfg["learning_context"],
-            self.identity,
-        )
+        if cfg.get("teacher_context"):
+            from .teacher_context import receipt
+
+            context = receipt(request, cfg["teacher_context"])
+        else:
+            if not hasattr(self, "context_tokenizer"):
+                self.context_tokenizer = load_tokenizer(self.identity)
+            context = context_receipt(
+                self.context_tokenizer,
+                request["messages"],
+                [],
+                request["max_tokens"],
+                cfg["learning_context"],
+                self.identity,
+            )
         write_json(Path(directory) / "context.json", context)
         if not context["within_budget"]:
             raise ContextTooLong("CoEvolve text context too long; no truncation")
+        self.before_text_request(directory)
         # Conservative pre-request reservation; reconcile only known returned usage.
         price = cfg["teacher"]["pricing"]
         reserve = (
@@ -305,6 +314,9 @@ class Evolution:
         write_json(directory / "parsed.json", result)
         return result
 
+    def before_text_request(self, directory):
+        """S2 reserves its finite ledger only after full local request checks."""
+
     def execute(self, source, directory, exploration):
         payload = {
             "config": configuration(
@@ -314,6 +326,13 @@ class Evolution:
                 self.remaining(),
                 recovery=False,
                 runtime=self.cfg.get("execution_protocol", RUNTIME),
+                purpose=(
+                    "s2_solver"
+                    if exploration["mode"] == "validation"
+                    else "s2_exploration"
+                )
+                if self.cfg.get("execution_protocol", "").startswith("v2_s2_")
+                else None,
             ),
             "task_id": source,
             "output": str(directory),

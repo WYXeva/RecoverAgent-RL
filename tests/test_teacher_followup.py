@@ -286,7 +286,7 @@ def test_new_source_lock_and_old_collection_lock_reject_changes(monkeypatch):
 
     from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_light_llm_20261117")
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_teacher_context_20261117")
     assert len(verify_lock(S2_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError, match="source|Incomplete"):
         followup.verify_lock(followup.RETRY)
