@@ -350,7 +350,7 @@ def test_new_lock_and_immutable_historical_lock_rejection(monkeypatch):
     from recoveragent.v2_runtime import S1_RUNTIME, S2_RUNTIME, verify_lock
     from recoveragent.b10_pilot import verify_lock as old
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_goal_repair_20261117")
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_light_llm_20261117")
     assert len(verify_lock(S2_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError):
         followup_lock(RETRY)

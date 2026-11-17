@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .io import digest, read_json, write_json
 from .s2_state import evidence, unknown_episode, protocol_identity
-from .v2_runtime import S2_GOAL_REPAIR_EXECUTION, S2_RUNTIME, verify_lock
+from .v2_runtime import S2_LIGHT_EXECUTION, S2_RUNTIME, verify_lock
 
 
 def prepare(plan_path, output):
@@ -15,7 +15,7 @@ def prepare(plan_path, output):
 
     plan = read_json(plan_path)
     root = Path(__file__).resolve().parents[2]
-    recipe = read_json(root / "configs/s2_reward_fresh16_repair_20261117.json")
+    recipe = read_json(root / "configs/s2_llm_fresh16_20261117.json")
     if digest(plan) != recipe["plan_sha256"]:
         raise ValueError("Fresh16 task definitions differ from the reviewed manifest")
     if len(plan["tasks"]) != 4 or [t["coverage"] for t in plan["tasks"]] != [
@@ -25,28 +25,16 @@ def prepare(plan_path, output):
         "quote_email",
     ]:
         raise ValueError("Probe must freeze the four requested task categories")
-    metadata_proofs = {}
     for task in plan["tasks"]:
         context_for(task["task_id"], training=True)
         if task.get("generated_task"):
             validate_task(
                 task["generated_task"], task["task_id"], require_validation=False
             )
-            from .coevolve_goal import tables
-            from .coevolve_goal_schema import related_metadata, validate_fields
-
-            spec = task["generated_task"]["success_conditions"]
-            apps = sorted({table.split(".")[0] for table in tables(spec)})
-            metadata = related_metadata(
-                [{"action": {"name": app + "__metadata"}} for app in apps]
-            )
-            validate_fields(spec, metadata)
-            metadata_proofs[task["coverage"]] = digest(metadata)
     cfg = read_json(root / f"configs/{S2_RUNTIME}.json")
     frozen = {
-        "revision": S2_GOAL_REPAIR_EXECUTION,
+        "revision": S2_LIGHT_EXECUTION,
         "protocols": protocol_identity(),
-        "model_metadata_sha256": metadata_proofs,
         "plan_sha256": digest(plan),
         "plan": plan,
         "s0": cfg["s0"],
@@ -76,6 +64,12 @@ def run(output, deployment_path):
     ] != digest(frozen["plan"]):
         raise ValueError("Frozen probe changed")
     cfg, deployment = configuration(), read_json(deployment_path)
+    from .v2_runtime import s2_execution
+
+    deployment = {
+        **deployment,
+        "reward_judge_budget": s2_execution()["fresh16_judge_budget"],
+    }
     actor = deployment.get("s0_checkpoint") or deployment["s0"]
     receipt = verify_checkpoint(actor, cfg["models"][cfg["selected_model"]])
     if receipt["adapter_sha256_after"] != cfg["s0"]["adapter_sha256"]:
@@ -160,7 +154,7 @@ def main():
     parser.add_argument("--deployment")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
-    os.environ["RECOVERAGENT_S2_EXECUTION"] = S2_GOAL_REPAIR_EXECUTION
+    os.environ["RECOVERAGENT_S2_EXECUTION"] = S2_LIGHT_EXECUTION
     if args.command == "prepare":
         if not args.plan:
             parser.error("prepare requires --plan (private frozen definitions)")

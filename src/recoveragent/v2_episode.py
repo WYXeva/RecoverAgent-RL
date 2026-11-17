@@ -106,6 +106,20 @@ def run(config, generate):
                 )
             else:
                 generated_backend.validate_task(generated, task)
+            from .coevolve_llm import is_task, REVISION as LLM_REVISION
+
+            llm_task = is_task(generated)
+            if (
+                config.get("generated_scoring_revision") == LLM_REVISION
+                and not llm_task
+            ):
+                raise ValueError(
+                    "Generated pool has not been admitted under the LLM reward protocol"
+                )
+            if llm_task and config.get("generated_scoring_revision") != LLM_REVISION:
+                raise ValueError(
+                    "LLM task requires its explicit execution scoring identity"
+                )
             apply_instruction(adapter, generated["instruction"])
             if "goal_contract" in generated:
                 from .todoist_goal import prepare
@@ -115,7 +129,7 @@ def run(config, generate):
                 from .coevolve_goal import prepare as prepare_goal
 
                 prepare_goal(adapter, generated)
-            elif config.get("completion_contract_revision"):
+            elif config.get("completion_contract_revision") and not llm_task:
                 from .coevolve_goal import ScoringGap
 
                 raise ScoringGap(
@@ -124,7 +138,11 @@ def run(config, generate):
             public = public_task(adapter.public_task(), generated)
             if not probe and (
                 adapter.fingerprint()
-                != generated["validation"]["results"][0]["initial_state_hash"]
+                != (
+                    generated["validation"]["initial_state_hash"]
+                    if llm_task
+                    else generated["validation"]["results"][0]["initial_state_hash"]
+                )
             ):
                 raise ValueError(
                     "Generated initial state differs from validated source"
@@ -234,7 +252,11 @@ def run(config, generate):
                     directory / "goal_evidence.json",
                     goal_evidence(adapter, generated, session.messages),
                 )
-            if "goal_contract" in generated or "success_conditions" in generated:
+            if (
+                llm_task
+                or "goal_contract" in generated
+                or "success_conditions" in generated
+            ):
                 evaluation = generated_backend.evaluate(
                     adapter, generated, session.messages
                 )
@@ -309,7 +331,9 @@ def run(config, generate):
         "failure_origin": "parser_harness"
         if session and session.reward_fault
         else "scorer"
-        if evaluation and evaluation.get("status") in {"needs_semantic", "scoring_gap"}
+        if evaluation
+        and evaluation.get("status")
+        in {"needs_semantic", "needs_llm_judge", "scoring_gap"}
         else "environment"
         if fault
         else "model"

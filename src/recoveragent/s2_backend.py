@@ -258,6 +258,9 @@ class BackendRuntime:
             "environment_contract": self.cfg["environment_contract"],
             "execution_protocol": self.cfg["execution_protocol"],
             "answer_format_contract": self.cfg["answer_format_contract"],
+            "generated_scoring_revision": s2_execution().get(
+                "generated_scoring_revision"
+            ),
         }
         if s2_execution().get("completion_contract_revision"):
             request["completion_contract_revision"] = s2_execution()[
@@ -305,9 +308,10 @@ class BackendRuntime:
             if saved["raw_result_sha256"] != digest(result):
                 raise ValueError("Reward receipt does not match raw episode")
             return saved["result"]
-        if (result.get("evaluation") or {}).get(
-            "status"
-        ) != "needs_semantic" or result.get("fault"):
+        if (result.get("evaluation") or {}).get("status") not in {
+            "needs_semantic",
+            "needs_llm_judge",
+        } or result.get("fault"):
             return result
         from .s2_reward import score
 

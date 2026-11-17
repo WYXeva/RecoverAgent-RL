@@ -1,0 +1,54 @@
+{
+  "revision": "s2_llm_fresh16_20261117",
+  "execution_revision": "v2_s2_light_llm_20261117",
+  "plan_sha256": "db3e0f7a8cbb4163121eea48c0484a59d4ebd600136d4e5a752abff2edea965d",
+  "private_plan": "runs/s2_light_llm_20261117/fresh16_plan.json",
+  "tasks": [
+    {
+      "coverage": "scalar_number",
+      "task_id": "f691597_2",
+      "generated_task_id": null,
+      "parent_generated_task_id": null
+    },
+    {
+      "coverage": "cart_json",
+      "task_id": "9ef034e_3",
+      "generated_task_id": "coevolve_86ec7ed6c917af8935e6144d",
+      "parent_generated_task_id": "coevolve_c23597fec6757d595db69362"
+    },
+    {
+      "coverage": "product_question",
+      "task_id": "6588a51_2",
+      "generated_task_id": "coevolve_2a0a8078489aaea31dad830d",
+      "parent_generated_task_id": "coevolve_e91e43499e64fd88eb1e7665"
+    },
+    {
+      "coverage": "quote_email",
+      "task_id": "fdc4b74_3",
+      "generated_task_id": "coevolve_61790a19f026eb3ef3ef619e",
+      "parent_generated_task_id": "coevolve_b4e24206c615bdd51d03d63e"
+    }
+  ],
+  "s0": {
+    "checkpoint_receipt_sha256": "828251a14a515d2e8703d54c529abbdb1c5d1b05b4ae17d9566dc7aa92d1064b",
+    "adapter_sha256": "5da6444aa979e2ce0957b3bba82bd239ba0f59fad40024a7ea0a35b7f4534966",
+    "optimizer_steps": 658
+  },
+  "attempts_per_task": 4,
+  "attempts": 16,
+  "student_limits": {
+    "max_input_tokens": 65536,
+    "max_new_tokens": 4096,
+    "max_requests": 80,
+    "max_generated_tokens": 16384,
+    "wall_seconds": 1200,
+    "seed": 42,
+    "temperature": 0.8,
+    "top_p": 1.0
+  },
+  "sampling": "four fixed independent seeds per same clean task and S0",
+  "training": false,
+  "teacher_generation": false,
+  "remote_authorization": "stopped; user must arrange resources before run",
+  "semantic_judge": "Shared LLM Judge for generated tasks; original task retains official evaluator; separate finite fresh16 budget"
+}

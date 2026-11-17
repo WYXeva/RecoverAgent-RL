@@ -106,7 +106,7 @@ def test_new_runtime_preserves_evaluation_and_old_locks_still_reject(monkeypatch
     from recoveragent import s2_experiment as current
     from recoveragent.v2_runtime import S2_RUNTIME
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_goal_repair_20261117")
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_light_llm_20261117")
     cfg = current.configuration()
     assert cfg["dev_task_ids"] == plan()["dev24"]
     assert verify_student_runtime(S2_RUNTIME)["revision"] == S2_RUNTIME

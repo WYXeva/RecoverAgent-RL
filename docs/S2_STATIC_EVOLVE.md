@@ -1,4 +1,121 @@
-# S2：Static / Evolve 五轮运行说明
+# S2：轻量 CoEvolve / LLM Judge 运行说明
+
+当前仅完成本地准备，远端仍暂停。以下付费命令须等用户重新安排资源和绝对截止后执行；本次没有调用 Solver/Judge、启动服务或训练。新路线为四次真实反馈→必要探索→三字段出题→一次Solver→共享Judge→入池→GRPO。
+
+## 当前配置与边界
+
+- `RECOVERAGENT_S2_EXECUTION=v2_s2_light_llm_20261117`，独立224文件源码锁；显式奖励身份 `coevolve_llm_reward_v1`，完成提交仍为 `completion_submission_v2`。
+- 基础配置沿用 `v2_s2_static_evolve_20261116.json` 的模型、S0、train100、dev24/test111、64k/vLLM、5×40×4及GRPO设置；执行配置覆盖轻量生成和有限Judge预算。不得混用旧运行state、actor或评价缓存。
+- 四份完整有效反馈直接用于出题；有成功的业务观察时直接抽象，否则至多一次针对性探索。每context最多2题，允许空列表、单动作/计数组件题；只做同源公开题面去重。保留真实反馈与原件，超窗明确暂缓，不剪切历史或追加旧六字段分析链。
+- 每候选至多一次干净初态Solver和一次LLM Judge；旧证据适用时只做Judge。新任务不需要数据库目标表达式、字段元数据、repair或正负重放。不会回落到旧hash或全文答案比较。初态SHA仅核对执行起点，不是业务成功标准。
+- Solver和Student的生成题由同一Judge判断；允许合法不同做法，正常未完成为0，Judge/环境故障无效。原始train、dev和test仍官方评分。两分支都需要生成题Judge服务。
+- Teacher后台出题，Student不等候出题；组边界入池、每轮限频、跨轮复用、原始补位和无效整组排除沿用原实现。
+
+四份生效主提示位于 `src/recoveragent/coevolve_prompts.py`：`EXPLORATION`、`GENERATION`、`SOLVER`、`JUDGE`。Actor基础工具协议与共享公开数字规则继续复用。旧第三方模板仅保留来源，不进入新生成/Judge文本请求。
+
+## 已完成的私有准备
+
+`runs/s2_light_llm_20261117/` 保存本轮准备；不会提交到Git：
+
+- `initial_candidates/`：原9题全部找到适用Solver证据，逐份核对原引用SHA、公开题目、来源与初态；100份原反馈保留。9题只是待Judge候选，尚未获得新协议准入。
+- `judge_check_plan.json`：历史48条中的第5/21条已确认成功、第7/18条真实失败，保留实际业务调用/返回和最终提交。人工标签只用于报告核对，绝不送入Judge。0新任务执行。
+- `fresh16_plan.json`、`fresh16_READY/`：既定S0，单值数量、购物车JSON、商品提问、报价邮件各4次。3类生成题用新Judge，原始数量题官方评分。诊断定义不冒充已准入训练题，不自动入训练池。
+
+仅离线重新准备时：
+
+```bash
+export RECOVERAGENT_S2_EXECUTION=v2_s2_light_llm_20261117
+export PYTHONPATH="$PWD/src:$PWD"
+.venv-v2/bin/python scripts/run_v2_s2.py prepare-pool \
+  --input runs/v2_s2_20261116_prepare/initial_bundle \
+  --references runs/s2_light_llm_20261117/initial_references_archive.json \
+  --output runs/s2_light_llm_20261117/initial_candidates
+.venv-v2/bin/python scripts/probe_s2_reward_chain.py prepare \
+  --plan runs/s2_light_llm_20261117/fresh16_plan.json \
+  --output runs/s2_light_llm_20261117/fresh16_READY
+```
+
+原始引用映射由本地已有归档提取，私有准备目录需整体迁移。不得把缺失证据伪造成通过；没有适用Solver证据时保留 `deferred_validation`，不自动重跑Solver。
+
+## 后续获准后的核对和 fresh16
+
+在新源码目录部署本次完整 `src/scripts/configs/requirements/third_party`；保留旧冻结目录。复制现有私有环境配置，不输出或提交密钥。以下使用现有worker环境；实际路径、S0/model snapshot/环境和可用GPU需届时核对。复制旧deployment为新文件，`initial_bundle` 指向后续共同新池，`deadline_epoch` 填新的已授权绝对UTC epoch；不沿用过期截止。
+
+```bash
+export RECOVERAGENT_S2_EXECUTION=v2_s2_light_llm_20261117
+export PYTHONPATH="$PWD/src:$PWD"
+export HF_HOME=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+S2_PY=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python
+S2_DATA="$PWD/runs/s2_light_llm_20261117"
+S2_DEPLOY="$S2_DATA/deployment.json"
+S2_RUN="$S2_DATA/static_evolve_001"
+
+"$S2_PY" scripts/run_v2_s2.py check-judge \
+  --input "$S2_DATA/judge_check_plan.json" \
+  --deployment "$S2_DEPLOY" --output "$S2_DATA/judge_check"
+
+"$S2_PY" scripts/probe_s2_reward_chain.py run \
+  --deployment "$S2_DEPLOY" --output "$S2_DATA/fresh16_READY"
+# 中断时复用已完成结果，不重新采样已派发slot：
+"$S2_PY" scripts/probe_s2_reward_chain.py resume \
+  --deployment "$S2_DEPLOY" --output "$S2_DATA/fresh16_READY"
+```
+
+先核对4条Judge结果，再执行fresh16。逐条保留原始模型输出、解析参数、实际调用、终态提交、评分输入/响应、奖励有效性和用量。Judge判断不等于客观正确性的证明，需要核对已知正负例；若核对不符，记录具体原因后修复，不自动多轮复审或硬改成功。fresh16无训练，不要求16条全成功。
+
+## 共同初始池、正式启动、续跑和评价
+
+fresh16通过后，对已准备旧9题做一次新Judge准入，输出同一份共同池；不新增Solver执行。把新deployment的 `initial_bundle` 指向 `"$S2_DATA/initial_pool"` 的展开后绝对路径。接纳数可以小于9；Static/Evolve使用相同结果，空缺槽用原始题补齐。
+
+```bash
+"$S2_PY" scripts/run_v2_s2.py admit-pool \
+  --input "$S2_DATA/initial_candidates" \
+  --deployment "$S2_DEPLOY" --output "$S2_DATA/initial_pool"
+
+# 终端/作业1：唯一Student控制器，先Static再Evolve，最终统一评价。
+"$S2_PY" scripts/run_v2_s2.py run --mode both \
+  --deployment "$S2_DEPLOY" --output "$S2_RUN"
+
+# 终端/作业2：同一环境变量、部署和output，CPU/API后台等待Evolve反馈。
+"$S2_PY" scripts/run_v2_s2.py feedback-worker \
+  --deployment "$S2_DEPLOY" --output "$S2_RUN"
+```
+
+用已有持久终端或作业管理器分别保存两个进程日志，不同时启动两个Student控制器。同一个GPU串行执行两分支；后台worker可提前启动等待队列。新run从S0建立同协议dev24基线，每轮dev24，最终选择最佳轮（同分较早）与S0统一test111。旧S0历史分数保留，不导入新评价回执。
+
+```bash
+"$S2_PY" scripts/run_v2_s2.py resume --mode both \
+  --deployment "$S2_DEPLOY" --output "$S2_RUN"
+"$S2_PY" scripts/run_v2_s2.py report --output "$S2_RUN"
+"$S2_PY" scripts/run_v2_s2.py evaluate \
+  --deployment "$S2_DEPLOY" --output "$S2_RUN"
+```
+
+`evaluate`要求两分支五轮dev已完成，只接续最终评价。断点复用actor/optimizer/队列/反馈和已提交结果；Judge调用先持久化claim和预算，中断/结构错误不自动再次付费。正常业务失败仍为有效0；无效组不参与优势计算和能力失败反馈。
+
+## 有限预算与成本记录
+
+预算是技术上限，不是资源授权或账单承诺。各类请求另记实际input/output token、耗时、价格估算及中断预留；仍受新的实例绝对截止限制。
+
+| 用途 | 调用上限 | 说明 |
+| --- | ---: | --- |
+| 历史Judge核对 | 4 | 2正2负，无新环境执行 |
+| fresh16奖励Judge | 16 | 实际最多12条生成题，4条原题官方评分 |
+| 共同初始池Judge | 9 | 复用全部9份Solver证据 |
+| 正式Student生成题奖励Judge | 800 | 两分支总训练1600条，生成槽每分支至多50%，共享ledger |
+| Evolve新增候选准入Judge | 192 | 最多24批×4context×2题，包含在生成预算中 |
+
+正式Judge保守上限为 **1001次（800+192+9）**；初始池只有9题时Static最多180条生成轨迹、Evolve最多400条，实际理论上限进一步为 **781次**。未生成、未执行、故障或拒绝会使实际调用更少。历史核对4次和fresh16最多16次独立记账，不挤占正式额度。
+
+生成总预算包含至多96次可选探索、192次Solver、96次出题、192次准入Judge：最多23,328请求、5,898,240生成token、380,160秒累计调用时间；这不是墙钟预计耗时。正式reward Judge为800请求/3,276,800生成token/96,000累计秒，另有有限input/priced_cost限制。每次文本最多4096生成token，原Actor单题预算保持80请求/16384生成token/1200秒。完整数值见 `configs/v2_s2_light_llm_20261117.json`；实际费用以provider账单为准。
+
+---
+
+# 历史运行说明（以下旧命令仅复现，不能用于当前新路线）
+
+## 2026-11-16/17 历史版本
 
 **当前停止状态**：本批远端续跑授权已撤回。11月17日的提交/奖励修复只在本地完成；下一步是固定16条协议诊断，入口、独立版本和等待条件见 [修复报告](../reports/s2_reward_chain_fix_20261117.md)。下文旧版本命令用于复现，不能据此自动恢复训练。新协议不能直接复用旧奖励或旧S0分数作为效果对照。
 

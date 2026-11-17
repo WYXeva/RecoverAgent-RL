@@ -60,18 +60,38 @@ def configuration():
         }.items()
     ):
         raise ValueError("Frozen S2 schedule or Student budget changed")
+    settings = s2_execution()
+    lightweight = settings.get("generation_revision") == "coevolve_light_v1"
+    if lightweight:
+        cfg["task_evolution"].update(settings["generation_settings"])
+        cfg["s2"]["teacher_budget"] = settings["generation_budget"]
     if any(
         cfg["task_evolution"][k] != n
         for k, n in {
             "max_proposals": 192,
             "max_feedback_cycles": 24,
             "contexts_per_batch": 4,
-            "explorations_per_context": 2,
+            "explorations_per_context": 1 if lightweight else 2,
             "proposals_per_context": 2,
         }.items()
     ):
         raise ValueError("Frozen S2 generation limits changed")
     return cfg
+
+
+def require_pool_protocol(bundle):
+    revision = s2_execution().get("generated_scoring_revision")
+    if revision:
+        from .coevolve_tasks import validate_task
+
+        if bundle.get("scoring_revision") != revision:
+            raise ValueError(
+                "Prepare one common initial pool under the new LLM scoring protocol"
+            )
+        for task in bundle["pool"]:
+            if task.get("scoring_revision") != revision:
+                raise ValueError("Initial generated pool mixes reward protocols")
+            validate_task(task, task["source_task_id"])
 
 
 def evaluate(runtime, actor, tasks, output, *, final_test=False):
@@ -149,6 +169,7 @@ class Experiment:
     def __init__(self, cfg, bundle, deployment, output, mode, runtime):
         if mode not in {"static", "evolve"}:
             raise ValueError("Unknown S2 experiment mode")
+        require_pool_protocol(bundle)
         self.cfg, self.bundle, self.deployment = cfg, bundle, deployment
         self.output, self.runtime = Path(output), runtime
         self.output.mkdir(parents=True, exist_ok=True)
@@ -564,6 +585,7 @@ def run(config, deployment, output, mode):
     with (output / "controller.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         bundle = load_bundle(deployment["initial_bundle"])
+        require_pool_protocol(bundle)
         checkpoint(deployment["s0"], config, initial=True)
         evidence(
             output / "experiment.json",
@@ -682,6 +704,9 @@ def main():
         "command",
         choices=[
             "prepare",
+            "prepare-pool",
+            "admit-pool",
+            "check-judge",
             "run",
             "resume",
             "evaluate",
@@ -694,6 +719,7 @@ def main():
     parser.add_argument("--output", type=Path)
     parser.add_argument("--deployment", type=Path)
     parser.add_argument("--archive", type=Path)
+    parser.add_argument("--references", type=Path)
     parser.add_argument("--mode", choices=["static", "evolve", "both"], default="both")
     parser.add_argument("--input", type=Path)
     parser.add_argument("--window", type=int)
@@ -710,6 +736,13 @@ def main():
         parser.error("--deployment is required")
     if args.command == "prepare" and args.archive is None:
         parser.error("prepare requires --archive")
+    if (
+        args.command in {"prepare-pool", "admit-pool", "check-judge"}
+        and args.input is None
+    ):
+        parser.error("pool commands require --input")
+    if args.command in {"admit-pool", "check-judge"} and args.deployment is None:
+        parser.error("admit-pool requires an authorized deployment/deadline")
     if args.command == "resume" and not (args.output / "experiment.json").exists():
         parser.error("resume requires an existing experiment output")
     if args.command == "regenerate" and (args.window is None or args.attempt is None):
@@ -724,7 +757,16 @@ def main():
         update(cfg, payload["request"], payload["output"])
         return
     cfg = configuration()
-    if args.command == "feedback-worker":
+    if args.command in {"prepare-pool", "admit-pool", "check-judge"}:
+        from .s2_llm_pool import prepare_pool, admit_pool, check_judge
+
+        if args.command == "prepare-pool":
+            prepare_pool(args.input, args.output, args.references)
+        elif args.command == "admit-pool":
+            admit_pool(cfg, read_json(args.deployment), args.input, args.output)
+        else:
+            check_judge(cfg, read_json(args.deployment), args.input, args.output)
+    elif args.command == "feedback-worker":
         from .s2_background import worker
 
         if not s2_execution().get("background_generation"):

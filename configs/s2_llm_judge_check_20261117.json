@@ -1,0 +1,12 @@
+{
+  "revision": "coevolve_llm_reward_v1",
+  "plan_sha256": "dfb4ae534f38d3ac0a618cf1b29a528da5c0208bc4936a37e0b5dc296d3c9a93",
+  "rows": [
+    5,
+    7,
+    18,
+    21
+  ],
+  "calls_max": 4,
+  "scope": "historical Judge sanity check only; no Student/Teacher execution"
+}

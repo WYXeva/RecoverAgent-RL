@@ -478,6 +478,9 @@ def run_teacher_episode(
                 from .coevolve_tasks import exploration_instruction
 
             apply_instruction(adapter, exploration_instruction(exploration))
+            from .coevolve_llm import REVISION as LLM_REVISION
+
+            adapter.llm_scoring = exploration.get("scoring_revision") == LLM_REVISION
             if (
                 exploration.get("protocol") == "coevolve_appworld_v1"
                 and exploration.get("mode") == "validation"

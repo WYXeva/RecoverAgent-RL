@@ -2,7 +2,7 @@
 
 在 AppWorld 中研究反馈驱动的任务演化、真实失败恢复和在线强化学习：同一个 Student 执行任务，Teacher 接续修复 badcase，并探索、生成可验证的新任务；通过迭代 Recovery-SFT 与当前策略 GRPO 更新模型。
 
-**[project.md](project.md) 是唯一当前主计划；[AGENTS.md](AGENTS.md) 是开发约定；[STATUS 当前摘要](docs/STATUS.md) 记录实际进度。** 当前执行第8节的Static / Evolve五轮主对照，命令见[S2运行说明](docs/S2_STATIC_EVOLVE.md)。
+**[project.md](project.md) 是唯一当前主计划；[AGENTS.md](AGENTS.md) 是开发约定；[STATUS 当前摘要](docs/STATUS.md) 记录实际进度。** 当前准备第8节的轻量CoEvolve与共享LLM奖励，远端暂停；下一步先fresh16，再Static / Evolve五轮主对照，命令见[S2运行说明](docs/S2_STATIC_EVOLVE.md)。
 
 ## 当前起点
 
@@ -23,7 +23,7 @@
 | 现有执行协议起点 | [execution_v6](src/recoveragent/execution_v6.py)、[Harness](docs/HARNESS_V1.md)、[Student 协议](docs/STUDENT_PROTOCOL.md) |
 | 排查模型实际输入/输出 | [LLM 请求视图](docs/LLM_VIEW.md) |
 
-当前S2入口为 `scripts/run_v2_s2.py`，读取 `configs/v2_s2_static_evolve_20261116.json` 及新锁，支持prepare/run/resume/evaluate/report。每分支5×40×4，KL固定S0，统一65,536窗口；训练/续跑/评价命令见[S2运行说明](docs/S2_STATIC_EVOLVE.md)。历史入口使用各自固定提交、配置和锁复现。
+当前S2入口为 `scripts/run_v2_s2.py`，读取 `configs/v2_s2_static_evolve_20261116.json` 及新锁，新执行版本为 `v2_s2_light_llm_20261117`，支持旧池准备/新Judge准入、run/resume/evaluate/report及后台反馈。每分支5×40×4，KL固定S0，统一65,536窗口；训练/续跑/评价命令见[S2运行说明](docs/S2_STATIC_EVOLVE.md)。历史入口使用各自固定提交、配置和锁复现。
 
 ## 目录与本地验证
 

@@ -6,7 +6,7 @@ import pytest
 
 from recoveragent.io import read_json, write_json
 from recoveragent.p3a import validate_config
-from recoveragent.v2_runtime import S2_GOAL_REPAIR_EXECUTION, S2_RUNTIME
+from recoveragent.v2_runtime import S2_LIGHT_EXECUTION, S2_RUNTIME
 from recoveragent.v2_teacher import configuration
 from test_s2_evolution import engine
 from test_s2_experiment import cfg, FakeRuntime, generated
@@ -14,7 +14,7 @@ from test_s2_experiment import cfg, FakeRuntime, generated
 
 @pytest.fixture
 def execution(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_REPAIR_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_LIGHT_EXECUTION)
 
 
 def test_real_teacher_entry_accepts_s2_and_rejects_tampering(execution):
@@ -71,8 +71,10 @@ def test_execute_reservation_does_not_create_teacher_output(tmp_path, execution)
 
 
 def test_explicit_price_opt_out_keeps_other_caps_and_unknown_reservations(
-    tmp_path, execution
+    tmp_path, execution, monkeypatch
 ):
+    # Historical explicit opt-out remains available; new light profile has finite caps.
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_goal_repair_20261117")
     e = engine(tmp_path)
     e.cfg["s2"]["teacher_budget"]["priced_cost"] = 0.1
     e.reserve(tmp_path / "a", "execute")

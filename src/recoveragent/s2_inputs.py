@@ -80,6 +80,10 @@ def prepare(archive, output):
 def load_bundle(directory):
     directory = Path(directory)
     manifest = read_json(directory / "manifest.json")
+    if manifest.get("revision") == "llm_initial_pool_v1":
+        from .s2_llm_pool import load
+
+        return load(directory)
     spec = read_json(ROOT / "configs/v2_s2_inputs_20261116.json")
     expected = {
         r["archive_member"]: r["sha256"]

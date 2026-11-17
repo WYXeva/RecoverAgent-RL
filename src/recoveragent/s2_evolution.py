@@ -44,6 +44,9 @@ class GroupEvolution(Evolution):
         self.priced_cost_limit = s2_execution().get("teacher_priced_cost_limit", True)
         self.curriculum_admission = s2_execution().get("curriculum_admission", False)
         self.public_goals = bool(s2_execution().get("public_goal_revision"))
+        self.light_generation = (
+            s2_execution().get("generation_revision") == "coevolve_light_v1"
+        )
 
     def remaining(self):
         if not self.priced_cost_limit:
@@ -183,6 +186,8 @@ class GroupEvolution(Evolution):
         return super().text(source, directory, system, content)
 
     def text(self, source, directory, system, content):
+        if self.light_generation:
+            return self.raw_text(source, directory, system, content)
         try:
             return self.raw_text(source, directory, system, content)
         except ContextTooLong:
@@ -271,7 +276,18 @@ class GroupEvolution(Evolution):
                 source, directory / "right", item, messages[cut:], offset + cut
             )
 
+    def generate(self, source, context, directory):
+        if self.light_generation:
+            from .coevolve_light import generate
+
+            return generate(self, source, context, directory)
+        return super().generate(source, context, directory)
+
     def context(self, event, directory):
+        if self.light_generation:
+            from .coevolve_light import context
+
+            return context(self, event, directory)
         self.active_event = event
         histories = []
         for item in event["episodes"]:

@@ -84,6 +84,12 @@ def answer_matches(actual, expected, comparison):
 def exploration_instruction(payload):
     if payload["mode"] == "validation":
         return payload["task"]["instruction"]
+    from .coevolve_llm import REVISION
+
+    if payload.get("scoring_revision") == REVISION:
+        from .coevolve_prompts import EXPLORATION
+
+        return EXPLORATION + "\nFeedback evidence: " + canonical(payload["context"])
     context = payload.get("context")
     guidance = (
         "Explore the available applications through their public APIs. Discover a useful, concrete multi-step user goal. "
@@ -100,6 +106,12 @@ def exploration_instruction(payload):
 
 
 def validation_hint(task):
+    from .coevolve_llm import is_task
+
+    if is_task(task):
+        from .coevolve_prompts import SOLVER
+
+        return SOLVER
     return (
         "Solve the assigned task in this fresh environment. The following is a proposed approach, not proof of success. "
         "Verify actual values and effects with tools; authenticate afresh. Complete only after the real goal is achieved. "
@@ -116,6 +128,11 @@ def capture_terminal(adapter, trajectory):
     current = adapter.world.requester.request(
         "supervisor", "show_active_task", track=False
     )
+    if getattr(adapter, "llm_scoring", False):
+        trajectory["coevolve_terminal"] = {
+            k: current.get(k) for k in ("instruction", "status", "answer")
+        }
+        return
     trajectory["coevolve_terminal"] = {
         "instruction": current["instruction"],
         "status": current.get("status"),
@@ -143,7 +160,13 @@ def identify(task):
     return "coevolve_" + digest(base)[:24]
 
 
-def candidate(proposal, explorations, context):
+def candidate(proposal, explorations, context, *, scoring_revision=None):
+    if scoring_revision is not None:
+        from .coevolve_llm import REVISION, candidate as llm_candidate
+
+        if scoring_revision != REVISION:
+            raise ValueError("Unknown generated task scoring revision")
+        return llm_candidate(proposal, explorations, context)
     if not explorations or len({r["task_id"] for r in explorations}) != 1:
         raise ValueError("Task abstraction requires one source initial environment")
     source = explorations[0]["task_id"]
@@ -286,6 +309,11 @@ def validate_task(task, source_task_id, *, require_validation=True):
         or task["task_id"] != identify(task)
     ):
         raise ValueError("CoEvolve generated task identity/source changed")
+    from .coevolve_llm import is_task, validate_task as validate_llm
+
+    if is_task(task):
+        validate_llm(task, require_validation=require_validation)
+        return
     revision = VERSION
     if "success_conditions" in task:
         from .coevolve_goal import REVISION, validate
@@ -322,6 +350,19 @@ def validate_task(task, source_task_id, *, require_validation=True):
 
 
 def evaluate(adapter, task, messages=None):
+    from .coevolve_llm import is_task, pending
+
+    if is_task(task):
+        current = adapter.world.requester.request(
+            "supervisor", "show_active_task", track=False
+        )
+        if current["instruction"] != task["instruction"]:
+            raise ValueError("LLM scoring public task changed")
+        return pending(
+            task,
+            messages or [],
+            {"status": current.get("status"), "answer": current.get("answer")},
+        )
     if "success_conditions" in task:
         from .coevolve_goal import evaluate as evaluate_goal
 
