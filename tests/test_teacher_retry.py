@@ -191,7 +191,7 @@ def test_worker_uses_new_budget_explicitly_without_changing_context(monkeypatch)
 def test_retry_lock_does_not_resign_previous_pro_run(monkeypatch):
     from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_evolve_round1_20261117")
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_judge_reference_20261117")
     assert len(verify_lock(S2_RUNTIME)["lock_sha256"]) == 64
     with pytest.raises(ValueError, match="source|Incomplete"):
         followup.verify_lock(retry.REVISION)

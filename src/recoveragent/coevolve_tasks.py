@@ -349,7 +349,7 @@ def validate_task(task, source_task_id, *, require_validation=True):
         check_results(task, validation["results"])
 
 
-def evaluate(adapter, task, messages=None):
+def evaluate(adapter, task, messages=None, *, initial_state_hash=None):
     from .coevolve_llm import is_task, pending
 
     if is_task(task):
@@ -362,6 +362,7 @@ def evaluate(adapter, task, messages=None):
             task,
             messages or [],
             {"status": current.get("status"), "answer": current.get("answer")},
+            initial_state_hash=initial_state_hash,
         )
     if "success_conditions" in task:
         from .coevolve_goal import evaluate as evaluate_goal

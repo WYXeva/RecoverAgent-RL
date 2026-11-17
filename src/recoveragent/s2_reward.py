@@ -28,10 +28,23 @@ def finalize(result, judge):
         result.update(
             evaluation=evaluation,
             success=evaluation["success"],
-            reward_valid=True,
-            classification="success" if evaluation["success"] else "natural_failure",
-            failure_origin=None if evaluation["success"] else "model",
+            reward_valid=evaluation["reward_valid"],
+            classification="scoring_gap"
+            if not evaluation["reward_valid"]
+            else "success"
+            if evaluation["success"]
+            else "natural_failure",
+            failure_origin="scorer"
+            if not evaluation["reward_valid"]
+            else None
+            if evaluation["success"]
+            else "model",
         )
+        if not evaluation["reward_valid"]:
+            result["scoring_fault"] = {
+                "reason": evaluation["reason"],
+                "type": "JudgeIndeterminate",
+            }
     except (ValueError, KeyError, TypeError, RuntimeError, OSError) as exc:
         result.update(
             success=None,

@@ -16,7 +16,7 @@ from recoveragent.s2_reward import finalize
 from recoveragent.s2_schedule import GroupFeedback
 from recoveragent.v2_grpo import group_advantages
 from recoveragent.v2_runtime import (
-    S2_EVOLVE_ROUND1_EXECUTION,
+    S2_JUDGE_REFERENCE_EXECUTION,
     S2_GOAL_REPAIR_EXECUTION,
 )
 from test_s2_evolution import engine
@@ -26,7 +26,7 @@ from test_coevolve import history
 
 @pytest.fixture
 def lightweight(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_EVOLVE_ROUND1_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_REFERENCE_EXECUTION)
 
 
 def proposal():
@@ -76,6 +76,17 @@ def judge_reply(success=True):
     }
 
 
+def admitted_task(task, tmp_path):
+    saved = tmp_path / "solver.json"
+    write_json(saved, reference(task))
+    return llm.admit(
+        SimpleNamespace(text=lambda *a, **kw: judge_reply()),
+        task,
+        tmp_path / "admitted",
+        reference_path=saved,
+    )
+
+
 def test_three_fields_single_action_and_loading():
     task = new_task()
     coevolve_tasks.validate_task(task, task["source_task_id"], require_validation=False)
@@ -115,7 +126,8 @@ def test_actual_generation_prompts_no_old_gates_and_optional_one_exploration(
             assert "evidence_refs" not in prompt and "three" not in prompt
             return {"tasks": [] if empty else [proposal()]}
         assert prompt == prompts.JUDGE
-        assert set(content) == {"query", "execution", "final_submission"}
+        assert set(content) == {"query", "reference", "execution", "final_submission"}
+        assert content["reference"] is None
         return judge_reply()
 
     def execute(source, directory, payload):
@@ -254,9 +266,10 @@ def test_shared_judge_admission_reward_and_synthetic_update_resume(
     )
     for i, row in enumerate(rows):
         pending = llm.pending(
-            task,
+            accepted,
             read_json(Path(row["directory"]) / "history.json")["messages"],
             {"status": "success", "answer": i % 2},
+            initial_state_hash="clean",
         )
         result = {
             **row,
@@ -293,6 +306,7 @@ def test_shared_judge_admission_reward_and_synthetic_update_resume(
                             chosen["generated_task"],
                             observed,
                             {"status": "success", "answer": seed % 2},
+                            initial_state_hash="clean",
                         ),
                     },
                     lambda _: judge_reply(bool(seed % 2)),
@@ -331,8 +345,10 @@ def test_shared_judge_admission_reward_and_synthetic_update_resume(
         )
 
 
-def test_explicit_llm_evaluator_never_falls_back_to_hash_or_exact_answer(monkeypatch):
-    task = new_task()
+def test_explicit_llm_evaluator_never_falls_back_to_hash_or_exact_answer(
+    monkeypatch, tmp_path, lightweight
+):
+    task = admitted_task(new_task(), tmp_path)
     adapter = SimpleNamespace(
         world=SimpleNamespace(
             requester=SimpleNamespace(
@@ -350,7 +366,9 @@ def test_explicit_llm_evaluator_never_falls_back_to_hash_or_exact_answer(monkeyp
     monkeypatch.setattr(
         coevolve_tasks, "answer_matches", lambda *_: pytest.fail("old answer scorer")
     )
-    result = coevolve_tasks.evaluate(adapter, task, reference(task)["messages"])
+    result = coevolve_tasks.evaluate(
+        adapter, task, reference(task)["messages"], initial_state_hash="clean"
+    )
     assert result["evaluator"] == llm.REVISION and result["status"] == "needs_llm_judge"
 
 
@@ -380,11 +398,13 @@ def test_initial_common_pool_reuses_saved_solver_and_missing_stays_pending(
         "feedback": [],
     }
     monkeypatch.setattr(s2_inputs, "load_bundle", lambda _: legacy)
+    legacy_dir = tmp_path / "legacy"
+    write_json(legacy_dir / "manifest.json", {"revision": "synthetic_archive"})
     ref_path = tmp_path / "original.json"
     write_json(ref_path, ref)
     refs = tmp_path / "references.json"
     write_json(refs, {"historical_1": str(ref_path)})
-    prepared = s2_llm_pool.prepare_pool("legacy", tmp_path / "prepared", refs)
+    prepared = s2_llm_pool.prepare_pool(legacy_dir, tmp_path / "prepared", refs)
     assert [r["status"] for r in prepared["candidates"]] == [
         "ready_for_one_judge",
         "deferred_validation",

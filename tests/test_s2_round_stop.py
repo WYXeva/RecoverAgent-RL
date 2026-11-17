@@ -3,14 +3,14 @@
 from recoveragent.coevolve_llm import REVISION
 from recoveragent.io import read_json
 from recoveragent.s2_experiment import Experiment, evaluate
-from recoveragent.v2_runtime import S2_EVOLVE_ROUND1_EXECUTION
+from recoveragent.v2_runtime import S2_JUDGE_REFERENCE_EXECUTION
 from test_s2_experiment import cfg, FakeRuntime
 
 
 def test_one_round_stops_after_dev_without_fifth_generation_window(
     tmp_path, monkeypatch
 ):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_EVOLVE_ROUND1_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_REFERENCE_EXECUTION)
     config = cfg()
     runtime = FakeRuntime(config)
     runtime.prepare_rollouts = lambda actor: None

@@ -11,7 +11,7 @@ from recoveragent.io import digest, read_json
 from recoveragent.s2_experiment import configuration
 from recoveragent.s2_reward import finalize
 from recoveragent.teacher import TeacherPolicy
-from test_coevolve_light_llm import new_task, reference
+from test_coevolve_light_llm import new_task, reference, admitted_task
 from test_s2_teacher_context import text_engine
 
 
@@ -20,7 +20,7 @@ def setup(monkeypatch, tmp_path):
     from pathlib import Path
 
     monkeypatch.setenv(
-        "RECOVERAGENT_S2_EXECUTION", v2_runtime.S2_EVOLVE_ROUND1_EXECUTION
+        "RECOVERAGENT_S2_EXECUTION", v2_runtime.S2_JUDGE_REFERENCE_EXECUTION
     )
     local = Path("runs/s2_context_validation_20261117/teacher_tokenizer")
     if (local / "tokenizer.json").exists():
@@ -74,14 +74,22 @@ def test_admission_and_reward_share_actual_thinking_request(
 ):
     engine, task, pending = setup
     requests = mock_transport(monkeypatch)
+    accepted = admitted_task(task, tmp_path / "fixture")
+    student_pending = llm.pending(
+        accepted,
+        reference(task)["messages"],
+        {"status": "success", "answer": 0},
+        initial_state_hash="clean",
+    )
     results = []
     for purpose in ("admission", "student_reward"):
+        observed = pending if purpose == "admission" else student_pending
         target = tmp_path / purpose
         results.append(
             finalize(
-                {"evaluation": pending},
+                {"evaluation": observed},
                 lambda _: llm.judge(
-                    engine, task["source_task_id"], pending, target, purpose=purpose
+                    engine, task["source_task_id"], observed, target, purpose=purpose
                 ),
             )
         )
@@ -103,7 +111,17 @@ def test_admission_and_reward_share_actual_thinking_request(
             "reasoning_content"
             in read_json(target / "request/response.json")["choices"][0]["message"]
         )
-    assert requests[0] == requests[1]
+    assert {k: v for k, v in requests[0].items() if k != "messages"} == {
+        k: v for k, v in requests[1].items() if k != "messages"
+    }
+    assert requests[0]["messages"][0] == requests[1]["messages"][0]
+    assert pending["judge_input"]["reference"] is None
+    assert student_pending["judge_input"]["reference"] is not None
+    assert json.loads(requests[0]["messages"][-1]["content"])["reference"] is None
+    assert (
+        json.loads(requests[1]["messages"][-1]["content"])["reference"]
+        == (student_pending["judge_input"]["reference"])
+    )
     assert requests[0]["thinking"] == {"type": "enabled"}
     assert requests[0]["reasoning_effort"] == "high"
     assert requests[0]["max_tokens"] == 8192
@@ -156,7 +174,7 @@ def test_invalid_thinking_response_never_becomes_zero(
             task["source_task_id"],
             pending,
             tmp_path / "case",
-            purpose="student_reward",
+            purpose="admission",
         ),
     )
     assert result["success"] is None and result["reward_valid"] is False
@@ -218,7 +236,7 @@ def test_judge_output_reservation_is_not_old_4096(setup, tmp_path, monkeypatch):
             task["source_task_id"],
             pending,
             tmp_path / "case",
-            purpose="student_reward",
+            purpose="admission",
         ),
     )
     assert not result["reward_valid"] and not seen
@@ -291,3 +309,53 @@ def test_student_probe_requires_admission_and_uses_normal_rollout(
     write_json(input_path, {"accepted": [task]})
     with pytest.raises(ValueError, match="LLM admission"):
         student(engine.cfg, {"s0": "S0"}, input_path, tmp_path / "unadmitted")
+
+
+def test_actual_reward_finalize_keeps_null_and_binds_reference_cache(
+    setup, tmp_path, monkeypatch
+):
+    import time
+
+    from recoveragent.s2_backend import BackendRuntime
+
+    engine, task, _ = setup
+    accepted = admitted_task(task, tmp_path / "reference_fixture")
+    pending = llm.pending(
+        accepted,
+        reference(task)["messages"],
+        {"status": "success", "answer": 0},
+        initial_state_hash="clean",
+    )
+
+    def unknown(response):
+        response["choices"][0]["message"]["content"] = json.dumps(
+            {
+                "success": None,
+                "reason": "Synthetic insufficient evidence",
+                "evidence_steps": [0],
+            }
+        )
+
+    requests = mock_transport(monkeypatch, unknown)
+    runtime = BackendRuntime(
+        engine.cfg,
+        {"deadline_epoch": time.time() + 600, "appworld_root": "synthetic"},
+        tmp_path / "runtime",
+    )
+    raw = {"task_id": task["source_task_id"], "evaluation": pending, "fault": None}
+    directory = tmp_path / "episode"
+    result = runtime.finalize_reward(raw, directory)
+    assert result["success"] is None and not result["reward_valid"]
+    assert (
+        result["classification"] == "scoring_gap"
+        and result["failure_origin"] == "scorer"
+    )
+    assert result["evaluation"]["judgment"]["success"] is None
+    assert runtime.finalize_reward(raw, directory) == result and len(requests) == 1
+    content = json.loads(requests[0]["messages"][-1]["content"])
+    assert content["reference"] == pending["judge_input"]["reference"]
+    changed = copy.deepcopy(raw)
+    changed["evaluation"]["reference_identity"]["solver_trajectory_sha256"] = "other"
+    with pytest.raises(ValueError, match="raw episode"):
+        runtime.finalize_reward(changed, directory)
+    assert len(requests) == 1

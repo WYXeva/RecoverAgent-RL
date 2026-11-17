@@ -258,7 +258,10 @@ def run(config, generate):
                 or "success_conditions" in generated
             ):
                 evaluation = generated_backend.evaluate(
-                    adapter, generated, session.messages
+                    adapter,
+                    generated,
+                    session.messages,
+                    **({"initial_state_hash": initial_hash} if llm_task else {}),
                 )
             else:
                 evaluation = generated_backend.evaluate(adapter, generated)
@@ -278,8 +281,9 @@ def run(config, generate):
     except Exception as exc:
         fault = {"type": type(exc).__name__, "message": str(exc)}
         from .coevolve_goal import ScoringGap
+        from .coevolve_llm import JudgeError
 
-        if isinstance(exc, ScoringGap):
+        if isinstance(exc, (ScoringGap, JudgeError)):
             fault["origin"] = "scorer"
             evaluation = {
                 "status": "scoring_gap",

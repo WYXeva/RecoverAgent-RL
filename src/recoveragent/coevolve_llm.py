@@ -10,7 +10,8 @@ from .s2_state import evidence
 from .v2_tasks import context_for
 from .coevolve_prompts import JUDGE
 
-REVISION = "coevolve_llm_reward_v1"
+REVISION = "coevolve_llm_reward_v2"
+INPUT_REVISION = "solver_reference_input_v1"
 
 
 class JudgeError(ValueError):
@@ -96,6 +97,13 @@ def validate_task(task, require_validation=True):
         raise ValueError("Incomplete LLM task")
     if require_validation:
         proof = task.get("validation", {})
+        if not isinstance(proof, dict):
+            raise JudgeError("Task needs LLM admission record")
+        pending = proof.get("pending", {})
+        if not isinstance(pending, dict) or not isinstance(
+            pending.get("judge_input"), dict
+        ):
+            raise JudgeError("Task needs LLM admission evidence")
         if (
             proof.get("revision") != REVISION
             or proof.get("passed") is not True
@@ -104,14 +112,39 @@ def validate_task(task, require_validation=True):
             or proof.get("public_task_sha256") != digest(task["instruction"])
             or proof.get("pending", {}).get("judge_input", {}).get("query")
             != task["instruction"]
+            or pending.get("input_revision") != INPUT_REVISION
+            or pending.get("judge_input", {}).get("reference", "missing") is not None
+            or pending.get("input_sha256") != digest(pending.get("judge_input"))
+            or pending.get("execution_identity")
+            != execution_identity(task, proof.get("initial_state_hash"))
+            or not proof.get("reference_sha256")
+            or proof["reference_sha256"] != pending.get("solver_trajectory_sha256")
+            or proof.get("solver_evidence_sha256")
+            != digest(solver_evidence(pending.get("judge_input", {})))
         ):
-            raise ValueError("Task needs LLM admission before training")
+            raise JudgeError("Task needs LLM admission before training")
         final = finish(proof["pending"], proof["judgment"])
         if final != proof["result"] or final["success"] is not True:
-            raise ValueError("Invalid LLM admission receipt")
+            raise JudgeError("Invalid LLM admission receipt")
 
 
-def pending(task, messages, submission):
+def execution_identity(task, initial):
+    return {
+        "generated_task_id": task["task_id"],
+        "source_task_id": task["source_task_id"],
+        "public_task_sha256": digest(task["instruction"]),
+        "initial_state_hash": initial,
+    }
+
+
+def solver_evidence(content):
+    return {
+        "execution": copy.deepcopy(content.get("execution")),
+        "final_submission": copy.deepcopy(content.get("final_submission")),
+    }
+
+
+def pending(task, messages, submission, *, initial_state_hash=None, admission=False):
     validate_task(task, require_validation=False)
     steps = []
     for i, row in enumerate(interaction_triplets(messages, "actual")):
@@ -125,14 +158,48 @@ def pending(task, messages, submission):
         )
     content = {
         "query": task["instruction"],
+        "reference": None,
         "execution": steps,
         "final_submission": submission,
     }
+    reference_identity = None
+    try:
+        if not initial_state_hash:
+            raise JudgeError("Missing execution initial state for Judge binding")
+        if not admission:
+            # Validate the admitted task, not merely the source environment ID.
+            from .coevolve_tasks import validate_task as validate_generated
+
+            validate_generated(task, task["source_task_id"])
+            proof = task["validation"]
+            if proof["initial_state_hash"] != initial_state_hash:
+                raise JudgeError(
+                    "Solver reference initial state differs from execution"
+                )
+            content["reference"] = solver_evidence(proof["pending"]["judge_input"])
+            reference_identity = {
+                **execution_identity(task, initial_state_hash),
+                "solver_trajectory_sha256": proof["reference_sha256"],
+                "solver_evidence_sha256": proof["solver_evidence_sha256"],
+                "admission_sha256": digest(proof),
+            }
+    except (ValueError, KeyError, TypeError) as exc:
+        return {
+            "status": "scoring_gap",
+            "success": None,
+            "reward_valid": False,
+            "evaluator": REVISION,
+            "reason": "Solver reference unavailable/inapplicable: " + str(exc),
+            "official_result_complete": False,
+        }
     return {
         "status": "needs_llm_judge",
         "success": None,
         "reward_valid": False,
         "evaluator": REVISION,
+        "input_revision": INPUT_REVISION,
+        "execution_identity": execution_identity(task, initial_state_hash),
+        "reference_identity": reference_identity,
         "judge_input": content,
         "input_sha256": digest(content),
         "official_result_complete": False,
@@ -140,6 +207,7 @@ def pending(task, messages, submission):
 
 
 def finish(evaluation, judgment):
+    validate_input(evaluation)
     if (
         evaluation.get("evaluator") != REVISION
         or evaluation.get("status") != "needs_llm_judge"
@@ -148,13 +216,14 @@ def finish(evaluation, judgment):
     if (
         not isinstance(judgment, dict)
         or set(judgment) != {"success", "reason", "evidence_steps"}
-        or type(judgment["success"]) is not bool
+        or judgment["success"] is not None
+        and type(judgment["success"]) is not bool
         or not isinstance(judgment["reason"], str)
         or not judgment["reason"].strip()
         or not isinstance(judgment["evidence_steps"], list)
     ):
         raise JudgeError(
-            "Judge must return boolean success, reason and evidence_steps array"
+            "Judge must return boolean or null success, reason and evidence_steps array"
         )
     steps = judgment["evidence_steps"]
     available = {r["step"] for r in evaluation["judge_input"]["execution"]}
@@ -166,9 +235,10 @@ def finish(evaluation, judgment):
         )
     return {
         **evaluation,
-        "status": "valid",
+        "status": "scoring_gap" if judgment["success"] is None else "valid",
         "success": judgment["success"],
-        "reward_valid": True,
+        "reward_valid": judgment["success"] is not None,
+        **({"reason": judgment["reason"]} if judgment["success"] is None else {}),
         "judgment": judgment,
         "judge_prompt_sha256": digest(JUDGE),
         **({"judge_call_identity": call_identity()} if call_identity() else {}),
@@ -177,6 +247,13 @@ def finish(evaluation, judgment):
 
 def judge(engine, source, evaluation, directory, *, purpose):
     """Same transport, prompt and input for both purposes; cache exact evidence only."""
+    validate_input(evaluation)
+    if evaluation["execution_identity"]["source_task_id"] != source:
+        raise JudgeError("Judge source does not match execution identity")
+    if purpose == "admission" and evaluation["judge_input"]["reference"] is not None:
+        raise JudgeError("Solver admission must not use an external reference")
+    if purpose == "student_reward" and evaluation["judge_input"]["reference"] is None:
+        raise JudgeError("Student Judge requires an admitted Solver reference")
     directory = Path(directory)
     evidence(
         directory / "judge_binding.json",
@@ -212,6 +289,35 @@ def judge(engine, source, evaluation, directory, *, purpose):
     return value
 
 
+def validate_input(evaluation):
+    content = evaluation.get("judge_input", {})
+    identity = evaluation.get("execution_identity", {})
+    if (
+        evaluation.get("evaluator") != REVISION
+        or evaluation.get("input_revision") != INPUT_REVISION
+        or set(content) != {"query", "reference", "execution", "final_submission"}
+        or evaluation.get("input_sha256") != digest(content)
+        or identity.get("public_task_sha256") != digest(content.get("query"))
+        or not identity.get("initial_state_hash")
+    ):
+        raise JudgeError("Judge input identity or evidence hash changed")
+    reference = content["reference"]
+    binding = evaluation.get("reference_identity")
+    if reference is None:
+        if binding is not None:
+            raise JudgeError("Unexpected reference identity for Solver admission")
+    elif (
+        not isinstance(reference, dict)
+        or set(reference) != {"execution", "final_submission"}
+        or not isinstance(binding, dict)
+        or any(binding.get(k) != v for k, v in identity.items())
+        or binding.get("solver_evidence_sha256") != digest(reference)
+        or not binding.get("solver_trajectory_sha256")
+        or not binding.get("admission_sha256")
+    ):
+        raise JudgeError("Solver reference identity or evidence hash changed")
+
+
 def reference_evaluation(task, reference, *, expected_initial=None):
     terminal = reference.get("coevolve_terminal") or {}
     initial = reference.get("initial_state_hash")
@@ -225,11 +331,15 @@ def reference_evaluation(task, reference, *, expected_initial=None):
         or reference.get("task_id") != task["source_task_id"]
     ):
         raise JudgeError("Solver evidence unavailable/inapplicable; pending validation")
-    return pending(
+    evaluation = pending(
         task,
         reference["messages"],
         {"status": terminal.get("status"), "answer": terminal.get("answer")},
+        initial_state_hash=initial,
+        admission=True,
     )
+    evaluation["solver_trajectory_sha256"] = digest(reference)
+    return evaluation
 
 
 def admit(engine, task, directory, *, reference_path=None, expected_initial=None):
@@ -267,6 +377,8 @@ def admit(engine, task, directory, *, reference_path=None, expected_initial=None
     )
     result = finish(evaluation, judgment)
     evidence(directory / "admission_result.json", result)
+    if not result["reward_valid"]:
+        raise JudgeError("Solver admission indeterminate: " + judgment["reason"])
     if not result["success"]:
         raise ValueError("LLM admission rejected: " + judgment["reason"])
     task = copy.deepcopy(task)
@@ -280,6 +392,7 @@ def admit(engine, task, directory, *, reference_path=None, expected_initial=None
         "initial_state_hash": reference["initial_state_hash"],
         "public_task_sha256": digest(task["instruction"]),
         "reference_sha256": digest(reference),
+        "solver_evidence_sha256": digest(solver_evidence(evaluation["judge_input"])),
         "reference_path": str(reference_path),
     }
     evidence(directory / "accepted_task.json", task)

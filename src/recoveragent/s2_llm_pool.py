@@ -28,10 +28,11 @@ def manifest(output, kind):
     return value
 
 
-def verify(directory, kind):
+def verify(directory, kind, *, protocols=None):
     directory = Path(directory)
     proof = read_json(directory / "manifest.json")
-    if proof.get("revision") != kind or proof.get("protocols") != protocol_identity():
+    expected = protocol_identity() if protocols is None else protocols
+    if proof.get("revision") != kind or proof.get("protocols") != expected:
         raise ValueError("Initial LLM pool protocol/manifest mismatch")
     for name, expected in proof["files"].items():
         if (
@@ -48,7 +49,24 @@ def prepare_pool(legacy_directory, output, references=None):
 
     if s2_execution().get("generated_scoring_revision") != REVISION:
         raise ValueError("Select the lightweight LLM execution profile")
-    legacy = load_bundle(legacy_directory)
+    legacy_directory = Path(legacy_directory)
+    old_manifest = read_json(legacy_directory / "manifest.json")
+    if old_manifest.get("revision") == "llm_initial_pool_v1":
+        # Read-only candidate migration, never an execution/resume path.
+        verify(
+            legacy_directory,
+            "llm_initial_pool_v1",
+            protocols=old_manifest["protocols"],
+        )
+        legacy = read_json(legacy_directory / "bundle.json")
+        if legacy["protocols"] != old_manifest["protocols"]:
+            raise ValueError("Archived initial pool protocol binding changed")
+        legacy["feedback"] = [
+            {**r, "directory": str((legacy_directory / r["history"]).parent)}
+            for r in legacy["feedback"]
+        ]
+    else:
+        legacy = load_bundle(legacy_directory)
     output = Path(output)
     paths = read_json(references) if references else {}
     candidates = []
@@ -64,17 +82,24 @@ def prepare_pool(legacy_directory, output, references=None):
         if path:
             ref = read_json(path)
             try:
-                contract = old["execution_contract"]
-                if digest(ref) != contract["reference_trajectory_sha256"]:
-                    raise JudgeError("Preserved Solver reference SHA mismatch")
-                reference_evaluation(
-                    task, ref, expected_initial=contract["initial_state_hash"]
+                # LLM pools already carry a preserved Solver trajectory binding.
+                # Migration still requires fresh admission; old verdicts are not reused.
+                proof = old.get("validation", {})
+                contract = old.get("execution_contract", {})
+                expected_sha = proof.get("reference_sha256") or contract.get(
+                    "reference_trajectory_sha256"
                 )
+                expected_initial = proof.get("initial_state_hash") or contract.get(
+                    "initial_state_hash"
+                )
+                if not expected_initial or digest(ref) != expected_sha:
+                    raise JudgeError("Preserved Solver reference SHA mismatch")
+                reference_evaluation(task, ref, expected_initial=expected_initial)
                 relative = f"references/{old['task_id']}.json"
                 evidence(output / relative, ref)
                 item.update(
                     reference=relative,
-                    expected_initial=contract["initial_state_hash"],
+                    expected_initial=expected_initial,
                     status="ready_for_one_judge",
                 )
             except (ValueError, KeyError, TypeError) as exc:

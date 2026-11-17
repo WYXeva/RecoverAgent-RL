@@ -1,4 +1,10 @@
-# 当前Judge固定10例复核（2026-11-17）
+# 当前Judge参考证据与三态结果（2026-11-18）
+
+使用 `RECOVERAGENT_S2_EXECUTION=v2_s2_judge_reference_20261117` 与独立237文件锁。Solver准入的reference为空，Student评分须提供同题同初态的已准入Solver事实；true/false/null映射为有效1/有效0/无效奖励。Flash/enabled/high/8192不变，完整参考参与上下文、预算与缓存绑定。原始题仍官方评分。
+
+固定Venmo四条＋邮件两条Student旧证据的真实判断均与人工核对一致，两份Solver也通过；8次Judge、不重跑环境。本轮结束，正式Evolve/GPU/dev暂不启动。实际回执和复验命令见[报告](../reports/s2_judge_reference_fix_20261118.md)。旧9题仅在本地准备为新协议待Judge候选；后续需一次新准入形成共同池，使用新运行目录和当批授权截止。下列旧锁和旧命令只作历史记录，不能接续新协议。
+
+## 前次Judge固定10例复核（2026-11-17）
 
 新 `v2_s2_judge_thinking_20261117` 将共享Judge独立设置为Flash/thinking enabled/high/8192，冻结reason-first提示，其他角色不变。固定10条旧证据仅判一次，结论及理由核对通过；0新任务执行、0 GPU/训练。调用身份与输出预留已同步，不能沿用旧缓存或旧准入证明。实际请求、用量、复核入口和未验证边界见[本轮报告](../reports/s2_judge_thinking_recheck_20261117.md)。本轮已结束，正式实验仍暂停。
 
