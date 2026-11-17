@@ -15,13 +15,13 @@ from recoveragent.s2_experiment import configuration
 from recoveragent.teacher import TeacherPolicy, TeacherBlocked
 from recoveragent.v2_runtime import (
     S2_RUNTIME,
-    S2_TEACHER_CONTEXT_EXECUTION,
+    S2_JUDGE_THINKING_EXECUTION,
 )
 
 
 @pytest.fixture
 def scoped(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_TEACHER_CONTEXT_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_THINKING_EXECUTION)
     # Pin the real public tokenizer artifact; no Student tokenizer or fake counter.
     local = Path("runs/s2_context_validation_20261117/teacher_tokenizer")
     if (local / "tokenizer.json").exists():

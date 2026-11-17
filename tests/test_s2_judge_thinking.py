@@ -1,0 +1,225 @@
+"""Real Judge request/parse/reservation chain; only network responses are synthetic."""
+
+import copy
+import json
+
+import pytest
+
+from recoveragent import coevolve_llm as llm, v2_teacher, v2_runtime
+from recoveragent.coevolve_prompts import JUDGE
+from recoveragent.io import digest, read_json
+from recoveragent.s2_experiment import configuration
+from recoveragent.s2_reward import finalize
+from recoveragent.teacher import TeacherPolicy
+from test_coevolve_light_llm import new_task, reference
+from test_s2_teacher_context import text_engine
+
+
+@pytest.fixture
+def setup(monkeypatch, tmp_path):
+    from pathlib import Path
+
+    monkeypatch.setenv(
+        "RECOVERAGENT_S2_EXECUTION", v2_runtime.S2_JUDGE_THINKING_EXECUTION
+    )
+    local = Path("runs/s2_context_validation_20261117/teacher_tokenizer")
+    if (local / "tokenizer.json").exists():
+        monkeypatch.setenv("RECOVERAGENT_TEACHER_TOKENIZER_DIR", str(local.resolve()))
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "synthetic-test-only")
+    cfg = configuration()
+    task = new_task()
+    pending = llm.reference_evaluation(task, reference(task))
+    return text_engine(cfg, tmp_path), task, pending
+
+
+def mock_transport(monkeypatch, change=None):
+    requests = []
+
+    def post(self, request):
+        requests.append(copy.deepcopy(request))
+        response = {
+            "model": request["model"],
+            "choices": [
+                {
+                    "finish_reason": "stop",
+                    "message": {
+                        "role": "assistant",
+                        "reasoning_content": 'Synthetic reasoning, not final JSON: {"success": true}',
+                        "content": json.dumps(
+                            {
+                                "reason": "Synthetic business failure",
+                                "evidence_steps": [0],
+                                "success": False,
+                            }
+                        ),
+                    },
+                }
+            ],
+            "usage": {
+                "prompt_tokens": 100,
+                "completion_tokens": 150,
+                "completion_tokens_details": {"reasoning_tokens": 100},
+            },
+        }
+        if change:
+            change(response)
+        return response
+
+    monkeypatch.setattr(TeacherPolicy, "_post_session", post)
+    return requests
+
+
+def test_admission_and_reward_share_actual_thinking_request(
+    setup, tmp_path, monkeypatch
+):
+    engine, task, pending = setup
+    requests = mock_transport(monkeypatch)
+    results = []
+    for purpose in ("admission", "student_reward"):
+        target = tmp_path / purpose
+        results.append(
+            finalize(
+                {"evaluation": pending},
+                lambda _: llm.judge(
+                    engine, task["source_task_id"], pending, target, purpose=purpose
+                ),
+            )
+        )
+        binding = read_json(target / "judge_binding.json")
+        assert binding["call_identity"] == llm.call_identity()
+        receipt = read_json(target / "request/call_receipt.json")
+        assert receipt["reasoning_effort"] == "high"
+        assert receipt["prompt_sha256"] == digest(JUDGE)
+        assert (
+            read_json(target / "request/context.json")["reserved_output_tokens"] == 8192
+        )
+        assert (
+            read_json(target / "request/s2_operation.json")["reserve"][
+                "generated_tokens"
+            ]
+            == 8192
+        )
+        assert (
+            "reasoning_content"
+            in read_json(target / "request/response.json")["choices"][0]["message"]
+        )
+    assert requests[0] == requests[1]
+    assert requests[0]["thinking"] == {"type": "enabled"}
+    assert requests[0]["reasoning_effort"] == "high"
+    assert requests[0]["max_tokens"] == 8192
+    assert "temperature" not in requests[0]
+    assert all(r["reward_valid"] and r["success"] is False for r in results)
+    assert results[0]["evaluation"]["judge_call_identity"] == llm.call_identity()
+    assert engine.usage()["generated_tokens"] == 300
+    assert engine.usage()["requests"] == 2
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "truncated",
+        "empty",
+        "bad_json",
+        "bad_structure",
+        "bad_message",
+        "bad_choices",
+        "bad_reasoning",
+    ],
+)
+def test_invalid_thinking_response_never_becomes_zero(
+    setup, tmp_path, monkeypatch, kind
+):
+    engine, task, pending = setup
+
+    def change(response):
+        msg = response["choices"][0]["message"]
+        if kind == "truncated":
+            response["choices"][0]["finish_reason"] = "length"
+        elif kind == "empty":
+            msg["content"] = None
+        elif kind == "bad_json":
+            msg["content"] = "not json"
+        elif kind == "bad_structure":
+            msg["content"] = '{"success": "false"}'
+        elif kind == "bad_message":
+            response["choices"][0]["message"] = None
+        elif kind == "bad_choices":
+            response["choices"] = None
+        else:
+            msg["reasoning_content"] = []
+
+    seen = mock_transport(monkeypatch, change)
+    result = finalize(
+        {"evaluation": pending},
+        lambda _: llm.judge(
+            engine,
+            task["source_task_id"],
+            pending,
+            tmp_path / "case",
+            purpose="student_reward",
+        ),
+    )
+    assert result["success"] is None and result["reward_valid"] is False
+    assert result["classification"] == "scoring_gap" and len(seen) == 1
+    assert (tmp_path / "case/request/response.json").exists()
+
+
+def test_other_roles_unchanged_and_judge_cache_bound(setup, tmp_path, monkeypatch):
+    engine, task, pending = setup
+    seen = mock_transport(monkeypatch)
+    path = tmp_path / "judge"
+    first = llm.judge(
+        engine, task["source_task_id"], pending, path, purpose="admission"
+    )
+    assert (
+        llm.judge(engine, task["source_task_id"], pending, path, purpose="admission")
+        == first
+    )
+    assert len(seen) == 1
+    cfg = configuration()
+    for purpose in (None, "s2_text", "s2_exploration", "s2_solver"):
+        config = v2_teacher.configuration(
+            task["source_task_id"],
+            engine.identity,
+            "synthetic",
+            10,
+            recovery=False,
+            runtime=v2_runtime.S2_RUNTIME,
+            purpose=purpose,
+        )
+        assert "judge_text" not in config["teacher"]
+        policy = TeacherPolicy(config, {"DEEPSEEK_API_KEY": "synthetic"})
+        text = policy.build_text_request([{"role": "user", "content": "x"}], 4096)
+        assert text["thinking"] == {"type": "disabled"} and text["temperature"] == 0.2
+        assert text["max_tokens"] == 4096 and "reasoning_effort" not in text
+        tools = policy.build_request([{"role": "user", "content": "x"}], [], 4096)
+        assert (
+            tools["thinking"] == {"type": "enabled"} and "reasoning_effort" not in tools
+        )
+        assert "temperature" not in tools
+    assert cfg["student_limits"]["temperature"] == 0.8
+    assert cfg["student_limits"]["max_input_tokens"] == 65536
+    changed = copy.deepcopy(v2_runtime.s2_execution())
+    changed["judge_text"]["reasoning_effort"] = "max"
+    monkeypatch.setattr(v2_runtime, "s2_execution", lambda: changed)
+    with pytest.raises(ValueError, match="evidence changed"):
+        llm.judge(engine, task["source_task_id"], pending, path, purpose="admission")
+    assert len(seen) == 1
+
+
+def test_judge_output_reservation_is_not_old_4096(setup, tmp_path, monkeypatch):
+    engine, task, pending = setup
+    seen = mock_transport(monkeypatch)
+    engine.cfg["s2"]["teacher_budget"]["generated_tokens"] = 4096
+    result = finalize(
+        {"evaluation": pending},
+        lambda _: llm.judge(
+            engine,
+            task["source_task_id"],
+            pending,
+            tmp_path / "case",
+            purpose="student_reward",
+        ),
+    )
+    assert not result["reward_valid"] and not seen
+    assert "budget exhausted" in result["scoring_fault"]["reason"]

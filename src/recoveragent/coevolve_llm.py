@@ -17,6 +17,17 @@ class JudgeError(ValueError):
     """Unscored execution, never a model failure reward."""
 
 
+def call_identity():
+    from .v2_runtime import s2_execution
+
+    spec = s2_execution().get("judge_text")
+    if not spec:
+        return None  # Historical receipts retain their original shape.
+    if spec["prompt_sha256"] != digest(JUDGE):
+        raise JudgeError("Frozen Judge prompt changed")
+    return {"role": "judge", **copy.deepcopy(spec)}
+
+
 def is_task(task):
     return task.get("scoring_revision") == REVISION
 
@@ -160,6 +171,7 @@ def finish(evaluation, judgment):
         "reward_valid": True,
         "judgment": judgment,
         "judge_prompt_sha256": digest(JUDGE),
+        **({"judge_call_identity": call_identity()} if call_identity() else {}),
     }
 
 
@@ -173,6 +185,7 @@ def judge(engine, source, evaluation, directory, *, purpose):
             "input_sha256": digest(evaluation),
             "prompt_sha256": digest(JUDGE),
             "purpose": purpose,
+            **({"call_identity": call_identity()} if call_identity() else {}),
         },
     )
     output = directory / "judgment.json"
@@ -183,7 +196,11 @@ def judge(engine, source, evaluation, directory, *, purpose):
     write_json(directory / "judge_claim.json", {"input_sha256": digest(evaluation)})
     try:
         value = engine.text(
-            source, directory / "request", JUDGE, evaluation["judge_input"]
+            source,
+            directory / "request",
+            JUDGE,
+            evaluation["judge_input"],
+            role="judge",
         )
     except (ValueError, RuntimeError, OSError, TimeoutError) as exc:
         write_json(

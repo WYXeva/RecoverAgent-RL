@@ -202,7 +202,7 @@ def test_coevolve_text_overflow_never_calls_provider(tmp_path, monkeypatch):
         def __init__(self, *a):
             pass
 
-        def build_text_request(self, messages, reserve):
+        def build_text_request(self, messages, reserve, *, role=None):
             return {"messages": messages, "max_tokens": reserve}
 
         def transport(self, request):

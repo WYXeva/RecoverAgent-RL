@@ -454,7 +454,7 @@ class TeacherPolicy:
             raise TeacherBlocked("REQUEST_SIZE_LIMIT")
         return payload
 
-    def build_text_request(self, messages, max_tokens):
+    def build_text_request(self, messages, max_tokens, *, role=None):
         """Predictor uses upstream text messages; no Actor tools or hidden labels."""
         payload = {
             "model": self.config["model"],
@@ -464,6 +464,18 @@ class TeacherPolicy:
             "temperature": self.config["temperature"],
             "thinking": {"type": "disabled"},
         }
+        if role not in {None, "judge"}:
+            raise ValueError("Unknown Teacher text role")
+        if role == "judge" and self.config.get("judge_text"):
+            judge = self.config["judge_text"]
+            payload.update(
+                model=judge["model"],
+                thinking=copy.deepcopy(judge["thinking"]),
+                reasoning_effort=judge["reasoning_effort"],
+                max_tokens=judge["max_tokens"],
+            )
+            if payload["thinking"] == {"type": "enabled"}:
+                payload.pop("temperature")
         if len(canonical(payload).encode()) > self.config["max_request_bytes"]:
             raise TeacherBlocked("REQUEST_SIZE_LIMIT")
         return payload

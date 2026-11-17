@@ -27,6 +27,7 @@ S2_GOAL_EXECUTION = "v2_s2_goal_reward_20261117"
 S2_GOAL_REPAIR_EXECUTION = "v2_s2_goal_repair_20261117"
 S2_LIGHT_EXECUTION = "v2_s2_light_llm_20261117"
 S2_TEACHER_CONTEXT_EXECUTION = "v2_s2_teacher_context_20261117"
+S2_JUDGE_THINKING_EXECUTION = "v2_s2_judge_thinking_20261117"
 
 
 def s2_execution():
@@ -45,6 +46,7 @@ def s2_execution():
         S2_GOAL_REPAIR_EXECUTION,
         S2_LIGHT_EXECUTION,
         S2_TEACHER_CONTEXT_EXECUTION,
+        S2_JUDGE_THINKING_EXECUTION,
     }:
         raise ValueError("Unknown S2 execution revision")
     return read_json(ROOT / f"configs/{revision}.json")
@@ -175,6 +177,12 @@ def verify_lock(runtime=RUNTIME):
                         f"configs/{S2_LIGHT_EXECUTION}_lock.json",
                         "configs/s2_llm_judge_check_20261117.json",
                         "scripts/probe_s2_coevolve.py",
+                    }
+                if execution["revision"] == S2_JUDGE_THINKING_EXECUTION:
+                    required |= {
+                        f"configs/{S2_TEACHER_CONTEXT_EXECUTION}_lock.json",
+                        "configs/s2_judge_thinking_check_20261117.json",
+                        "scripts/recheck_s2_judge.py",
                     }
                 if (
                     lock.get("execution_revision") != execution["revision"]

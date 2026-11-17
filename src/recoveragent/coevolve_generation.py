@@ -203,7 +203,7 @@ class Evolution:
             raise RuntimeError("Teacher technical reservation exhausted")
         return remaining
 
-    def text(self, source, directory, system, content):
+    def text(self, source, directory, system, content, *, role=None):
         cfg = configuration(
             source,
             self.identity,
@@ -211,7 +211,7 @@ class Evolution:
             self.remaining(),
             recovery=False,
             runtime=self.cfg.get("execution_protocol", RUNTIME),
-            purpose="s2_text"
+            purpose=("s2_judge" if role == "judge" else "s2_text")
             if self.cfg.get("execution_protocol", "").startswith("v2_s2_")
             else None,
         )
@@ -227,6 +227,7 @@ class Evolution:
                 {"role": "user", "content": canonical(content)},
             ],
             self.settings["text_max_tokens"],
+            role=role,
         )
         # Text-only abstraction/quality calls share the same pinned tokenizer
         # and complete input+output window as exploration and Solver episodes.
@@ -251,7 +252,7 @@ class Evolution:
         write_json(Path(directory) / "context.json", context)
         if not context["within_budget"]:
             raise ContextTooLong("CoEvolve text context too long; no truncation")
-        self.before_text_request(directory)
+        self.before_text_request(directory, request=request)
         # Conservative pre-request reservation; reconcile only known returned usage.
         price = cfg["teacher"]["pricing"]
         reserve = (
@@ -262,6 +263,19 @@ class Evolution:
             raise RuntimeError("Insufficient Teacher technical reservation")
         directory = Path(directory)
         write_json(directory / "request.json", request)
+        if role == "judge":
+            write_json(
+                directory / "call_receipt.json",
+                {
+                    "role": role,
+                    "model": request["model"],
+                    "thinking": request["thinking"],
+                    "reasoning_effort": request.get("reasoning_effort"),
+                    "max_tokens": request["max_tokens"],
+                    "temperature": request.get("temperature"),
+                    "prompt_sha256": digest(system),
+                },
+            )
         write_json(
             directory / "reservation.json",
             {
@@ -309,12 +323,19 @@ class Evolution:
             raise ValueError("Teacher text usage exceeds the declared request budget")
         if not response_model_matches(cfg["teacher"], response.get("model")):
             raise RuntimeError("CoEvolve Teacher response identity mismatch")
-        message = normalize_message(response, max_calls=0)
+        try:
+            message = normalize_message(
+                response,
+                max_calls=0,
+                allow_reasoning=request.get("thinking") == {"type": "enabled"},
+            )
+        except (AttributeError, KeyError, TypeError) as exc:
+            raise ValueError("Malformed Teacher text completion") from exc
         result = json_object(message["content"])
         write_json(directory / "parsed.json", result)
         return result
 
-    def before_text_request(self, directory):
+    def before_text_request(self, directory, *, request=None):
         """S2 reserves its finite ledger only after full local request checks."""
 
     def execute(self, source, directory, exploration):

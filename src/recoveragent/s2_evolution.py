@@ -98,11 +98,17 @@ class GroupEvolution(Evolution):
                 )
         return total
 
-    def reserve(self, directory, kind, *, output=None):
+    def reserve(self, directory, kind, *, output=None, max_tokens=None):
         limits = self.cfg["s2"]["teacher_budget"]
         usage = self.usage()
         requests = 80 if kind == "execute" else 1
-        tokens = 16384 if kind == "execute" else self.settings["text_max_tokens"]
+        tokens = (
+            16384
+            if kind == "execute"
+            else max_tokens
+            if max_tokens is not None
+            else self.settings["text_max_tokens"]
+        )
         price = self.cfg["teacher"]["pricing"]
         # Whole episode reservation is reconciled from its real usage receipt.
         reserve = {
@@ -162,11 +168,11 @@ class GroupEvolution(Evolution):
         )
         return super().execute(source, directory, exploration)
 
-    def raw_text(self, source, directory, system, content):
+    def raw_text(self, source, directory, system, content, *, role=None):
         if s2_execution().get("teacher_context"):
             # The parent checks the actual built provider request with the scoped
             # Teacher tokenizer/window. Do not apply a second Student prefilter.
-            return super().text(source, directory, system, content)
+            return super().text(source, directory, system, content, role=role)
         # Measure first: an overflow consumes no paid reservation.
         from .teacher_collection import context_receipt
         from .v2_model import load_tokenizer
@@ -190,13 +196,15 @@ class GroupEvolution(Evolution):
             write_json(Path(directory) / "overflow.json", receipt)
             raise ContextTooLong("Measured S2 text input exceeds 64k")
         self.reserve(directory, "text")
-        return super().text(source, directory, system, content)
+        return super().text(source, directory, system, content, role=role)
 
-    def before_text_request(self, directory):
+    def before_text_request(self, directory, *, request=None):
         if s2_execution().get("teacher_context"):
-            self.reserve(directory, "text")
+            self.reserve(directory, "text", max_tokens=request["max_tokens"])
 
-    def text(self, source, directory, system, content):
+    def text(self, source, directory, system, content, *, role=None):
+        if role is not None:
+            return self.raw_text(source, directory, system, content, role=role)
         if self.light_generation:
             return self.raw_text(source, directory, system, content)
         try:

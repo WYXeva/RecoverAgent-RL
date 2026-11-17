@@ -36,6 +36,7 @@ def evidence(path, value):
 
 def protocol_identity():
     from .v2_runtime import s2_execution
+    from .coevolve_llm import call_identity
 
     settings = s2_execution()
     return {
@@ -45,6 +46,7 @@ def protocol_identity():
             "reward_protocol_revision", settings.get("public_goal_revision", "legacy")
         ),
         "native_parameters": settings.get("native_parameter_revision", "legacy"),
+        **({"judge": call_identity()} if settings.get("judge_text") else {}),
     }
 
 

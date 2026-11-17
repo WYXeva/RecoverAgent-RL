@@ -60,13 +60,17 @@ def configuration(
         if (
             runtime != S2_RUNTIME
             or recovery
-            or purpose not in {"s2_text", "s2_exploration", "s2_solver"}
+            or purpose not in {"s2_text", "s2_judge", "s2_exploration", "s2_solver"}
         ):
             raise ValueError("Independent Teacher context is scoped to S2 CoEvolve")
         settings = s2_execution().get("teacher_context")
         if settings:
             config["teacher_purpose"] = purpose
             config["teacher_context"] = copy.deepcopy(settings)
+        if purpose == "s2_judge" and s2_execution().get("judge_text"):
+            config["teacher"]["judge_text"] = copy.deepcopy(
+                s2_execution()["judge_text"]
+            )
     config["authorization"] = {
         "approved": True,
         "currency": frozen["teacher"]["pricing"]["currency"],

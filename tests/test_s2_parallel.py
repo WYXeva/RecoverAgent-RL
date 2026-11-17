@@ -16,7 +16,7 @@ from recoveragent.v2_runtime import (
     S2_NATIVE_EXECUTION,
     S2_GOAL_EXECUTION,
     S2_GOAL_REPAIR_EXECUTION,
-    S2_TEACHER_CONTEXT_EXECUTION,
+    S2_JUDGE_THINKING_EXECUTION,
     S2_PARALLEL_EXECUTION,
     S2_RUNTIME,
     verify_lock,
@@ -120,8 +120,8 @@ def test_new_execution_lock_explicit_old_lock_still_rejects(monkeypatch):
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_REPAIR_EXECUTION)
     with pytest.raises(ValueError, match="source changed|Incomplete"):
         verify_lock(S2_RUNTIME)
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_TEACHER_CONTEXT_EXECUTION)
-    assert verify_lock(S2_RUNTIME)["execution_revision"] == S2_TEACHER_CONTEXT_EXECUTION
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_THINKING_EXECUTION)
+    assert verify_lock(S2_RUNTIME)["execution_revision"] == S2_JUDGE_THINKING_EXECUTION
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_light_llm_20261117")
     with pytest.raises(ValueError, match="source changed|Incomplete"):
         verify_lock(S2_RUNTIME)

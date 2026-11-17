@@ -1,6 +1,14 @@
 # 项目状态
 
-## 当前摘要（2026-11-17，Teacher上下文解耦与有限真实验收）
+## 当前摘要（2026-11-17，Judge thinking/high固定10例复核）
+
+- 基于 `83182a5`，仅Judge新增显式角色配置；准入与Student奖励实际共享Flash/thinking enabled/high/8192，不发送temperature。reason-first提示SHA保持 `7fa7f33b…`，生成/探索/Solver/Student设置不变。新 `v2_s2_judge_thinking_20261117` 与232文件源码锁，调用/缓存/评分/实验绑定同步记录新Judge身份。
+- 响应按实际thinking模式解析，只从最终content读取评分；原始reasoning_content单独保留，截断、空答案、错误结构仍为无效评分。输出、上下文预留、调用预留和10次总预算均同步8192。
+- 本地相关234项pytest通过（16.70秒），Ruff check与285文件format通过。真实固定4条历史＋2条Solver＋4条Student证据各重判一次：**10/10结论符合人工标签，理由事实核对通过；6正确轨迹通过、4真实失败拒绝**。原漏草稿、11误算成10及理由/success矛盾本轮未再出现。
+- 10次实际请求均为enabled/high/8192，全部响应含非空reasoning及reasoning token用量。输入118,187，输出8,871（含reasoning7,804），墙钟158.91秒；项目保守估价$0.045875508，接口list_cost合计0.02293775、allowance合计0.01376265、usage.cost=0（Go订阅，非免费声明）。
+- 只读复用证据，0新生成、0 Solver/Student执行、0 GPU/训练/dev/test；0重试，未改旧奖励或迁移旧池。私有 `runs/s2_judge_thinking_20261117/`，详见[固定10例报告](../reports/s2_judge_thinking_recheck_20261117.md)。本轮结束，正式Static/Evolve仍暂停；该小样本复核不代表模型能力提升。
+
+## 前次摘要（2026-11-17，Teacher上下文解耦与有限真实验收）
 
 - 基于 `cc482d6`，新增 `v2_s2_teacher_context_20261117` 与228文件源码锁。S2生成/Judge/探索/Solver按用途使用OpenCode Go实际元数据的1,000,000窗口及匹配DeepSeek tokenizer估算完整请求；Student、训练、普通Teacher示范/恢复的64K限制不变。无裁剪、强制摘要或1M压力测试。
 - 本地核心相关126项pytest通过（13.25秒），源码锁夹具涉及的60项另行通过（3.72秒），合计186项；Ruff check及283文件format通过。含真实请求构造的两层上下文检查、可选探索CPU夹具及原有提交/奖励回归。模拟网络响应与真实结果分开记录。

@@ -1,0 +1,29 @@
+{
+  "revision": "judge_thinking_fixed10_v1",
+  "plan_sha256": "5d0be33462b278006f5c038bb10573d7cd2c64e529918ebe3f58b896e81ce294",
+  "case_ids": [
+    "history_5",
+    "history_7",
+    "history_18",
+    "history_21",
+    "solver_0",
+    "solver_1",
+    "student_0",
+    "student_1",
+    "student_2",
+    "student_3"
+  ],
+  "calls_max": 10,
+  "judge_identity": {
+    "role": "judge",
+    "revision": "coevolve_judge_thinking_high_v1",
+    "model": "deepseek-v4.1-flash",
+    "thinking": {
+      "type": "enabled"
+    },
+    "reasoning_effort": "high",
+    "max_tokens": 8192,
+    "temperature": null,
+    "prompt_sha256": "7fa7f33bef47d4b3fde4f5a25c8df67978d0e920119eead97a1a5560c1ee9f35"
+  }
+}

@@ -16,7 +16,7 @@ from recoveragent.s2_reward import finalize
 from recoveragent.s2_schedule import GroupFeedback
 from recoveragent.v2_grpo import group_advantages
 from recoveragent.v2_runtime import (
-    S2_TEACHER_CONTEXT_EXECUTION,
+    S2_JUDGE_THINKING_EXECUTION,
     S2_GOAL_REPAIR_EXECUTION,
 )
 from test_s2_evolution import engine
@@ -26,7 +26,7 @@ from test_coevolve import history
 
 @pytest.fixture
 def lightweight(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_TEACHER_CONTEXT_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_THINKING_EXECUTION)
 
 
 def proposal():
@@ -101,7 +101,7 @@ def test_actual_generation_prompts_no_old_gates_and_optional_one_exploration(
     event = GroupFeedback(cfg()["task_evolution"]["signals"]).observe(0, group)
     textual, executed = [], []
 
-    def text(source, directory, prompt, content):
+    def text(source, directory, prompt, content, *, role=None):
         textual.append((prompt, content))
         if prompt == prompts.GENERATION:
             assert len(content["feedback"]["trajectories"]) == 4
@@ -230,7 +230,7 @@ def test_shared_judge_admission_reward_and_synthetic_update_resume(
 
     calls = []
 
-    def raw_text(self, source, directory, prompt, content):
+    def raw_text(self, source, directory, prompt, content, *, role=None):
         calls.append((prompt, content))
         assert prompt == prompts.JUDGE
         assert "expected_answer" not in content and "success_conditions" not in content
@@ -395,7 +395,7 @@ def test_initial_common_pool_reuses_saved_solver_and_missing_stays_pending(
     monkeypatch.setattr(
         e,
         "raw_text",
-        lambda source, directory, prompt, content: calls.append((prompt, content))
+        lambda source, directory, prompt, content, **kw: calls.append((prompt, content))
         or judge_reply(),
     )
     bundle = s2_llm_pool.admit_pool(
@@ -506,7 +506,7 @@ def test_historical_check_keeps_labels_out_of_judge_and_resumes(
     e = engine(tmp_path / "engine")
     calls = []
 
-    def text(source, directory, prompt, content):
+    def text(source, directory, prompt, content, *, role=None):
         assert prompt == prompts.JUDGE
         assert content == evaluation["judge_input"]
         assert "expected_human_review" not in content
@@ -542,7 +542,7 @@ def test_real_episode_route_keeps_official_original_and_llm_generated(
 
     task = new_task()
     e = engine(tmp_path / "teacher")
-    monkeypatch.setattr(e, "raw_text", lambda *a: judge_reply())
+    monkeypatch.setattr(e, "raw_text", lambda *a, **kw: judge_reply())
     saved = tmp_path / "reference.json"
     write_json(saved, reference(task))
     accepted = llm.admit(e, task, tmp_path / "accepted", reference_path=saved)

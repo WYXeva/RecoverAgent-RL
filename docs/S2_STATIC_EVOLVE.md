@@ -1,4 +1,8 @@
-# 当前有限正确性验收（2026-11-17）
+# 当前Judge固定10例复核（2026-11-17）
+
+新 `v2_s2_judge_thinking_20261117` 将共享Judge独立设置为Flash/thinking enabled/high/8192，冻结reason-first提示，其他角色不变。固定10条旧证据仅判一次，结论及理由核对通过；0新任务执行、0 GPU/训练。调用身份与输出预留已同步，不能沿用旧缓存或旧准入证明。实际请求、用量、复核入口和未验证边界见[本轮报告](../reports/s2_judge_thinking_recheck_20261117.md)。本轮已结束，正式实验仍暂停。
+
+## 前次有限正确性验收
 
 本轮4条历史Judge、一个生成context和一道新题×4次S0推理已完成。2题Solver通过，Student人工核对2/4；原Judge错误报4/4，定向提示修正后仍有理由算术错误。0参数更新，远端服务退出、证据已备份。正式Static/Evolve继续暂停。独立 `v2_s2_teacher_context_20261117` 使用Go的1,000,000窗口与匹配DeepSeek tokenizer估算；Student仍64k。具体命令、版本绑定与未验证内容见[本轮报告](../reports/s2_teacher_context_validation_20261117.md)。下面完整实验说明保留为前次准备记录，不属于本轮执行范围。
 
