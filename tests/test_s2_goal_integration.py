@@ -118,9 +118,9 @@ def test_real_rollout_boundary_finalizes_student_semantics_once(
 def test_fresh16_resume_never_reexecutes_claimed_slot(tmp_path, monkeypatch):
     from recoveragent import s2_experiment, v2_training
 
-    from recoveragent.v2_runtime import S2_JUDGE_THINKING_EXECUTION
+    from recoveragent.v2_runtime import S2_EVOLVE_ROUND1_EXECUTION
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_THINKING_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_EVOLVE_ROUND1_EXECUTION)
     config = cfg()
     plan = {
         "tasks": [

@@ -16,7 +16,7 @@ from recoveragent.s2_reward import finalize
 from recoveragent.s2_schedule import GroupFeedback
 from recoveragent.v2_grpo import group_advantages
 from recoveragent.v2_runtime import (
-    S2_JUDGE_THINKING_EXECUTION,
+    S2_EVOLVE_ROUND1_EXECUTION,
     S2_GOAL_REPAIR_EXECUTION,
 )
 from test_s2_evolution import engine
@@ -26,7 +26,7 @@ from test_coevolve import history
 
 @pytest.fixture
 def lightweight(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_THINKING_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_EVOLVE_ROUND1_EXECUTION)
 
 
 def proposal():
@@ -450,7 +450,8 @@ def test_formal_limits_use_lightweight_settings(lightweight):
     assert config["task_evolution"]["proposals_per_context"] == 2
     assert config["task_evolution"]["max_proposals"] == 192
     assert config["s2"]["student_trajectories_per_branch"] == 800
-    assert settings["reward_judge_budget"]["requests"] == 800
+    assert settings["stop_after_round"] == 1
+    assert settings["reward_judge_budget"]["requests"] == 80
     assert settings["fresh16_judge_budget"]["requests"] == 16
     assert settings["initial_pool_judge_budget"]["requests"] == 9
     assert not settings["review_generated_tasks"]

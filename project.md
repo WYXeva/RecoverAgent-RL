@@ -2,11 +2,11 @@
 
 更新：2026-11-17。本文是唯一当前设计与实施计划，事实见 [STATUS](docs/STATUS.md)。
 
-当前执行安排：固定10条已有证据的Judge thinking/high复核已完成，没有重新出题、运行Solver/Student或开启GPU。原正式Static/Evolve仍暂停，不自动衔接训练、dev/test或旧池准入。结果见[本轮报告](reports/s2_judge_thinking_recheck_20261117.md)。
+当前执行安排：用户授权一轮Evolve＋dev24、最多24小时后，要求先验收Student实际执行的生成题。固定一题×4次S0实跑已完成，业务2成功/2失败，Judge却为1成功/3失败，确认一条因未翻页被误罚。**正式实验尚未启动，先解决评分不一致。**没有参数更新或dev/test；GPU服务已退出。结果见[真实验收报告](reports/s2_student_judge_probe_20261117.md)。
 
-当前主线：**四次 Student 真实反馈 → 必要时一次探索 → 三字段任务生成 → 干净初态 Solver → 共享 LLM Judge → 入池 → 正常四次 GRPO 采样与学习**。当前执行版 `v2_s2_judge_thinking_20261117`（继承轻量生成）、奖励身份 `coevolve_llm_reward_v1`，另绑定Judge调用身份 `coevolve_judge_thinking_high_v1`；保留已修复的解析、严格 Schema、一次完成纠错和无效整组排除。生成题不再使用数据库目标契约、字段元数据、契约 repair、业务hash或答案全文比较，原始 train/dev/test 继续官方验收。
+当前主线：**四次 Student 真实反馈 → 必要时一次探索 → 三字段任务生成 → 干净初态 Solver → 共享 LLM Judge → 入池 → 正常四次 GRPO 采样与学习**。新一轮准备版 `v2_s2_evolve_round1_20261117`（继承轻量生成，40组/轮末dev后停）、奖励身份 `coevolve_llm_reward_v1`，另绑定Judge调用身份 `coevolve_judge_thinking_high_v1`；保留已修复的解析、严格 Schema、一次完成纠错和无效整组排除。生成题不再使用数据库目标契约、字段元数据、契约 repair、业务hash或答案全文比较，原始 train/dev/test 继续官方验收。
 
-前次有限实跑的2道组件题与S0四条轨迹保持原样（人工2成功/2失败）。本轮冻结同一reason-first提示，仅调整Judge为Flash/enabled/high/8192；10条既有证据结论和理由核对均通过，未重现漏步骤、计数错误或布尔矛盾。该结果只支持这些案例的评分正确性；不宣称训练收益，不覆盖原奖励，不自动开始下一阶段。
+前次固定10条证据的Flash/enabled/high/8192重判均通过，原记录保留；最新四条实跑仍出现一条误罚，不能由旧10例推断泛化可靠性。reason-first提示保持冻结，不反复调用至通过。错误评分单独审计、整组不用于更新，不覆盖原奖励。旧9题已复用Solver证据在新Judge下准入为共同候选池；正式训练仍等待评分问题处理。
 
 当前实验仍为 **S2 Static / Evolve 五轮 GRPO 对照**：两分支各自从同一验收 S0 开始，原始范围为固定 train100。Qwen3.5-9B、64k、LoRA、vLLM、公开数字格式、每组四次、每两组一次更新机会及固定 dev/test 不变。Recovery-SFT 保留为前阶段结果，不在这组对照中继续更新。新协议必须使用独立运行目录，不接续旧奖励协议的 actor、训练步数或评价回执。
 

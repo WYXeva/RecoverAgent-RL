@@ -20,7 +20,7 @@ def setup(monkeypatch, tmp_path):
     from pathlib import Path
 
     monkeypatch.setenv(
-        "RECOVERAGENT_S2_EXECUTION", v2_runtime.S2_JUDGE_THINKING_EXECUTION
+        "RECOVERAGENT_S2_EXECUTION", v2_runtime.S2_EVOLVE_ROUND1_EXECUTION
     )
     local = Path("runs/s2_context_validation_20261117/teacher_tokenizer")
     if (local / "tokenizer.json").exists():
@@ -223,3 +223,71 @@ def test_judge_output_reservation_is_not_old_4096(setup, tmp_path, monkeypatch):
     )
     assert not result["reward_valid"] and not seen
     assert "budget exhausted" in result["scoring_fault"]["reason"]
+
+
+def test_student_probe_reserves_four_current_judge_outputs(setup):
+    import runpy
+
+    student_judge_budget = runpy.run_path("scripts/probe_s2_coevolve.py")[
+        "student_judge_budget"
+    ]
+    engine, _, _ = setup
+    limits = student_judge_budget(engine.cfg)
+    assert limits["requests"] == 4
+    assert limits["generated_tokens"] == 4 * llm.call_identity()["max_tokens"] == 32768
+    assert limits["seconds"] == 480
+
+
+def test_student_probe_requires_admission_and_uses_normal_rollout(
+    setup, tmp_path, monkeypatch
+):
+    import runpy
+
+    from recoveragent import s2_backend, v2_s1_batch
+    from recoveragent.io import write_json
+    from test_s2_experiment import FakeRuntime
+
+    engine, task, _ = setup
+
+    def success(response):
+        response["choices"][0]["message"]["content"] = json.dumps(
+            {"success": True, "reason": "Synthetic success", "evidence_steps": [0]}
+        )
+
+    mock_transport(monkeypatch, success)
+    ref = tmp_path / "reference.json"
+    write_json(ref, reference(task))
+    accepted = llm.admit(engine, task, tmp_path / "admitted", reference_path=ref)
+    input_path = tmp_path / "input.json"
+    write_json(input_path, {"accepted": [accepted]})
+    calls = []
+
+    class Runtime(FakeRuntime):
+        def __init__(self, cfg, deployment, output):
+            super().__init__(cfg)
+
+        def prepare_rollouts(self, actor):
+            pass
+
+        def rollout(self, actor, task, directory, seed, **kwargs):
+            assert "diagnostic_goal_probe" not in task
+            llm.validate_task(task["generated_task"])
+            calls.append(seed)
+            return super().rollout(actor, task, directory, seed, **kwargs)
+
+        def update(self, *args, **kwargs):
+            pytest.fail("The acceptance probe must never update parameters")
+
+    monkeypatch.setattr(s2_backend, "BackendRuntime", Runtime)
+    monkeypatch.setattr(v2_s1_batch, "checkpoint", lambda *args, **kwargs: None)
+    student = runpy.run_path("scripts/probe_s2_coevolve.py")["student"]
+    output = tmp_path / "student"
+    result = student(engine.cfg, {"s0": "S0"}, input_path, output)
+    assert result["feedback"]["complete"] and result["training_updates"] == 0
+    assert result["success"] == result["failure"] == 2
+    student(engine.cfg, {"s0": "S0"}, input_path, output)
+    assert len(calls) == 4
+    input_path = tmp_path / "unadmitted_input.json"
+    write_json(input_path, {"accepted": [task]})
+    with pytest.raises(ValueError, match="LLM admission"):
+        student(engine.cfg, {"s0": "S0"}, input_path, tmp_path / "unadmitted")

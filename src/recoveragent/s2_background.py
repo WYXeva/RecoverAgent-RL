@@ -11,6 +11,7 @@ from .io import digest, read_json
 from .s2_evolution import GroupEvolution
 from .s2_schedule import select_contexts
 from .s2_state import atomic, evidence
+from .v2_runtime import s2_group_limit
 
 
 def enqueue_regeneration(experiment, window, attempt):
@@ -85,7 +86,7 @@ def enqueue(experiment):
         state["mode"] != "evolve"
         or not end
         or end % 8
-        or end == 200
+        or end >= s2_group_limit()
         or str(end) in state["feedback_windows"]
         or str(end) in state.get("background_jobs", {})
     ):

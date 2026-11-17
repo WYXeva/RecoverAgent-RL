@@ -15,7 +15,7 @@ from .s2_schedule import GroupFeedback, TaskQueue, select_contexts
 from .s2_state import atomic, binding, evidence, unknown_episode, protocol_identity
 from .s2_reporting import best_round, evaluation_cost, paired, report, score
 from .s2_storage import archive_requests, paired_inputs
-from .v2_runtime import S2_RUNTIME, s2_execution, verify_lock
+from .v2_runtime import S2_RUNTIME, s2_execution, s2_group_limit, verify_lock
 from .v2_tasks import ROOT, plan
 
 
@@ -422,7 +422,7 @@ class Experiment:
         if not retry and (
             not end
             or end % 8
-            or end == 200
+            or end >= s2_group_limit()
             or str(end) in self.state["feedback_windows"]
         ):
             return
@@ -563,7 +563,7 @@ class Experiment:
                     }
                     self.save()
                 report(self.output, self.state, baseline)
-            if end == 200:
+            if end >= s2_group_limit():
                 if (
                     s2_execution().get("background_generation")
                     and self.state["mode"] == "evolve"
@@ -572,6 +572,10 @@ class Experiment:
                         self.output / "generation/student_finished.json",
                         {"completed_groups": end},
                     )
+                    from .s2_background import collect
+
+                    collect(self)
+                    report(self.output, self.state, baseline)
                 return self.state
             self.group()
 

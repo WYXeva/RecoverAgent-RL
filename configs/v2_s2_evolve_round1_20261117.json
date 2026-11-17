@@ -1,0 +1,116 @@
+{
+  "revision": "v2_s2_evolve_round1_20261117",
+  "protocol_runtime": "v2_s2_static_evolve_20261116",
+  "rollout_concurrency": 2,
+  "evaluation_concurrency": 1,
+  "teacher_priced_cost_limit": true,
+  "background_generation": true,
+  "skip_cuda_oom": true,
+  "curriculum_admission": false,
+  "feedback_alignment_gate": false,
+  "authorization": "User authorized one Evolve round (40 groups x 4), current-protocol S0 baseline and round-end dev24, at most 24 hours from remote launch. Static remains paused; no final test, rental or recharge.",
+  "review_generated_tasks": false,
+  "finish_static_after_evolve": false,
+  "continuation": "New runs only. One common LLM-admitted initial pool, fresh S0 actors; old rewards/states/evaluations cannot be resumed.",
+  "native_parameter_revision": "public_answer_contract_v2",
+  "completion_contract_revision": "completion_submission_v2",
+  "reward_judge_budget": {
+    "requests": 80,
+    "generated_tokens": 655360,
+    "input_tokens": 83886080,
+    "seconds": 9600,
+    "priced_cost": 100
+  },
+  "reward_protocol_revision": "coevolve_llm_reward_v1",
+  "generation_revision": "coevolve_light_v1",
+  "generated_scoring_revision": "coevolve_llm_reward_v1",
+  "generation_settings": {
+    "explorations_per_context": 1,
+    "quality_filter": null,
+    "goal_contracts": [],
+    "require_same_exploration_initial_state": false,
+    "adaptations": [
+      "four_attempt_feedback_direct_to_generation",
+      "optional_one_targeted_exploration",
+      "one_solver_one_shared_llm_judge",
+      "no_candidate_student_prescreen"
+    ]
+  },
+  "initial_pool_judge_budget": {
+    "requests": 9,
+    "generated_tokens": 73728,
+    "input_tokens": 9437184,
+    "seconds": 1080,
+    "priced_cost": 100
+  },
+  "fresh16_judge_budget": {
+    "requests": 16,
+    "generated_tokens": 131072,
+    "input_tokens": 16777216,
+    "seconds": 1920,
+    "priced_cost": 100
+  },
+  "generation_budget": {
+    "requests": 3888,
+    "generated_tokens": 1114112,
+    "input_tokens": 4076863488,
+    "seconds": 63360,
+    "priced_cost": 100
+  },
+  "judge_check_budget": {
+    "requests": 4,
+    "generated_tokens": 32768,
+    "input_tokens": 4194304,
+    "seconds": 480,
+    "priced_cost": 100
+  },
+  "teacher_context": {
+    "revision": "s2_teacher_context_v1",
+    "provider": "opencode_go",
+    "model": "deepseek-v4.1-flash",
+    "max_sequence_tokens": 1000000,
+    "scope": [
+      "s2_text",
+      "s2_exploration",
+      "s2_solver"
+    ],
+    "counting_method": "matching_tokenizer_json_estimate_v1",
+    "framing_allowance_tokens": 1024,
+    "tokenizer": {
+      "repo": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "revision": "08c8657f02291e11b6f6b63e0e16014f8e748518",
+      "sha256": "c90dfa01249db1be4245780a052ede752e1361c612ac6d08e2bdada7d599476b"
+    },
+    "basis": {
+      "url": "https://opencode.ai/inference/go/openai/v1/models",
+      "model_id": "deepseek-v4.1-flash",
+      "canonical_id": "deepseek/deepseek-v4.1-flash-1017",
+      "limit": {
+        "context": 1000000,
+        "output": 384000
+      },
+      "checked_at": "2026-11-17",
+      "docs": "https://models.opencode.ai/providers/opencode-go/"
+    },
+    "note": "Full request messages, provider reasoning history and tool schemas are counted using the matching tokenizer over JSON plus an explicit framing allowance. OpenCode server rendering is not exposed; this is an estimate. Response usage is authoritative. Billing reservation, max_new_tokens and max_request_bytes unchanged."
+  },
+  "judge_text": {
+    "revision": "coevolve_judge_thinking_high_v1",
+    "model": "deepseek-v4.1-flash",
+    "thinking": {
+      "type": "enabled"
+    },
+    "reasoning_effort": "high",
+    "max_tokens": 8192,
+    "temperature": null,
+    "prompt_sha256": "7fa7f33bef47d4b3fde4f5a25c8df67978d0e920119eead97a1a5560c1ee9f35"
+  },
+  "judge_recheck_budget": {
+    "requests": 10,
+    "generated_tokens": 81920,
+    "input_tokens": 10485760,
+    "seconds": 1200,
+    "priced_cost": 10
+  },
+  "stop_after_round": 1
+}

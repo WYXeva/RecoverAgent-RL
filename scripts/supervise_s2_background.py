@@ -142,7 +142,10 @@ class InheritedTeacher:
 
 
 def continuation_mode(output, settings):
-    evolve = read_json(Path(output) / "evolve/state.json")
+    path = Path(output) / "evolve/state.json"
+    if not path.exists():
+        return "evolve"
+    evolve = read_json(path)
     return (
         "both"
         if settings.get("finish_static_after_evolve")
@@ -176,7 +179,13 @@ def main():
     common = ["--deployment", str(args.deployment.resolve()), "--output", str(output)]
     student_mode = continuation_mode(output, s2_execution())
     commands = {
-        "student": prefix + ["resume", "--mode", student_mode] + common,
+        "student": prefix
+        + [
+            "resume" if (output / "experiment.json").exists() else "run",
+            "--mode",
+            student_mode,
+        ]
+        + common,
         "teacher": prefix + ["feedback-worker"] + common,
     }
     processes, known, restarts, disabled = {}, {}, {"student": 0, "teacher": 0}, {}
@@ -301,7 +310,11 @@ def main():
         while time.time() < deployment["deadline_epoch"]:
             active_branch = "static" if student_mode == "both" else "evolve"
             state_path = output / active_branch / "state.json"
-            state = read_json(state_path)
+            state = (
+                read_json(state_path)
+                if state_path.exists()
+                else {"groups": [], "optimizer_steps": 0, "pool": []}
+            )
             if adopted and "student" not in processes and "student" not in disabled:
                 try:
                     if adopted_update_ready(adopted, cfg, deployment, state):
@@ -326,11 +339,12 @@ def main():
                 if last_progress is None or progress[:2] != last_progress[:2]:
                     restarts["student"] = 0
                 last_progress = progress
-                report(
-                    output / active_branch,
-                    state,
-                    read_json(output / "baseline/results.json"),
-                )
+                if state_path.exists() and (output / "baseline/results.json").exists():
+                    report(
+                        output / active_branch,
+                        state,
+                        read_json(output / "baseline/results.json"),
+                    )
                 event(
                     "progress",
                     groups=progress[0],
@@ -399,9 +413,14 @@ def main():
                     launch(label)
                 else:
                     disabled[label] = "failed; see immutable receipts and logs"
+            if "student" in disabled and disabled["student"] != "completed":
+                stop_owned(owned["teacher"])
+                disabled["teacher"] = "stopped_after_student_failure"
             value = {
                 "stage": "running",
-                "phase": "student_and_teacher_parallel"
+                "phase": "baseline_initialization"
+                if not state_path.exists()
+                else "student_and_teacher_parallel"
                 if "student" in processes
                 else "preserved_update_and_teacher",
                 "updated_epoch": time.time(),

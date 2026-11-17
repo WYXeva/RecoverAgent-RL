@@ -28,6 +28,7 @@ S2_GOAL_REPAIR_EXECUTION = "v2_s2_goal_repair_20261117"
 S2_LIGHT_EXECUTION = "v2_s2_light_llm_20261117"
 S2_TEACHER_CONTEXT_EXECUTION = "v2_s2_teacher_context_20261117"
 S2_JUDGE_THINKING_EXECUTION = "v2_s2_judge_thinking_20261117"
+S2_EVOLVE_ROUND1_EXECUTION = "v2_s2_evolve_round1_20261117"
 
 
 def s2_execution():
@@ -47,9 +48,17 @@ def s2_execution():
         S2_LIGHT_EXECUTION,
         S2_TEACHER_CONTEXT_EXECUTION,
         S2_JUDGE_THINKING_EXECUTION,
+        S2_EVOLVE_ROUND1_EXECUTION,
     }:
         raise ValueError("Unknown S2 execution revision")
     return read_json(ROOT / f"configs/{revision}.json")
+
+
+def s2_group_limit():
+    rounds = s2_execution().get("stop_after_round", 5)
+    if type(rounds) is not int or not 1 <= rounds <= 5:
+        raise ValueError("S2 stop_after_round must be between one and five")
+    return rounds * 40
 
 
 S1_SNAPSHOT_RUNTIMES = {
@@ -183,6 +192,11 @@ def verify_lock(runtime=RUNTIME):
                         f"configs/{S2_TEACHER_CONTEXT_EXECUTION}_lock.json",
                         "configs/s2_judge_thinking_check_20261117.json",
                         "scripts/recheck_s2_judge.py",
+                    }
+                if execution["revision"] == S2_EVOLVE_ROUND1_EXECUTION:
+                    required |= {
+                        f"configs/{S2_JUDGE_THINKING_EXECUTION}_lock.json",
+                        "scripts/supervise_s2_background.py",
                     }
                 if (
                     lock.get("execution_revision") != execution["revision"]

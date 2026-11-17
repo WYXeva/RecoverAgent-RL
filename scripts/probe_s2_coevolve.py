@@ -13,6 +13,19 @@ from recoveragent.s2_state import evidence, protocol_identity, unknown_episode
 from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
 
 
+def student_judge_budget(cfg):
+    from recoveragent.coevolve_llm import call_identity
+
+    return {
+        **cfg["s2"]["teacher_budget"],
+        "requests": 4,
+        "generated_tokens": 4 * call_identity()["max_tokens"],
+        "seconds": 4 * 120,
+        "input_tokens": 4 * cfg["teacher"]["billing_context_tokens"],
+        "priced_cost": 10,
+    }
+
+
 def generate(cfg, deployment, event_path, output):
     from recoveragent.s2_evolution import GroupEvolution
     from recoveragent.v2_round import isolated
@@ -56,6 +69,7 @@ def student(cfg, deployment, generation_path, output):
     from recoveragent.s2_schedule import GroupFeedback
     from recoveragent.v2_grpo import group_advantages
     from recoveragent.v2_s1_batch import checkpoint
+    from recoveragent.coevolve_tasks import validate_task
 
     accepted = read_json(generation_path)["accepted"]
     if not accepted:
@@ -64,10 +78,10 @@ def student(cfg, deployment, generation_path, output):
         return result
     # Deterministic first admitted candidate; never replace based on Student results.
     generated = accepted[0]
+    validate_task(generated, generated["source_task_id"])
     task = {
         "task_id": generated["source_task_id"],
         "generated_task": generated,
-        "diagnostic_goal_probe": True,
     }
     actor = deployment["s0"]
     checkpoint(actor, cfg, initial=True)
@@ -84,14 +98,7 @@ def student(cfg, deployment, generation_path, output):
             "training_updates": 0,
         },
     )
-    limits = {
-        **cfg["s2"]["teacher_budget"],
-        "requests": 4,
-        "generated_tokens": 4 * 4096,
-        "seconds": 4 * 120,
-        "input_tokens": 4 * cfg["teacher"]["billing_context_tokens"],
-        "priced_cost": 10,
-    }
+    limits = student_judge_budget(cfg)
     runtime = BackendRuntime(cfg, {**deployment, "reward_judge_budget": limits}, output)
     try:
         if any(
