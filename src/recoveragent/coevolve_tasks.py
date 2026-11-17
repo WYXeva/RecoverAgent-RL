@@ -209,14 +209,24 @@ def candidate(proposal, explorations, context):
     return {**task, "task_id": identify(task)}
 
 
-def attach_reference(task, trajectory, judgment):
+def attach_reference(task, trajectory, judgment, *, scoring_repair=False):
     if judgment.get("success") is not True or not isinstance(
         judgment.get("reason"), str
     ):
         raise ValueError("Independent semantic verification did not pass")
     terminal = trajectory["coevolve_terminal"]
     if (
-        trajectory["status"] != "valid"
+        not (
+            trajectory["status"] == "valid"
+            or (
+                scoring_repair
+                and "success_conditions" in task
+                and trajectory.get("error_type") == "ScoringGap"
+                and trajectory.get("scoring_gap")
+                and not trajectory.get("interruption")
+                and not trajectory.get("provider_error")
+            )
+        )
         or terminal["status"] != "success"
         or terminal["instruction"] != task["instruction"]
     ):

@@ -295,9 +295,13 @@ class BackendRuntime:
         return {**result, "directory": str(directory), "seed": seed}
 
     def finalize_reward(self, result, directory):
+        from .s2_state import protocol_identity
+
         path = Path(directory) / "reward_result.json"
         if path.exists():
             saved = read_json(path)
+            if saved.get("protocols") != protocol_identity():
+                raise ValueError("Reward receipt protocol mismatch")
             if saved["raw_result_sha256"] != digest(result):
                 raise ValueError("Reward receipt does not match raw episode")
             return saved["result"]
@@ -308,7 +312,14 @@ class BackendRuntime:
         from .s2_reward import score
 
         judged = score(self, result, directory)
-        write_json(path, {"raw_result_sha256": digest(result), "result": judged})
+        write_json(
+            path,
+            {
+                "raw_result_sha256": digest(result),
+                "protocols": protocol_identity(),
+                "result": judged,
+            },
+        )
         return judged
 
     def update(self, request, directory):

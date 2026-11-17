@@ -12,7 +12,7 @@ from .demonstrations import sha256
 from .io import digest, read_json, write_json
 from .s2_inputs import load_bundle, prepare
 from .s2_schedule import GroupFeedback, TaskQueue, select_contexts
-from .s2_state import atomic, binding, evidence, unknown_episode
+from .s2_state import atomic, binding, evidence, unknown_episode, protocol_identity
 from .s2_reporting import best_round, evaluation_cost, paired, report, score
 from .s2_storage import archive_requests, paired_inputs
 from .v2_runtime import S2_RUNTIME, s2_execution, verify_lock
@@ -79,9 +79,12 @@ def evaluate(runtime, actor, tasks, output, *, final_test=False):
     output.mkdir(parents=True, exist_ok=True)
     results = []
     policy = runtime.policy(actor)
+    if not (output / "evaluation_binding.json").exists() and any(output.iterdir()):
+        raise ValueError("Unbound historical evaluation cannot be reused")
     evidence(
         output / "evaluation_binding.json",
         {
+            "protocols": protocol_identity(),
             "policy": policy,
             "tasks": tasks,
             "final_test": final_test,
@@ -161,11 +164,17 @@ class Experiment:
         path = self.output / "state.json"
         if path.exists():
             self.state = read_json(path)
-            if self.state["binding"] != key:
-                raise ValueError("S2 continuation changed experiment inputs")
+            if (
+                self.state["binding"] != key
+                or self.state.get("protocols") != protocol_identity()
+            ):
+                raise ValueError(
+                    "S2 continuation changed experiment inputs or execution/reward protocols"
+                )
         else:
             self.state = {
                 "binding": key,
+                "protocols": protocol_identity(),
                 "mode": mode,
                 "actor": deployment["s0"],
                 "optimizer": None,
@@ -560,6 +569,7 @@ def run(config, deployment, output, mode):
             output / "experiment.json",
             {
                 "config": config,
+                "protocols": protocol_identity(),
                 "source_lock_sha256": sha256(ROOT / config["source_lock"]),
                 "initial_pool_sha256": digest(bundle["pool"]),
                 "s0": deployment["s0"],
@@ -617,8 +627,20 @@ def run(config, deployment, output, mode):
 def final_evaluation(config, deployment, output, runtime):
     output = Path(output)
     frozen = read_json(output / "experiment.json")
-    if frozen["config"] != config or frozen["s0"] != deployment["s0"]:
+    if (
+        frozen["config"] != config
+        or frozen["s0"] != deployment["s0"]
+        or frozen.get("protocols") != protocol_identity()
+    ):
         raise ValueError("Final evaluation differs from the trained experiment")
+    for branch in ("static", "evolve"):
+        if (
+            read_json(output / branch / "state.json").get("protocols")
+            != protocol_identity()
+        ):
+            raise ValueError(
+                "Final checkpoint selection uses a different reward protocol"
+            )
     selection = {
         b: best_round(read_json(output / b / "state.json")["round_evaluations"])
         for b in ("static", "evolve")

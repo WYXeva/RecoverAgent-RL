@@ -336,11 +336,17 @@ def test_final_test_selects_best_dev_and_audits_shared_inputs(tmp_path):
 
     config = cfg()
     config["test_task_ids"] = config["test_task_ids"][:3]
-    write_json(tmp_path / "experiment.json", {"config": config, "s0": "S0"})
+    from recoveragent.s2_state import protocol_identity
+
+    write_json(
+        tmp_path / "experiment.json",
+        {"config": config, "s0": "S0", "protocols": protocol_identity()},
+    )
     for branch in ("static", "evolve"):
         write_json(
             tmp_path / branch / "state.json",
             {
+                "protocols": protocol_identity(),
                 "round_evaluations": {
                     str(i): {
                         "round": i + 1,
@@ -348,7 +354,7 @@ def test_final_test_selects_best_dev_and_audits_shared_inputs(tmp_path):
                         "counts": {"success": 8 if i in (1, 3) else 7},
                     }
                     for i in range(5)
-                }
+                },
             },
         )
     runtime = FakeRuntime(config)

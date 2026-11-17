@@ -15,6 +15,7 @@ from recoveragent.v2_runtime import (
     S2_SUPERVISED_EXECUTION,
     S2_NATIVE_EXECUTION,
     S2_GOAL_EXECUTION,
+    S2_GOAL_REPAIR_EXECUTION,
     S2_PARALLEL_EXECUTION,
     S2_RUNTIME,
     verify_lock,
@@ -71,23 +72,20 @@ def test_parallel_order_seeds_policy_update_and_resume(tmp_path, monkeypatch):
     assert {r[0] for r in runtime.calls[8:]} == {"actor_1"}
 
 
-def test_resume_serial_pending_without_replay_or_binding_change(tmp_path, monkeypatch):
-    # The already-committed serial receipt and the interrupted claim survive intact.
+def test_resume_rejects_changed_execution_binding_before_sampling(
+    tmp_path, monkeypatch
+):
     serial = FakeRuntime(cfg(), crash=2)
     original = experiment(tmp_path, serial)
     with pytest.raises(KeyboardInterrupt):
         original.group()
-    binding = original.state["binding"]
     receipt = tmp_path / "groups/000/member_0.receipt.json"
     before = receipt.read_bytes()
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_PARALLEL_EXECUTION)
     runtime = ConcurrentRuntime(cfg())
-    resumed = experiment(tmp_path, runtime)
-    resumed.group()
-    assert resumed.state["binding"] == binding and receipt.read_bytes() == before
-    assert len(runtime.calls) == 2 and runtime.peak == 2
-    rows = read_json(resumed.state["groups"][0])["episodes"]
-    assert rows[1]["success"] is None
+    with pytest.raises(ValueError, match="protocols"):
+        experiment(tmp_path, runtime)
+    assert not runtime.calls and receipt.read_bytes() == before
 
 
 def test_new_execution_lock_explicit_old_lock_still_rejects(monkeypatch):
@@ -116,7 +114,10 @@ def test_new_execution_lock_explicit_old_lock_still_rejects(monkeypatch):
     with pytest.raises(ValueError, match="source changed|Incomplete"):
         verify_lock(S2_RUNTIME)
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_EXECUTION)
-    assert verify_lock(S2_RUNTIME)["execution_revision"] == S2_GOAL_EXECUTION
+    with pytest.raises(ValueError, match="source changed|Incomplete"):
+        verify_lock(S2_RUNTIME)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_REPAIR_EXECUTION)
+    assert verify_lock(S2_RUNTIME)["execution_revision"] == S2_GOAL_REPAIR_EXECUTION
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "unregistered")
     with pytest.raises(ValueError, match="Unknown S2 execution"):
         verify_lock(S2_RUNTIME)

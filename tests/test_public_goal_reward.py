@@ -311,6 +311,9 @@ def test_public_goal_generation_repairs_once_then_defers(tmp_path, monkeypatch):
 
     e = engine(tmp_path)
     e.public_goals = True
+    monkeypatch.setattr(
+        "recoveragent.coevolve_goal_schema.related_metadata", lambda _: {"tables": {}}
+    )
     calls = []
     monkeypatch.setattr(
         e,
@@ -383,7 +386,17 @@ def test_goal_capture_and_student_evaluate_use_same_conditions():
             return self.data
 
     current = list(e["before"]["demo.Transfer"])
-    table = SimpleNamespace(find_all=lambda: [Row(r) for r in current])
+    table = SimpleNamespace(
+        find_all=lambda: [Row(r) for r in current],
+        model_json_schema=lambda: {
+            "type": "object",
+            "properties": {
+                "id": {"type": "integer"},
+                "owner_id": {"type": "integer"},
+                "amount": {"type": "number"},
+            },
+        },
+    )
     adapter = SimpleNamespace(
         world=SimpleNamespace(
             models={"demo": {"Transfer": table}},
@@ -403,3 +416,118 @@ def test_goal_capture_and_student_evaluate_use_same_conditions():
     capture_terminal(adapter, trajectory)
     teacher = trajectory["coevolve_terminal"]["goal_evaluation"]
     assert student == teacher and student["success"]
+
+
+@pytest.mark.parametrize("expected", [None, 21.5])
+def test_missing_state_field_is_scoring_gap_not_null_or_business_failure(expected):
+    task, e = fixture()
+    task["success_conditions"]["checks"] = [
+        check(
+            "field",
+            {"get": {"from": {"binding": "new"}, "path": [0, "typo"]}},
+            literal(expected),
+        )
+    ]
+    with pytest.raises(ScoringGap, match="Unavailable state field"):
+        objective(task, e)
+
+
+def test_present_null_and_absent_business_object_are_distinct():
+    task, e = fixture()
+    task["success_conditions"]["checks"] = [
+        check(
+            "nullable",
+            {"get": {"from": {"binding": "new"}, "path": [0, "note"]}},
+            literal(None),
+        )
+    ]
+    e["after"]["demo.Transfer"][1]["note"] = None
+    assert objective(task, e)["success"]
+    e["after"]["demo.Transfer"].pop()
+    result = objective(task, e)
+    assert result["reward_valid"] and not result["success"]
+    assert result["checks"][0]["actual"] == {"missing_business_result": True}
+
+
+@pytest.mark.parametrize("form", ["where", "get", "values", "filter"])
+def test_empty_table_invalid_column_rejected_before_query(form):
+    from types import SimpleNamespace
+    from recoveragent.coevolve_goal import capture
+
+    task, _ = fixture()
+    spec = task["success_conditions"]
+    rows = {"rows": {"table": "demo.Transfer"}}
+    node = (
+        {"rows": {"table": "demo.Transfer", "where": {"typo": None}}}
+        if form == "where"
+        else {"filter": {"from": rows, "where": {"typo": None}}}
+        if form == "filter"
+        else {
+            form: {"from": rows, "path": ([0, "typo"] if form == "get" else ["typo"])}
+        }
+    )
+    spec["bindings"] = {}
+    spec["checks"] = [check("invalid", node, literal(None))]
+    queried = []
+    table = SimpleNamespace(
+        model_json_schema=lambda: {
+            "type": "object",
+            "properties": {"id": {"type": "integer"}},
+        },
+        find_all=lambda: queried.append(True) or [],
+    )
+    adapter = SimpleNamespace(
+        world=SimpleNamespace(models={"demo": {"Transfer": table}})
+    )
+    with pytest.raises(ScoringGap, match="Unavailable state field"):
+        capture(adapter, spec)
+    assert not queried
+
+
+def test_numeric_json_schema_and_set_comparison_agree():
+    task, e = fixture()
+    e["answer"] = '{"ids":[27.0],"amount":21.5}'
+    assert objective(task, e)["success"]
+
+
+@pytest.mark.parametrize(
+    "a,b,same",
+    [
+        ([27.0], [27], True),
+        (["27"], [27], False),
+        ([True], [1], False),
+        ([{"ids": [27.0]}], [{"ids": [27]}], True),
+        ([1, 1], [1, 2], False),
+        ([1, 1], [1], False),
+    ],
+)
+def test_nested_numeric_equivalence_preserves_types_and_multiplicity(a, b, same):
+    from recoveragent.coevolve_goal import equal, set_equal
+
+    assert equal(a, b) is same
+    assert set_equal(a, b) is same
+    assert set_equal([2.0, 1], [1.0, 2])
+    assert not equal([2.0, 1], [1.0, 2])
+
+
+@pytest.mark.parametrize(
+    "judgment",
+    [
+        None,
+        [],
+        "body",
+        {"conditions": [None]},
+        {"conditions": ["body"]},
+        {"conditions": {"body": True}},
+    ],
+)
+def test_malformed_semantic_json_becomes_invalid_reward(judgment):
+    task, e = fixture()
+    task["success_conditions"]["semantic"] = [
+        {"id": "body", "requirement": "Useful body", "actions": ["mail__send"]}
+    ]
+    result = finalize(
+        {"evaluation": objective(task, e), "fault": None}, lambda _: judgment
+    )
+    assert result["success"] is None and not result["reward_valid"]
+    assert result["scoring_fault"]["type"] == "ScoringGap"

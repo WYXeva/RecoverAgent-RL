@@ -426,11 +426,18 @@ class Evolution:
                 "Specify description only when it is part of the intended goal. Do not propose additional constraints "
                 "that this goal cannot express. Other task types omit goal_contract and retain the reference-state evaluator."
             )
+        metadata = None
+        if self.public_goals:
+            from .coevolve_goal_schema import related_metadata
+
+            metadata = related_metadata(triplets)
+            write_json(directory / "model_metadata.json", metadata)
         abstracted = self.text(
             source,
             directory / "abstraction",
             prompt,
             {
+                **({"model_metadata": metadata} if metadata is not None else {}),
                 "context": context,
                 "interaction_triplets": triplets,
                 "output_contract": "Return JSON {tasks: [...]} with at most "
@@ -460,59 +467,9 @@ class Evolution:
             }
             write_json(target / "proposal.json", proposal)
             try:
-                prepared = proposal
-                if self.public_goals:
-                    from .coevolve_goal import (
-                        validate,
-                        ScoringGap,
-                        ABSTRACTION_CONTRACT,
-                    )
-
-                    try:
-                        validate(proposal.get("success_conditions"))
-                    except (ScoringGap, ValueError, KeyError, TypeError) as exc:
-                        # Exactly one format/scoring repair, before Solver. No goal rewrite.
-                        repaired = self.text(
-                            source,
-                            target / "contract_repair",
-                            ABSTRACTION_CONTRACT
-                            + " Return JSON {success_conditions: ...}. Preserve the supplied public goal exactly.",
-                            {"proposal": proposal, "scoring_gap": str(exc)},
-                        )
-                        proposal = {
-                            **proposal,
-                            "success_conditions": repaired.get("success_conditions"),
-                        }
-                        try:
-                            validate(proposal["success_conditions"])
-                        except (ValueError, KeyError, TypeError) as gap:
-                            raise ScoringGap(str(gap)) from gap
-                        write_json(target / "repaired_proposal.json", proposal)
-                    prepared = proposal
-                if self.public_goals or getattr(self, "curriculum_admission", False):
-                    from .coevolve_answers import prepare_proposal
-
-                    prepared = prepare_proposal(proposal)
-                    write_json(target / "prepared_proposal.json", prepared)
-                if proposal.get("goal_contract") is not None and not self.settings.get(
-                    "goal_contracts"
-                ):
-                    raise ValueError("Goal-contract generation is not enabled")
-                task = candidate(prepared, explorations, context)
-                if getattr(self, "curriculum_admission", False):
-                    from .coevolve_tasks import identify
-
-                    task["admission_revision"] = "coevolve_curriculum_quality_v2"
-                    task["task_id"] = identify(task)
-                if any(
-                    t["instruction"].casefold() == task["instruction"].casefold()
-                    for t in self.pool
-                ):
-                    raise ValueError("Duplicate task query")
-                write_json(target / "candidate.json", task)
-                if self.settings.get("quality_filter"):
-                    self.quality(task, target)
-                task = self.admit(task, target)
+                task = self.admit_proposal(
+                    proposal, explorations, context, target, metadata
+                )
                 self.pool.append(task)
                 result.update(accepted=True, task_id=task["task_id"])
             except (
@@ -533,8 +490,96 @@ class Evolution:
                         quality_status="deferred_scoring",
                         issue_origin="scoring_capability",
                     )
+            claim = target / "contract_repair_claim.json"
+            result["contract_repair_count"] = int(claim.exists())
+            result["admission_directory"] = str(
+                target / "repaired_admission"
+                if (target / "repaired_admission/candidate.json").exists()
+                else target
+            )
+            receipt = target / "contract_repair_result.json"
+            if receipt.exists():
+                result["contract_repair"] = read_json(receipt)
             self.attempts.append(result)
             write_json(target / "acceptance.json", result)
+
+    def proposal_task(self, proposal, explorations, context, metadata):
+        if self.public_goals:
+            from .coevolve_contract_repair import checked
+
+            checked(proposal.get("success_conditions"), metadata)
+        if proposal.get("goal_contract") is not None and not self.settings.get(
+            "goal_contracts"
+        ):
+            raise ValueError("Goal-contract generation is not enabled")
+        prepared = proposal
+        if self.public_goals or getattr(self, "curriculum_admission", False):
+            from .coevolve_answers import prepare_proposal
+
+            prepared = prepare_proposal(proposal)
+        task = candidate(prepared, explorations, context)
+        if getattr(self, "curriculum_admission", False):
+            from .coevolve_tasks import identify
+
+            task["admission_revision"] = "coevolve_curriculum_quality_v2"
+            task["task_id"] = identify(task)
+        if any(
+            t["instruction"].casefold() == task["instruction"].casefold()
+            for t in self.pool
+        ):
+            raise ValueError("Duplicate task query")
+        return task
+
+    def admit_proposal(self, proposal, explorations, context, target, metadata):
+        from .coevolve_contract_repair import repair, reuse_reference
+        from .coevolve_goal import ScoringGap
+        from .s2_state import evidence
+
+        source = explorations[0]["task_id"]
+        claim = target / "contract_repair_claim.json"
+        original = proposal
+        attempted = (target / "candidate.json").exists()
+        if claim.exists():
+            proposal = repair(self, source, original, target, metadata, "resume")
+        while True:
+            repaired = claim.exists()
+            work = target / "repaired_admission" if repaired else target
+            try:
+                task = self.proposal_task(proposal, explorations, context, metadata)
+                evidence(work / "candidate.json", task)
+                completed = work / "accepted_task.json"
+                if completed.exists():
+                    accepted = read_json(completed)
+                    evidence(target / "accepted_task.json", accepted)
+                    return accepted
+                reference_path = None
+                if repaired and attempted:
+                    reference_path = reuse_reference(
+                        read_json(target / "candidate.json"),
+                        task,
+                        target / (target.name + "_solver") / "trajectory.json",
+                        metadata,
+                        work,
+                    )
+                if self.settings.get("quality_filter"):
+                    receipt = work / "quality.json"
+                    if receipt.exists():
+                        if read_json(receipt)["candidate_instruction_sha256"] != digest(
+                            task["instruction"]
+                        ):
+                            raise ValueError(
+                                "Candidate quality receipt identity mismatch"
+                            )
+                    else:
+                        self.quality(task, work)
+                attempted = True
+                accepted = self.admit(task, work, reference_path=reference_path)
+                evidence(target / "accepted_task.json", accepted)
+                return accepted
+            except ScoringGap as exc:
+                if not self.public_goals or repaired:
+                    raise
+                proposal = repair(self, source, original, target, metadata, exc)
 
     def semantic_judgment(self, task, reference, directory):
         extra = {}
@@ -566,26 +611,38 @@ class Evolution:
                 "Distinguish a Solver's failed action from incomplete or over-restrictive scoring. "
                 "Allow equivalent correct wording. Use an empty conditions list when there are no semantic conditions."
             )
-        result = self.text(
-            task["source_task_id"],
-            directory,
-            prompt,
-            {
-                **extra,
-                "query": task["instruction"],
-                "completion_criterion": task["completion_criterion"],
-                "execution": interaction_triplets(
-                    reference["messages"], reference["trajectory_id"]
-                ),
-                "answer": reference["coevolve_terminal"]["answer"],
-            },
+        cached = Path(directory) / "parsed.json"
+        result = (
+            read_json(cached)
+            if cached.exists()
+            else self.text(
+                task["source_task_id"],
+                directory,
+                prompt,
+                {
+                    **extra,
+                    "query": task["instruction"],
+                    "completion_criterion": task["completion_criterion"],
+                    "execution": interaction_triplets(
+                        reference["messages"], reference["trajectory_id"]
+                    ),
+                    "answer": reference["coevolve_terminal"]["answer"],
+                },
+            )
         )
         if "success_conditions" in task:
             from .coevolve_goal import ScoringGap
 
-            if result.get("contract_complete") is not True:
+            if (
+                not isinstance(result, dict)
+                or result.get("contract_complete") is not True
+            ):
                 raise ScoringGap(
-                    result.get("contract_reason")
+                    (
+                        result.get("contract_reason")
+                        if isinstance(result, dict)
+                        else None
+                    )
                     or "Goal coverage review is missing or incomplete"
                 )
             result["goal_semantic"] = {"conditions": result.get("conditions", [])}
@@ -596,17 +653,42 @@ class Evolution:
         target = Path(target)
         if reference_path is None:
             solver = target / (target.name + "_solver")
-            reference = self.execute(
-                task["source_task_id"], solver, {"mode": "validation", "task": task}
-            )
             reference_path = solver / "trajectory.json"
+            if reference_path.exists():
+                reference = read_json(reference_path)
+            elif solver.exists():
+                from .coevolve_goal import ScoringGap
+
+                raise ScoringGap(
+                    "Interrupted Solver evidence; pending validation, no repeat"
+                )
+            else:
+                reference = self.execute(
+                    task["source_task_id"], solver, {"mode": "validation", "task": task}
+                )
         else:
             reference = read_json(reference_path)
+        from .s2_state import evidence
+
+        evidence(
+            target / "admission_binding.json",
+            {"task_sha256": digest(task), "reference_sha256": digest(reference)},
+        )
         if judgment is None:
             judgment = self.semantic_judgment(
                 task, reference, target / "semantic_judge"
             )
-        task = attach_reference(task, reference, judgment)
+        proof = target / "reference_reuse.json"
+        scoring_repair = proof.exists()
+        if scoring_repair:
+            reuse = read_json(proof)
+            if reuse["reference_sha256"] != digest(reference) or reuse[
+                "repaired_task_sha256"
+            ] != digest(task):
+                raise ValueError("Reused reference identity changed")
+        task = attach_reference(
+            task, reference, judgment, scoring_repair=scoring_repair
+        )
         task = accept(task, self.checks(task, reference_path, target))
         write_json(target / "accepted_task.json", task)
         return task
@@ -634,6 +716,10 @@ class Evolution:
             )
             result = read_json(check / "validation.json")
             evaluation = result["evaluation"]
+            if evaluation.get("status") == "scoring_gap":
+                from .coevolve_goal import ScoringGap
+
+                raise ScoringGap(evaluation.get("reason") or "Admission scoring gap")
             if evaluation.get("status") == "needs_semantic":
                 from .coevolve_goal import finish_semantic, SEMANTIC_PROMPT
 

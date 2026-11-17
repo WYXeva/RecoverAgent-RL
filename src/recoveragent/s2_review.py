@@ -106,6 +106,7 @@ def review_candidate(engine, candidate_dir, target):
         return {"status": "incomplete_original", "candidate": str(candidate_dir)}
     original = read_json(source)
     original_sha = sha256(source)
+    candidate_dir = Path(original.get("admission_directory", candidate_dir))
     result_path = target / "result.json"
     if result_path.exists():
         saved = read_json(result_path)

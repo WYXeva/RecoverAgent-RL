@@ -1,5 +1,76 @@
 # S2 提交与目标奖励链修复（2026-11-17）
 
+## 已审查 f164fa7 后的本轮补修
+
+本轮基线 `f164fa7`，分支 `codex/p0-p2-recovery`。只做本地代码、软件验证和 fresh16 准备；远端暂停指令继续有效。下方保留上一轮的实现与证据说明，**新运行使用本节的新配置和命令**。
+
+### 实际修复
+
+- **缺失与 null**：数据库模型字段通过固定 AppWorld revision 的 JSON Schema 核对，覆盖 `rows.where`、`get`、`values`、`filter` 和绑定表达式，先验证再读行，空表也能识别无效列。非法字段/状态路径抛 `ScoringGap`；真实 null 正常比较。缺少业务对象、Student 漏报字段、空的业务结果不会等同于 null，也不会仅因缺失就标成评分故障；按业务条件返回有效失败。模型元数据随私有目标证据保存。
+- **语义响应**：在访问 `.get()` 前检查响应对象、`conditions` 数组、每个条件对象和 ID，以及布尔结论、理由和引用。`[null]`、`["body"]`、`{"body":true}` 等错误结构统一成为 `ScoringGap`，经实际 BackendRuntime 奖励收尾保存未知/无效奖励，其他组可继续。客观失败仍不能被语义 true 覆盖。
+- **数值集合**：数字递归按数值等价比较，包括嵌套数组/对象和 `unique`、集合比较；`27.0` 等于 `27`，但字符串 `"27"`、布尔值 `true` 与数字不同。`equal` 保留顺序；`set_equal` 保留原有重复元素数量要求，未扩大业务容忍度。
+- **一个候选一次 repair**：结构检查、真实 Solver 的评分缺口、覆盖审核 `contract_complete=false` 和程序验收缺口共用同一个名额。调用前写 `contract_repair_claim.json`，保存首个缺口、原提案/元数据 SHA、次数与结果；未知响应和续跑不会再获名额。仅替换 `success_conditions`，不修改原公开业务目标、解法或要求；修复后重新走准入。真实 Solver 业务失败不触发 repair，仍不能评分则 `deferred_scoring`。
+- **元数据与证据复用**：抽象和 repair 获得相关应用的精简表/字段/类型信息，不含数据库行；这些信息不进入 Student/Solver 模型可见消息。若公开指令和输出契约相同，且旧 Solver 的初态、终态、完整动作和历史对应，可在独立目录重新评分并准入；仅评分器故障的原记录可保留原 invalid 状态并另记修复验收。公开输出改变或证据不足时保持待验证，不能靠修改旧轨迹通过。修复后的合格任务仍发布到现有入池位置；自动复核读取对应的新验收目录。
+- **协议绑定**：run、Experiment state、evaluation binding、派生 reward receipt 和 fresh16 冻结文件绑定执行/完成提交/奖励协议。切换到新协议后不能复用旧 actor、步数或评价结果；无绑定的历史评价也不会自动补签。同协议接续及已消费槽位不重采规则保留。
+
+独立配置为 `configs/v2_s2_goal_repair_20261117.json`，奖励身份 `coevolve_goal_scoring_v2`；公开完成协议仍为 `completion_submission_v2`，目标表达式格式仍为 `coevolve_public_goal_v1`。新源码锁覆盖 **216 文件**；已审查的旧配置、旧锁、原模型和历史结果均未覆盖。
+
+### 验证与边界
+
+首次运行要求的三个测试文件：**39 passed**。本轮最终回归结果在下方列出；测试使用合成执行器/状态/模型响应，只有固定 AppWorld 模型声明是本地只读真实源码。没有新真实 AppWorld episode，没有新语义模型调用，没有远端服务或正式模型训练。
+
+```bash
+.venv-v2/bin/python -m pytest -q tests/test_completion_submission_v2.py \
+  tests/test_public_goal_reward.py tests/test_s2_goal_integration.py \
+  tests/test_s2_contract_repair.py tests/test_s2_experiment.py \
+  tests/test_s2_evolution.py tests/test_s2_parallel.py tests/test_s2_generation_fix.py \
+  tests/test_s2_review.py tests/test_coevolve.py tests/test_coevolve_quality.py
+.venv-v2/bin/python -m pytest -q
+.venv/bin/ruff check .
+.venv/bin/ruff format --check .
+```
+
+最终结果：相关回归 **144 passed**；完整 pytest **1281 passed**（13项既有依赖警告）；Ruff check 通过，format check **275文件**通过，`git diff --check` 通过。完整套件含既有 CPU 微型随机模型参数更新测试，不是9B模型训练。首轮完整回归发现新元数据测试触发 AppWorld 的 dotenv 导入副作用，已在合成/元数据测试中隔离；最终完整复跑通过，生产凭据逻辑未改。
+
+48条备份只读复核仍是 **245/245 完成响应 Schema 合法、7条确认误罚通过目标判定、5条真实负例失败**。文字判断仍复用上次绑定证据的人工结论，没有冒充新的语义调用。原件/旧奖励未修改；本轮私有日志及派生审计位于 `runs/s2_reward_fix_20261117/repair_validation/`。
+
+### fresh16 就绪入口
+
+新配方：`configs/s2_reward_fresh16_repair_20261117.json`。继续使用原 `fresh16_plan_v3.json`，任务定义 SHA 与上一轮一致；固定已验收 S0，单值数量、购物车 JSON、商品提问、报价邮件各四次。新目录 **`runs/s2_reward_fix_20261117/fresh16_REPAIR_FINAL/`** 已冻结，并完成三条生成诊断定义的实际模型字段核对；没有运行任何槽位。旧 READY 目录保留。
+
+本地准备（不启动模型/环境）：
+
+```bash
+PYTHONPATH=src:. .venv-v2/bin/python scripts/probe_s2_reward_chain.py prepare \
+  --plan runs/s2_reward_fix_20261117/fresh16_plan_v3.json \
+  --output runs/s2_reward_fix_20261117/fresh16_REPAIR_FINAL
+```
+
+待用户安排资源后，将新源码、私有计划和上述冻结目录部署，按 `configs/v2_s2_deployment.example.json` 核对 S0、固定基座缓存、CPU/AppWorld 和 vLLM 路径，设置新的授权绝对 `deadline_epoch`。不得沿用已过期截止。随后运行：
+
+```bash
+export PYTHONPATH="$PWD/src:$PWD"
+export RECOVERAGENT_S2_EXECUTION=v2_s2_goal_repair_20261117
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+PROBE_PY=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python
+"$PROBE_PY" scripts/probe_s2_reward_chain.py run \
+  --deployment runs/s2_reward_fix_20261117/deployment.json \
+  --output runs/s2_reward_fix_20261117/fresh16_REPAIR_FINAL
+# 中断后使用同一目录，不重采已经消费的槽位：
+"$PROBE_PY" scripts/probe_s2_reward_chain.py resume \
+  --deployment runs/s2_reward_fix_20261117/deployment.json \
+  --output runs/s2_reward_fix_20261117/fresh16_REPAIR_FINAL
+```
+
+逐条核对位置仍为 `session/requests`、`turns`、实际 `result.json` / `goal_evidence.json` 和独立 `reward_result.json`；汇总 `summary.json` 与 `reward_judgments` 保留请求、token、时间、未知预留与估算费用。Student 合计上限 1,280 请求/262,144 生成 token，单题 1,200 秒；语义评分独立最多 16 请求/65,536 生成 token/1,920 秒，未执行即没有新实测成本。
+
+**真实验证尚未完成**：未证明在线语义评分可靠、16条能全部合法完成或成功率提高。fresh16 后恢复正式 Static/Evolve 前，仍需让两分支共同使用新协议的初始任务池（原 train100＋经新目标协议验收的初始9题），建立同协议 S0 评价；还要按两分支训练规模设置独立语义评分预算，不能沿用 fresh16 的16请求额度。正式任务池迁移和整轮训练不在本轮实施。
+
+---
+
+## 前次修复记录（基线 80c86be，交付 f164fa7）
+
 基线 `80c86be`，分支 `codex/p0-p2-recovery`。本轮仅本地实现、合成回归、私有备份只读核验及 fresh16 准备。没有连接远端，没有启动 GPU、9B训练、Student 或 Teacher 服务。此前停止指令仍有效。
 
 ## 实际改动

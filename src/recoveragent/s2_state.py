@@ -34,8 +34,24 @@ def evidence(path, value):
         write_json(path, value)
 
 
+def protocol_identity():
+    from .v2_runtime import s2_execution
+
+    settings = s2_execution()
+    return {
+        "execution": settings["revision"],
+        "completion": settings.get("completion_contract_revision", "legacy"),
+        "reward": settings.get(
+            "reward_protocol_revision", settings.get("public_goal_revision", "legacy")
+        ),
+        "native_parameters": settings.get("native_parameter_revision", "legacy"),
+    }
+
+
 def binding(config, inputs):
-    return digest({"config": config, "inputs": inputs})
+    return digest(
+        {"config": config, "inputs": inputs, "protocols": protocol_identity()}
+    )
 
 
 def unknown_episode(task, policy, directory, reason, seed, limits):

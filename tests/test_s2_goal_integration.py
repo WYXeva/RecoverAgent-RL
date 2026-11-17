@@ -8,14 +8,26 @@ import pytest
 
 from recoveragent.io import digest, write_json, read_json
 from recoveragent import s2_backend, s2_reward, s2_fresh_probe
-from recoveragent.v2_runtime import S2_GOAL_EXECUTION
+from recoveragent.v2_runtime import S2_GOAL_REPAIR_EXECUTION
+from recoveragent.s2_state import protocol_identity
 from test_s2_experiment import cfg
 from test_public_goal_reward import fixture
 from recoveragent.coevolve_goal import objective
 
 
-def test_real_rollout_boundary_finalizes_student_semantics_once(tmp_path, monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_EXECUTION)
+@pytest.mark.parametrize(
+    "malformed",
+    [
+        None,
+        {"conditions": [None]},
+        {"conditions": ["body"]},
+        {"conditions": {"body": True}},
+    ],
+)
+def test_real_rollout_boundary_finalizes_student_semantics_once(
+    tmp_path, monkeypatch, malformed
+):
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_REPAIR_EXECUTION)
     config = cfg()
     runtime = s2_backend.BackendRuntime(
         config,
@@ -62,6 +74,8 @@ def test_real_rollout_boundary_finalizes_student_semantics_once(tmp_path, monkey
     def score(runtime, raw, directory):
         def judge(content):
             judged.append(content)
+            if malformed is not None:
+                return malformed
             return {
                 "conditions": [
                     {
@@ -80,7 +94,11 @@ def test_real_rollout_boundary_finalizes_student_semantics_once(tmp_path, monkey
     final = runtime.rollout(
         "s0", {"task_id": result["task_id"], "generated_task": task}, output, 7
     )
-    assert final["success"] and final["reward_valid"]
+    assert final["success"] is (True if malformed is None else None)
+    assert final["reward_valid"] is (malformed is None)
+    if malformed is not None:
+        assert final["classification"] == "scoring_gap"
+        assert final["scoring_fault"]["type"] == "ScoringGap"
     assert requests[0]["completion_contract_revision"] == "completion_submission_v2"
     assert (
         judged[0]["conditions"][0]["evidence"][0]["args"]["body"]
@@ -89,7 +107,10 @@ def test_real_rollout_boundary_finalizes_student_semantics_once(tmp_path, monkey
     assert (
         read_json(output / "result.json")["success"] is None
     )  # immutable raw evaluation
-    assert runtime.finalize_reward(result, output)["success"] and len(judged) == 1
+    assert runtime.finalize_reward(result, output) == {
+        k: v for k, v in final.items() if k not in {"directory", "seed"}
+    }
+    assert len(judged) == 1
     with pytest.raises(ValueError, match="raw episode"):
         runtime.finalize_reward({**result, "task_id": "changed"}, output)
 
@@ -105,6 +126,7 @@ def test_fresh16_resume_never_reexecutes_claimed_slot(tmp_path, monkeypatch):
         ]
     }
     frozen = {
+        "protocols": protocol_identity(),
         "source_lock": {"synthetic": True},
         "plan_sha256": digest(plan),
         "plan": plan,
@@ -162,3 +184,50 @@ def test_fresh16_resume_never_reexecutes_claimed_slot(tmp_path, monkeypatch):
     assert len(attempts) == len(set(attempts)) == 16
     again = s2_fresh_probe.run(tmp_path, deployment)
     assert again == result and len(attempts) == 16
+
+
+def test_experiment_protocol_binding_rejects_old_actor_and_allows_same_resume(
+    tmp_path, monkeypatch
+):
+    from test_s2_experiment import experiment, FakeRuntime
+    from recoveragent.v2_runtime import S2_GOAL_EXECUTION
+
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_EXECUTION)
+    runtime = FakeRuntime(cfg())
+    previous = experiment(tmp_path / "old", runtime)
+    previous.state.update(actor="old_reward_actor", optimizer_steps=19)
+    previous.save()
+    raw = (tmp_path / "old/state.json").read_bytes()
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_REPAIR_EXECUTION)
+    with pytest.raises(ValueError, match="protocols"):
+        experiment(tmp_path / "old", runtime)
+    assert not runtime.calls and (tmp_path / "old/state.json").read_bytes() == raw
+    current = experiment(tmp_path / "new", runtime)
+    current.state["optimizer_steps"] = 2
+    current.save()
+    resumed = experiment(tmp_path / "new", runtime)
+    assert resumed.state == current.state
+    assert resumed.state["actor"] == "S0"
+
+
+def test_evaluation_protocol_binding_cannot_reuse_old_receipts(tmp_path, monkeypatch):
+    from test_s2_experiment import FakeRuntime
+    from recoveragent.s2_experiment import evaluate
+    from recoveragent.v2_runtime import S2_GOAL_EXECUTION
+
+    runtime = FakeRuntime(cfg())
+    task = cfg()["dev_task_ids"][0]
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_EXECUTION)
+    old = evaluate(runtime, "S0", [task], tmp_path / "old")
+    calls = len(runtime.calls)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GOAL_REPAIR_EXECUTION)
+    with pytest.raises(ValueError, match="evidence changed"):
+        evaluate(runtime, "S0", [task], tmp_path / "old")
+    assert len(runtime.calls) == calls
+    new = evaluate(runtime, "S0", [task], tmp_path / "new")
+    assert evaluate(runtime, "S0", [task], tmp_path / "new") == new
+    assert len(runtime.calls) == calls + 1
+    # A copied old receipt with no binding must not be blessed by a new binding.
+    write_json(tmp_path / "unbound" / f"{task}.receipt.json", old[0])
+    with pytest.raises(ValueError, match="Unbound historical"):
+        evaluate(runtime, "S0", [task], tmp_path / "unbound")

@@ -1,0 +1,29 @@
+{
+  "revision": "v2_s2_goal_repair_20261117",
+  "protocol_runtime": "v2_s2_static_evolve_20261116",
+  "rollout_concurrency": 2,
+  "evaluation_concurrency": 1,
+  "teacher_priced_cost_limit": false,
+  "background_generation": false,
+  "skip_cuda_oom": true,
+  "curriculum_admission": true,
+  "feedback_alignment_gate": false,
+  "public_answer_contract": "public_object_v1",
+  "authorization": "Implementation only. Remote remains stopped; a new explicit resource authorization and deadline are required before fresh16 or learning.",
+  "review_generated_tasks": true,
+  "review_revision": "generated_task_review_v1",
+  "finish_static_after_evolve": false,
+  "continuation": "New runs only; immutable historical trajectories and scores. Generated goals lacking reliable scoring must be revalidated before use.",
+  "native_parameter_revision": "public_answer_contract_v2",
+  "completion_contract_revision": "completion_submission_v2",
+  "public_goal_revision": "coevolve_public_goal_v1",
+  "reward_judge_budget": {
+    "requests": 16,
+    "generated_tokens": 65536,
+    "input_tokens": 16777216,
+    "seconds": 1920,
+    "priced_cost": 100
+  },
+  "reward_protocol_revision": "coevolve_goal_scoring_v2",
+  "contract_repair_revision": "coevolve_contract_repair_once_v1"
+}

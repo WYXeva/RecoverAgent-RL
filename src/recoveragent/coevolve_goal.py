@@ -125,7 +125,9 @@ def tables(spec):
 
 
 def capture(adapter, spec):
-    result = {}
+    from .coevolve_goal_schema import model_schema, validate_fields
+
+    result, models = {}, {}
     for table in tables(spec):
         app, name = table.split(".")
         if app == "supervisor" or name == "SQLModel":
@@ -134,6 +136,11 @@ def capture(adapter, spec):
             model = adapter.world.models[app][name]
         except KeyError as exc:
             raise ScoringGap(f"Unavailable objective table: {table}") from exc
+        models[table] = model
+    metadata = {"tables": {t: model_schema(m) for t, m in models.items()}}
+    validate_fields(spec, metadata)
+    adapter.public_goal_metadata = metadata
+    for table, model in models.items():
         result[table] = sorted(
             [row.model_dump(mode="json") for row in model.find_all()], key=canonical
         )
@@ -175,21 +182,96 @@ def actions(messages):
     return result
 
 
-def get(value, path):
+class Missing:
+    """A missing business result, distinct from a present JSON null."""
+
+
+MISSING = Missing()
+
+
+def get(value, path, *, state=False):
     for key in path:
+        if isinstance(value, Missing):
+            return value
         if isinstance(value, dict):
-            value = value.get(key)
-        elif isinstance(value, list) and type(key) is int and 0 <= key < len(value):
-            value = value[key]
+            if key not in value and state:
+                raise ScoringGap(f"Unavailable state field: {key}")
+            value = value[key] if key in value else MISSING
+        elif isinstance(value, list) and type(key) is int:
+            value = value[key] if 0 <= key < len(value) else MISSING
+        elif value is None:
+            return MISSING  # Present nullable object has no business result below it.
+        elif state:
+            raise ScoringGap(f"Invalid state field path component: {key!r}")
         else:
-            return None
+            return MISSING
+    return value
+
+
+def state_source(node, spec, depth=0):
+    if depth > 24:
+        raise ScoringGap("Cyclic/over-deep goal bindings")
+    op, arg = next(iter(node.items()))
+    if op == "binding":
+        return state_source(spec["bindings"][arg], spec, depth + 1)
+    if op in {"get", "values", "filter"}:
+        return state_source(arg["from"], spec, depth + 1)
+    if op in {"unique", "flatten"}:
+        return state_source(arg, spec, depth + 1)
+    return op == "rows"
+
+
+def missing(value):
+    return (
+        isinstance(value, Missing)
+        or isinstance(value, list)
+        and any(missing(v) for v in value)
+        or isinstance(value, dict)
+        and any(missing(v) for v in value.values())
+    )
+
+
+def observed(value):
+    if isinstance(value, Missing):
+        return {"missing_business_result": True}
+    if isinstance(value, list):
+        return [observed(v) for v in value]
+    if isinstance(value, dict):
+        return {k: observed(v) for k, v in value.items()}
     return value
 
 
 def equal(left, right):
+    if missing(left) or missing(right):
+        return False
     if type(left) in (int, float) and type(right) in (int, float):
         return Decimal(str(left)) == Decimal(str(right))
-    return canonical(left) == canonical(right)
+    if isinstance(left, list) and isinstance(right, list):
+        return len(left) == len(right) and all(equal(a, b) for a, b in zip(left, right))
+    if isinstance(left, dict) and isinstance(right, dict):
+        return left.keys() == right.keys() and all(
+            equal(v, right[k]) for k, v in left.items()
+        )
+    return type(left) is type(right) and left == right
+
+
+def set_equal(left, right):
+    # Preserve the existing multiplicity requirement, while ignoring order.
+    if (
+        not isinstance(left, list)
+        or not isinstance(right, list)
+        or len(left) != len(right)
+    ):
+        return False
+    remaining = list(right)
+    for value in left:
+        index = next(
+            (i for i, other in enumerate(remaining) if equal(value, other)), None
+        )
+        if index is None:
+            return False
+        remaining.pop(index)
+    return True
 
 
 def expression(node, evidence, spec, depth=0):
@@ -200,12 +282,16 @@ def expression(node, evidence, spec, depth=0):
     def ev(value):
         return expression(value, evidence, spec, depth + 1)
 
-    def matches(row, where):
+    def matches(row, where, *, state=False):
         for key, expected in where.items():
-            actual = get(row, key.split("."))
+            actual = get(row, key.split("."), state=state)
+            if missing(actual):
+                return False
             if isinstance(expected, dict):
                 comparator, value = next(iter(expected.items()))
                 value = ev(value)
+                if missing(value):
+                    return False
                 if comparator == "eq":
                     okay = equal(actual, value)
                 elif comparator == "in":
@@ -242,7 +328,7 @@ def expression(node, evidence, spec, depth=0):
             )
         else:
             raise ScoringGap("Unsupported state phase")
-        return [r for r in rows if matches(r, arg.get("where", {}))]
+        return [r for r in rows if matches(r, arg.get("where", {}), state=True)]
     if op == "actions":
         names = arg["name"] if isinstance(arg["name"], list) else [arg["name"]]
         return [
@@ -255,11 +341,22 @@ def expression(node, evidence, spec, depth=0):
     if op in {"get", "values", "filter"}:
         value = ev(arg["from"])
         if op == "get":
-            return get(value, arg["path"])
+            return get(value, arg["path"], state=state_source(arg["from"], spec))
+        if missing(value) or value is None:
+            return MISSING
         if op == "values":
-            return [get(row, arg["path"]) for row in value]
-        return [row for row in value if matches(row, arg["where"])]
+            return [
+                get(row, arg["path"], state=state_source(arg["from"], spec))
+                for row in value
+            ]
+        return [
+            row
+            for row in value
+            if matches(row, arg["where"], state=state_source(arg["from"], spec))
+        ]
     value = ev(arg)
+    if missing(value) or value is None:
+        return MISSING
     if op == "flatten":
         return [item for items in value for item in items]
     if op == "numbers":
@@ -290,13 +387,21 @@ def expression(node, evidence, spec, depth=0):
             raise ScoringGap("Sum requires numeric observed values")
         return float(sum(Decimal(str(x)) for x in value))
     if op == "unique":
-        return list({canonical(x): x for x in value}.values())
+        result = []
+        for item in value:
+            if not any(equal(item, old) for old in result):
+                result.append(item)
+        return result
     raise ScoringGap(f"Unsupported expression: {op}")
 
 
 def objective(task, evidence):
     """Pure offline or online check; never substitutes the Teacher trajectory."""
     spec = validate(task["success_conditions"])
+    if "model_metadata" in evidence:
+        from .coevolve_goal_schema import validate_fields
+
+        validate_fields(spec, evidence["model_metadata"])
     result = {
         "status": "valid",
         "success": False,
@@ -324,16 +429,16 @@ def objective(task, evidence):
         left = expression(check["left"], evidence, spec)
         right = expression(check["right"], evidence, spec)
         op = check["op"]
-        if op == "equal":
+        if missing(left) or missing(right):
+            passed = False
+        elif op == "equal":
             passed = equal(left, right)
         elif op == "set_equal":
-            passed = (
-                isinstance(left, list)
-                and isinstance(right, list)
-                and sorted(map(canonical, left)) == sorted(map(canonical, right))
-            )
+            passed = set_equal(left, right)
         elif op == "contains":
-            passed = isinstance(left, (list, str)) and right in left
+            passed = (
+                isinstance(left, list) and any(equal(right, x) for x in left)
+            ) or (isinstance(left, str) and isinstance(right, str) and right in left)
         elif op == "subset":
             passed = (
                 isinstance(left, list)
@@ -345,7 +450,12 @@ def objective(task, evidence):
         else:
             passed = left is not None and right is not None and left <= right
         result["checks"].append(
-            {"id": check["id"], "passed": passed, "actual": left, "expected": right}
+            {
+                "id": check["id"],
+                "passed": passed,
+                "actual": observed(left),
+                "expected": observed(right),
+            }
         )
     if not all(c["passed"] for c in result["checks"]):
         result["reason"] = "objective_condition_failed"
@@ -383,15 +493,23 @@ def finish_semantic(result, judgment):
     if result["status"] != "needs_semantic":
         return result  # No judge can override a false objective condition.
     expected = {c["id"]: c for c in result["semantic_input"]["conditions"]}
-    checks = judgment.get("conditions", [])
+    if not isinstance(judgment, dict) or not isinstance(
+        judgment.get("conditions"), list
+    ):
+        raise ScoringGap("Semantic judgment must contain a conditions array")
+    checks = judgment["conditions"]
+    if any(not isinstance(c, dict) or not isinstance(c.get("id"), str) for c in checks):
+        raise ScoringGap("Semantic conditions must be objects with string IDs")
     if len(checks) != len(expected) or {c.get("id") for c in checks} != set(expected):
         raise ScoringGap("Semantic judgment lacks per-condition results")
     for check in checks:
         refs = {canonical(r["evidence_ref"]) for r in expected[check["id"]]["evidence"]}
         if (
             type(check.get("passed")) is not bool
-            or not check.get("reason")
-            or not check.get("evidence_refs")
+            or not isinstance(check.get("reason"), str)
+            or not check["reason"].strip()
+            or not isinstance(check.get("evidence_refs"), list)
+            or not check["evidence_refs"]
             or not all(canonical(ref) in refs for ref in check["evidence_refs"])
         ):
             raise ScoringGap("Semantic result lacks traceable actual evidence")
@@ -423,6 +541,7 @@ def evidence(adapter, task, messages):
         "answer": current.get("answer"),
         "before": adapter.public_goal_before,
         "after": capture(adapter, task["success_conditions"]),
+        "model_metadata": adapter.public_goal_metadata,
         "actions": actions(messages),
     }
 

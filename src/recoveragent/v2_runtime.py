@@ -24,6 +24,7 @@ S2_REVIEW_EXECUTION = "v2_s2_review_20261117"
 S2_SUPERVISED_EXECUTION = "v2_s2_supervised_20261117"
 S2_NATIVE_EXECUTION = "v2_s2_native_nullable_20261117"
 S2_GOAL_EXECUTION = "v2_s2_goal_reward_20261117"
+S2_GOAL_REPAIR_EXECUTION = "v2_s2_goal_repair_20261117"
 
 
 def s2_execution():
@@ -39,6 +40,7 @@ def s2_execution():
         S2_SUPERVISED_EXECUTION,
         S2_NATIVE_EXECUTION,
         S2_GOAL_EXECUTION,
+        S2_GOAL_REPAIR_EXECUTION,
     }:
         raise ValueError("Unknown S2 execution revision")
     return read_json(ROOT / f"configs/{revision}.json")
@@ -142,12 +144,20 @@ def verify_lock(runtime=RUNTIME):
                     f"configs/{execution['revision']}.json",
                     f"configs/{S2_RUNTIME}_lock.json",
                 }
-                if execution["revision"] == S2_GOAL_EXECUTION:
+                if execution["revision"] in {
+                    S2_GOAL_EXECUTION,
+                    S2_GOAL_REPAIR_EXECUTION,
+                }:
                     required |= {
                         "scripts/probe_s2_reward_chain.py",
                         "scripts/audit_s2_reward_chain.py",
                         "configs/s2_reward_fresh16_20261117.json",
                         f"configs/{S2_NATIVE_EXECUTION}_lock.json",
+                    }
+                if execution["revision"] == S2_GOAL_REPAIR_EXECUTION:
+                    required |= {
+                        "configs/s2_reward_fresh16_repair_20261117.json",
+                        f"configs/{S2_GOAL_EXECUTION}_lock.json",
                     }
                 if (
                     lock.get("execution_revision") != execution["revision"]
