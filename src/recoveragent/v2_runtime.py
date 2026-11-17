@@ -22,6 +22,7 @@ S2_BACKGROUND_EXECUTION = "v2_s2_background_20261117"
 S2_ADMISSION_EXECUTION = "v2_s2_admission_20261117"
 S2_REVIEW_EXECUTION = "v2_s2_review_20261117"
 S2_SUPERVISED_EXECUTION = "v2_s2_supervised_20261117"
+S2_NATIVE_EXECUTION = "v2_s2_native_nullable_20261117"
 
 
 def s2_execution():
@@ -35,6 +36,7 @@ def s2_execution():
         S2_ADMISSION_EXECUTION,
         S2_REVIEW_EXECUTION,
         S2_SUPERVISED_EXECUTION,
+        S2_NATIVE_EXECUTION,
     }:
         raise ValueError("Unknown S2 execution revision")
     return read_json(ROOT / f"configs/{revision}.json")

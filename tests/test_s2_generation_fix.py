@@ -6,7 +6,7 @@ import pytest
 
 from recoveragent.io import read_json, write_json
 from recoveragent.p3a import validate_config
-from recoveragent.v2_runtime import S2_SUPERVISED_EXECUTION, S2_RUNTIME
+from recoveragent.v2_runtime import S2_NATIVE_EXECUTION, S2_RUNTIME
 from recoveragent.v2_teacher import configuration
 from test_s2_evolution import engine
 from test_s2_experiment import cfg, FakeRuntime, generated
@@ -14,7 +14,7 @@ from test_s2_experiment import cfg, FakeRuntime, generated
 
 @pytest.fixture
 def execution(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_SUPERVISED_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_NATIVE_EXECUTION)
 
 
 def test_real_teacher_entry_accepts_s2_and_rejects_tampering(execution):

@@ -63,18 +63,22 @@ def load_tokenizer(identity, *, local_files_only=True):
     return NativeTokenizer(tokenizer)
 
 
+def _schema_types(schema):
+    """Read native parameter types through nullable anyOf wrappers."""
+    kinds = schema.get("type", [])
+    types = {kinds} if isinstance(kinds, str) else set(kinds)
+    for branch in schema.get("anyOf", []):
+        types.update(_schema_types(branch))
+    return types
+
+
 def _parameter(text, schema):
     # Delimiters add exactly one newline on each side; preserve string whitespace.
     if text.startswith("\n"):
         text = text[1:]
     if text.endswith("\n"):
         text = text[:-1]
-    types = schema.get("type", [])
-    types = {types} if isinstance(types, str) else set(types)
-    for branch in schema.get("anyOf", []):
-        kind = branch.get("type")
-        if isinstance(kind, str):
-            types.add(kind)
+    types = _schema_types(schema)
     if types == {"string"} or ("string" in types and text not in {"null", "None"}):
         return text
     if text in {"None", "null"} and "null" in types:
