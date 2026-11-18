@@ -2,7 +2,7 @@
 
 更新：2026-11-18。本文是唯一当前设计与实施计划，事实见 [STATUS](docs/STATUS.md)。
 
-当前执行安排：GRPO继续暂停，已完成 `student_append_tokens_v1` / `v2_s2_append_20261118` 的追加式Student采样与合并GRPO。初始工具头固定，新API定义只在查询结果追加；后台复用AppWorld公开目录和现有发现/执行逻辑，不新增callable注册系统。实际生成token原样保存，vLLM/Transformers与训练共用前缀回执校验；兼容回复合并计算，全部Assistant目标和原GRPO归一化保留。240项相关CPU测试通过，真实tokenizer合成链及裁剪前梯度对照通过；9B速度、显存和新协议调用表现待验证。原15步actor、optimizer及47/49待消费组不动，后续只准备独立1题×4次短验证，尚未恢复训练，见[实现与运行命令](reports/s2_append_tokens_20261118.md)。
+当前执行安排：GRPO继续暂停，原15步actor、optimizer与47/49待消费组保留。追加式Student及合并GRPO已接通；新 `student_append_tokens_v2` 固定初始工具头，每次成功文档查询（含重复）返回完整定义，下一回复可按原Function Calling调用。L40S合并计算已实测，但Student仍未调用业务API，按用户要求停止；全0优势诊断不算参数更新。随后Teacher采用相同初始system/XML格式及Student解析器，修复纠错格式/拒绝历史后，在已有历史成功的邮件题上真实官方9/9通过；仍有14次拒绝，不能替代9B验证。97项相关CPU测试通过，私有原件已备份。正式学习不自动恢复，下一步只针对Student的格式一致性和实际业务调用继续判断，见[完整结果与复现命令](reports/s2_append_docs_gpu_20261118.md)。
 
 前段执行结果：11月18日00:23至17:12，授权的**一轮Evolve＋dev24**已完成，40组×4次、14次真实GRPO更新。新同条件S0为8/24，轮末9/24（新增成功2题、退步1题）；轮末与历史S0的9/24数值相同，不能据此宣称稳定提升。使用现有L40S、同一S0及Solver参考/三态Judge；Student/Teacher与GPU服务已退出，Static/test/第二轮未启动。见[结果报告](reports/s2_evolve_round1_result_20261118.md)，保留[启动记录](reports/s2_evolve_round1_launch_20261118.md)。下一步先审查配对结果，再决定后续对照。
 

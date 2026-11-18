@@ -7,14 +7,13 @@ uses Student XML text and parser without provider tools. No GPU or training.
 import argparse
 import os
 
-from recoveragent.io import write_json, read_json
+from recoveragent.io import write_json, read_json, digest
 from recoveragent.p3a import run_teacher_episode
 from recoveragent.student_tokens import FULL_DOCUMENT_REVISION
 from recoveragent.teacher import read_credentials
 from recoveragent.v2_teacher import configuration
 from recoveragent.v2_runtime import (
-    S2_APPEND_TEACHER_EXECUTION,
-    S2_APPEND_TEXT_V2_EXECUTION,
+    S2_APPEND_TEXT_FINAL_EXECUTION,
     S2_RUNTIME,
     verify_lock,
 )
@@ -29,20 +28,14 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--task-id")
     parser.add_argument("--successful-reference", type=Path)
-    parser.add_argument("--text-template", type=Path)
+    parser.add_argument("--text-template", type=Path, required=True)
     args = parser.parse_args()
-    os.environ["RECOVERAGENT_S2_EXECUTION"] = (
-        S2_APPEND_TEXT_V2_EXECUTION
-        if args.text_template
-        else S2_APPEND_TEACHER_EXECUTION
-    )
+    os.environ["RECOVERAGENT_S2_EXECUTION"] = S2_APPEND_TEXT_FINAL_EXECUTION
     source = verify_lock(S2_RUNTIME)
     spec = read_json("configs/s2_append_docs_probe_20261118.json")
     task_id = args.task_id or spec["task_id"]
     reference = None
     if args.successful_reference:
-        from recoveragent.io import digest
-
         evaluation = read_json(args.successful_reference / "evaluation.json")
         prior = read_json(args.successful_reference / "trajectory.json")
         if (
@@ -75,12 +68,15 @@ def main():
         purpose="s2_solver",
     )
     args.output.mkdir(parents=True, exist_ok=False)
+    # AppWorld indexes runs by the leaf experiment name across all output roots.
+    episode_name = "teacher_append_" + digest(str(args.output.resolve()))[:16]
     write_json(
         args.output / "plan.json",
         {
             "source": source,
             "config": cfg,
             "task_id": task_id,
+            "episode_directory": episode_name,
             "previous_success": reference,
             "text_function_template": str(args.text_template)
             if args.text_template
@@ -95,7 +91,7 @@ def main():
     result = run_teacher_episode(
         cfg,
         task_id,
-        args.output / "teacher_episode",
+        args.output / episode_name,
         read_credentials(args.credentials),
         append_document_revision=FULL_DOCUMENT_REVISION,
         text_function_template=args.text_template.read_text()
