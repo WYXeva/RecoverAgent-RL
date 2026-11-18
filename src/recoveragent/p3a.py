@@ -461,6 +461,15 @@ def run_teacher_episode(
             adapter.configure_schema_compatibility(
                 config["schema_compatibility_revision"], output
             )
+        from .tool_discovery import (
+            KEY as DISCOVERY_KEY,
+        )
+        from .tool_discovery import (
+            configure as configure_discovery,
+        )
+
+        if not recovery_source:
+            configure_discovery(adapter, config.get(DISCOVERY_KEY), output)
         if config.get("environment_contract"):
             from .appworld_environment import require_usable_execution
 

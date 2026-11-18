@@ -46,6 +46,11 @@ def protocol_identity():
             "reward_protocol_revision", settings.get("public_goal_revision", "legacy")
         ),
         "native_parameters": settings.get("native_parameter_revision", "legacy"),
+        **(
+            {"tool_discovery": settings["tool_discovery_revision"]}
+            if settings.get("tool_discovery_revision")
+            else {}
+        ),
         **({"judge": call_identity()} if settings.get("judge_text") else {}),
     }
 

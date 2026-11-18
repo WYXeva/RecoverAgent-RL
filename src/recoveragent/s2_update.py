@@ -63,6 +63,12 @@ def update(config, request, output, *, device="cuda"):
         }
         write_json(output / "result.json", result)
         return result
+    kernels = None
+    if config["grpo"].get("require_fast_kernels"):
+        from .grpo_kernels import inspect_kernels
+
+        kernels = inspect_kernels(required=True)
+        write_json(output / "kernels.json", kernels)
     if not request.get("optimizer"):
         random.seed(config["s2"]["seed"])
         np.random.seed(config["s2"]["seed"])
@@ -165,6 +171,9 @@ def update(config, request, output, *, device="cuda"):
         "reference_adapter_loaded": use_reference,
         "effective_group_count": len(varying),
         "group_ids": request["group_ids"],
+        "kernels": kernels,
+        "coalesce_exact_prefixes": trainer.recoveragent_coalesce,
+        "activation_offload": trainer.recoveragent_activation_offload,
         "segment_parent_updates": request.get("segment_parent_updates"),
         "segment_new_updates": trainer.state.global_step
         - request["segment_parent_updates"]

@@ -1,0 +1,4 @@
+# Extension to the existing pinned v2-learning environment, not a replacement.
+# Install in an isolated --target directory with --no-deps --no-build-isolation.
+# Existing flash-linear-attention==0.6.0 is retained.
+causal-conv1d==1.7.0

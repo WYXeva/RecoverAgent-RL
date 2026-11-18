@@ -93,6 +93,7 @@ def configuration():
             * cfg["segment"]["max_new_groups"]
             * cfg["student_limits"]["max_generated_tokens"]
         )
+    cfg["grpo"].update(settings.get("training_optimization", {}))
     return cfg
 
 

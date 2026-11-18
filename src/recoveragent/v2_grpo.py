@@ -1,23 +1,24 @@
 """Current-policy AppWorld groups, using TRL's clipped GRPO loss and optimizer.
 
 Dynamic discovery changes the next request's tool catalogue. Consequently a
-multi-turn episode is NOT one append-only token sequence. Each actual request
-is scored separately, with the same episode advantage, and token-weighted
-within its episode. Tools/context never enter the completion loss.
+multi-turn episode is NOT necessarily one append-only token sequence. Opt-in
+coalescing joins only exact token-prefix extensions, with unchanged target
+logprobs and episode normalization. Tools/context never enter the loss.
 """
 
-from contextlib import nullcontext
 import gc
 import math
 import time
+from contextlib import nullcontext
 from pathlib import Path
 
+from .grpo_segments import coalesce, offload_row
 from .io import digest, read_json, write_json
-from .sft_recipe import gradient_health, tensor_hash
-from .v2_inference import policy_id
-from .v2_context import sequence_limit, validate_request_context
-from .v2_training import load_trainable, finish_checkpoint, finalize_reload
 from .reward_validity import valid_reward
+from .sft_recipe import gradient_health, tensor_hash
+from .v2_context import sequence_limit, validate_request_context
+from .v2_inference import policy_id
+from .v2_training import finalize_reload, finish_checkpoint, load_trainable
 
 
 class NoPolicyUpdate(ValueError):
@@ -97,11 +98,15 @@ def trainer_class():
         ):
             # Keep the mature TRL objective, but score the actual request exactly.
             # No assumption that changed dynamic schemas can be concatenated.
-            positions = torch.arange(
-                input_ids.shape[1] - logits_to_keep - 1,
-                input_ids.shape[1] - 1,
-                device=input_ids.device,
+            mask = kwargs.get("sampling_mask")
+            selected = (
+                torch.arange(logits_to_keep, device=input_ids.device)
+                if mask is None
+                else mask[0].bool().nonzero().flatten()
             )
+            if input_ids.shape[0] != 1 or not len(selected):
+                raise ValueError("Request scoring needs one nonempty target sequence")
+            positions = input_ids.shape[1] - logits_to_keep - 1 + selected
             outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
@@ -123,8 +128,8 @@ def trainer_class():
                 return chosen, entropy
 
             chosen, entropy = [], []
-            targets = input_ids[:, -logits_to_keep:]
-            for start in range(0, logits_to_keep, 128):
+            targets = input_ids[:, -logits_to_keep:][:, selected]
+            for start in range(0, len(selected), 128):
                 args = (
                     outputs.logits[:, start : start + 128],
                     targets[:, start : start + 128],
@@ -136,9 +141,15 @@ def trainer_class():
                 )
                 chosen.append(lp)
                 entropy.append(ent)
-            chosen = torch.cat(chosen, 1)
+            chosen, entropy = torch.cat(chosen, 1), torch.cat(entropy, 1)
+            if mask is not None:
+                # Only scalar logps are scattered; no vocabulary logits for tools.
+                indices = selected.unsqueeze(0)
+                shape = (1, logits_to_keep)
+                chosen = chosen.new_zeros(shape).scatter(1, indices, chosen)
+                entropy = entropy.new_zeros(shape).scatter(1, indices, entropy)
             self.recoveragent_last_logps = chosen.detach()
-            return chosen, torch.cat(entropy, 1), None
+            return chosen, entropy, None
 
     return AppWorldGRPO
 
@@ -179,6 +190,7 @@ def make_trainer(model, tokenizer, output, settings):
     )
     trainer.current_gradient_accumulation_steps = 1
     trainer.recoveragent_activation_offload = settings.get("activation_offload")
+    trainer.recoveragent_coalesce = settings.get("coalesce_exact_prefixes", False)
     # Reference probabilities are supplied explicitly using a second frozen
     # adapter on the same base; do not allocate a second 9B model.
     trainer.beta = settings.get("beta", 0.0)
@@ -198,6 +210,14 @@ def update_batch(trainer, groups, *, max_length=None):
     trainer.optimizer.zero_grad()
     total_loss = 0.0
     ratio_sum, ratio_count, outside, clipped = 0.0, 0, 0, 0
+    work = {
+        "request_segments": 0,
+        "training_segments": 0,
+        "original_sequence_tokens": 0,
+        "trained_sequence_tokens": 0,
+        "cpu_offloaded_segments": 0,
+    }
+    chain_audit = []
     for episodes, advantages in usable:
         for episode, advantage in zip(episodes, advantages, strict=True):
             if advantage == 0 and trainer.beta == 0:
@@ -206,7 +226,28 @@ def update_batch(trainer, groups, *, max_length=None):
                 episode["directory"], episode["policy"], max_length=max_length
             )
             tokens = sum(len(r["completion_ids"]) for r in rows)
+            work["request_segments"] += len(rows)
+            work["original_sequence_tokens"] += sum(
+                len(r["prompt_ids"]) + len(r["completion_ids"]) for r in rows
+            )
+            if trainer.recoveragent_coalesce:
+                rows = coalesce(rows)
+                chain_audit.extend(
+                    {
+                        "episode": episode["directory"],
+                        "requests": r["request_refs"],
+                        "sequence_tokens": len(r["prompt_ids"])
+                        + len(r["completion_ids"]),
+                        "target_tokens": sum(r["tool_mask"]),
+                    }
+                    for r in rows
+                )
             for row in rows:
+                sequence_tokens = len(row["prompt_ids"]) + len(row["completion_ids"])
+                work["training_segments"] += 1
+                work["trained_sequence_tokens"] += sequence_tokens
+                mask = row.get("tool_mask", [1] * len(row["completion_ids"]))
+                target_tokens = sum(mask)
 
                 def tensor(value, dtype=torch.long):
                     return torch.tensor([value], device=model.device, dtype=dtype)
@@ -219,6 +260,9 @@ def update_batch(trainer, groups, *, max_length=None):
                     "old_per_token_logps": tensor(row["logprobs"], torch.float32),
                     "advantages": torch.tensor([advantage], device=model.device),
                 }
+                if "tool_mask" in row:
+                    inputs["tool_mask"] = tensor(mask)
+                    inputs["sampling_mask"] = tensor(mask)
                 if trainer.beta:
                     model.set_adapter("coevolve_reference", inference_mode=True)
                     try:
@@ -241,13 +285,18 @@ def update_batch(trainer, groups, *, max_length=None):
                                         1,
                                     ),
                                     len(row["completion_ids"]),
+                                    sampling_mask=inputs.get("sampling_mask"),
                                 )
                             )
                     finally:
                         model.set_adapter("default")
+                offload = offload_row(
+                    trainer.recoveragent_activation_offload, sequence_tokens
+                )
+                work["cpu_offloaded_segments"] += int(offload)
                 context = (
                     torch.autograd.graph.save_on_cpu(pin_memory=True)
-                    if trainer.recoveragent_activation_offload == "cpu"
+                    if offload
                     else nullcontext()
                 )
                 with context:
@@ -255,7 +304,9 @@ def update_batch(trainer, groups, *, max_length=None):
                 current = getattr(trainer, "recoveragent_last_logps", None)
                 if current is not None:
                     with torch.no_grad():
-                        ratio = (current - inputs["old_per_token_logps"]).exp()
+                        ratio = (current - inputs["old_per_token_logps"]).exp()[
+                            tensor(mask).bool()
+                        ]
                         low, high = 1 - trainer.epsilon_low, 1 + trainer.epsilon_high
                         ratio_sum += float(ratio.sum())
                         ratio_count += ratio.numel()
@@ -263,7 +314,7 @@ def update_batch(trainer, groups, *, max_length=None):
                         clipped += int(
                             ((ratio > high) if advantage > 0 else (ratio < low)).sum()
                         )
-                loss = loss * (len(row["completion_ids"]) / tokens) / (4 * len(usable))
+                loss = loss * (target_tokens / tokens) / (4 * len(usable))
                 if not torch.isfinite(loss):
                     raise ValueError("Nonfinite GRPO loss")
                 trainer.accelerator.backward(loss)
@@ -279,6 +330,8 @@ def update_batch(trainer, groups, *, max_length=None):
         "ratio_outside_clip_fraction": outside / ratio_count if ratio_count else None,
         "effective_clip_fraction": clipped / ratio_count if ratio_count else None,
         "ratio_token_count": ratio_count,
+        "sequence_work": work,
+        "coalesced_chains": chain_audit,
         **health,
         "contributing_generated_task_ids": sorted(
             {

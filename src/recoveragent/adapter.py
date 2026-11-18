@@ -112,12 +112,17 @@ class AppWorldAdapter:
 
     def public_task(self):
         task = self.world.task
-        return {
+        result = {
             "instruction": task.instruction,
             "supervisor": dict(task.supervisor),
             "datetime": str(task.datetime),
             "app_descriptions": task.app_descriptions,
         }
+        if hasattr(self, "tool_discovery"):
+            from .tool_discovery import NOTICE
+
+            result["tool_discovery_notice"] = NOTICE
+        return result
 
     def configure_schema_compatibility(self, revision, output):
         """Versioned opt-in, shared by all Teacher/Student adapter subclasses."""
@@ -127,14 +132,22 @@ class AppWorldAdapter:
 
     def initial_tools(self):
         # Public discovery and supervisor tools. Actor chooses additional APIs by requesting docs.
+        from .tool_discovery import extra_tools
+
         return [
             t
             for t in self.catalogue
             if t["function"]["name"].split("__")[0] in {"api_docs", "supervisor"}
-        ]
+        ] + extra_tools(self)
 
     def execute(self, name, arguments, tools):
         code, parsed = call_code(name, arguments, tools)
+        from .tool_discovery import SEARCH, document_result, extra_tools, search
+
+        if name == SEARCH:
+            if not extra_tools(self):
+                raise ValueError("Public API search is not enabled")
+            return search(self.catalogue, parsed), list(tools)
         result = self.world.execute(code)
         updated = list(tools)
         if name == "api_docs__show_api_doc" and "Execution failed" not in result:
@@ -145,7 +158,7 @@ class AppWorldAdapter:
                 for t in self.catalogue
                 if t["function"]["name"] == selected and selected not in existing
             )
-        return result, updated
+        return document_result(self, name, parsed, result, updated), updated
 
     def fingerprint(self):
         """Hash normalized logical records, not SQLite file bytes or cached hashes."""

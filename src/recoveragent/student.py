@@ -257,7 +257,12 @@ class StudentSession:
         if protocol_harness and model_contract is None and max_input_tokens > 32768:
             raise ValueError("harness_v1 Student window cannot exceed 32768")
         validate_history(messages)
-        public = {d["function"]["name"]: d for d in adapter.catalogue}
+        from .tool_discovery import extra_tools
+
+        public = {
+            d["function"]["name"]: d
+            for d in [*adapter.catalogue, *extra_tools(adapter)]
+        }
         if any(
             t != public.get(t["function"]["name"])
             or t["function"]["name"].startswith("admin__")

@@ -169,14 +169,15 @@ def test_latest_generation_config_and_historical_lock_preserved(monkeypatch):
         S2_RUNTIME,
         S2_SEGMENT_EXECUTION,
         S2_GENERATION_FOCUS_EXECUTION,
+        S2_EFFICIENCY_EXECUTION,
         verify_lock,
     )
     from recoveragent.s2_experiment import configuration
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_SEGMENT_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_EFFICIENCY_EXECUTION)
     configured = configuration()
     old = read_json(f"configs/{S2_GENERATION_FOCUS_EXECUTION}.json")
-    new = read_json(f"configs/{S2_SEGMENT_EXECUTION}.json")
+    new = read_json(f"configs/{S2_EFFICIENCY_EXECUTION}.json")
     for key in (
         "judge_text",
         "generation_settings",
@@ -190,6 +191,9 @@ def test_latest_generation_config_and_historical_lock_preserved(monkeypatch):
     )
     assert configured["s2"]["student_trajectories_per_branch"] == 320
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GENERATION_FOCUS_EXECUTION)
+    with pytest.raises(ValueError, match="source lock|source changed"):
+        verify_lock(S2_RUNTIME)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_SEGMENT_EXECUTION)
     with pytest.raises(ValueError, match="source lock|source changed"):
         verify_lock(S2_RUNTIME)
 

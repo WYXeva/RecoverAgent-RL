@@ -56,6 +56,13 @@ def configuration(
         revision = s2_execution().get("completion_contract_revision")
         if revision:
             config["teacher"]["completion_contract_revision"] = revision
+        from .tool_discovery import KEY as DISCOVERY_KEY
+
+        if s2_execution().get(DISCOVERY_KEY) and purpose in {
+            "s2_exploration",
+            "s2_solver",
+        }:
+            config[DISCOVERY_KEY] = s2_execution()[DISCOVERY_KEY]
     if purpose is not None:
         if (
             runtime != S2_RUNTIME

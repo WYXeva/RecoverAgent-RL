@@ -266,6 +266,10 @@ class BackendRuntime:
             request["completion_contract_revision"] = s2_execution()[
                 "completion_contract_revision"
             ]
+        from .tool_discovery import KEY as DISCOVERY_KEY
+
+        if s2_execution().get(DISCOVERY_KEY):
+            request[DISCOVERY_KEY] = s2_execution()[DISCOVERY_KEY]
         if task.get("diagnostic_goal_probe"):
             request["purpose"] = "protocol_probe"
         # v2_episode expects an omitted generated_task for original tasks.

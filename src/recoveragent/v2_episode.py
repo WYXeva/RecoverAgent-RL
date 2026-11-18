@@ -75,6 +75,14 @@ def run(config, generate):
             research=context,
         )
         adapter.configure_schema_compatibility(SCHEMA_REVISION, directory)
+        from .tool_discovery import (
+            KEY as DISCOVERY_KEY,
+        )
+        from .tool_discovery import (
+            configure as configure_discovery,
+        )
+
+        configure_discovery(adapter, config.get(DISCOVERY_KEY), directory)
         execute = adapter.execute
 
         def timed_execute(*args, **kwargs):

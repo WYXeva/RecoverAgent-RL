@@ -29,6 +29,9 @@ def snapshot_revision(manifest):
 
 def check_schema_binding(adapter, versions, tools):
     """Validate live catalogue, audit and visible tools, including undiscovered APIs."""
+    from .tool_discovery import extra_tools
+
+    extras = extra_tools(adapter, versions)
     expected = versions.get("schema_compatibility")
     actual = adapter.versions.get("schema_compatibility")
     if (
@@ -50,7 +53,7 @@ def check_schema_binding(adapter, versions, tools):
         or audit["upstream_catalogue"] != adapter.upstream_catalogue
     ):
         raise SchemaCompatibilityError("Snapshot Schema catalogue/audit hash mismatch")
-    public = {t["function"]["name"]: t for t in adapter.catalogue}
+    public = {t["function"]["name"]: t for t in [*adapter.catalogue, *extras]}
     names = [t["function"]["name"] for t in tools]
     if len(names) != len(set(names)) or any(
         t != public.get(t["function"]["name"])
@@ -70,4 +73,9 @@ def prepare_snapshot_adapter(
         )
     if revision is not None and "schema_compatibility" not in adapter.versions:
         adapter.configure_schema_compatibility(revision, output)
+    discovery = manifest["versions"].get("tool_discovery")
+    if discovery is not None and "tool_discovery" not in adapter.versions:
+        from .tool_discovery import configure
+
+        configure(adapter, discovery["revision"], output)
     check_schema_binding(adapter, manifest["versions"], context["tools"])

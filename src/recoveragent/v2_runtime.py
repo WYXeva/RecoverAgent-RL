@@ -32,6 +32,7 @@ S2_EVOLVE_ROUND1_EXECUTION = "v2_s2_evolve_round1_20261117"
 S2_JUDGE_REFERENCE_EXECUTION = "v2_s2_judge_reference_20261117"
 S2_GENERATION_FOCUS_EXECUTION = "v2_s2_generation_focus_20261118"
 S2_SEGMENT_EXECUTION = "v2_s2_effective_segment_20261118"
+S2_EFFICIENCY_EXECUTION = "v2_s2_efficiency_20261118"
 
 
 def s2_execution():
@@ -55,6 +56,7 @@ def s2_execution():
         S2_JUDGE_REFERENCE_EXECUTION,
         S2_GENERATION_FOCUS_EXECUTION,
         S2_SEGMENT_EXECUTION,
+        S2_EFFICIENCY_EXECUTION,
     }:
         raise ValueError("Unknown S2 execution revision")
     return read_json(ROOT / f"configs/{revision}.json")
@@ -218,6 +220,14 @@ def verify_lock(runtime=RUNTIME):
                     required |= {
                         f"configs/{S2_GENERATION_FOCUS_EXECUTION}_lock.json",
                         "scripts/supervise_s2_background.py",
+                    }
+                if execution["revision"] == S2_EFFICIENCY_EXECUTION:
+                    required |= {
+                        f"configs/{S2_SEGMENT_EXECUTION}_lock.json",
+                        "scripts/probe_grpo_kernels.py",
+                        "scripts/install_grpo_kernels.py",
+                        "scripts/probe_grpo_efficiency.py",
+                        "requirements/grpo-kernels-20261118.txt",
                     }
                 if (
                     lock.get("execution_revision") != execution["revision"]
