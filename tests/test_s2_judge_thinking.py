@@ -20,7 +20,7 @@ def setup(monkeypatch, tmp_path):
     from pathlib import Path
 
     monkeypatch.setenv(
-        "RECOVERAGENT_S2_EXECUTION", v2_runtime.S2_JUDGE_REFERENCE_EXECUTION
+        "RECOVERAGENT_S2_EXECUTION", v2_runtime.S2_GENERATION_FOCUS_EXECUTION
     )
     local = Path("runs/s2_context_validation_20261117/teacher_tokenizer")
     if (local / "tokenizer.json").exists():

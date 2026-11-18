@@ -1,5 +1,6 @@
 """Lightweight generation plugged into the existing S2 context/window controller."""
 
+import json
 from pathlib import Path
 
 from .coevolve_llm import REVISION, JudgeError, admit
@@ -56,6 +57,85 @@ def needs_exploration(records):
     )
 
 
+def public_instruction(messages):
+    first = next(m for m in messages if m["role"] == "user")
+    instruction = json.loads(first["content"])["instruction"]
+    if not isinstance(instruction, str) or not instruction.strip():
+        raise ValueError("Missing public task instruction")
+    return instruction
+
+
+def same_source_tasks(pool, source):
+    return [
+        {"task_id": t["task_id"], "query": t["instruction"]}
+        for t in pool
+        if t["source_task_id"] == source
+    ]
+
+
+def task_comparison(engine, source, feedback):
+    event = feedback["group"]
+    parent = public_instruction(feedback["trajectories"][0]["messages"])
+    if any(
+        public_instruction(r["messages"]) != parent for r in feedback["trajectories"]
+    ):
+        raise ValueError("Four attempts must share the same public task")
+    root = parent
+    if event["task_key"] != source:
+        originals = [
+            r
+            for r in engine.summary["feedback"]
+            if r["task_id"] == source and not r.get("generated_task_id")
+        ]
+        if len(originals) != 1:
+            raise ValueError("Missing original public train instruction")
+        root = public_instruction(
+            read_json(Path(originals[0]["directory"]) / "history.json")["messages"]
+        )
+    return {
+        "root_task": {"task_id": source, "query": root},
+        "parent_task": {"task_id": event["task_key"], "query": parent},
+        "same_source_tasks": same_source_tasks(engine.pool, source),
+    }
+
+
+def abstraction_input(engine, source, feedback, explored, limit):
+    return {
+        "max_tasks": limit,
+        "feedback": feedback,
+        "task_comparison": task_comparison(engine, source, feedback),
+        "exploration": [
+            {"trajectory_id": r["trajectory_id"], "messages": r["messages"]}
+            for r in explored
+        ],
+    }
+
+
+def duplicate_key(query):
+    # Preserve case, numbers, negation, spacing and punctuation inside the task.
+    # Only ignore an outer sentence period after a quoted phrase (the sweater
+    # case), never a period inside the requested literal or a decimal number.
+    text = query.strip()
+    if len(text) > 2 and text[-1] in ".。":
+        opening = {'"': '"', "'": "'", "”": "“", "’": "‘"}.get(text[-2])
+        if opening and opening in text[:-2]:
+            text = text[:-1]
+    return text
+
+
+def duplicate_of(query, comparison, pool, source):
+    candidates = [
+        ("root_task", comparison["root_task"]),
+        ("parent_task", comparison["parent_task"]),
+        *(("same_source_task", t) for t in same_source_tasks(pool, source)),
+    ]
+    key = duplicate_key(query)
+    for kind, task in candidates:
+        if duplicate_key(task["query"]) == key:
+            return {"kind": kind, **task}
+    return None
+
+
 def generate(engine, source, feedback, directory):
     context_for(source, training=True)
     directory = Path(directory)
@@ -89,18 +169,12 @@ def generate(engine, source, feedback, directory):
             else "feedback_contains_real_environment_evidence",
         },
     )
+    content = abstraction_input(engine, source, feedback, explored, limit)
     proposed = engine.text(
         source,
         directory / "abstraction",
         GENERATION,
-        {
-            "max_tasks": limit,
-            "feedback": feedback,
-            "exploration": [
-                {"trajectory_id": r["trajectory_id"], "messages": r["messages"]}
-                for r in explored
-            ],
-        },
+        content,
     )
     if (
         not isinstance(proposed, dict)
@@ -123,20 +197,14 @@ def generate(engine, source, feedback, directory):
                 proposal, records + explored, feedback, scoring_revision=REVISION
             )
             write_json(target / "candidate.json", task)
-            key = " ".join(task["instruction"].casefold().split())
-            duplicate = next(
-                (
-                    t
-                    for t in engine.pool
-                    if t["source_task_id"] == source
-                    and " ".join(t["instruction"].casefold().split()) == key
-                ),
-                None,
+            duplicate = duplicate_of(
+                task["instruction"], content["task_comparison"], engine.pool, source
             )
             if duplicate:
                 receipt.update(
                     quality_status="duplicate_existing",
                     existing_task_id=duplicate["task_id"],
+                    duplicate_of=duplicate,
                     reason="Existing task remains trainable; not counted as new",
                 )
             else:

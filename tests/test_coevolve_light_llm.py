@@ -1,6 +1,7 @@
 """CPU/synthetic integration only: no model calls, AppWorld episodes or training."""
 
 import copy
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -16,7 +17,7 @@ from recoveragent.s2_reward import finalize
 from recoveragent.s2_schedule import GroupFeedback
 from recoveragent.v2_grpo import group_advantages
 from recoveragent.v2_runtime import (
-    S2_JUDGE_REFERENCE_EXECUTION,
+    S2_GENERATION_FOCUS_EXECUTION,
     S2_GOAL_REPAIR_EXECUTION,
 )
 from test_s2_evolution import engine
@@ -26,7 +27,7 @@ from test_coevolve import history
 
 @pytest.fixture
 def lightweight(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_REFERENCE_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GENERATION_FOCUS_EXECUTION)
 
 
 def proposal():
@@ -108,7 +109,9 @@ def test_actual_generation_prompts_no_old_gates_and_optional_one_exploration(
     if explore:
         for row in group:
             write_path = Path(row["directory"]) / "history.json"
-            write_path.write_text('{"messages": []}')
+            saved = read_json(write_path)
+            saved["messages"] = saved["messages"][:1]
+            write_path.write_text(json.dumps(saved))
     event = GroupFeedback(cfg()["task_evolution"]["signals"]).observe(0, group)
     textual, executed = [], []
 

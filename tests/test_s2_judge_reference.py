@@ -12,7 +12,7 @@ from recoveragent.s2_experiment import require_pool_protocol
 from recoveragent.s2_schedule import GroupFeedback
 from recoveragent.v2_grpo import group_advantages
 from recoveragent.v2_runtime import (
-    S2_JUDGE_REFERENCE_EXECUTION,
+    S2_GENERATION_FOCUS_EXECUTION,
     S2_RUNTIME,
     verify_lock,
 )
@@ -22,7 +22,7 @@ from test_s2_experiment import cfg, make_group
 
 @pytest.fixture
 def accepted(tmp_path, monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_JUDGE_REFERENCE_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GENERATION_FOCUS_EXECUTION)
     return admitted_task(new_task(), tmp_path)
 
 

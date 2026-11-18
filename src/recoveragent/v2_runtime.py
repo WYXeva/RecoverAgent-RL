@@ -30,6 +30,7 @@ S2_TEACHER_CONTEXT_EXECUTION = "v2_s2_teacher_context_20261117"
 S2_JUDGE_THINKING_EXECUTION = "v2_s2_judge_thinking_20261117"
 S2_EVOLVE_ROUND1_EXECUTION = "v2_s2_evolve_round1_20261117"
 S2_JUDGE_REFERENCE_EXECUTION = "v2_s2_judge_reference_20261117"
+S2_GENERATION_FOCUS_EXECUTION = "v2_s2_generation_focus_20261118"
 
 
 def s2_execution():
@@ -51,6 +52,7 @@ def s2_execution():
         S2_JUDGE_THINKING_EXECUTION,
         S2_EVOLVE_ROUND1_EXECUTION,
         S2_JUDGE_REFERENCE_EXECUTION,
+        S2_GENERATION_FOCUS_EXECUTION,
     }:
         raise ValueError("Unknown S2 execution revision")
     return read_json(ROOT / f"configs/{revision}.json")
@@ -205,6 +207,8 @@ def verify_lock(runtime=RUNTIME):
                         f"configs/{S2_EVOLVE_ROUND1_EXECUTION}_lock.json",
                         "scripts/recheck_s2_reference.py",
                     }
+                if execution["revision"] == S2_GENERATION_FOCUS_EXECUTION:
+                    required.add(f"configs/{S2_JUDGE_REFERENCE_EXECUTION}_lock.json")
                 if (
                     lock.get("execution_revision") != execution["revision"]
                     or execution["protocol_runtime"] != runtime
