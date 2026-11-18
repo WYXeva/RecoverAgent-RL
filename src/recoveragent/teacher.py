@@ -153,7 +153,8 @@ def preflight(config, credentials):
     ):
         reasons.append("INVALID_TEACHER_ENDPOINT")
     if teacher.get("thinking") is not False and not (
-        reasoning_enabled(teacher) and config.get("tool_mode") == "dynamic_discovery"
+        reasoning_enabled(teacher)
+        and config.get("tool_mode") in {"dynamic_discovery", "appworld_code"}
     ):
         reasons.append("P3A_V1_REQUIRES_NON_THINKING_PROTOCOL")
     return {
