@@ -21,6 +21,124 @@ from recoveragent.teacher import (
 from test_runner import Adapter, TOOLS
 
 
+@pytest.mark.parametrize("append", [False, True])
+def test_teacher_document_probe_freezes_provider_tools_only(
+    tmp_path, monkeypatch, config, append
+):
+    from recoveragent.adapter import call_code
+    from recoveragent.student_tokens import FULL_DOCUMENT_REVISION, FULL_DOCUMENT_RULES
+
+    doc = {
+        "type": "function",
+        "function": {
+            "name": "api_docs__show_api_doc",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "app_name": {"type": "string"},
+                    "api_name": {"type": "string"},
+                },
+                "required": ["app_name", "api_name"],
+                "additionalProperties": False,
+            },
+        },
+    }
+    business = {
+        "type": "function",
+        "function": {
+            "name": "synthetic__lookup",
+            "description": "Read a value.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": ["integer", "null"],
+                        "default": None,
+                        "minimum": 0,
+                    }
+                },
+                "required": ["value"],
+                "additionalProperties": False,
+            },
+        },
+    }
+    initial = [*TOOLS, doc]
+    calls, payloads = [], []
+
+    class World(Adapter):
+        versions = {"revision": APPWORLD_REVISION, "data_version": "SYNTHETIC"}
+
+        def initial_tools(self):
+            return copy.deepcopy(initial)
+
+        def execute(self, name, arguments, tools):
+            call_code(name, arguments, tools)
+            calls.append(name)
+            if name == doc["function"]["name"]:
+                return '{"response_schemas":{"success":{"type":"object"}}}', [
+                    *initial,
+                    business,
+                ]
+            self.completed = name == "supervisor__complete_task"
+            return '{"ok":true}', tools
+
+    def transport(payload):
+        index = len(payloads)
+        payloads.append(copy.deepcopy(payload))
+        assert payload["tools"] == (
+            initial if append or index == 0 else [*initial, business]
+        )
+        if append:
+            assert FULL_DOCUMENT_RULES in payload["messages"][0]["content"]
+            for message in payload["messages"]:
+                if message["role"] == "tool":
+                    observation = json.loads(message["content"])
+                    if "response_schemas" in observation.get("observation", {}):
+                        assert observation["tool_definitions"] == [business]
+        result = response()
+        call = result["choices"][0]["message"]["tool_calls"][0]
+        call["id"] = f"synthetic_{index}"
+        if index < 2:
+            call["function"] = {
+                "name": doc["function"]["name"],
+                "arguments": '{"app_name":"synthetic","api_name":"lookup"}',
+            }
+        elif index == 2:
+            call["function"] = {
+                "name": "synthetic__lookup",
+                "arguments": '{"value":null}',
+            }
+        return result
+
+    config["tool_mode"] = "dynamic_discovery"
+    monkeypatch.setattr(p3a, "AppWorldAdapter", World)
+    monkeypatch.setattr(
+        p3a,
+        "TeacherPolicy",
+        lambda cfg, creds: TeacherPolicy(cfg, creds, transport=transport),
+    )
+    monkeypatch.setattr(
+        p3a, "official_evaluate", lambda *a: (True, {"synthetic": True})
+    )
+    result = p3a.run_teacher_episode(
+        config,
+        "unit_task",
+        tmp_path / "teacher",
+        {"DEEPSEEK_API_KEY": "synthetic"},
+        append_document_revision=FULL_DOCUMENT_REVISION if append else None,
+    )
+    assert result["status"] == "valid" and result["reward"] == 1
+    assert calls == [
+        doc["function"]["name"],
+        doc["function"]["name"],
+        "synthetic__lookup",
+        "supervisor__complete_task",
+    ]
+    assert len(payloads) == 4
+    if append:
+        assert result["tool_definition_protocol"]["student_token_encoding"] is False
+
+
 @pytest.fixture
 def config():
     value = read_json(Path(__file__).parents[1] / "configs/p3a_teacher.json")

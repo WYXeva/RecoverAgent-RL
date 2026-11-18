@@ -15,13 +15,13 @@ from recoveragent.s2_experiment import configuration
 from recoveragent.teacher import TeacherPolicy, TeacherBlocked
 from recoveragent.v2_runtime import (
     S2_RUNTIME,
-    S2_GENERATION_FOCUS_EXECUTION,
+    S2_APPEND_TEACHER_EXECUTION,
 )
 
 
 @pytest.fixture
 def scoped(monkeypatch):
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GENERATION_FOCUS_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_APPEND_TEACHER_EXECUTION)
     # Pin the real public tokenizer artifact; no Student tokenizer or fake counter.
     local = Path("runs/s2_context_validation_20261117/teacher_tokenizer")
     if (local / "tokenizer.json").exists():
@@ -167,7 +167,7 @@ def test_optional_exploration_real_p3a_loop_uses_teacher_window(
 ):
     from recoveragent import APPWORLD_REVISION, evaluation, appworld_environment
     from recoveragent.v2_tasks import context_for
-    from test_runner import Adapter
+    from test_runner import Adapter, TOOLS
     from test_teacher_data import response
 
     task = scoped["feedback_task_ids"][0]
@@ -190,6 +190,7 @@ def test_optional_exploration_real_p3a_loop_uses_teacher_window(
 
     class World(Adapter):
         versions = {"revision": APPWORLD_REVISION, "data_version": "synthetic"}
+        catalogue = copy.deepcopy(TOOLS)
 
         def __init__(self, *a, **kw):
             super().__init__(*a, **kw)

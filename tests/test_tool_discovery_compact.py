@@ -188,7 +188,9 @@ def test_new_protocol_binding_and_teacher_configuration(monkeypatch, tmp_path):
     from recoveragent.s2_experiment import configuration
     from recoveragent.s2_state import protocol_identity
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_append_docs_20261118")
+    monkeypatch.setenv(
+        "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_probe_20261118"
+    )
     assert protocol_identity()["tool_discovery"] == discovery.REVISION
     args = (
         configuration()["feedback_task_ids"][0],

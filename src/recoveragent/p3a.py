@@ -322,10 +322,26 @@ def interrupted_usage(directory, teacher):
 
 
 def run_teacher_episode(
-    config, task_id, output, credentials, *, recovery_source=None, exploration=None
+    config,
+    task_id,
+    output,
+    credentials,
+    *,
+    recovery_source=None,
+    exploration=None,
+    append_document_revision=None,
 ):
     """Production path always uses a real AppWorldAdapter and a real TeacherPolicy."""
     validate_config(config)
+    if append_document_revision is not None:
+        from .student_tokens import FULL_DOCUMENT_REVISION
+
+        if (
+            append_document_revision != FULL_DOCUMENT_REVISION
+            or recovery_source
+            or config.get("tool_mode") != "dynamic_discovery"
+        ):
+            raise ValueError("Append-document probe requires a fresh dynamic episode")
     if exploration is not None and (not config.get("v2_runtime") or recovery_source):
         raise ValueError("Exploration requires the separate v2 train-side path")
     if bool(recovery_source) != bool(config.get("recovery_protocol")):
@@ -550,6 +566,18 @@ def run_teacher_episode(
                 )
         if config.get("answer_guard_protocol") and not recovery_source:
             guard = AnswerGuard.from_public_task(json.loads(messages[1]["content"]))
+        if append_document_revision is not None:
+            from .student_tokens import initial_messages, KEY
+
+            messages[:] = initial_messages(messages, append_document_revision)
+            public = json.loads(messages[1]["content"])
+            public["tool_definition_protocol"] = public.pop(KEY)
+            messages[1]["content"] = json.dumps(public, ensure_ascii=False)
+            trajectory["tool_definition_protocol"] = {
+                "revision": append_document_revision,
+                "serialization": "provider_native_tools_fixed_initial",
+                "student_token_encoding": False,
+            }
         if guard is not None:
             trajectory["answer_guard"] = guard.summary()
             usage.update(tool_requests=0, harness_rejections=0)
@@ -588,13 +616,16 @@ def run_teacher_episode(
             ):
                 break
             max_tokens = min(teacher["max_new_tokens"], left)
+            prompt_tools = (
+                trajectory["initial_tools"] if append_document_revision else tools
+            )
             if context_tokenizer is not None:
                 from .teacher_collection import context_receipt
 
                 context_audit = context_receipt(
                     context_tokenizer,
                     messages,
-                    tools,
+                    prompt_tools,
                     max_tokens,
                     config[context_key],
                     config["student"],
@@ -623,7 +654,7 @@ def run_teacher_episode(
                 "tools": copy.deepcopy(tools),
                 "request_id": request_id,
             }
-            payload = policy.build_request(messages, tools, max_tokens)
+            payload = policy.build_request(messages, prompt_tools, max_tokens)
             if config.get("teacher_context"):
                 from .teacher_context import receipt
 
@@ -790,9 +821,20 @@ def run_teacher_episode(
                     if harness:
                         record_call_intent(output, event, call)
                     usage["tool_calls"] += 1
+                    before_tools = list(tools)
                     result, tools = execute_with_mode(
                         adapter, name, arguments, tools, trajectory["tool_mode"]
                     )
+                    if append_document_revision and name == "api_docs__show_api_doc":
+                        from .student_tokens import discovered_observation
+
+                        result = discovered_observation(
+                            result,
+                            before_tools,
+                            tools,
+                            revision=append_document_revision,
+                            arguments=arguments,
+                        )
                 else:
                     from .io import canonical
 
