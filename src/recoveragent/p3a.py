@@ -330,9 +330,12 @@ def run_teacher_episode(
     recovery_source=None,
     exploration=None,
     append_document_revision=None,
+    text_function_template=None,
 ):
     """Production path always uses a real AppWorldAdapter and a real TeacherPolicy."""
     validate_config(config)
+    if text_function_template is not None and append_document_revision is None:
+        raise ValueError("Text tool probe requires the append-document protocol")
     if append_document_revision is not None:
         from .student_tokens import FULL_DOCUMENT_REVISION
 
@@ -445,7 +448,12 @@ def run_teacher_episode(
             trajectory["environment_contract"] = verify_environment(
                 config["environment_contract"]
             )
-        policy = TeacherPolicy(config, credentials)
+        if text_function_template is None:
+            policy = TeacherPolicy(config, credentials)
+        else:
+            from .teacher_text_tools import TextFunctionTeacher
+
+            policy = TextFunctionTeacher(config, credentials, text_function_template)
         if getattr(policy, "session_id", None):
             trajectory["teacher_session_id"] = policy.session_id
         adapter_class = AppWorldAdapter
@@ -575,7 +583,9 @@ def run_teacher_episode(
             messages[1]["content"] = json.dumps(public, ensure_ascii=False)
             trajectory["tool_definition_protocol"] = {
                 "revision": append_document_revision,
-                "serialization": "provider_native_tools_fixed_initial",
+                "serialization": "student_xml_text_fixed_initial"
+                if text_function_template is not None
+                else "provider_native_tools_fixed_initial",
                 "student_token_encoding": False,
             }
         if guard is not None:
@@ -655,6 +665,8 @@ def run_teacher_episode(
                 "request_id": request_id,
             }
             payload = policy.build_request(messages, prompt_tools, max_tokens)
+            if text_function_template is not None:
+                trajectory["text_function_calling"] = policy.binding()
             if config.get("teacher_context"):
                 from .teacher_context import receipt
 
@@ -701,10 +713,14 @@ def run_teacher_episode(
             usage["model_turns"] += 1
             message = None
             try:
-                message = normalize_message(
-                    response,
-                    teacher.get("max_tool_calls_per_turn", 1),
-                    allow_reasoning=reasoning_enabled(teacher),
+                message = (
+                    policy.parse(response, tools, request_id, guard)
+                    if text_function_template is not None
+                    else normalize_message(
+                        response,
+                        teacher.get("max_tool_calls_per_turn", 1),
+                        allow_reasoning=reasoning_enabled(teacher),
+                    )
                 )
                 if harness:
                     check_batch(
@@ -789,6 +805,7 @@ def run_teacher_episode(
             if (
                 reasoning_enabled(teacher)
                 or teacher.get("api_protocol") == "openai_responses_v1"
+                or text_function_template is not None
             ):
                 policy.remember_response(len(messages), response)
             messages.append(message)

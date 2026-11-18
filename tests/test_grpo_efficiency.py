@@ -68,11 +68,11 @@ def test_efficiency_release_lock_and_historical_refusal(monkeypatch):
     from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
 
     monkeypatch.setenv(
-        "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_probe_20261118"
+        "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_text_20261118"
     )
     assert (
         verify_lock(S2_RUNTIME)["execution_revision"]
-        == "v2_s2_append_teacher_probe_20261118"
+        == "v2_s2_append_teacher_text_20261118"
     )
     for historical in ("v2_s2_effective_segment_20261118", "v2_s2_efficiency_20261118"):
         monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", historical)

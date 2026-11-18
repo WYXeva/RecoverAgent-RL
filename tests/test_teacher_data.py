@@ -21,9 +21,11 @@ from recoveragent.teacher import (
 from test_runner import Adapter, TOOLS
 
 
-@pytest.mark.parametrize("append", [False, True])
+@pytest.mark.parametrize(
+    "append,text_mode", [(False, False), (True, False), (True, True)]
+)
 def test_teacher_document_probe_freezes_provider_tools_only(
-    tmp_path, monkeypatch, config, append
+    tmp_path, monkeypatch, config, append, text_mode
 ):
     from recoveragent.adapter import call_code
     from recoveragent.student_tokens import FULL_DOCUMENT_REVISION, FULL_DOCUMENT_RULES
@@ -85,11 +87,28 @@ def test_teacher_document_probe_freezes_provider_tools_only(
     def transport(payload):
         index = len(payloads)
         payloads.append(copy.deepcopy(payload))
-        assert payload["tools"] == (
-            initial if append or index == 0 else [*initial, business]
-        )
+        if text_mode:
+            assert not any(
+                k in payload for k in ("tools", "tool_choice", "parallel_tool_calls")
+            )
+            assert (
+                "<function=example_function_name>" in payload["messages"][0]["content"]
+            )
+            assert "synthetic__lookup" not in payload["messages"][0]["content"]
+            assert (
+                payload["thinking"] == {"type": "enabled"}
+                and "temperature" not in payload
+            )
+            assert all(
+                "tool_calls" not in m and m["role"] != "tool"
+                for m in payload["messages"]
+            )
+        else:
+            assert payload["tools"] == (
+                initial if append or index == 0 else [*initial, business]
+            )
         if append:
-            assert FULL_DOCUMENT_RULES in payload["messages"][0]["content"]
+            assert FULL_DOCUMENT_RULES.strip() in payload["messages"][0]["content"]
             for message in payload["messages"]:
                 if message["role"] == "tool":
                     observation = json.loads(message["content"])
@@ -108,9 +127,32 @@ def test_teacher_document_probe_freezes_provider_tools_only(
                 "name": "synthetic__lookup",
                 "arguments": '{"value":null}',
             }
+        if text_mode:
+            from test_student_append_tokens import call as xml_call
+
+            f = call["function"]
+            result["choices"][0]["message"] = {
+                "role": "assistant",
+                "content": xml_call(f["name"], **json.loads(f["arguments"])),
+                "reasoning_content": "Synthetic reasoning, not an action.",
+            }
+            result["choices"][0]["finish_reason"] = "stop"
         return result
 
     config["tool_mode"] = "dynamic_discovery"
+    if text_mode:
+        # Synthetic legacy fixture's model label is not a model execution claim.
+        native = read_json("configs/v2_s2_static_evolve_20261116.json")["models"][
+            "primary"
+        ]
+        config["student"].update(
+            tool_format=native["tool_format"],
+            chat_template_sha256=native["chat_template_sha256"],
+        )
+        config["teacher"].update(
+            thinking=True, reasoning_protocol="provider_reasoning_audit_only_v1"
+        )
+        monkeypatch.setattr(TeacherPolicy, "_post", lambda self, p: transport(p))
     monkeypatch.setattr(p3a, "AppWorldAdapter", World)
     monkeypatch.setattr(
         p3a,
@@ -126,6 +168,11 @@ def test_teacher_document_probe_freezes_provider_tools_only(
         tmp_path / "teacher",
         {"DEEPSEEK_API_KEY": "synthetic"},
         append_document_revision=FULL_DOCUMENT_REVISION if append else None,
+        text_function_template=Path(
+            "tests/fixtures/qwen35_native_template.jinja"
+        ).read_text()
+        if text_mode
+        else None,
     )
     assert result["status"] == "valid" and result["reward"] == 1
     assert calls == [
@@ -137,6 +184,23 @@ def test_teacher_document_probe_freezes_provider_tools_only(
     assert len(payloads) == 4
     if append:
         assert result["tool_definition_protocol"]["student_token_encoding"] is False
+    if text_mode:
+        assert result["text_function_calling"]["provider_tools"] is False
+        assert result["text_function_calling"]["behavior_logprobs"] is False
+        from test_student_append_tokens import CharacterNative
+        from recoveragent.student_tokens import render
+
+        student_prompt = render(CharacterNative(), result["messages"][:2], initial)
+        expected = student_prompt.removeprefix("<|im_start|>system\n").split(
+            "<|im_end|>", 1
+        )[0]
+        assert all(p["messages"][0]["content"] == expected for p in payloads)
+        assert payloads[2]["messages"][2]["content"].startswith("<tool_call>")
+        assert (
+            payloads[2]["messages"][2]["reasoning_content"]
+            == "Synthetic reasoning, not an action."
+        )
+        assert "<tool_response>" in payloads[2]["messages"][3]["content"]
 
 
 @pytest.fixture
