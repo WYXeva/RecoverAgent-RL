@@ -799,6 +799,7 @@ def main():
             check_judge(cfg, read_json(args.deployment), args.input, args.output)
     elif args.command == "feedback-worker":
         from .s2_background import worker
+        from .s2_segment import load_segment_bundle
 
         if not s2_execution().get("background_generation"):
             raise ValueError(
@@ -808,7 +809,9 @@ def main():
         worker(
             cfg,
             deployment,
-            load_bundle(deployment["initial_bundle"]),
+            load_segment_bundle(deployment)
+            if cfg.get("segment")
+            else load_bundle(deployment["initial_bundle"]),
             args.output / "evolve",
         )
     elif args.command == "prepare":

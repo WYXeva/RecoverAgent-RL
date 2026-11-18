@@ -13,6 +13,20 @@ from .s2_state import atomic, evidence, protocol_identity
 from .v2_grpo import group_advantages
 
 
+def load_segment_bundle(deployment):
+    """Read the parent's unchanged admission evidence under its original binding."""
+    from .s2_llm_pool import load
+
+    spec = deployment["segment_parent"]
+    if sha256(spec["state"]) != spec["state_sha256"]:
+        raise ValueError("Parent state changed")
+    protocols = read_json(spec["state"])["protocols"]
+    for key, value in protocol_identity().items():
+        if key != "execution" and protocols.get(key) != value:
+            raise ValueError("Parent pool public/reward protocol differs: " + key)
+    return load(deployment["initial_bundle"], protocols=protocols)
+
+
 def update_request(state, deployment, *, tail=False):
     ids = state["segment"]["pending_effective"][:2]
     if len(ids) < 2 and not (tail and len(ids) == 1):
@@ -391,7 +405,6 @@ def paired_evaluation(experiment):
 
 def run_segment(config, deployment, output, mode):
     from .s2_backend import BackendRuntime
-    from .s2_inputs import load_bundle
     from .v2_runtime import S2_RUNTIME, verify_lock
     from .v2_training import verify_checkpoint
 
@@ -401,7 +414,7 @@ def run_segment(config, deployment, output, mode):
     output.mkdir(parents=True, exist_ok=True)
     with (output / "controller.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        bundle = load_bundle(deployment["initial_bundle"])
+        bundle = load_segment_bundle(deployment)
         require_pool_protocol(bundle)
         evidence(
             output / "experiment.json",

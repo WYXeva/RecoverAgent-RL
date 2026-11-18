@@ -226,13 +226,14 @@ def admit_pool(cfg, deployment, prepared_directory, output, *, engine=None):
         return load(output)
 
 
-def load(directory):
+def load(directory, *, protocols=None):
     directory = Path(directory)
-    verify(directory, "llm_initial_pool_v1")
+    expected = protocol_identity() if protocols is None else protocols
+    verify(directory, "llm_initial_pool_v1", protocols=expected)
     bundle = read_json(directory / "bundle.json")
     if (
         bundle.get("scoring_revision") != REVISION
-        or bundle.get("protocols") != protocol_identity()
+        or bundle.get("protocols") != expected
     ):
         raise ValueError("Initial pool uses another scoring protocol")
     for task in bundle["pool"]:

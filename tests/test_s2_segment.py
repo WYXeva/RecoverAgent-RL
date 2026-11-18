@@ -192,3 +192,37 @@ def test_latest_generation_config_and_historical_lock_preserved(monkeypatch):
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_GENERATION_FOCUS_EXECUTION)
     with pytest.raises(ValueError, match="source lock|source changed"):
         verify_lock(S2_RUNTIME)
+
+
+def test_inherited_pool_verifies_original_proof_and_same_public_protocol(
+    tmp_path, monkeypatch
+):
+    from recoveragent import s2_segment
+    from recoveragent.s2_segment import load_segment_bundle
+    from recoveragent.s2_llm_pool import manifest, load
+    from recoveragent.coevolve_llm import REVISION
+
+    old = protocol_identity()
+    folder = tmp_path / "pool"
+    write_json(
+        folder / "bundle.json",
+        {"protocols": old, "scoring_revision": REVISION, "pool": [], "feedback": []},
+    )
+    manifest(folder, "llm_initial_pool_v1")
+    state = tmp_path / "parent.json"
+    write_json(state, {"protocols": old})
+    deployment = {
+        "initial_bundle": str(folder),
+        "segment_parent": {"state": str(state), "state_sha256": sha256(state)},
+    }
+    current = {**old, "execution": "explicit_new_segment"}
+    monkeypatch.setattr(s2_segment, "protocol_identity", lambda: current)
+    assert load_segment_bundle(deployment)["pool"] == []
+    assert load(folder)["pool"] == []
+    old["reward"] = "incompatible_reward"
+    state = tmp_path / "incompatible_parent.json"
+    write_json(state, {"protocols": old})
+    deployment["segment_parent"]["state"] = str(state)
+    deployment["segment_parent"]["state_sha256"] = sha256(state)
+    with pytest.raises(ValueError, match="protocol differs"):
+        load_segment_bundle(deployment)
