@@ -169,15 +169,15 @@ def test_latest_generation_config_and_historical_lock_preserved(monkeypatch):
         S2_RUNTIME,
         S2_SEGMENT_EXECUTION,
         S2_GENERATION_FOCUS_EXECUTION,
-        S2_APPEND_TEXT_EXECUTION,
+        S2_APPEND_TEXT_V2_EXECUTION,
         verify_lock,
     )
     from recoveragent.s2_experiment import configuration
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_APPEND_TEXT_EXECUTION)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_APPEND_TEXT_V2_EXECUTION)
     configured = configuration()
     old = read_json(f"configs/{S2_GENERATION_FOCUS_EXECUTION}.json")
-    new = read_json(f"configs/{S2_APPEND_TEXT_EXECUTION}.json")
+    new = read_json(f"configs/{S2_APPEND_TEXT_V2_EXECUTION}.json")
     for key in (
         "judge_text",
         "generation_settings",

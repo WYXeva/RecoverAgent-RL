@@ -189,7 +189,7 @@ def test_new_protocol_binding_and_teacher_configuration(monkeypatch, tmp_path):
     from recoveragent.s2_state import protocol_identity
 
     monkeypatch.setenv(
-        "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_text_20261118"
+        "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_text_v2_20261118"
     )
     assert protocol_identity()["tool_discovery"] == discovery.REVISION
     args = (

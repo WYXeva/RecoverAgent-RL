@@ -790,6 +790,8 @@ def run_teacher_episode(
                     )
                     feedback = event["feedback"]
                     usage["protocol_rejections"] += 1
+                    if text_function_template is not None:
+                        policy.remember_rejection(len(messages), response)
                     messages.append(feedback)
                     write_json(
                         output / "turns" / f"{request_id}.json",

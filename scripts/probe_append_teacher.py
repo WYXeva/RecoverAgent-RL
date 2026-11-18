@@ -1,7 +1,7 @@
 """One real Teacher episode with the same fixed-header/full-document semantics.
 
-Reuses the production Teacher/AppWorld loop, native provider tools and official
-evaluation. No Student, GPU, training, generation or Judge. Raw evidence is private.
+Reuses the Teacher/AppWorld loop and official evaluation. With --text-template,
+uses Student XML text and parser without provider tools. No GPU or training.
 """
 
 import argparse
@@ -14,7 +14,7 @@ from recoveragent.teacher import read_credentials
 from recoveragent.v2_teacher import configuration
 from recoveragent.v2_runtime import (
     S2_APPEND_TEACHER_EXECUTION,
-    S2_APPEND_TEXT_EXECUTION,
+    S2_APPEND_TEXT_V2_EXECUTION,
     S2_RUNTIME,
     verify_lock,
 )
@@ -32,7 +32,9 @@ def main():
     parser.add_argument("--text-template", type=Path)
     args = parser.parse_args()
     os.environ["RECOVERAGENT_S2_EXECUTION"] = (
-        S2_APPEND_TEXT_EXECUTION if args.text_template else S2_APPEND_TEACHER_EXECUTION
+        S2_APPEND_TEXT_V2_EXECUTION
+        if args.text_template
+        else S2_APPEND_TEACHER_EXECUTION
     )
     source = verify_lock(S2_RUNTIME)
     spec = read_json("configs/s2_append_docs_probe_20261118.json")

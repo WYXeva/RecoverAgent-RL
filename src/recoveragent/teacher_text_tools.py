@@ -6,12 +6,36 @@ sampling and cannot supply behavior probabilities for GRPO.
 
 import copy
 import hashlib
+import json
 
 from .io import canonical, digest
 from .teacher import TeacherPolicy, TeacherBlocked, normalize_message, reasoning_enabled
 from .v2_model import parse_native
 
-REVISION = "teacher_student_xml_probe_v1"
+REVISION = "teacher_student_xml_probe_v2"
+
+
+def text_feedback(message):
+    """Describe the actual parser format; leave structural Harness receipts intact."""
+    try:
+        value = json.loads(message["content"])
+    except (ValueError, TypeError):
+        return message
+    if not isinstance(value, dict) or value.get("error") != "harness_protocol_error":
+        return message
+    if value.get("code") in {"malformed_output", "unexpected_stop", "invalid_history"}:
+        value["message"] = (
+            "No tool was executed. Emit the XML Function Calling format from the "
+            "system instructions in message.content: "
+            "<tool_call><function=FUNCTION_NAME>"
+            "<parameter=PARAMETER_NAME>VALUE</parameter>"
+            "</function></tool_call>. Omit parameter blocks for a no-argument "
+            "function. Use one complete tool_call block per call. Do not emit "
+            "DSML tags, a JSON call envelope, or call IDs. Use only a startup "
+            "function or one whose complete definition was returned earlier."
+        )
+    value["response_format"] = "qwen_xml"
+    return {**message, "content": canonical(value)}
 
 
 class TextFunctionTeacher(TeacherPolicy):
@@ -28,6 +52,7 @@ class TextFunctionTeacher(TeacherPolicy):
         self.initial_tools = None
         self.system = None
         self.raw_by_index = {}
+        self.rejected_by_index = {}
 
     def build_request(self, messages, tools, max_tokens):
         # First use the existing reasoning-history handling, with original indices.
@@ -50,6 +75,9 @@ class TextFunctionTeacher(TeacherPolicy):
             raise ValueError("Teacher text probe startup definitions changed")
         converted = []
         for index, message in enumerate(payload["messages"]):
+            if index in self.rejected_by_index:
+                # Invalid text is visible history, never a fabricated valid action.
+                converted.append(copy.deepcopy(self.rejected_by_index[index]))
             m = copy.deepcopy(message)
             if m["role"] == "system":
                 m["content"] = self.system
@@ -69,6 +97,8 @@ class TextFunctionTeacher(TeacherPolicy):
                     converted[-1]["content"] += "\n" + content
                     continue
                 m = {"role": "user", "content": content}
+            elif m["role"] == "user":
+                m = text_feedback(m)
             converted.append(m)
         payload["messages"] = converted
         for key in ("tools", "tool_choice", "parallel_tool_calls"):
@@ -101,6 +131,19 @@ class TextFunctionTeacher(TeacherPolicy):
         super().remember_response(index, response)
         self.raw_by_index[index] = response["choices"][0]["message"]["content"]
 
+    def remember_rejection(self, index, response):
+        raw = response["choices"][0]["message"]
+        self.rejected_by_index[index] = {
+            "role": "assistant",
+            "content": raw.get("content") or "",
+            **(
+                {"reasoning_content": raw["reasoning_content"]}
+                if reasoning_enabled(self.config)
+                and isinstance(raw.get("reasoning_content"), str)
+                else {}
+            ),
+        }
+
     def binding(self):
         return {
             "revision": REVISION,
@@ -109,4 +152,6 @@ class TextFunctionTeacher(TeacherPolicy):
             "initial_tools_sha256": digest(self.initial_tools),
             "provider_tools": False,
             "behavior_logprobs": False,
+            "rejected_text_preserved": True,
+            "feedback_format": "qwen_xml",
         }

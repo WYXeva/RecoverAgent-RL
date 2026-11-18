@@ -22,10 +22,16 @@ from test_runner import Adapter, TOOLS
 
 
 @pytest.mark.parametrize(
-    "append,text_mode", [(False, False), (True, False), (True, True)]
+    "append,text_mode,reject_once",
+    [
+        (False, False, False),
+        (True, False, False),
+        (True, True, False),
+        (True, True, True),
+    ],
 )
 def test_teacher_document_probe_freezes_provider_tools_only(
-    tmp_path, monkeypatch, config, append, text_mode
+    tmp_path, monkeypatch, config, append, text_mode, reject_once
 ):
     from recoveragent.adapter import call_code
     from recoveragent.student_tokens import FULL_DOCUMENT_REVISION, FULL_DOCUMENT_RULES
@@ -115,6 +121,28 @@ def test_teacher_document_probe_freezes_provider_tools_only(
                     if "response_schemas" in observation.get("observation", {}):
                         assert observation["tool_definitions"] == [business]
         result = response()
+        if reject_once and index == 0:
+            result["choices"][0].update(
+                finish_reason="stop",
+                message={
+                    "role": "assistant",
+                    "content": "<｜DSML｜ calls>invalid text</｜DSML｜ calls>",
+                    "reasoning_content": "Synthetic rejected reasoning.",
+                },
+            )
+            return result
+        if reject_once:
+            rejected = payload["messages"][2]
+            assert (
+                rejected["content"] == "<｜DSML｜ calls>invalid text</｜DSML｜ calls>"
+            )
+            assert rejected["reasoning_content"] == "Synthetic rejected reasoning."
+            feedback = json.loads(payload["messages"][3]["content"])
+            assert feedback["response_format"] == "qwen_xml"
+            assert "<tool_call><function=FUNCTION_NAME>" in feedback["message"]
+            assert "valid JSON and unique call IDs" not in feedback["message"]
+            assert feedback["appworld_executed"] is False
+            index -= 1
         call = result["choices"][0]["message"]["tool_calls"][0]
         call["id"] = f"synthetic_{index}"
         if index < 2:
@@ -140,6 +168,33 @@ def test_teacher_document_probe_freezes_provider_tools_only(
         return result
 
     config["tool_mode"] = "dynamic_discovery"
+    if reject_once:
+        from recoveragent import evaluation
+        from recoveragent.answer_guard import PROTOCOL as ANSWER_PROTOCOL
+        from recoveragent.harness import PROTOCOL, REFACTOR_REVISION
+
+        config.update(
+            project_version="0.10",
+            answer_guard_protocol=ANSWER_PROTOCOL,
+            actor_prompt_variant="execution_v5",
+            harness_protocol=PROTOCOL,
+            harness_runtime_revision=REFACTOR_REVISION,
+            environment_profile="appworld_sqlalchemy20_v1",
+        )
+        config["teacher"].update(max_new_tokens=4096, max_tool_calls_per_turn=None)
+        config["limits"]["max_tool_calls"] = None
+        monkeypatch.setattr(
+            evaluation, "environment_check", lambda: {"synthetic": True}
+        )
+        monkeypatch.setattr(
+            evaluation,
+            "evaluate_isolated",
+            lambda *a, **kw: {
+                "status": "valid",
+                "success": True,
+                "official": {"synthetic": True},
+            },
+        )
     if text_mode:
         # Synthetic legacy fixture's model label is not a model execution claim.
         native = read_json("configs/v2_s2_static_evolve_20261116.json")["models"][
@@ -181,7 +236,7 @@ def test_teacher_document_probe_freezes_provider_tools_only(
         "synthetic__lookup",
         "supervisor__complete_task",
     ]
-    assert len(payloads) == 4
+    assert len(payloads) == 4 + reject_once
     if append:
         assert result["tool_definition_protocol"]["student_token_encoding"] is False
     if text_mode:
@@ -195,12 +250,12 @@ def test_teacher_document_probe_freezes_provider_tools_only(
             "<|im_end|>", 1
         )[0]
         assert all(p["messages"][0]["content"] == expected for p in payloads)
-        assert payloads[2]["messages"][2]["content"].startswith("<tool_call>")
-        assert (
-            payloads[2]["messages"][2]["reasoning_content"]
-            == "Synthetic reasoning, not an action."
-        )
-        assert "<tool_response>" in payloads[2]["messages"][3]["content"]
+        pos = 4 if reject_once else 2
+        sample = payloads[2 + reject_once]["messages"]
+        assert sample[pos]["content"].startswith("<tool_call>")
+        assert sample[pos]["reasoning_content"] == "Synthetic reasoning, not an action."
+        assert "<tool_response>" in sample[pos + 1]["content"]
+        assert result["usage"].get("protocol_rejections", 0) == int(reject_once)
 
 
 @pytest.fixture
