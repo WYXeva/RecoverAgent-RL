@@ -2,7 +2,9 @@
 
 更新：2026-11-18。本文是唯一当前设计与实施计划，事实见 [STATUS](docs/STATUS.md)。
 
-当前执行结果：11月18日00:23至17:12，授权的**一轮Evolve＋dev24**已完成，40组×4次、14次真实GRPO更新。新同条件S0为8/24，轮末9/24（新增成功2题、退步1题）；轮末与历史S0的9/24数值相同，不能据此宣称稳定提升。使用现有L40S、同一S0及Solver参考/三态Judge；Student/Teacher与GPU服务已退出，Static/test/第二轮未启动。见[结果报告](reports/s2_evolve_round1_result_20261118.md)，保留[启动记录](reports/s2_evolve_round1_launch_20261118.md)。下一步先审查配对结果，再决定后续对照。
+当前执行安排：用户已授权从首轮最终actor/optimizer（14次更新）做有界续跑，独立 `v2_s2_effective_segment_20261118`，lr=1e-5、beta=0、积累两个有效差异组更新，新增最多20更新或80组。使用最新轻量出题改进，保留全同组反馈和待更新缓存；本段仅Evolve，段末固定4种子S0/final dev24配对，按既有截止执行，未完成部分单列。见[本段报告](reports/s2_effective_segment_20261118.md)。
+
+前段执行结果：11月18日00:23至17:12，授权的**一轮Evolve＋dev24**已完成，40组×4次、14次真实GRPO更新。新同条件S0为8/24，轮末9/24（新增成功2题、退步1题）；轮末与历史S0的9/24数值相同，不能据此宣称稳定提升。使用现有L40S、同一S0及Solver参考/三态Judge；Student/Teacher与GPU服务已退出，Static/test/第二轮未启动。见[结果报告](reports/s2_evolve_round1_result_20261118.md)，保留[启动记录](reports/s2_evolve_round1_launch_20261118.md)。下一步先审查配对结果，再决定后续对照。
 
 当前主线：**四次 Student 真实反馈 → 必要时一次探索 → 三字段任务生成 → 干净初态 Solver → 共享 LLM Judge → 入池 → 正常四次 GRPO 采样与学习**。后续运行准备版 `v2_s2_generation_focus_20261118` 显式提供根题、父题和同源题面，增强有依据的练习目标与非重复变化指导；已完成的远端作业冻结在 `v2_s2_judge_reference_20261117`，没有中途部署该补丁。奖励身份 `coevolve_llm_reward_v2`、Judge调用身份 `coevolve_judge_reference_v2` 和40组/轮末dev后停设置均不变；保留已修复的解析、严格 Schema、一次完成纠错和无效整组排除。生成题不再使用数据库目标契约、字段元数据、契约 repair、业务hash或答案全文比较，原始 train/dev/test 继续官方验收。
 

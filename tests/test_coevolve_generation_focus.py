@@ -183,7 +183,8 @@ def test_new_profile_only_changes_generation_metadata_and_keeps_old_lock(tmp_pat
     with patch.dict(
         "os.environ", {"RECOVERAGENT_S2_EXECUTION": S2_GENERATION_FOCUS_EXECUTION}
     ):
-        assert verify_lock(S2_RUNTIME)
+        with pytest.raises(ValueError, match="source lock|source changed"):
+            verify_lock(S2_RUNTIME)
     with patch.dict("os.environ", {"RECOVERAGENT_S2_EXECUTION": old["revision"]}):
-        with pytest.raises(ValueError, match="source changed"):
+        with pytest.raises(ValueError, match="source lock|source changed"):
             verify_lock(S2_RUNTIME)

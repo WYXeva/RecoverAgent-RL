@@ -19,7 +19,10 @@ if not hasattr(transformers, "Qwen3_5ForConditionalGeneration"):
     pytest.skip("Requires the pinned v2 training environment", allow_module_level=True)
 
 
-def test_fixed_s0_reference_optimizer_resume_and_reloaded_actor(tmp_path, monkeypatch):
+@pytest.mark.parametrize("resume_beta", [0.001, 0.0])
+def test_fixed_s0_reference_optimizer_resume_and_reloaded_actor(
+    tmp_path, monkeypatch, resume_beta
+):
     config = read_json("configs/v2_s2_static_evolve_20261116.json")
     identity = config["models"][config["selected_model"]]
     monkeypatch.setattr(v2_training, "load_base", lambda *a, **k: tiny())
@@ -72,12 +75,15 @@ def test_fixed_s0_reference_optimizer_resume_and_reloaded_actor(tmp_path, monkey
                     "input_token_ids": prompt,
                     "max_input_tokens": 65536,
                     "max_new_tokens": 2,
+                    "temperature": config["grpo"]["temperature"],
+                    "top_p": 1.0,
                 }
                 response = {
                     "policy": policy,
                     "input_token_ids": prompt,
                     "token_ids": completion,
                     "logprobs": logps[0].tolist(),
+                    "logprob_contract": "vllm_processed_logprobs_temperature_top_p1_top_k_all",
                 }
                 write_json(directory / "session/requests/001.request.json", request)
                 write_json(directory / "session/requests/001.response.json", response)
@@ -117,6 +123,29 @@ def test_fixed_s0_reference_optimizer_resume_and_reloaded_actor(tmp_path, monkey
         groups=groups(first["actor"], "second"),
         group_ids=[2, 3],
     )
+    config["grpo"].update(learning_rate=1e-5, beta=resume_beta)
+    if resume_beta == 0:
+        config["segment"] = {
+            "logprob_audit": {
+                "segments": 2,
+                "tokens_per_segment": 2,
+                "max_mean_abs_error": 0.1,
+                "max_abs_error": 2.0,
+            }
+        }
+        request["audit_behavior"] = True
+        request["groups"] = request["groups"][:1]
+        request["group_ids"] = [2]
+    adapter_loads = []
+    original = peft.PeftModel.load_adapter
+
+    def tracked(self, *args, **kwargs):
+        adapter_loads.append(
+            kwargs.get("adapter_name", args[1] if len(args) > 1 else None)
+        )
+        return original(self, *args, **kwargs)
+
+    monkeypatch.setattr(peft.PeftModel, "load_adapter", tracked)
     second = s2_update.update(config, request, tmp_path / "update2", device="cpu")
     assert (
         second["reference_adapter_sha256"]
@@ -127,8 +156,17 @@ def test_fixed_s0_reference_optimizer_resume_and_reloaded_actor(tmp_path, monkey
         second["actor_sha256"] != first["actor_sha256"]
         and second["optimizer_steps"] == 2
     )
-    assert second["contributing_generated_task_ids"] == ["generated"]
+    assert second["contributing_generated_task_ids"] == (
+        ["generated"] if resume_beta else []
+    )
+    assert second["reference_adapter_loaded"] == bool(resume_beta)
+    assert ("coevolve_reference" in adapter_loads) == bool(resume_beta)
+    assert set(second["optimizer_param_group_lrs"]) == {1e-5}
+    assert second["ratio_token_count"] > 0
+    if resume_beta == 0:
+        assert read_json(tmp_path / "update2/behavior_logprob_audit.json")["passed"]
     saved = torch.load(second["optimizer"], weights_only=False)
+    assert {p["lr"] for p in saved["optimizer"]["param_groups"]} == {1e-5}
     assert {int(x["step"]) for x in saved["optimizer"]["state"].values()} == {2}
     assert v2_training.verify_checkpoint(second["actor"], identity)["reload_passed"]
     stale = copy.deepcopy(request)

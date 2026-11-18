@@ -76,6 +76,23 @@ def configuration():
         }.items()
     ):
         raise ValueError("Frozen S2 generation limits changed")
+    if settings.get("segment"):
+        cfg["segment"] = copy.deepcopy(settings["segment"])
+        cfg["grpo"].update(
+            learning_rate=cfg["segment"]["learning_rate"], beta=cfg["segment"]["beta"]
+        )
+        cfg["source_lock"] = f"configs/{settings['revision']}_lock.json"
+        cfg["s2"]["student_trajectories_per_branch"] = (
+            4 * cfg["segment"]["max_new_groups"]
+        )
+        cfg["s2"]["student_requests_per_branch"] = (
+            4 * cfg["segment"]["max_new_groups"] * cfg["student_limits"]["max_requests"]
+        )
+        cfg["s2"]["student_generated_tokens_per_branch"] = (
+            4
+            * cfg["segment"]["max_new_groups"]
+            * cfg["student_limits"]["max_generated_tokens"]
+        )
     return cfg
 
 
@@ -94,7 +111,7 @@ def require_pool_protocol(bundle):
             validate_task(task, task["source_task_id"])
 
 
-def evaluate(runtime, actor, tasks, output, *, final_test=False):
+def evaluate(runtime, actor, tasks, output, *, final_test=False, seed=42):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     results = []
@@ -110,10 +127,10 @@ def evaluate(runtime, actor, tasks, output, *, final_test=False):
             "final_test": final_test,
             "student_limits": runtime.cfg["student_limits"],
             "answer_format_contract": runtime.cfg["answer_format_contract"],
+            **({"seed": seed} if runtime.cfg.get("segment") or seed != 42 else {}),
         },
     )
     for task in tasks:
-        runtime.available(runtime.cfg["student_limits"]["wall_seconds"] + 120)
         ledger = output / (task + ".receipt.json")
         claim = output / (task + ".claim.json")
         directory = output / task
@@ -131,18 +148,19 @@ def evaluate(runtime, actor, tasks, output, *, final_test=False):
                 policy,
                 directory,
                 "Interrupted evaluation; no repeat",
-                42,
+                seed,
                 runtime.cfg["student_limits"],
             )
             result["purpose"] = "evaluation"
             write_json(ledger, result)
         else:
+            runtime.available(runtime.cfg["student_limits"]["wall_seconds"] + 120)
             write_json(claim, {"policy": policy, "task_id": task})
             result = runtime.rollout(
                 actor,
                 {"task_id": task},
                 directory,
-                42,
+                seed,
                 evaluation=True,
                 final_test=final_test,
             )
@@ -180,6 +198,11 @@ class Experiment:
                 "archive_sha256": bundle["archive_sha256"],
                 "s0": deployment["s0"],
                 "mode": mode,
+                **(
+                    {"segment_parent": deployment["segment_parent"]}
+                    if cfg.get("segment")
+                    else {}
+                ),
             },
         )
         path = self.output / "state.json"
@@ -581,6 +604,10 @@ class Experiment:
 
 
 def run(config, deployment, output, mode):
+    if config.get("segment"):
+        from .s2_segment import run_segment
+
+        return run_segment(config, deployment, output, mode)
     from .s2_backend import BackendRuntime
     from .v2_s1_batch import checkpoint
 

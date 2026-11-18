@@ -84,6 +84,7 @@ def enqueue(experiment):
     end = len(state["groups"])
     if (
         state["mode"] != "evolve"
+        or end <= state.get("segment", {}).get("parent_groups", 0)
         or not end
         or end % 8
         or end >= s2_group_limit()

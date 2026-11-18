@@ -77,6 +77,9 @@ def segments(directory, expected_policy, *, max_length=None):
                 "logprobs": response["logprobs"],
                 "request_sha256": digest(request),
                 "response_sha256": digest(response),
+                "top_p": request.get("top_p"),
+                "temperature": request.get("temperature"),
+                "logprob_contract": response.get("logprob_contract"),
             }
         )
     if not rows:
@@ -133,7 +136,9 @@ def trainer_class():
                 )
                 chosen.append(lp)
                 entropy.append(ent)
-            return torch.cat(chosen, 1), torch.cat(entropy, 1), None
+            chosen = torch.cat(chosen, 1)
+            self.recoveragent_last_logps = chosen.detach()
+            return chosen, torch.cat(entropy, 1), None
 
     return AppWorldGRPO
 
@@ -192,6 +197,7 @@ def update_batch(trainer, groups, *, max_length=None):
     model.train()
     trainer.optimizer.zero_grad()
     total_loss = 0.0
+    ratio_sum, ratio_count, outside, clipped = 0.0, 0, 0, 0
     for episodes, advantages in usable:
         for episode, advantage in zip(episodes, advantages, strict=True):
             if advantage == 0 and trainer.beta == 0:
@@ -246,6 +252,17 @@ def update_batch(trainer, groups, *, max_length=None):
                 )
                 with context:
                     loss = trainer.compute_loss(model, inputs)
+                current = getattr(trainer, "recoveragent_last_logps", None)
+                if current is not None:
+                    with torch.no_grad():
+                        ratio = (current - inputs["old_per_token_logps"]).exp()
+                        low, high = 1 - trainer.epsilon_low, 1 + trainer.epsilon_high
+                        ratio_sum += float(ratio.sum())
+                        ratio_count += ratio.numel()
+                        outside += int(((ratio < low) | (ratio > high)).sum())
+                        clipped += int(
+                            ((ratio > high) if advantage > 0 else (ratio < low)).sum()
+                        )
                 loss = loss * (len(row["completion_ids"]) / tokens) / (4 * len(usable))
                 if not torch.isfinite(loss):
                     raise ValueError("Nonfinite GRPO loss")
@@ -258,6 +275,10 @@ def update_batch(trainer, groups, *, max_length=None):
     return {
         "updated": True,
         "loss": total_loss,
+        "probability_ratio_mean": ratio_sum / ratio_count if ratio_count else None,
+        "ratio_outside_clip_fraction": outside / ratio_count if ratio_count else None,
+        "effective_clip_fraction": clipped / ratio_count if ratio_count else None,
+        "ratio_token_count": ratio_count,
         **health,
         "contributing_generated_task_ids": sorted(
             {

@@ -31,6 +31,7 @@ S2_JUDGE_THINKING_EXECUTION = "v2_s2_judge_thinking_20261117"
 S2_EVOLVE_ROUND1_EXECUTION = "v2_s2_evolve_round1_20261117"
 S2_JUDGE_REFERENCE_EXECUTION = "v2_s2_judge_reference_20261117"
 S2_GENERATION_FOCUS_EXECUTION = "v2_s2_generation_focus_20261118"
+S2_SEGMENT_EXECUTION = "v2_s2_effective_segment_20261118"
 
 
 def s2_execution():
@@ -53,12 +54,16 @@ def s2_execution():
         S2_EVOLVE_ROUND1_EXECUTION,
         S2_JUDGE_REFERENCE_EXECUTION,
         S2_GENERATION_FOCUS_EXECUTION,
+        S2_SEGMENT_EXECUTION,
     }:
         raise ValueError("Unknown S2 execution revision")
     return read_json(ROOT / f"configs/{revision}.json")
 
 
 def s2_group_limit():
+    segment = s2_execution().get("segment")
+    if segment:
+        return segment["parent_groups"] + segment["max_new_groups"]
     rounds = s2_execution().get("stop_after_round", 5)
     if type(rounds) is not int or not 1 <= rounds <= 5:
         raise ValueError("S2 stop_after_round must be between one and five")
@@ -209,6 +214,11 @@ def verify_lock(runtime=RUNTIME):
                     }
                 if execution["revision"] == S2_GENERATION_FOCUS_EXECUTION:
                     required.add(f"configs/{S2_JUDGE_REFERENCE_EXECUTION}_lock.json")
+                if execution["revision"] == S2_SEGMENT_EXECUTION:
+                    required |= {
+                        f"configs/{S2_GENERATION_FOCUS_EXECUTION}_lock.json",
+                        "scripts/supervise_s2_background.py",
+                    }
                 if (
                     lock.get("execution_revision") != execution["revision"]
                     or execution["protocol_runtime"] != runtime

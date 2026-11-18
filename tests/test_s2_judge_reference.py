@@ -171,6 +171,6 @@ def test_old_pool_and_old_source_lock_cannot_resume(accepted, monkeypatch):
 
     old = Path(f"configs/{S2_EVOLVE_ROUND1_EXECUTION}_lock.json").read_bytes()
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", S2_EVOLVE_ROUND1_EXECUTION)
-    with pytest.raises(ValueError, match="source changed"):
+    with pytest.raises(ValueError, match="source lock|source changed"):
         verify_lock(S2_RUNTIME)
     assert Path(f"configs/{S2_EVOLVE_ROUND1_EXECUTION}_lock.json").read_bytes() == old

@@ -26,7 +26,7 @@ def update(config, request, output, *, device="cuda"):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     groups = request["groups"]
-    if len(groups) != 2:
+    if len(groups) not in ({1, 2} if config.get("segment") else {2}):
         raise ValueError("S2 updates require exactly two scheduled groups")
     parent, reference = request["actor"], request["s0"]
     identity = config["models"][config["selected_model"]]
@@ -73,13 +73,20 @@ def update(config, request, output, *, device="cuda"):
         gradient_checkpointing_kwargs={"use_reentrant": False}
     )
     before = tensor_hash(get_peft_model_state_dict(model))
-    model.load_adapter(reference, adapter_name="coevolve_reference", is_trainable=False)
-    model.set_adapter("default")
-    reference_hash = tensor_hash(
-        get_peft_model_state_dict(model, adapter_name="coevolve_reference")
-    )
-    if reference_hash != source["adapter_sha256_after"]:
-        raise ValueError("Loaded KL reference differs from S0")
+    reference_hash = source["adapter_sha256_after"]
+    use_reference = bool(config["grpo"].get("beta", 0))
+    if use_reference:
+        model.load_adapter(
+            reference, adapter_name="coevolve_reference", is_trainable=False
+        )
+        model.set_adapter("default")
+        if (
+            tensor_hash(
+                get_peft_model_state_dict(model, adapter_name="coevolve_reference")
+            )
+            != reference_hash
+        ):
+            raise ValueError("Loaded KL reference differs from S0")
     tokenizer = load_tokenizer(identity)
     trainer = make_trainer(model, tokenizer, output / "trainer", config["grpo"])
     trainer.state.global_step = request["optimizer_steps"]
@@ -99,16 +106,28 @@ def update(config, request, output, *, device="cuda"):
         torch.set_rng_state(saved["torch_rng"])
         if device == "cuda":
             torch.cuda.set_rng_state_all(saved["cuda_rng"])
+    # load_state_dict also restores old hyperparameters, not only momentum.
+    for group in trainer.optimizer.param_groups:
+        group["lr"] = config["grpo"]["learning_rate"]
+    actual_lrs = [g["lr"] for g in trainer.optimizer.param_groups]
+    if request.get("audit_behavior"):
+        from .s2_logprob import audit_behavior
+
+        audit = audit_behavior(trainer, varying, config["segment"]["logprob_audit"])
+        write_json(output / "behavior_logprob_audit.json", audit)
+        if not audit["passed"]:
+            raise ValueError("Behavior logprob audit failed before optimizer update")
     started = time.monotonic()
     if device == "cuda":
         torch.cuda.reset_peak_memory_stats()
     health = update_batch(trainer, varying, max_length=65536)
-    if (
+    if use_reference and (
         tensor_hash(get_peft_model_state_dict(model, adapter_name="coevolve_reference"))
         != reference_hash
     ):
         raise ValueError("Frozen S0 reference changed")
-    model.delete_adapter("coevolve_reference")
+    if use_reference:
+        model.delete_adapter("coevolve_reference")
     probe_ids = segments(
         varying[0][0]["directory"], varying[0][0]["policy"], max_length=65536
     )[0]["prompt_ids"][:128]
@@ -142,7 +161,15 @@ def update(config, request, output, *, device="cuda"):
         "reference_adapter_sha256": reference_hash,
         "beta": trainer.beta,
         "learning_rate": config["grpo"]["learning_rate"],
+        "optimizer_param_group_lrs": actual_lrs,
+        "reference_adapter_loaded": use_reference,
+        "effective_group_count": len(varying),
         "group_ids": request["group_ids"],
+        "segment_parent_updates": request.get("segment_parent_updates"),
+        "segment_new_updates": trainer.state.global_step
+        - request["segment_parent_updates"]
+        if "segment_parent_updates" in request
+        else None,
         "training_wall_seconds": time.monotonic() - started,
         "gpu_peak_allocated_bytes": torch.cuda.max_memory_allocated()
         if device == "cuda"
