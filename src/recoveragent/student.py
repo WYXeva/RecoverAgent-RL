@@ -203,7 +203,14 @@ class StudentSession:
         memory_config=None,
         memory_state=None,
         model_contract=None,
+        input_encoding=None,
     ):
+        from .student_tokens import REVISION as APPEND_REVISION
+
+        if input_encoding not in {None, APPEND_REVISION}:
+            raise ValueError("Unknown Student input encoding")
+        if input_encoding is not None and (memory_config or memory_state):
+            raise ValueError("Append tokens cannot be silently rewritten by Memory")
         if model_contract is not None:
             from .v2_model import validate_identity
             from .v2_tasks import RUNTIME as V2_RUNTIME
@@ -334,6 +341,14 @@ class StudentSession:
             )
         self.reward_fault = None
         self.messages, self.tools = copy.deepcopy(messages), copy.deepcopy(tools)
+        self.token_history = None
+        if input_encoding is not None:
+            from .student_tokens import KEY, NOTICE, TokenHistory
+
+            public = json.loads(self.messages[1]["content"])
+            public[KEY] = {"revision": APPEND_REVISION, "rule": NOTICE}
+            self.messages[1]["content"] = canonical(public)
+            self.token_history = TokenHistory(tokenizer, self.messages, self.tools)
         self.tool_mode = tool_mode
         self.identity = {
             "model": MODEL,
@@ -526,6 +541,8 @@ class StudentSession:
                 raise
             finally:
                 self.usage["context_compile_seconds"] += self.clock() - started
+        elif self.token_history is not None:
+            ids = list(self.token_history.ids)
         else:
             text = self.tokenizer.apply_chat_template(
                 self.messages,
@@ -575,6 +592,11 @@ class StudentSession:
             ),
             **({"purpose": purpose, "memory_trigger": reason} if purpose else {}),
             **({"memory_compilation": compilation} if compilation is not None else {}),
+            **(
+                self.token_history.request_fields(self.messages, self.tools)
+                if self.token_history is not None
+                else {}
+            ),
         }
 
     def step(self, generate):
@@ -625,7 +647,7 @@ class StudentSession:
         if memory_request:
             event["purpose"] = "memory_update"
         self.events.append(event)
-        batch_open, response_received = False, False
+        batch_open, response_received, sampled = False, False, False
         try:
             self.usage["unknown_generation_reservation"] = request["max_new_tokens"]
             response = generate(copy.deepcopy(request))
@@ -651,6 +673,15 @@ class StudentSession:
                 )
             self.usage["generated_tokens"] += len(ids)
             self.usage["unknown_generation_reservation"] = 0
+            if self.token_history is not None:
+                from .student_tokens import validate_response
+
+                validate_response(request, response)
+                if len(response["logprobs"]) != len(ids) or any(
+                    not math.isfinite(x) for x in response["logprobs"]
+                ):
+                    raise ValueError("Missing actual behavior logprobs")
+                sampled = True
             text = self.tokenizer.decode(ids, skip_special_tokens=False)
             if memory_request:
                 self.usage["memory_update_output_tokens"] += len(ids)
@@ -816,6 +847,7 @@ class StudentSession:
                     if self.harness:
                         record_call_intent(self.output, event, call)
                     self.usage["tool_calls"] += 1
+                    before_tools = list(self.tools)
                     result, self.tools = execute_with_mode(
                         self.adapter,
                         f["name"],
@@ -823,6 +855,15 @@ class StudentSession:
                         self.tools,
                         self.tool_mode,
                     )
+                    if (
+                        self.token_history is not None
+                        and f["name"] == "api_docs__show_api_doc"
+                    ):
+                        from .student_tokens import discovered_observation
+
+                        result = discovered_observation(
+                            result, before_tools, self.tools
+                        )
                 else:
                     result = canonical(verdict)
                     self.usage["harness_rejections"] += 1
@@ -903,6 +944,14 @@ class StudentSession:
                 )
             raise
         finally:
+            if sampled:
+                self.token_history.advance(request, response, self.messages, self.tools)
+                event["student_input_encoding"] = {
+                    "revision": request["student_input_encoding"],
+                    "generated_tokens": len(response["token_ids"]),
+                    "program_tokens": len(self.token_history.turns[-1]["program_ids"]),
+                    "next_input_sha256": digest(self.token_history.ids),
+                }
             if memory_request:
                 self.usage["memory_update_seconds"] += self.clock() - memory_started
             if self.harness:
@@ -917,6 +966,19 @@ class StudentSession:
                         "termination": self.termination,
                         "actor_role": "student",
                         "rl_eligible": False,
+                        **(
+                            {
+                                "student_input_encoding": request[
+                                    "student_input_encoding"
+                                ],
+                                "token_history": self.token_history.request_fields(
+                                    self.messages, self.tools
+                                )["token_history"],
+                                "next_input_token_ids": list(self.token_history.ids),
+                            }
+                            if sampled
+                            else {}
+                        ),
                     },
                 )
         return event

@@ -67,11 +67,12 @@ def test_kernel_check_detects_resolved_fallback_not_only_package_name():
 def test_efficiency_release_lock_and_historical_refusal(monkeypatch):
     from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
 
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_efficiency_20261118")
-    assert verify_lock(S2_RUNTIME)["execution_revision"] == "v2_s2_efficiency_20261118"
-    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_effective_segment_20261118")
-    with pytest.raises(ValueError, match="source lock|source changed"):
-        verify_lock(S2_RUNTIME)
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_append_20261118")
+    assert verify_lock(S2_RUNTIME)["execution_revision"] == "v2_s2_append_20261118"
+    for historical in ("v2_s2_effective_segment_20261118", "v2_s2_efficiency_20261118"):
+        monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", historical)
+        with pytest.raises(ValueError, match="source lock|source changed"):
+            verify_lock(S2_RUNTIME)
 
 
 @pytest.mark.parametrize("offload", [None, "cpu", {"cpu_above_tokens": 5}])
@@ -140,22 +141,36 @@ def test_real_tiny_model_coalescing_preserves_loss_gradients_and_update(
         {**settings, "coalesce_exact_prefixes": True, "activation_offload": offload},
     )
     gradients = []
-    for trainer in (first, second):
-        original_step = trainer.optimizer.step
 
-        def record(*args, _trainer=trainer, _step=original_step, **kwargs):
-            gradients.append(
-                {
-                    n: p.grad.clone()
-                    for n, p in _trainer.model.named_parameters()
-                    if p.requires_grad
-                }
-            )
-            return _step(*args, **kwargs)
+    def observe(model):
+        gradients.append(
+            {n: p.grad.clone() for n, p in model.named_parameters() if p.requires_grad}
+        )
 
-        trainer.optimizer.step = record
-    a = update_batch(first, [episodes], max_length=128)
-    b = update_batch(second, [episodes], max_length=128)
+    a = update_batch(first, [episodes], max_length=128, observe_gradients=observe)
+    b = update_batch(second, [episodes], max_length=128, observe_gradients=observe)
+    from recoveragent.grpo_compare import gradient_comparison
+
+    comparison = gradient_comparison(gradients[0], gradients[1])
+    # Optional private numerical receipt; no test fixtures are published as real runs.
+    import os
+    from recoveragent.io import write_json
+
+    if os.environ.get("RECOVERAGENT_CPU_NUMERIC_OUTPUT"):
+        write_json(
+            os.environ["RECOVERAGENT_CPU_NUMERIC_OUTPUT"]
+            + "."
+            + str(offload)
+            + ".json",
+            {
+                "synthetic_random_cpu_model": True,
+                "offload": offload,
+                "loss_absolute_error": abs(a["loss"] - b["loss"]),
+                "unmerged": a,
+                "merged": b,
+                "preclip_gradients": comparison,
+            },
+        )
     assert a["loss"] == pytest.approx(b["loss"], abs=2e-6)
     assert a["ratio_token_count"] == b["ratio_token_count"] == 24
     assert a["sequence_work"]["training_segments"] == 12
@@ -169,3 +184,64 @@ def test_real_tiny_model_coalescing_preserves_loss_gradients_and_update(
         )
     for a, b in zip(first.model.parameters(), second.model.parameters(), strict=True):
         torch.testing.assert_close(a, b, atol=2e-6, rtol=2e-4)
+
+
+def test_diagnostic_constant_group_backward_without_optimizer_step(
+    tmp_path, monkeypatch
+):
+    pytest.importorskip("torch")
+    peft = pytest.importorskip("peft")
+    from test_v2_training_cpu import tiny, tokenizer
+    from recoveragent import v2_grpo
+    from recoveragent.v2_grpo import make_trainer, update_batch
+    from recoveragent.sft_recipe import tensor_hash
+
+    model = peft.get_peft_model(
+        tiny(),
+        peft.LoraConfig(
+            r=2, lora_alpha=4, target_modules=["q_proj", "v_proj"], lora_dropout=0
+        ),
+    )
+    trainer = make_trainer(
+        model,
+        tokenizer(),
+        tmp_path,
+        {
+            "learning_rate": 1e-5,
+            "temperature": 0.8,
+            "beta": 0,
+            "coalesce_exact_prefixes": True,
+        },
+    )
+    episodes = [
+        {
+            "task_id": "synthetic",
+            "generated_task_id": None,
+            "policy": "fixed",
+            "initial_state_hash": "same",
+            "success": False,
+            "directory": str(i),
+        }
+        for i in range(4)
+    ]
+    monkeypatch.setattr(
+        v2_grpo,
+        "segments",
+        lambda *a, **k: [row([2, 3], [4, 5], "one"), row([2, 3, 4, 5, 6], [7], "two")],
+    )
+    before = tensor_hash(peft.get_peft_model_state_dict(model))
+    observed = []
+    result = update_batch(
+        trainer,
+        [episodes],
+        max_length=128,
+        optimizer_step=False,
+        measure_constant=True,
+        observe_gradients=lambda m: observed.append(True),
+    )
+    assert result["backward_executed"] and not result["updated"]
+    assert result["loss"] == 0 and result["l2_norm"] == 0 and observed == [True]
+    assert trainer.state.global_step == 0 and not trainer.optimizer.state
+    assert tensor_hash(peft.get_peft_model_state_dict(model)) == before
+    with pytest.raises(ValueError, match="diagnostic only"):
+        update_batch(trainer, [episodes], measure_constant=True)

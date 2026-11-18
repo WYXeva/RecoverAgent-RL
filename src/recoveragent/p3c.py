@@ -319,6 +319,18 @@ def agent_runtime(session):
         "harness": copy.deepcopy(vars(session.harness)) if session.harness else None,
         "answer_guard": guard,
         **({"memory": session.memory.identity} if session.memory is not None else {}),
+        **(
+            {
+                "student_token_history": {
+                    "request_fields": session.token_history.request_fields(
+                        session.messages, session.tools
+                    ),
+                    "input_token_ids": list(session.token_history.ids),
+                }
+            }
+            if getattr(session, "token_history", None) is not None
+            else {}
+        ),
     }
 
 

@@ -6,22 +6,13 @@ import time
 
 from .io import read_json
 from .v2_context import validate_request_context
+from .student_tokens import validate_request, response_binding
 
 
 def request_payload(request, identity, tokenizer, model_name):
     validate_request_context(request, 65536)
-    text = tokenizer.apply_chat_template(
-        request["messages"],
-        tools=request["tools"],
-        tokenize=False,
-        add_generation_prompt=True,
-        enable_thinking=False,
-    )
-    if (
-        request["policy"] != identity
-        or tokenizer(text, add_special_tokens=False)["input_ids"]
-        != request["input_token_ids"]
-    ):
+    validate_request(request, tokenizer)
+    if request["policy"] != identity:
         raise ValueError("vLLM policy or actual input differs from Student receipt")
     if request["top_p"] != 1.0:
         raise ValueError("Unsupported sampling distribution")
@@ -76,6 +67,7 @@ def response_receipt(value, request, identity, tokenizer, model_name, seconds):
         "remaining_wall_seconds_at_dispatch": request["remaining_wall_seconds"],
         "backend": "vllm_0.19.0",
         "provider_response_id": value.get("id"),
+        **response_binding(request),
     }
 
 

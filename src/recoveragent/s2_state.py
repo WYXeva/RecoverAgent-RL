@@ -52,6 +52,11 @@ def protocol_identity():
             else {}
         ),
         **({"judge": call_identity()} if settings.get("judge_text") else {}),
+        **(
+            {"student_input_encoding": settings["student_input_encoding"]}
+            if settings.get("student_input_encoding")
+            else {}
+        ),
     }
 
 

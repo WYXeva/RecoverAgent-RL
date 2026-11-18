@@ -4,6 +4,8 @@ import copy
 
 
 def coalesce(rows, *, max_target_tokens=4096):
+    if type(max_target_tokens) is not int or max_target_tokens < 1:
+        raise ValueError("Invalid coalescing target-token cap")
     chains = []
     for original in rows:
         row = copy.deepcopy(original)
@@ -24,7 +26,12 @@ def coalesce(rows, *, max_target_tokens=4096):
                 <= max_target_tokens
                 and all(
                     row.get(k) == previous.get(k)
-                    for k in ("temperature", "top_p", "logprob_contract")
+                    for k in (
+                        "temperature",
+                        "top_p",
+                        "logprob_contract",
+                        "student_input_encoding",
+                    )
                 )
             ):
                 gap = prompt[len(prefix) :]

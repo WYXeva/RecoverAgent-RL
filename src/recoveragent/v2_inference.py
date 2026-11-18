@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .io import digest, write_json
 from .v2_context import validate_request_context
+from .student_tokens import validate_request, validate_transition, response_binding
 
 
 def generate(
@@ -26,18 +27,7 @@ def generate(
 
     if request["policy"] != identity:
         raise ValueError("Worker/backend policy mismatch")
-    text = tokenizer.apply_chat_template(
-        request["messages"],
-        tools=request["tools"],
-        tokenize=False,
-        add_generation_prompt=True,
-        enable_thinking=False,
-    )
-    if (
-        tokenizer(text, add_special_tokens=False)["input_ids"]
-        != request["input_token_ids"]
-    ):
-        raise ValueError("Worker/backend template or request mismatch")
+    validate_request(request, tokenizer)
     if request["top_p"] != 1.0:
         raise ValueError("v2 on-policy sampler uses temperature with top_p=1, top_k=0")
     until = min(deadline, time.monotonic() + request["remaining_wall_seconds"])
@@ -98,6 +88,7 @@ def generate(
         "generation_seconds": time.monotonic() - started,
         "remaining_wall_seconds_at_dispatch": request["remaining_wall_seconds"],
         "deadline_reached": time.monotonic() >= until,
+        **response_binding(request),
     }
 
 
@@ -119,6 +110,7 @@ def episode(
         )
         selector = selectors.DefaultSelector()
         selector.register(process.stdout, selectors.EVENT_READ)
+        previous = None
         try:
             while True:
                 if time.monotonic() >= deadline:
@@ -136,6 +128,7 @@ def episode(
                     return value["result"]
                 request = value["request"]
                 try:
+                    validate_transition(request, previous)
                     response = (generate_fn or generate)(
                         model,
                         tokenizer,
@@ -145,6 +138,7 @@ def episode(
                         max_input_tokens=config["student_limits"]["max_input_tokens"],
                         token_ledger=token_ledger,
                     )
+                    previous = (request, response)
                 except Exception as exc:
                     response = {"error": type(exc).__name__ + ":" + str(exc)}
                     write_json(

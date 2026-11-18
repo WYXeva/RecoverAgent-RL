@@ -1,9 +1,9 @@
 """Current-policy AppWorld groups, using TRL's clipped GRPO loss and optimizer.
 
-Dynamic discovery changes the next request's tool catalogue. Consequently a
-multi-turn episode is NOT necessarily one append-only token sequence. Opt-in
-coalescing joins only exact token-prefix extensions, with unchanged target
-logprobs and episode normalization. Tools/context never enter the loss.
+Legacy discovery may rewrite earlier prompt tokens. The append-token protocol
+freezes the tool header and preserves actual sampled IDs. Both paths coalesce
+only exact prefix extensions, with unchanged target logprobs and episode
+normalization. Tools/context never enter the loss.
 """
 
 import gc
@@ -53,13 +53,19 @@ def group_advantages(episodes):
 
 
 def segments(directory, expected_policy, *, max_length=None):
+    from .student_tokens import validate_transition, validate_response
+
     max_length = sequence_limit() if max_length is None else max_length
     rows = []
+    previous = None
     for path in sorted((Path(directory) / "session/requests").glob("*.request.json")):
         request = read_json(path)
         response = read_json(
             path.with_name(path.name.replace(".request.json", ".response.json"))
         )
+        validate_transition(request, previous)
+        validate_response(request, response)
+        previous = (request, response)
         if (
             request["policy"] != expected_policy
             or response["policy"] != expected_policy
@@ -81,6 +87,7 @@ def segments(directory, expected_policy, *, max_length=None):
                 "top_p": request.get("top_p"),
                 "temperature": request.get("temperature"),
                 "logprob_contract": response.get("logprob_contract"),
+                "student_input_encoding": request.get("student_input_encoding"),
             }
         )
     if not rows:
@@ -191,6 +198,9 @@ def make_trainer(model, tokenizer, output, settings):
     trainer.current_gradient_accumulation_steps = 1
     trainer.recoveragent_activation_offload = settings.get("activation_offload")
     trainer.recoveragent_coalesce = settings.get("coalesce_exact_prefixes", False)
+    trainer.recoveragent_max_chain_targets = settings.get(
+        "coalesce_max_target_tokens", 4096
+    )
     # Reference probabilities are supplied explicitly using a second frozen
     # adapter on the same base; do not allocate a second 9B model.
     trainer.beta = settings.get("beta", 0.0)
@@ -198,12 +208,23 @@ def make_trainer(model, tokenizer, output, settings):
     return trainer
 
 
-def update_batch(trainer, groups, *, max_length=None):
+def update_batch(
+    trainer,
+    groups,
+    *,
+    max_length=None,
+    optimizer_step=True,
+    observe_gradients=None,
+    measure_constant=False,
+):
     import torch
 
     usable = [(episodes, group_advantages(episodes)) for episodes in groups]
     usable = [(e, a) for e, a in usable if a is not None]
-    if not usable or not any(any(x != 0 for x in a) for _, a in usable):
+    varying = any(any(x != 0 for x in a) for _, a in usable)
+    if measure_constant and optimizer_step:
+        raise ValueError("Constant-group timing is diagnostic only")
+    if not usable or (not varying and not measure_constant):
         return {"updated": False, "reason": "no_scorable_reward_variation"}
     model = trainer.model
     model.train()
@@ -220,7 +241,7 @@ def update_batch(trainer, groups, *, max_length=None):
     chain_audit = []
     for episodes, advantages in usable:
         for episode, advantage in zip(episodes, advantages, strict=True):
-            if advantage == 0 and trainer.beta == 0:
+            if advantage == 0 and trainer.beta == 0 and not measure_constant:
                 continue
             rows = segments(
                 episode["directory"], episode["policy"], max_length=max_length
@@ -231,7 +252,9 @@ def update_batch(trainer, groups, *, max_length=None):
                 len(r["prompt_ids"]) + len(r["completion_ids"]) for r in rows
             )
             if trainer.recoveragent_coalesce:
-                rows = coalesce(rows)
+                rows = coalesce(
+                    rows, max_target_tokens=trainer.recoveragent_max_chain_targets
+                )
                 chain_audit.extend(
                     {
                         "episode": episode["directory"],
@@ -319,12 +342,27 @@ def update_batch(trainer, groups, *, max_length=None):
                     raise ValueError("Nonfinite GRPO loss")
                 trainer.accelerator.backward(loss)
                 total_loss += float(loss.detach())
-    health = gradient_health(model)
-    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
-    trainer.optimizer.step()
-    trainer.state.global_step += 1
+    if varying or optimizer_step:
+        health = gradient_health(model)
+    else:
+        grads = [
+            p.grad for p in model.parameters() if p.requires_grad and p.grad is not None
+        ]
+        if not grads or not all(torch.isfinite(g).all() for g in grads):
+            raise ValueError("Invalid diagnostic gradients")
+        health = {
+            "l2_norm": math.sqrt(sum(float(g.float().norm()) ** 2 for g in grads)),
+            "finite": True,
+        }
+    if observe_gradients is not None:
+        observe_gradients(model)  # Deliberately BEFORE global gradient clipping.
+    if optimizer_step:
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
+        trainer.optimizer.step()
+        trainer.state.global_step += 1
     return {
-        "updated": True,
+        "updated": optimizer_step,
+        "backward_executed": True,
         "loss": total_loss,
         "probability_ratio_mean": ratio_sum / ratio_count if ratio_count else None,
         "ratio_outside_clip_fraction": outside / ratio_count if ratio_count else None,

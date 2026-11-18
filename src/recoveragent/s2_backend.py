@@ -270,6 +270,8 @@ class BackendRuntime:
 
         if s2_execution().get(DISCOVERY_KEY):
             request[DISCOVERY_KEY] = s2_execution()[DISCOVERY_KEY]
+        if s2_execution().get("student_input_encoding"):
+            request["student_input_encoding"] = s2_execution()["student_input_encoding"]
         if task.get("diagnostic_goal_probe"):
             request["purpose"] = "protocol_probe"
         # v2_episode expects an omitted generated_task for original tasks.

@@ -174,6 +174,7 @@ def run(config, generate):
             checkpoint_id=config["checkpoint_id"],
             clock=now,
             model_contract=config["model"],
+            input_encoding=config.get("student_input_encoding"),
             execution_protocol=config.get("execution_protocol", RUNTIME),
             protocol_harness=True,
             answer_guard=True,
@@ -241,7 +242,19 @@ def run(config, generate):
             snapshot("late_failure")
         write_json(
             directory / "history.json",
-            {"messages": session.messages, "tools": session.tools},
+            {
+                "messages": session.messages,
+                "tools": session.tools,
+                **(
+                    {
+                        "student_input_encoding": config["student_input_encoding"],
+                        "prompt_tools": session.token_history.prompt_tools,
+                        "input_token_ids": session.token_history.ids,
+                    }
+                    if session.token_history is not None
+                    else {}
+                ),
+            },
         )
         if config.get("completion_contract_revision"):
             current = adapter.world.requester.request(
@@ -303,7 +316,21 @@ def run(config, generate):
             if session and not (directory / "history.json").exists():
                 write_json(
                     directory / "history.json",
-                    {"messages": session.messages, "tools": session.tools},
+                    {
+                        "messages": session.messages,
+                        "tools": session.tools,
+                        **(
+                            {
+                                "student_input_encoding": config[
+                                    "student_input_encoding"
+                                ],
+                                "prompt_tools": session.token_history.prompt_tools,
+                                "input_token_ids": session.token_history.ids,
+                            }
+                            if session.token_history is not None
+                            else {}
+                        ),
+                    },
                 )
             if adapter:
                 try:
@@ -369,6 +396,8 @@ def run(config, generate):
         if checkpoints and valid and not evaluation["success"]
         else None,
     }
+    if config.get("student_input_encoding"):
+        result["student_input_encoding"] = config["student_input_encoding"]
     write_json(directory / "result.json", result)
     return result
 

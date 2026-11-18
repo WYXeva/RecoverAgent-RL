@@ -1,6 +1,13 @@
 # 项目状态
 
-## 当前摘要（2026-11-18，GRPO效率与工具发现实现完成，正式运行仍暂停）
+## 当前摘要（2026-11-18，追加式Student与合并GRPO已实现，正式运行仍暂停）
+
+- 新 `student_append_tokens_v1` / `v2_s2_append_20261118` 固定初始工具头，新定义只在发现当轮观察追加。复用AppWorld公开目录、现有发现记录和执行校验，没有新callable注册系统；同批可见性规则不变。
+- Student/vLLM/Transformers/GRPO贯通真实token追加及相邻回执SHA校验；旧Assistant不重渲染。全部目标及behavior logprob保留，兼容多回复合并计算，目标位置logits、原轨迹分母与更新规则保持。旧编码可读取，新旧状态不能混接。
+- 相关240项测试通过（22.26秒），Ruff check/305文件format通过，258文件新锁。真实9B tokenizer的合成7轮链：6处前缀通过，331目标完整；微型CPU Qwen3.5的loss差2.98e-8、裁剪前梯度最大差7.45e-9。不是9B训练或实际提速证据。
+- 已核验备份15步actor/optimizer，准备固定1个train任务×4次采样及同权重两路径对照入口；0远端连接/服务、0付费调用、0正式更新/dev/test。原15次更新及未消费47/49组不动。9B工具调用表现、速度、显存及CUDA内核修复待短GPU验证，见[实现、验证与命令](../reports/s2_append_tokens_20261118.md)。
+
+## 前次摘要（2026-11-18，GRPO效率与工具发现实现完成，正式运行仍暂停）
 
 - 新独立 `v2_s2_efficiency_20261118`：按严格token前缀合并训练段，保留全部Assistant目标/行为logprob与原GRPO归一化；工具观察不计loss。Teacher/Student共用按应用/关键词查找与API文档参数去重，新增Schema及说明进入快照/实验绑定；旧协议状态不能静默续接。
 - 已提供独立causal-conv1d安装、实际分派检查和CUDA合成烟测入口，以及按序列长度选择CPU卸载。尚未安装到远端或测9B显存/耗时，默认继续全部卸载；不承诺未经实测的速度倍数。

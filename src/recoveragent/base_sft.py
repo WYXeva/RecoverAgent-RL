@@ -31,6 +31,13 @@ def assistant_examples(record, tokenizer, max_length=32768):
     Re-rendering past Qwen turns can also remove empty thinking blocks. We instead
     independently verify the exact generation-prefix relation at each turn.
     """
+    if (
+        record.get("student_input_encoding") is not None
+        or record.get("token_history") is not None
+    ):
+        raise ValueError(
+            "Append-only Student receipts require the token-preserving GRPO loader"
+        )
     validate_demo(record)
     examples = []
     for turn in record["turns"]:

@@ -2,7 +2,7 @@
 
 更新：2026-11-18。本文是唯一当前设计与实施计划，事实见 [STATUS](docs/STATUS.md)。
 
-当前执行安排：GRPO保持用户要求的暂停状态，已完成工具发现与训练效率改动，独立准备版 `v2_s2_efficiency_20261118`。采用严格token前缀合并、共享公开API搜索与文档去重、可配置CPU卸载及实际加速内核检查；不切换CodeAct，不改变GRPO目标。新输入协议绑定独立版本，不直接续接旧暂停状态。历史8条轨迹的重复序列处理量减少54.16%，CPU梯度对照通过；尚未测量9B GPU速度。旧14＋新1次更新及两个待更新组完整保留，0新增正式运行，见[效率改进报告](reports/s2_efficiency_20261118.md)和[暂停段报告](reports/s2_effective_segment_20261118.md)。
+当前执行安排：GRPO继续暂停，已完成 `student_append_tokens_v1` / `v2_s2_append_20261118` 的追加式Student采样与合并GRPO。初始工具头固定，新API定义只在查询结果追加；后台复用AppWorld公开目录和现有发现/执行逻辑，不新增callable注册系统。实际生成token原样保存，vLLM/Transformers与训练共用前缀回执校验；兼容回复合并计算，全部Assistant目标和原GRPO归一化保留。240项相关CPU测试通过，真实tokenizer合成链及裁剪前梯度对照通过；9B速度、显存和新协议调用表现待验证。原15步actor、optimizer及47/49待消费组不动，后续只准备独立1题×4次短验证，尚未恢复训练，见[实现与运行命令](reports/s2_append_tokens_20261118.md)。
 
 前段执行结果：11月18日00:23至17:12，授权的**一轮Evolve＋dev24**已完成，40组×4次、14次真实GRPO更新。新同条件S0为8/24，轮末9/24（新增成功2题、退步1题）；轮末与历史S0的9/24数值相同，不能据此宣称稳定提升。使用现有L40S、同一S0及Solver参考/三态Judge；Student/Teacher与GPU服务已退出，Static/test/第二轮未启动。见[结果报告](reports/s2_evolve_round1_result_20261118.md)，保留[启动记录](reports/s2_evolve_round1_launch_20261118.md)。下一步先审查配对结果，再决定后续对照。
 
