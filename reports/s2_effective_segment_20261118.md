@@ -20,7 +20,7 @@
 
 ## 本地验证
 
-相关79项pytest通过（17.31秒）；另新增段末统计调整后7项调度测试复验通过。针对性调度与CPU微型随机LoRA/TRL测试验证：同actor有效组积累、全同/无效组处理、跨40组缓存、尾批与上限、断点不重复消费、实际lr恢复、beta=0不加载reference、真实小模型更新及保存重载。不是9B效果验证。
+最终相关80项pytest通过（16.89秒），Ruff check/format与diff check通过。针对性调度与CPU微型随机LoRA/TRL测试验证：同actor有效组积累、全同/无效组处理、跨40组缓存、尾批与上限、断点不重复消费、实际lr恢复、beta=0不加载reference、真实小模型更新及保存重载。不是9B效果验证。
 
 ```bash
 PYTHONPATH=src:. .venv-v2/bin/pytest -q \
@@ -43,4 +43,6 @@ $worker_python scripts/supervise_s2_background.py --deployment "$deployment" --o
 $worker_python scripts/run_v2_s2.py resume --mode evolve --deployment "$deployment" --output "$run"
 ```
 
-当前本地实现已准备；真实采样、logprob对照、更新和配对dev结果在执行后追加，不将软件测试写成学习收益。
+已于11月18日18:39:11在现有L40S启动，部署提交 `3fa3a30`，独立目录 `/root/gpufree-data/recoveragent_s2_effective_segment_20261118_01`。243文件源码锁、S0/父actor/optimizer与37题继承核验通过；旧池按其原绑定只读核验，公开完成/奖励/Judge身份逐项相同，不重签旧准入。两项初始预检失败（旧池执行版本不匹配、测试夹具缺队列状态）已修复后复验通过，发生在真实采样前。
+
+训练截止22:23:24，绝对截止00:23:24；监督器PID 62709，Student/后台Teacher已运行，本地增量备份启动。真实采样、logprob对照、更新和配对dev结果在执行后追加，不将软件测试写成学习收益。
