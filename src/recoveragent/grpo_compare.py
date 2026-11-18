@@ -37,7 +37,7 @@ def worker(request, output, *, merged):
     from .grpo_kernels import inspect_kernels
     from .sft_recipe import tensor_hash
     from .s2_logprob import audit_behavior
-    from .student_tokens import KEY, REVISION
+    from .student_tokens import KEY, REVISIONS
     from .v2_grpo import group_advantages, make_trainer, segments, update_batch
     from .v2_model import load_tokenizer
     from .v2_training import load_trainable, verify_checkpoint
@@ -62,7 +62,7 @@ def worker(request, output, *, merged):
             if e["policy"] != expected_policy:
                 raise ValueError("Sampling and comparison actors differ")
             rows = segments(e["directory"], e["policy"], max_length=65536)
-            if any(r.get(KEY) != REVISION for r in rows):
+            if any(r.get(KEY) not in REVISIONS for r in rows):
                 raise ValueError("Comparison requires fresh append-protocol receipts")
     kernels = inspect_kernels(required=cfg["grpo"].get("require_fast_kernels", False))
     model = load_trainable(identity, cfg["lora"], request["actor"])

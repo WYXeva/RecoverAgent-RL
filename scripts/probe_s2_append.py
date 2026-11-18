@@ -13,7 +13,12 @@ import time
 from recoveragent.demonstrations import sha256
 from recoveragent.io import read_json, write_json
 from recoveragent.s2_state import evidence, protocol_identity, atomic
-from recoveragent.v2_runtime import S2_APPEND_EXECUTION
+from recoveragent.v2_runtime import S2_APPEND_EXECUTION, S2_APPEND_DOCS_EXECUTION
+
+PROBES = {
+    S2_APPEND_EXECUTION: "configs/s2_append_probe_20261118.json",
+    S2_APPEND_DOCS_EXECUTION: "configs/s2_append_docs_probe_20261118.json",
+}
 
 
 def frozen(root):
@@ -38,7 +43,7 @@ def prepare(args):
     from recoveragent.s2_experiment import configuration
     from recoveragent.v2_training import verify_checkpoint
 
-    spec = read_json("configs/s2_append_probe_20261118.json")
+    spec = read_json(PROBES[os.environ["RECOVERAGENT_S2_EXECUTION"]])
     cfg = configuration()
     actor = str(args.actor.resolve())
     optimizer = str(args.optimizer.resolve())
@@ -137,6 +142,8 @@ def compare(args):
         command = [
             deployment["training_python"],
             str(Path(__file__).resolve()),
+            "--execution",
+            os.environ["RECOVERAGENT_S2_EXECUTION"],
             "worker",
             "--output",
             str(target / side),
@@ -158,8 +165,8 @@ def compare(args):
 
 
 def main():
-    os.environ["RECOVERAGENT_S2_EXECUTION"] = S2_APPEND_EXECUTION
     p = argparse.ArgumentParser(__doc__)
+    p.add_argument("--execution", choices=PROBES, default=S2_APPEND_EXECUTION)
     sub = p.add_subparsers(dest="command", required=True)
     for name in ("prepare", "sample", "compare", "worker"):
         q = sub.add_parser(name)
@@ -174,6 +181,7 @@ def main():
             q.add_argument("--request", required=True, type=Path)
             q.add_argument("--side", choices=("per_reply", "merged"), required=True)
     args = p.parse_args()
+    os.environ["RECOVERAGENT_S2_EXECUTION"] = args.execution
     if args.command == "worker":
         from recoveragent.grpo_compare import worker
         from recoveragent.v2_runtime import verify_lock, S2_RUNTIME

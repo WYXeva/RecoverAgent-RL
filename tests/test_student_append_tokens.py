@@ -50,8 +50,8 @@ class CharacterNative:
         )
 
 
-@pytest.fixture
-def session(prepared_adapter, monkeypatch, tmp_path):
+@pytest.fixture(params=[stream.REVISION, stream.FULL_DOCUMENT_REVISION])
+def session(prepared_adapter, monkeypatch, tmp_path, request):
     import os
 
     native = CharacterNative()
@@ -70,6 +70,11 @@ def session(prepared_adapter, monkeypatch, tmp_path):
 
         native.apply_chat_template = record_render
     tokenizer = NativeTokenizer(native)
+    from recoveragent import tool_discovery
+
+    tool_discovery.configure(
+        prepared_adapter, tool_discovery.REVISION, tmp_path / "discovery"
+    )
     monkeypatch.setattr(
         student,
         "TEMPLATE_SHA256",
@@ -82,14 +87,19 @@ def session(prepared_adapter, monkeypatch, tmp_path):
             {"role": "system", "content": RULES},
             {
                 "role": "user",
-                "content": '{"instruction":"Inspect public category sizes and payment requests."}',
+                "content": json.dumps(
+                    {
+                        "instruction": "Inspect public category sizes and payment requests.",
+                        "tool_discovery_notice": tool_discovery.NOTICE,
+                    }
+                ),
             },
         ],
         prepared_adapter.initial_tools(),
         tool_mode="dynamic_discovery",
         output=tmp_path / "episode/session",
         protocol_harness=True,
-        input_encoding=stream.REVISION,
+        input_encoding=request.param,
         top_p=1.0,
     )
     # Synthetic model identity only; exercise the actual native XML parser.
@@ -326,7 +336,7 @@ def test_plain_text_without_harness_preserves_real_tokens(session):
     session.step(reply(session, "Plain final text."))
     assert session.termination == "assistant_stop_without_tool"
     turn = read_json(session.output / "turns/001.json")
-    assert turn[stream.KEY] == stream.REVISION
+    assert turn[stream.KEY] == session.token_history.revision
     assert turn["token_history"]["turns"][0]["generated_ids"] == stream.encode(
         session.tokenizer, "Plain final text.<|im_end|>"
     )
@@ -387,3 +397,96 @@ def test_transformers_backend_uses_same_actual_tokens(session):
             deadline=time.monotonic() + 10,
             max_input_tokens=65536,
         )
+
+
+def test_repeated_docs_always_complete_in_v2_and_legacy_preserved(session):
+    name = "gmail__show_category_sizes"
+    definition = schema_tests.function(session.adapter.catalogue, name)
+    raw = json.dumps(
+        {
+            "description": definition["function"].get("description", ""),
+            "parameters": [
+                {"name": k, **v}
+                for k, v in definition["function"]["parameters"]["properties"].items()
+            ],
+            "response_schemas": {"success": {"type": "object"}},
+        }
+    )
+    session.adapter.world.execute = lambda _: raw
+    initial = session.build_request()
+    doc = call(
+        "api_docs__show_api_doc", app_name="gmail", api_name="show_category_sizes"
+    )
+    for index in range(2):
+        assert session.step(reply(session, doc))["dispatched_count"] == 1
+        visible = json.loads(
+            next(
+                m["content"] for m in reversed(session.messages) if m["role"] == "tool"
+            )
+        )
+        if session.token_history.revision == stream.FULL_DOCUMENT_REVISION:
+            assert visible["tool_definitions"] == [definition]
+            assert "parameter_schema_ref" not in json.dumps(visible)
+            assert visible["observation"]["response_schemas"] == {
+                "success": {"type": "object"}
+            }
+            assert "parameters" not in visible["observation"]
+        elif index == 1:
+            assert visible["parameter_schema_ref"] == name
+            assert "tool_definitions" not in visible
+        q = session.build_request()
+        assert q["prompt_tools"] == initial["prompt_tools"]
+        assert q["messages"][:2] == initial["messages"]
+        stream.validate_request(q, session.tokenizer)
+    assert (
+        session.step(reply(session, call(name, access_token="observed", read=None)))[
+            "dispatched_count"
+        ]
+        == 1
+    )
+    if session.token_history.revision == stream.FULL_DOCUMENT_REVISION:
+        rendered = session.tokenizer.decode(initial["input_token_ids"])
+        assert stream.FULL_DOCUMENT_RULES in initial["messages"][0]["content"]
+        assert "only startup tools" in rendered
+        assert "current tools schema" not in rendered
+        assert "parameter_schema_ref" not in rendered
+        assert "same Function Calling" in rendered
+        assert "NEXT reply" in rendered
+        assert name not in rendered
+    # Failed repeat lookup must not claim availability or invent a definition.
+    session.adapter.world.execute = lambda _: "Execution failed. public API error"
+    session.step(reply(session, doc))
+    assert session.messages[-1]["content"] == "Execution failed. public API error"
+
+
+def test_v1_and_v2_cannot_mix_within_episode(session):
+    session.step(reply(session, "No call."))
+    old = requests(session)[0]
+    response = read_json(session.output / "requests/001.response.json")
+    q = session.build_request()
+    q[stream.KEY] = next(v for v in stream.REVISIONS if v != old[stream.KEY])
+    with pytest.raises(ValueError, match="encoding"):
+        stream.validate_transition(q, (old, response))
+
+
+def test_new_rules_leave_historical_system_and_public_input_untouched():
+    from recoveragent.execution_v6 import SYSTEM_PROMPT
+    from recoveragent.tool_discovery import NOTICE
+
+    original = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {
+            "role": "user",
+            "content": json.dumps(
+                {"instruction": "Public task", "tool_discovery_notice": NOTICE}
+            ),
+        },
+    ]
+    before = copy.deepcopy(original)
+    updated = stream.initial_messages(original, stream.FULL_DOCUMENT_REVISION)
+    assert original == before
+    assert updated[0]["content"] == SYSTEM_PROMPT + "\n\n" + stream.FULL_DOCUMENT_RULES
+    assert (
+        "current tools schema"
+        not in json.loads(updated[1]["content"])["tool_discovery_notice"]
+    )

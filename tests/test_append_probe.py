@@ -71,5 +71,7 @@ def test_new_encoding_in_state_identity_legacy_unchanged(monkeypatch):
 
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_append_20261118")
     assert protocol_identity()["student_input_encoding"] == "student_append_tokens_v1"
+    monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_append_docs_20261118")
+    assert protocol_identity()["student_input_encoding"] == "student_append_tokens_v2"
     monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", "v2_s2_efficiency_20261118")
     assert "student_input_encoding" not in protocol_identity()

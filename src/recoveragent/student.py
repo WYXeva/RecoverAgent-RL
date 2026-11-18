@@ -205,9 +205,9 @@ class StudentSession:
         model_contract=None,
         input_encoding=None,
     ):
-        from .student_tokens import REVISION as APPEND_REVISION
+        from .student_tokens import REVISIONS as APPEND_REVISIONS
 
-        if input_encoding not in {None, APPEND_REVISION}:
+        if input_encoding not in {None, *APPEND_REVISIONS}:
             raise ValueError("Unknown Student input encoding")
         if input_encoding is not None and (memory_config or memory_state):
             raise ValueError("Append tokens cannot be silently rewritten by Memory")
@@ -343,12 +343,12 @@ class StudentSession:
         self.messages, self.tools = copy.deepcopy(messages), copy.deepcopy(tools)
         self.token_history = None
         if input_encoding is not None:
-            from .student_tokens import KEY, NOTICE, TokenHistory
+            from .student_tokens import initial_messages, TokenHistory
 
-            public = json.loads(self.messages[1]["content"])
-            public[KEY] = {"revision": APPEND_REVISION, "rule": NOTICE}
-            self.messages[1]["content"] = canonical(public)
-            self.token_history = TokenHistory(tokenizer, self.messages, self.tools)
+            self.messages = initial_messages(self.messages, input_encoding)
+            self.token_history = TokenHistory(
+                tokenizer, self.messages, self.tools, revision=input_encoding
+            )
         self.tool_mode = tool_mode
         self.identity = {
             "model": MODEL,
@@ -862,7 +862,11 @@ class StudentSession:
                         from .student_tokens import discovered_observation
 
                         result = discovered_observation(
-                            result, before_tools, self.tools
+                            result,
+                            before_tools,
+                            self.tools,
+                            revision=self.token_history.revision,
+                            arguments=f["arguments"],
                         )
                 else:
                     result = canonical(verdict)

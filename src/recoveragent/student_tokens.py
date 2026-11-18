@@ -9,6 +9,8 @@ import copy
 from .io import digest
 
 REVISION = "student_append_tokens_v1"
+FULL_DOCUMENT_REVISION = "student_append_tokens_v2"
+REVISIONS = {REVISION, FULL_DOCUMENT_REVISION}
 FORMAT = "qwen-append-generation-v1"
 KEY = "student_input_encoding"
 NOTICE = (
@@ -20,15 +22,76 @@ NOTICE = (
     "unavailable. Do not call an API in the same batch that discovers it."
 )
 
+FULL_DOCUMENT_RULES = """TOOL DEFINITIONS AND AVAILABILITY
+- The tools list at the beginning contains only startup tools and stays fixed.
+- Every successful api_docs__show_api_doc result includes a complete function
+  definition in tool_definitions, including on repeated queries. That function
+  becomes callable from your NEXT reply, even though it is absent from the
+  startup tools list. Use its exact function.name and the same Function Calling
+  format shown above; do not wrap it in a different call format.
+- For startup tools, read arguments from the initial definition. For APIs learned
+  through show_api_doc, read arguments from tool_definitions in that query result:
+  follow the required fields, types, nullable alternatives, defaults and constraints.
+  The observation retains return information and supplementary public notes.
+- Querying documentation retrieves a definition; it does not execute that API.
+  Once its definition and required arguments are available, call the API itself
+  to perform the needed operation. Re-query documentation only when needed.
+- APIs without a previously obtained definition remain unavailable. Do not call
+  an API in the same batch that first discovers it.
+"""
 
-def discovered_observation(raw, before, after):
+
+def initial_messages(messages, revision):
+    """Prepare the new prompt once; never change native templates or old histories."""
+    import json
+    from .io import canonical
+
+    result = copy.deepcopy(messages)
+    public = json.loads(result[1]["content"])
+    if revision == FULL_DOCUMENT_REVISION:
+        # The compact-doc notice belongs to the old, growing-header protocol.
+        # Teacher keeps that serialization; this Student reads definitions here.
+        if "tool_discovery_notice" in public:
+            public["tool_discovery_notice"] = (
+                "Use api_docs__search_apis with an application and keywords to find "
+                "APIs, or show_api_descriptions to list them. Search returns names "
+                "and descriptions only. Call show_api_doc to obtain the complete "
+                "callable definition in its result. Neither query performs the "
+                "business operation."
+            )
+        result[0]["content"] += "\n\n" + FULL_DOCUMENT_RULES
+        public[KEY] = {"revision": revision}
+    elif revision == REVISION:
+        public[KEY] = {"revision": revision, "rule": NOTICE}
+    else:
+        raise ValueError("Unknown Student input encoding")
+    result[1]["content"] = canonical(public)
+    return result
+
+
+def discovered_observation(raw, before, after, *, revision=REVISION, arguments=None):
     """Reuse the Adapter's public, compatible definitions; do not register APIs."""
     import json
     from .io import canonical
     from .tool_discovery import project_document
 
-    known = {t["function"]["name"] for t in before}
-    added = [t for t in after if t["function"]["name"] not in known]
+    if revision == FULL_DOCUMENT_REVISION:
+        if "Execution failed" in raw:
+            return raw
+        parsed = json.loads(arguments) if isinstance(arguments, str) else arguments
+        selected = (
+            f"{parsed['app_name'].strip().lower()}__"
+            f"{parsed['api_name'].strip().lower()}"
+        )
+        # Resolve in the Adapter's existing visible definitions, not a new registry.
+        added = [t for t in after if t["function"]["name"] == selected]
+        if not added:
+            raise ValueError("Successful documentation has no executable API schema")
+    elif revision == REVISION:
+        known = {t["function"]["name"] for t in before}
+        added = [t for t in after if t["function"]["name"] not in known]
+    else:
+        raise ValueError("Unknown Student input encoding")
     if not added:
         return raw
     # One public show_api_doc call discovers one API. Keep unknown extra notes.
@@ -37,6 +100,8 @@ def discovered_observation(raw, before, after):
         observation = json.loads(compact)
     except (TypeError, ValueError):
         observation = compact
+    if revision == FULL_DOCUMENT_REVISION and isinstance(observation, dict):
+        observation.pop("parameter_schema_ref", None)
     return canonical(
         {
             "availability": "next_assistant_reply",
@@ -77,7 +142,10 @@ def suffix(tokenizer, generated, messages):
 
 
 class TokenHistory:
-    def __init__(self, tokenizer, messages, tools):
+    def __init__(self, tokenizer, messages, tools, *, revision=REVISION):
+        if revision not in REVISIONS:
+            raise ValueError("Unknown Student input encoding")
+        self.revision = revision
         self.tokenizer = tokenizer
         self.prompt_tools = copy.deepcopy(tools)
         self.initial_count = len(messages)
@@ -88,7 +156,7 @@ class TokenHistory:
     def request_fields(self, messages, tools):
         return {
             "format": FORMAT,
-            KEY: REVISION,
+            KEY: self.revision,
             "prompt_tools": copy.deepcopy(self.prompt_tools),
             "tools": copy.deepcopy(tools),
             "token_history": {
@@ -140,7 +208,7 @@ def validate_request(request, tokenizer=None):
             if ids != request["input_token_ids"]:
                 raise ValueError("Worker/backend template or request mismatch")
         return
-    if revision != REVISION or request.get("format") != FORMAT:
+    if revision not in REVISIONS or request.get("format") != FORMAT:
         raise ValueError("Unknown Student input encoding")
     proof, messages = request["token_history"], request["messages"]
     count = proof["initial_message_count"]
@@ -198,7 +266,7 @@ def response_binding(request):
     if request.get(KEY) is None:
         return {}
     return {
-        KEY: REVISION,
+        KEY: request[KEY],
         "input_proof_sha256": digest(
             {
                 "history": request["token_history"],
@@ -232,7 +300,7 @@ def validate_transition(request, previous):
         return
     old, response = previous
     validate_response(old, response)
-    if old.get(KEY) != REVISION or not turns:
+    if old.get(KEY) != request[KEY] or not turns:
         raise ValueError("Cannot replace legacy inputs with append encoding")
     if (
         request["prompt_tools"] != old["prompt_tools"]

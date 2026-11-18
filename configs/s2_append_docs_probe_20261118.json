@@ -1,0 +1,21 @@
+{
+  "revision": "s2_append_docs_probe_v2",
+  "student_input_encoding": "student_append_tokens_v2",
+  "task_id": "32616b5_2",
+  "seeds": [
+    42,
+    142,
+    242,
+    342
+  ],
+  "actor_sha256": "114dbcb4e28a763674fcbda8d1e80055eb918edf6b90cd60f3642fbb503484ff",
+  "optimizer_sha256": "47698eea5b6b79e6e2aa070fbb11f103f1c40b835746cae4ffa3fa7eca09b206",
+  "parent_optimizer_steps": 15,
+  "max_probe_seconds": 7200,
+  "max_compare_seconds": 7200,
+  "max_tasks": 1,
+  "max_rollouts": 4,
+  "optimizer_updates": 0,
+  "teacher_calls": 0,
+  "note": "Same fixed original train task and four seeds as append v1. Verify actual discovered business API calls, complete repeated definitions and token prefixes. No Teacher, training or dev/test."
+}
