@@ -37,6 +37,8 @@ python3 scripts/run_codeact_collection.py \
 
 ## 导出本轮新数据
 
+本批已于11月19日16:20收齐256条合格成功示范并停止。最终导出目录为 `runs/codeact_train510_20261119_01/target_256_data/`，含252个完整可训练样本、4条超64K暂缓原轨迹引用，无截断；无需再次启动采集。
+
 在采集期间可向**新的输出目录**导出当前成功快照；采集结束后再冻结最终清单：
 
 ```bash
@@ -58,11 +60,13 @@ GPU 环境复用 [已验证训练依赖](requirements/v2-learning.txt)，AppWorl
 ```bash
 python -c 'from huggingface_hub import snapshot_download; snapshot_download("Qwen/Qwen3.5-9B",revision="c202236235762e1c871ad0ccb60c8ee5ba337b9a")'
 
+CODEACT_DATA=runs/codeact_train510_20261119_01/target_256_data
+
 # 少量完整短样本＋最长样本，各自从官方基座重新创建 LoRA。
-PYTHONPATH=src python -m recoveragent.codeact.cli train   --dataset runs/codeact_dataset_final --output runs/codeact_training_smoke_01 --smoke
+PYTHONPATH=src python -m recoveragent.codeact.cli train   --dataset "$CODEACT_DATA" --output runs/codeact_training_smoke_01 --smoke
 
 # 正式命令包含独立短/长检查，再重新加载官方基座做1 epoch。
-PYTHONPATH=src python -m recoveragent.codeact.cli train   --dataset runs/codeact_dataset_final --output runs/codeact_s0_01
+PYTHONPATH=src python -m recoveragent.codeact.cli train   --dataset "$CODEACT_DATA" --output runs/codeact_s0_01
 
 # 全部固定 dev111，每题一次，CodeAct共享loop，官方评分；可续跑已完成项。
 PYTHONPATH=src python -m recoveragent.codeact.cli evaluate   --adapter runs/codeact_s0_01/S0_base/adapter   --root /path/to/private/appworld --split dev --output runs/codeact_s0_dev111_01
