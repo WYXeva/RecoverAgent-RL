@@ -4,7 +4,7 @@
 
 ## 1. 目标与边界
 
-研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；本轮按用户最新授权直接从新S0进行一次有界GRPO＋CoEvolve，暂跳过Recovery-SFT。
+研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；当前按用户最新授权直接从新S0运行GRPO＋CoEvolve，目标5轮，每轮结束dev24；暂跳过Recovery-SFT，保留既有24小时作业截止。
 
 主分支为 `reboot/codeact`，起点为原开发分支 `bdaf6a3`。原工作区未提交工作保持原样；旧执行协议、Teacher 数据、模型与运行记录只供历史追溯，不进入本轮训练。历史计划可在[重启前固定版本](https://github.com/WYXeva/RecoverAgent-RL/blob/bdaf6a3cead063f7aec29989bd5bb5000abf7afd/project.md)查看。
 
@@ -84,3 +84,16 @@ Teacher总预留有限：4096请求、250万输出token、约42.95亿输入token
 同时受24小时限制；它是现有套餐用量估算，不是新增采购或扣款授权。Judge保持Flash thinking/high/8192；
 Teacher窗口1M独立于Student64K。普通任务失败继续，系统性模型/参数校验失败保存后停止。
 本轮不跑Static/test；是否有学习收益仍需后续同协议固定dev比较，在线训练奖励不能替代dev成绩。
+
+
+### 11月19日晚：当前执行调整
+
+用户确认改为连续5轮，每轮40组×4次、最多20次有效更新，轮末跑固定dev24后继续当前actor及optimizer。
+总目标200组/最多100次更新；不重置本轮已经完成的组、更新、任务池或采样队列。
+**本批仍截止11月20日19:52:38，包含已用时间**；未跑完的轮次和评价保存后等待后续资源授权。
+Teacher的4096请求/250万输出token/100美元公开价估算上限保持不变，不因五轮目标自动扩费。
+
+新配置 `codeact_grpo_coevolve_five_rounds_20261119.json` 使用官方结果分类v3，补齐明确数字答案为None导致float转换TypeError的有效失败分类。
+旧第3组另存真实官方复评 `[0,0,1,0]`；官方报告与原始轨迹不变，不能将旧策略轨迹补入当前策略更新。
+轮末先处理有效尾批再评测；dev24始终为官方验收、temperature0、每题一次，不回流训练。
+真实截止中断的dev尝试保留为未知，续跑只处理尚未尝试的题。

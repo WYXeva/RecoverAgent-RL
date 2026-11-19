@@ -21,7 +21,7 @@ from recoveragent.v2_training import verify_checkpoint
 from .collect import replace_json
 from .episode import run
 from .evolution import Engine, epoch, generate_batch, reward
-from .inference import VLLMStudent
+from .inference import VLLMStudent, evaluate
 from .online import REVISION, policy, update
 from .protocol import identity
 
@@ -57,6 +57,7 @@ def summary(state, deployment):
         "optimizer_steps": state["optimizer_steps"],
         "pending_groups": state["pending"],
         "generated_pool": len(state["pool"]),
+        "round_evaluations": state.get("round_evaluations", []),
         "success": sum(e["success"] is True for e in rows),
         "failure": sum(e["success"] is False for e in rows),
         "unknown": sum(e["success"] is None for e in rows),
@@ -378,10 +379,12 @@ def experiment(config, deployment, config_path, output):
             "queue": None,
             "generation_batches": [],
             "update_attempts": [],
+            "round_evaluations": [],
             "active": None,
             "started": epoch(),
         }
         replace_json(state_path, state)
+    state.setdefault("round_evaluations", [])
     queue = TaskQueue(config["online"]["train_tasks"], config["seed"], state["queue"])
     feedback = GroupFeedback(config["online"]["signals"], state["feedback"])
     server, background = None, None
@@ -507,19 +510,84 @@ def experiment(config, deployment, config_path, output):
             state["consumed"].extend(ids)
         save()
 
-    try:
-        while (
-            len(state["groups"]) < config["online"]["max_groups"]
+    def evaluate_round():
+        nonlocal server
+        settings = config["online"].get("round_evaluation")
+        size = config["grpo"]["groups_per_round"]
+        count = len(state["groups"])
+        if not settings or not count or count % size:
+            return False
+        number = count // size
+        if any(r["round"] == number for r in state["round_evaluations"]):
+            return False
+        if (
+            state["pending"]
             and state["optimizer_steps"] < config["online"]["max_updates"]
-            and epoch() < deployment["deadline"]
         ):
+            apply_update()  # Flush the last valid group before the round's evaluation.
+        target = output / "evaluations" / f"round_{number:02d}"
+        if server is None:
+            server = Server(
+                config,
+                deployment,
+                state["actor"],
+                output / "servers" / str(time.time_ns()),
+            )
+        request = {
+            "round": number,
+            "actor": state["actor"],
+            "server": server.proof,
+            "server_receipt": str(server.receipt),
+        }
+        request_path = target.with_suffix(".request.json")
+        if request_path.exists():
+            previous = read_json(request_path)
+            if (
+                previous["actor"] != request["actor"]
+                or previous["server"] != request["server"]
+            ):
+                raise ValueError("Round evaluation policy changed")
+            request_path = target.with_suffix(f".resume_{time.time_ns()}.request.json")
+        write_json(request_path, request)
+        state["status"] = "evaluating"
+        save()
+        process = launch(deployment, "evaluate", config_path, request_path, target)
+        wait_process(process, deployment["deadline"])
+        result = read_json(target / "summary.json")
+        if result["status"] != "complete" or result["tasks"] != 24:
+            raise ValueError("Round dev24 incomplete; do not advance the round")
+        state["round_evaluations"].append(
+            {
+                "round": number,
+                "actor": state["actor"],
+                "directory": str(target),
+                "optimizer_steps": state["optimizer_steps"],
+                "summary": result,
+            }
+        )
+        state["status"] = "running"
+        save()
+        return True
+
+    try:
+        while epoch() < deployment["deadline"]:
             pump_generation()
+            if evaluate_round():
+                continue
+            if (
+                len(state["groups"]) >= config["online"]["max_groups"]
+                or state["optimizer_steps"] >= config["online"]["max_updates"]
+            ):
+                break
             if len(state["pending"]) >= 2:
                 apply_update()
                 continue
             index = len(state["groups"])
             if not state["active"]:
-                state["active"] = queue.take(0, index, state["pool"], set())
+                size = config["grpo"]["groups_per_round"]
+                state["active"] = queue.take(
+                    index // size, index % size, state["pool"], set()
+                )
                 save()
             if server is None:
                 server = Server(
@@ -569,6 +637,8 @@ def experiment(config, deployment, config_path, output):
             or state["optimizer_steps"] >= config["online"]["max_updates"]
             else "deadline"
         )
+    except TimeoutError as exc:
+        state.update(status="deadline", error=str(exc))
     except BaseException as exc:
         state.update(status="blocked", error=str(exc), traceback=traceback.format_exc())
         raise
@@ -592,7 +662,12 @@ def experiment(config, deployment, config_path, output):
 
 def verify_source(deployment):
     root = Path(deployment["source_root"])
-    manifest = read_json(root / "configs/codeact_online_source_20261119.lock.json")
+    manifest = read_json(
+        root
+        / deployment.get(
+            "source_lock", "configs/codeact_online_source_20261119.lock.json"
+        )
+    )
     for name, expected in manifest["files"].items():
         if sha256(root / name) != expected:
             raise ValueError("CodeAct online source changed: " + name)
@@ -601,7 +676,9 @@ def verify_source(deployment):
 
 def main():
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument("command", choices=["run", "sample", "update", "evolve"])
+    parser.add_argument(
+        "command", choices=["run", "sample", "update", "evolve", "evaluate"]
+    )
     parser.add_argument("--config", required=True)
     parser.add_argument("--deployment", required=True)
     parser.add_argument("--output", required=True)
@@ -609,6 +686,13 @@ def main():
     args = parser.parse_args()
     config, deployment = read_json(args.config), read_json(args.deployment)
     verify_source(deployment)
+    from recoveragent.evaluation import CLASSIFICATION_REVISION
+
+    if (
+        config.get("official_evaluation_revision", CLASSIFICATION_REVISION)
+        != CLASSIFICATION_REVISION
+    ):
+        raise ValueError("Official evaluation classification revision differs")
     if os.environ.get("RECOVERAGENT_S2_EXECUTION"):
         raise ValueError("Old S2 execution environment must not enter CodeAct run")
     if args.command == "run":
@@ -617,6 +701,22 @@ def main():
         request = read_json(args.request)
         if args.command == "sample":
             sample_group(config, deployment, request, args.output)
+        elif args.command == "evaluate":
+            settings = config["online"]["round_evaluation"]
+            cfg = copy.deepcopy(config)
+            cfg["seed"] = settings["seed"]
+            cfg["student_inference"] = settings["student_inference"]
+            cfg["evaluation_resume_interrupted_as_unknown"] = True
+            evaluate(
+                cfg,
+                args.output,
+                deployment["appworld_root"],
+                request["actor"],
+                "dev",
+                task_set="dev24",
+                vllm_url=request["server"]["url"],
+                server_receipt=request["server_receipt"],
+            )
         elif args.command == "update":
             import torch
 

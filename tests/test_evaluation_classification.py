@@ -151,6 +151,50 @@ def test_only_direct_official_predicted_number_conversion_is_task_failure(
 
 
 @pytest.mark.parametrize(
+    "statement,task_file,expected",
+    [
+        ("predicted_answer = float(predicted_answer)", True, "task_answer_failure"),
+        ("ground_truth_answer = float(ground_truth_answer)", True, "unknown_exception"),
+        ("predicted_answer = int(predicted_answer)", True, "unknown_exception"),
+        ("float(predicted_answer)", True, "unknown_exception"),
+        ("predicted_answer = float(predicted_answer)", False, "unknown_exception"),
+        (
+            "float = int\npredicted_answer = float(predicted_answer)",
+            True,
+            "unknown_exception",
+        ),
+        ("raise TypeError('unrelated evaluator error')", True, "unknown_exception"),
+        ("raise OSError('database unavailable')", True, "environment_error"),
+    ],
+)
+def test_missing_numeric_answer_and_unrelated_errors(
+    tmp_path, statement, task_file, expected
+):
+    path = tmp_path / (
+        "tasks/sample_1/ground_truth/evaluation.py" if task_file else "loader.py"
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    source = "predicted_answer = ground_truth_answer = None\n" + statement
+    path.write_text(source)
+    obs = observation(source, str(path))
+    assert obs["category"] == expected
+    official = {"success": False, "num_tests": 2, "passes": [{}], "failures": [{}]}
+    result = classify_official(official, [obs])
+    assert result["official"] is official  # Do not alter the official verdict.
+    assert (result["success"] is False) == (expected == "task_answer_failure")
+    assert classify_official({**official, "num_tests": 3}, [obs])["success"] is None
+    assert "unrelated evaluator error" not in json.dumps(obs)
+
+
+def test_action_only_null_is_not_a_numeric_failure():
+    # Without a failed numeric assertion, a legal null needs no special rule.
+    result = classify_official(
+        {"success": True, "num_tests": 1, "passes": [{}], "failures": []}, []
+    )
+    assert result["success"] is True and result["status"] == "valid"
+
+
+@pytest.mark.parametrize(
     "left,right,task_call,expected",
     [
         ("12", "invalid", True, "task_answer_failure"),

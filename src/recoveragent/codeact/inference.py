@@ -364,6 +364,27 @@ def evaluate(
         if (target / "result.json").exists():
             results.append(read_json(target / "result.json"))
             continue
+        if target.exists() and config.get("evaluation_resume_interrupted_as_unknown"):
+            # A hard job deadline can interrupt an episode. Keep its evidence and
+            # do not grant an unrecorded second attempt when finishing dev24 later.
+            live = (
+                read_json(target / "live.json")
+                if (target / "live.json").exists()
+                else {}
+            )
+            result = {
+                "task_id": task,
+                "success": None,
+                "valid": False,
+                "termination": "interrupted_evaluation",
+                "seconds": live.get("agent_seconds", 0),
+                "usage": live.get("usage", {}),
+                "attempt": 1,
+            }
+            write_json(target / "result.json", result)
+            results.append(result)
+            progress("running")
+            continue
         client.reset_usage()
         results.append(
             run(task, 1, target, root, config, client, training=split == "train")

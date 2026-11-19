@@ -1,6 +1,15 @@
 # 项目状态
 
-## 当前摘要（2026-11-19 19:55，新CodeAct GRPO＋CoEvolve已启动）
+## 当前摘要（2026-11-19 22:25，评分v3实测通过，接入五轮轮末dev24）
+
+- 用户最新要求连续**5轮，每轮40组后跑固定dev24**；已明确保持原24小时截止（11月20日19:52:38），到期保存再续跑，不自动延时/扩费。新配置 `codeact_grpo_coevolve_five_rounds_20261119.json`，不重置已完成采样或更新，不跑Static/test。
+- 已修复数字答案缺失的分类遗漏：仅官方 `predicted_answer = float(predicted_answer)` 对真实None抛TypeError时归为有效答案失败。参考答案/其他异常不放宽、动作题合法null不禁止。新版本 `official_result_integrity_20261119_v3`，原始官方报告与模型答案不修改。
+- **真实复评已完成**：第3组原保存的4个终态得到 `[0,0,1,0]`，4份官方报告与旧报告完全一致；无Student/Teacher新请求，原未知2条另存为有效失败。该组属于旧actor，不补入当前actor更新，原轨迹与原评分保留在01目录；更正证据在02 `reward_audit/`。
+- 本次**77项相关CPU测试通过**，含五轮顺序、尾批后评测、dev不重复采样、合法null和异常边界、新锁通过/旧锁拒绝；Ruff/diff检查通过。真实40组轮末评测尚未发生，不把模拟测试写成dev成绩。
+- 运行已完成14组、1次真实更新，6题入池；首道生成题4次奖励 `[1,0,0,0]`。第14组完整结束后，02已实际接管最新actor、optimizer、未消费的第12/14组、池、队列和反馈，正在进行下一次更新。截止与Teacher账本沿用01，未重采已有任务。
+- 02路径 `/root/gpufree-data/recoveragent_codeact_evolve_20261119_02/`，本地 `runs/codeact_evolve_20261119_02/`；退出后的原件回传同时包含01依赖原件。切换回执已核验，下一项核验新更新与轮末dev24，详情见[报告](../reports/codeact_evolve_round1_20261119.md)及[README](../README.md)。
+
+## 前次摘要（2026-11-19 19:55，新CodeAct GRPO＋CoEvolve已启动）
 
 - 用户批准从刚完成的新CodeAct S0直接开始，暂跳过Recovery-SFT；**最多40组×4次、20次有效更新、24小时**。独立作业 `codeact_evolve_20261119_01` 于19:52:38正式启动，截止11月20日19:52:38；目前首组真实采样中，尚未完成组和参数更新，不能称为整轮完成。
 - 新S0参数SHA `c6eef449…f6f7`，固定官方9B、non-thinking/64K、L40S/vLLM0.19。lr1e-5/beta0，两组成败混合有效组再更新；首次更新前同actor/token的behavior logprob核验。旧FC actor/optimizer、旧Teacher/Solver和旧生成池未进入新实验。

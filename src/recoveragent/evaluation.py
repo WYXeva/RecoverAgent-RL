@@ -11,12 +11,23 @@ import sys
 
 from .io import read_json, write_json
 
-CLASSIFICATION_REVISION = "official_result_integrity_20261114_v2"
+CLASSIFICATION_REVISION = "official_result_integrity_20261119_v3"
 
 
 def invalid_predicted_number(exc, tb):
     """Recognize only the official conversion of the submitted numeric answer."""
-    if not isinstance(exc, ValueError) or tb is None:
+    if tb is None:
+        return False
+    # Omitting a required numeric answer leaves None. The official float(None)
+    # raises TypeError, whereas a nonnumeric string raises ValueError. Both are
+    # answer failures at this exact conversion, not evaluator infrastructure.
+    # Other TypeErrors still need their own evidence; do not classify by name alone.
+    if not (
+        isinstance(exc, ValueError)
+        or isinstance(exc, TypeError)
+        and "predicted_answer" in tb.tb_frame.f_locals
+        and tb.tb_frame.f_locals["predicted_answer"] is None
+    ):
         return False
     line = linecache.getline(tb.tb_frame.f_code.co_filename, tb.tb_lineno).strip()
     try:

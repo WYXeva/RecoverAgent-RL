@@ -46,3 +46,38 @@ loss绝对差 `1.4901161193847656e-08`；裁剪前梯度最大绝对差 `7.45058
 
 公开入口、部署/续跑命令见[README](../README.md)。`experiment/summary.json`列已完成组、真实更新、奖励分布、入池数和Student用量；各update保留loss、实际lr/beta、group IDs、概率比/clip fraction、耗时、峰值显存；Teacher账本独立记录调用量和估价。
 整轮完成前只报告实际进度；本轮尚无固定dev效果结论。历史CodeAct S0 dev24为8/24，不能用训练奖励与其直接比较。
+
+## 22:20：空数字答案修复与五轮调度接续
+
+用户要求修复已确认的评分分类遗漏，并将目标改为连续5轮：每轮40组之后评价固定dev24，再继续最新actor/optimizer；**仍保持原11月20日19:52:38截止时间**，到期保存，后续另行授权续跑。Student推理/训练参数、共享Judge和Teacher有限预算保持原样；不启动Static或test。
+
+`evaluation.py`新增 `official_result_integrity_20261119_v3`。仅在原任务官方代码明确执行 `predicted_answer = float(predicted_answer)`，且实际 `predicted_answer is None` 导致TypeError时，归为 `task_answer_failure`。官方断言及分数不改；参考答案转换、非任务源码、非目标转换、shadowed float、其他TypeError和环境故障仍保持未知/异常。没有自动补填答案，也不禁止动作题的合法null。
+
+对第3组保存的4个终态实际重新运行官方评测，未调用模型或重做业务动作：
+
+| member | 原分类输出 | 修复后 | 官方报告 |
+|---|---|---|---|
+| 0 | 未知，TypeError | 有效失败0，空数字答案 | 完全一致 |
+| 1 | 有效失败0 | 有效失败0 | 完全一致 |
+| 2 | 成功1 | 成功1 | 完全一致 |
+| 3 | 未知，TypeError | 有效失败0，空数字答案 | 完全一致 |
+
+真实审计另存02目录 `reward_audit/`，原01轨迹、分数、Teacher准入及源码锁不覆写。
+更正组为 `[0,0,1,0]`，可以进入正确的统计/反馈历史；它属于旧S0 actor，**不能补入已更新actor的待优化批次**。
+已更新actor/optimizer和未消费的同策略有效组继续继承，训练计数不归零、已处理反馈窗口不重新付费生成。
+
+新配置 `configs/codeact_grpo_coevolve_five_rounds_20261119.json`，新锁 `configs/codeact_online_eval_v3_20261119.lock.json`。
+跨轮重置生成题本轮已用集合，保留任务池、历史反馈和原始题打乱队列；200组/最多100更新为五轮总目标，实际执行仍受现有24小时与费用上限约束。
+每40组先做剩余有效组尾批，再评价当时最终actor；dev轨迹不进入组反馈、任务生成或GRPO。
+评测使用vLLM、non-thinking、64K、temperature0、原dev24顺序/种子和单题预算，每题一次。
+若硬截止中断一条dev尝试，保留其证据、记未知；以后只完成剩余任务，不把重新采样伪装成原尝试。
+
+本次针对性验证：76项相关测试通过，另1项五轮配置/预算检查通过，共77项；Ruff/diff check通过。
+包含缺失数字/合法null/参考答案错误/原始与生成评分路由、五轮CPU模拟顺序、尾批后dev、同协议续跑、评测中断不重复采样，以及新锁通过/旧锁拒绝。
+五轮调度测试采用缩短的CPU合成组数；尚未完成真实40组或真实轮末dev24，不声称已经完成五轮。
+
+
+22:25已完成实际切换：共14个已完成组、1次GRPO更新，原actor及optimizer SHA核对通过。
+第12/14组均为同一更新后actor的未消费有效组，已交新调度进行下一次更新。
+独立02的 `handoff.json` 记录父状态/绑定SHA、当前actor、optimizer SHA、组计数和原绝对截止。
+没有重置额度，没有改写01结果；更正的旧第3组只用于准确统计/反馈，不补做过期策略训练。

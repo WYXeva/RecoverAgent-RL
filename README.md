@@ -152,3 +152,24 @@ deployment包含 `source_root`、`deployment_file`、`s0`、`worker_python`、`t
 更新看 `updates/attempt_*/result.json`，Teacher开销在 `teacher_ledger/`。
 同一目录禁止两个controller同时运行。达到采样、更新或时间上限会保存并关闭自身vLLM，
 不自动关平台机器、不租机续费，也不自动启动dev/test。
+
+
+### 五轮接续与评分分类v3
+
+最新授权目标为 **40组训练→dev24，重复5轮**；当前实例仍使用原24小时绝对截止时间，
+到期保存，等待后续授权，不自动延长。新配置和新锁分别为
+`configs/codeact_grpo_coevolve_five_rounds_20261119.json`、`configs/codeact_online_eval_v3_20261119.lock.json`。
+02目录继承01的actor/optimizer、组计数、未消费组、池和队列；01原件保留。
+
+```bash
+python -m recoveragent.codeact.experiment run \
+  --config configs/codeact_grpo_coevolve_five_rounds_20261119.json \
+  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261119_02/deployment.json \
+  --output /root/gpufree-data/recoveragent_codeact_evolve_20261119_02/experiment
+```
+
+实际运行使用02冻结源码的 `PYTHONPATH=.../source/src`、worker Python及原HF缓存/Teacher tokenizer环境，
+精确启动参数保存在私有 `command.json`。`deployment.source_lock` 指向新锁，不重签历史锁。
+同一授权期内以上命令续跑；截止之后须先取得新的作业时限并保留原绑定，不直接修改旧截止时间放行。
+轮末评价在 `experiment/evaluations/round_01..05/`；摘要的 `round_evaluations` 保存逐轮结果。
+空答案分类更正证据在 `reward_audit/`，未重采模型或覆写旧奖励。

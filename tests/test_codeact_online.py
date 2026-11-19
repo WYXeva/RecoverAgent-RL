@@ -301,10 +301,14 @@ def test_body_chunk_and_merged_grpo_match_reference(tmp_path):
     )
 
 
+@pytest.mark.parametrize("rounds", [1, 5])
 def test_controller_effective_accumulation_new_pool_and_resume(
-    config, tmp_path, monkeypatch
+    config, tmp_path, monkeypatch, rounds
 ):
-    config["online"].update(max_groups=10, s0_sha256="s0")
+    config["online"].update(max_groups=10 if rounds == 1 else 20, s0_sha256="s0")
+    if rounds == 5:
+        config["grpo"]["groups_per_round"] = 4
+        config["online"]["round_evaluation"] = {"task_set": "dev24"}
     dep = {
         "s0": "s0",
         "deadline": evolution.epoch() + 100,
@@ -335,6 +339,19 @@ def test_controller_effective_accumulation_new_pool_and_resume(
     def launch(deploy, kind, config_path, request_path, output):
         req = read_json(request_path)
         observed.append((kind, req))
+        if kind == "evaluate":
+            assert req["round"] * 4 == len([k for k, _ in observed if k == "sample"])
+            write_json(
+                Path(output) / "summary.json",
+                {
+                    "status": "complete",
+                    "tasks": 24,
+                    "success": 8,
+                    "failure": 16,
+                    "unknown": 0,
+                },
+            )
+            return SimpleNamespace(wait=lambda **kw: 0, poll=lambda: 0, returncode=0)
         if kind == "sample":
             result = {
                 "index": req["index"],
@@ -389,9 +406,18 @@ def test_controller_effective_accumulation_new_pool_and_resume(
     root = tmp_path / "run"
     experiment.experiment(config, dep, "unused", root)
     state = read_json(root / "state.json")
-    assert state["status"] == "complete" and len(state["groups"]) == 10
-    assert state["optimizer_steps"] == 4 and len(state["consumed"]) == 7
-    assert not state["pending"] and len(set(state["consumed"])) == 7
+    assert (
+        state["status"] == "complete"
+        and len(state["groups"]) == config["online"]["max_groups"]
+    )
+    assert state["optimizer_steps"] == (4 if rounds == 1 else 9)
+    assert len(state["consumed"]) == (7 if rounds == 1 else 17)
+    assert not state["pending"] and len(set(state["consumed"])) == len(
+        state["consumed"]
+    )
+    assert len(state["round_evaluations"]) == (0 if rounds == 1 else 5)
+    for item in state["round_evaluations"]:
+        assert item["actor"] == "updated_" + str(item["optimizer_steps"])
     assert not {0, 2, 4} & set(state["consumed"])
     assert (
         read_json(state["groups"][9])["selection"]["generated_task"]["task_id"]
@@ -504,7 +530,14 @@ def test_shared_episode_official_vs_derived_goal(
 
 
 def test_new_source_lock_and_tamper_rejection(tmp_path):
-    assert experiment.verify_source({"source_root": str(ROOT)})
+    assert experiment.verify_source(
+        {
+            "source_root": str(ROOT),
+            "source_lock": "configs/codeact_online_eval_v3_20261119.lock.json",
+        }
+    )
+    with pytest.raises(ValueError, match="source changed"):
+        experiment.verify_source({"source_root": str(ROOT)})
     from recoveragent.demonstrations import sha256
 
     p = tmp_path / "module.py"
@@ -517,3 +550,72 @@ def test_new_source_lock_and_tamper_rejection(tmp_path):
     p.write_text("changed")
     with pytest.raises(ValueError, match="source changed"):
         experiment.verify_source({"source_root": str(tmp_path)})
+
+
+def test_dev24_resume_keeps_interrupted_attempt_unknown(config, tmp_path, monkeypatch):
+    from recoveragent.codeact import inference
+
+    monkeypatch.setattr(inference, "verify_checkpoint", lambda *a: {"sha": "fixed"})
+    monkeypatch.setattr(
+        inference, "Student", lambda *a: SimpleNamespace(reset_usage=lambda: None)
+    )
+    config["evaluation_resume_interrupted_as_unknown"] = True
+    tasks = inference.evaluation_tasks("dev", "dev24")
+    calls = []
+
+    def run(task, attempt, target, root, cfg, client, *, training):
+        assert not training
+        calls.append(task)
+        if task == tasks[0]:
+            write_json(
+                target / "live.json", {"usage": {"requests": 1}, "agent_seconds": 2}
+            )
+            raise TimeoutError("Synthetic job deadline")
+        result = {
+            "task_id": task,
+            "success": True,
+            "termination": "task_completed",
+            "usage": {"requests": 1},
+        }
+        write_json(target / "result.json", result)
+        return result
+
+    monkeypatch.setattr(inference, "run", run)
+    args = (config, tmp_path / "dev", "root", "actor", "dev")
+    with pytest.raises(TimeoutError):
+        inference.evaluate(*args, task_set="dev24")
+    inference.evaluate(*args, task_set="dev24")
+    assert calls == tasks
+    result = read_json(tmp_path / "dev/summary.json")
+    assert result["tasks"] == 24 and result["success"] == 23 and result["unknown"] == 1
+    assert result["usage"]["requests"] == 24
+    assert (
+        read_json(tmp_path / "dev" / tasks[0] / "result.json")["termination"]
+        == "interrupted_evaluation"
+    )
+
+
+def test_five_round_plan_keeps_runtime_cost_and_inference_budgets():
+    previous = read_json(ROOT / "configs/codeact_grpo_coevolve_20261119.json")
+    current = read_json(
+        ROOT / "configs/codeact_grpo_coevolve_five_rounds_20261119.json"
+    )
+    assert current["grpo"]["rounds"] == 5 and current["grpo"]["groups_per_round"] == 40
+    assert (
+        current["online"]["max_groups"] == 200
+        and current["online"]["max_updates"] == 100
+    )
+    assert (
+        current["online"]["wall_seconds"] == previous["online"]["wall_seconds"] == 86400
+    )
+    assert current["online"]["teacher_budget"] == previous["online"]["teacher_budget"]
+    assert current["online"]["max_generation_batches"] == 24
+    assert current["student_inference"] == previous["student_inference"]
+    assert current["limits"] == previous["limits"]
+    assert (
+        current["online"]["round_evaluation"]["student_inference"]["temperature"] == 0
+    )
+    assert (
+        current["online"]["round_evaluation"]["student_inference"]["record_behavior"]
+        is False
+    )
