@@ -173,3 +173,27 @@ python -m recoveragent.codeact.experiment run \
 同一授权期内以上命令续跑；截止之后须先取得新的作业时限并保留原绑定，不直接修改旧截止时间放行。
 轮末评价在 `experiment/evaluations/round_01..05/`；摘要的 `round_evaluations` 保存逐轮结果。
 空答案分类更正证据在 `reward_audit/`，未重采模型或覆写旧奖励。
+
+### 训练显存调整后的当前入口（11月20日）
+
+当前04目录从02的23组/2次有效更新继续，使用
+`codeact_grpo_coevolve_memory_20261120.json`和`codeact_online_memory_20261120.lock.json`。
+`launch()`在训练子进程启动前设置可扩展CUDA分配器，直接`update`命令也在CUDA初始化前设置；
+Teacher/Student采样不改。`allocator.json`、`memory.jsonl`、更新回执和OOM traceback记录实际设置与显存。
+
+```bash
+cd /root/gpufree-data/recoveragent_codeact_evolve_20261120_04/source
+export PYTHONPATH="$PWD/src"
+export HF_HOME=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache
+export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
+export RECOVERAGENT_TEACHER_TOKENIZER_DIR=/root/gpufree-data/recoveragent_codeact_evolve_20261119_01/teacher_tokenizer
+/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python \
+  -m recoveragent.codeact.experiment run \
+  --config configs/codeact_grpo_coevolve_memory_20261120.json \
+  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261120_04/deployment.json \
+  --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_04/experiment
+```
+
+此命令用于同一授权期内续跑，已有controller运行时不要再启动第二个。
+原截止11月20日19:52:38不变；03目录独立OOM复测权重不是主训练actor。
+复测命令、真实数据和限制见[报告](reports/codeact_grpo_oom_retest_20261120.md)。

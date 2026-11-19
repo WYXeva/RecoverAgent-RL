@@ -1,6 +1,14 @@
 # 项目状态
 
-## 当前摘要（2026-11-19 22:25，评分v3实测通过，接入五轮轮末dev24）
+## 当前摘要（2026-11-20 00:11，原OOM批次复测通过，训练已接续）
+
+- 用户授权后只调整训练CUDA分配器：`PYTORCH_ALLOC_CONF=expandable_segments:True`，新增分段前向/反向显存回执及OOM堆栈；模型、完整64K输入、全部目标、组优势、lr1e-5/beta0和采样/Judge设置不变。新配置 `codeact_grpo_coevolve_memory_20261120.json`、独立源码锁，历史源码/锁/回执保留。
+- **原失败批次真实复测通过**：同一父actor及optimizer、原第12/14组8条轨迹，393回复合并为9段，最长60,866 token，36,188目标全部计算；147.67秒完成一次诊断更新，峰值allocated42.17 GiB/reserved43.33 GiB，有限非零梯度、参数变化和保存重载通过。长片段的显存峰值出现在反向阶段；本次未再OOM，不能据此保证全部64K批次都能训练。
+- 诊断目录 `recoveragent_codeact_evolve_20261120_03/oom_retest`；诊断权重**未接入主实验**、不增加主实验更新数，未重采Student或调用Teacher。小型回执归档已下载核验，SHA `5aa48ecad4cf6fc0bde2f739646945085c5ee1a890e7be1ba60d9eced99b22e4`。
+- 主训练完整结束第23组后接续到 **`/root/gpufree-data/recoveragent_codeact_evolve_20261120_04/`**，继承02的2次真实更新、actor/optimizer、任务池、反馈和队列；第24组开始执行。前一有效更新已实际训练两道T恤生成题。新分配器仅用于后续训练worker，原预算截止仍为11月20日19:52:38；目标五轮及每轮dev24不变。
+- **24项相关CPU测试通过，1项历史FC锁测试排除**；新锁通过、旧锁拒绝有明确测试，Ruff及diff检查通过。并未重签历史锁。正式新配置下的下一次更新/轮末dev24尚待发生，不把诊断成功写成学习收益。详情见[OOM复测报告](../reports/codeact_grpo_oom_retest_20261120.md)。
+
+## 前次摘要（2026-11-19 22:25，评分v3实测通过，接入五轮轮末dev24）
 
 - 用户最新要求连续**5轮，每轮40组后跑固定dev24**；已明确保持原24小时截止（11月20日19:52:38），到期保存再续跑，不自动延时/扩费。新配置 `codeact_grpo_coevolve_five_rounds_20261119.json`，不重置已完成采样或更新，不跑Static/test。
 - 已修复数字答案缺失的分类遗漏：仅官方 `predicted_answer = float(predicted_answer)` 对真实None抛TypeError时归为有效答案失败。参考答案/其他异常不放宽、动作题合法null不禁止。新版本 `official_result_integrity_20261119_v3`，原始官方报告与模型答案不修改。

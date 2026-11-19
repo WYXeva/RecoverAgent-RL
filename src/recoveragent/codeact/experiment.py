@@ -4,20 +4,21 @@ import argparse
 import copy
 import fcntl
 import os
-from pathlib import Path
 import signal
 import subprocess
 import time
 import traceback
+from pathlib import Path
 
 from recoveragent.coevolve_llm import validate_task
-from recoveragent.io import digest, read_json, write_json
 from recoveragent.demonstrations import sha256
-from recoveragent.s2_schedule import TaskQueue, GroupFeedback, select_contexts
+from recoveragent.io import digest, read_json, write_json
+from recoveragent.s2_schedule import GroupFeedback, TaskQueue, select_contexts
 from recoveragent.teacher import read_credentials
 from recoveragent.v2_grpo import group_advantages
 from recoveragent.v2_tasks import context_for
 from recoveragent.v2_training import verify_checkpoint
+
 from .collect import replace_json
 from .episode import run
 from .evolution import Engine, epoch, generate_batch, reward
@@ -305,10 +306,22 @@ def worker_command(deployment, kind, config_path, request_path, output):
     ]
 
 
+def update_environment(config, env):
+    """Set the allocator before CUDA initialization, only in the update worker."""
+    setting = config["grpo"].get("cuda_allocator")
+    if setting is not None:
+        if not isinstance(setting, str) or not setting.strip():
+            raise ValueError("Invalid training CUDA allocator setting")
+        env.pop("PYTORCH_CUDA_ALLOC_CONF", None)
+        env["PYTORCH_ALLOC_CONF"] = setting
+    return env
+
+
 def launch(deployment, kind, config_path, request_path, output):
     output = Path(output)
     env = dict(os.environ)
     if kind == "update":
+        update_environment(read_json(config_path), env)
         env["PYTHONPATH"] = (
             deployment["kernel_overlay"] + os.pathsep + env["PYTHONPATH"]
         )
@@ -718,6 +731,7 @@ def main():
                 server_receipt=request["server_receipt"],
             )
         elif args.command == "update":
+            update_environment(config, os.environ)
             import torch
 
             try:
@@ -730,6 +744,7 @@ def main():
                         "updated": False,
                         "reason": "cuda_oom_whole_batch_skipped",
                         "error": str(exc),
+                        "traceback": traceback.format_exc(),
                         **{
                             k: request[k]
                             for k in (

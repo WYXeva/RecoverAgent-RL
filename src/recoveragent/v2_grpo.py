@@ -53,7 +53,7 @@ def group_advantages(episodes):
 
 
 def segments(directory, expected_policy, *, max_length=None):
-    from .student_tokens import validate_transition, validate_response
+    from .student_tokens import validate_response, validate_transition
 
     max_length = sequence_limit() if max_length is None else max_length
     rows = []
@@ -234,6 +234,7 @@ def update_batch(
     observe_gradients=None,
     measure_constant=False,
     segment_loader=None,
+    observe_memory=None,
 ):
     import torch
 
@@ -290,6 +291,23 @@ def update_batch(
                 mask = row.get("tool_mask", [1] * len(row["completion_ids"]))
                 target_tokens = sum(mask)
 
+                def memory(
+                    stage,
+                    episode=episode,
+                    sequence_tokens=sequence_tokens,
+                    target_tokens=target_tokens,
+                ):
+                    if observe_memory is not None:
+                        observe_memory(
+                            {
+                                "stage": stage,
+                                "episode": episode["directory"],
+                                "segment": work["training_segments"],
+                                "sequence_tokens": sequence_tokens,
+                                "target_tokens": target_tokens,
+                            }
+                        )
+
                 def tensor(value, dtype=torch.long):
                     return torch.tensor([value], device=model.device, dtype=dtype)
 
@@ -340,8 +358,10 @@ def update_batch(
                     if offload
                     else nullcontext()
                 )
+                memory("before_forward")
                 with context:
                     loss = trainer.compute_loss(model, inputs)
+                memory("after_forward")
                 current = getattr(trainer, "recoveragent_last_logps", None)
                 if current is not None:
                     with torch.no_grad():
@@ -358,7 +378,9 @@ def update_batch(
                 loss = loss * (target_tokens / tokens) / (4 * len(usable))
                 if not torch.isfinite(loss):
                     raise ValueError("Nonfinite GRPO loss")
+                memory("before_backward")
                 trainer.accelerator.backward(loss)
+                memory("after_backward")
                 total_loss += float(loss.detach())
     if varying or optimizer_step:
         health = gradient_health(model)

@@ -8,7 +8,7 @@ from types import SimpleNamespace
 import pytest
 
 from recoveragent.codeact import evolution, experiment, online, protocol
-from recoveragent.coevolve_llm import candidate, admit
+from recoveragent.coevolve_llm import admit, candidate
 from recoveragent.coevolve_tasks import identify
 from recoveragent.io import read_json, write_json
 from recoveragent.s2_schedule import GroupFeedback
@@ -205,10 +205,11 @@ def test_actual_text_transport_thinking_and_shared_budget(
 def test_body_chunk_and_merged_grpo_match_reference(tmp_path):
     torch = pytest.importorskip("torch")
     peft = pytest.importorskip("peft")
-    from test_v2_training_cpu import tiny, tokenizer
     from test_grpo_efficiency import row
-    from recoveragent.v2_grpo import make_trainer, update_batch
+    from test_v2_training_cpu import tiny, tokenizer
+
     from recoveragent.grpo_compare import gradient_comparison
+    from recoveragent.v2_grpo import make_trainer, update_batch
 
     def model():
         return peft.get_peft_model(
@@ -269,12 +270,24 @@ def test_body_chunk_and_merged_grpo_match_reference(tmp_path):
         segment_loader=loader,
         observe_gradients=observe,
     )
+    memory_events = []
     y = update_batch(
         second,
         [episodes],
         max_length=128,
         segment_loader=loader,
         observe_gradients=observe,
+        observe_memory=memory_events.append,
+    )
+    assert [e["stage"] for e in memory_events] == [
+        "before_forward",
+        "after_forward",
+        "before_backward",
+        "after_backward",
+    ] * 4
+    assert (
+        sum(e["target_tokens"] for e in memory_events if e["stage"] == "after_backward")
+        == 16
     )
     numeric = gradient_comparison(*gradients)
     assert x["loss"] == pytest.approx(y["loss"], abs=2e-6)
@@ -436,8 +449,10 @@ def test_shared_episode_official_vs_derived_goal(
     config, tmp_path, monkeypatch, generated
 ):
     import sys
-    from recoveragent.codeact import episode
+
     from test_codeact_reboot import response
+
+    from recoveragent.codeact import episode
 
     task, _ = accepted(config, tmp_path / "candidate")
     official = []
@@ -533,11 +548,18 @@ def test_new_source_lock_and_tamper_rejection(tmp_path):
     assert experiment.verify_source(
         {
             "source_root": str(ROOT),
-            "source_lock": "configs/codeact_online_eval_v3_20261119.lock.json",
+            "source_lock": "configs/codeact_online_memory_20261120.lock.json",
         }
     )
     with pytest.raises(ValueError, match="source changed"):
         experiment.verify_source({"source_root": str(ROOT)})
+    with pytest.raises(ValueError, match="source changed"):
+        experiment.verify_source(
+            {
+                "source_root": str(ROOT),
+                "source_lock": "configs/codeact_online_eval_v3_20261119.lock.json",
+            }
+        )
     from recoveragent.demonstrations import sha256
 
     p = tmp_path / "module.py"
@@ -619,3 +641,94 @@ def test_five_round_plan_keeps_runtime_cost_and_inference_budgets():
         current["online"]["round_evaluation"]["student_inference"]["record_behavior"]
         is False
     )
+
+
+def test_allocator_is_set_on_update_launch_only(config, tmp_path, monkeypatch):
+    config["grpo"]["cuda_allocator"] = "expandable_segments:True"
+    path = tmp_path / "config.json"
+    write_json(path, config)
+    monkeypatch.setenv("PYTHONPATH", "source")
+    monkeypatch.setenv("PYTORCH_CUDA_ALLOC_CONF", "max_split_size_mb:128")
+    monkeypatch.delenv("PYTORCH_ALLOC_CONF", raising=False)
+    launched = []
+    monkeypatch.setattr(
+        experiment.subprocess, "Popen", lambda argv, **kw: launched.append(kw["env"])
+    )
+    dep = {
+        "training_python": "train",
+        "worker_python": "worker",
+        "kernel_overlay": "kernels",
+        "deployment_file": "deployment.json",
+    }
+    for kind in ["update", "sample", "evolve", "evaluate"]:
+        experiment.launch(dep, kind, path, "request.json", tmp_path / kind)
+    assert launched[0]["PYTORCH_ALLOC_CONF"] == "expandable_segments:True"
+    assert "PYTORCH_CUDA_ALLOC_CONF" not in launched[0]
+    for env in launched[1:]:
+        assert env["PYTORCH_CUDA_ALLOC_CONF"] == "max_split_size_mb:128"
+        assert "PYTORCH_ALLOC_CONF" not in env
+    # Direct CLI update uses the same idempotent setup before importing torch.
+    env = experiment.update_environment(config, {})
+    assert experiment.update_environment(config, env) == env
+
+
+@pytest.mark.parametrize("failure_stage", ["forward", "backward"])
+def test_memory_trace_identifies_failure_without_optimizer_update(
+    tmp_path, failure_stage
+):
+    torch = pytest.importorskip("torch")
+    from recoveragent.v2_grpo import update_batch
+
+    model = torch.nn.Linear(2, 1)
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-5)
+    steps, events = [], []
+    optimizer.step = lambda: steps.append(True)
+
+    def compute_loss(*args):
+        if failure_stage == "forward":
+            raise RuntimeError("simulated allocation failure")
+        return model.weight.sum()
+
+    def backward(loss):
+        raise RuntimeError("simulated allocation failure")
+
+    trainer = SimpleNamespace(
+        model=model,
+        optimizer=optimizer,
+        beta=0,
+        recoveragent_coalesce=False,
+        recoveragent_activation_offload=None,
+        compute_loss=compute_loss,
+        accelerator=SimpleNamespace(backward=backward),
+    )
+    model.device = torch.device("cpu")
+    episodes = [
+        {
+            "directory": str(tmp_path),
+            "task_id": "task",
+            "generated_task_id": None,
+            "policy": "same",
+            "initial_state_hash": "same",
+            "success": i == 0,
+        }
+        for i in range(4)
+    ]
+    rows = [{"prompt_ids": [1, 2], "completion_ids": [3], "logprobs": [-1.0]}]
+    with pytest.raises(RuntimeError, match="simulated allocation"):
+        update_batch(
+            trainer,
+            [episodes],
+            segment_loader=lambda *a, **kw: rows,
+            observe_memory=events.append,
+        )
+    assert events[-1]["stage"] == "before_" + failure_stage
+    assert events[-1]["sequence_tokens"] == 3 and events[-1]["target_tokens"] == 1
+    assert not steps
+
+
+def test_memory_config_changes_only_allocator_and_measurement():
+    old = read_json(ROOT / "configs/codeact_grpo_coevolve_five_rounds_20261119.json")
+    new = read_json(ROOT / "configs/codeact_grpo_coevolve_memory_20261120.json")
+    assert new["grpo"].pop("cuda_allocator") == "expandable_segments:True"
+    assert new["grpo"].pop("record_memory") is True
+    assert new == old

@@ -1,20 +1,23 @@
 """CodeAct behavior receipts and the existing clipped GRPO optimizer."""
 
 import gc
+import json
 import math
+import os
 from pathlib import Path
 
 from recoveragent.demonstrations import sha256
 from recoveragent.io import digest, read_json, write_json
 from recoveragent.sft_recipe import tensor_hash
 from recoveragent.v2_grpo import group_advantages, make_trainer, update_batch
+from recoveragent.v2_model import load_tokenizer
 from recoveragent.v2_training import (
+    finalize_reload,
+    finish_checkpoint,
     load_trainable,
     verify_checkpoint,
-    finish_checkpoint,
-    finalize_reload,
 )
-from recoveragent.v2_model import load_tokenizer
+
 from .protocol import identity, now
 
 REVISION = "codeact_grpo_v1"
@@ -116,6 +119,7 @@ def target_logps(model, ids, attention, positions, temperature, chunk_size=128):
 def update(config, request, output):
     import torch
     from peft import get_peft_model_state_dict
+
     from recoveragent.grpo_kernels import inspect_kernels
     from recoveragent.s2_logprob import audit_behavior
 
@@ -169,7 +173,39 @@ def update(config, request, output):
             raise ValueError("Same-actor behavior probability audit failed")
     started = now()
     torch.cuda.reset_peak_memory_stats()
-    health = update_batch(trainer, groups, max_length=65536, segment_loader=segments)
+    allocator = {
+        "requested": config["grpo"].get("cuda_allocator"),
+        "environment": {
+            k: os.environ.get(k)
+            for k in ("PYTORCH_ALLOC_CONF", "PYTORCH_CUDA_ALLOC_CONF")
+        },
+        "backend": torch.cuda.memory.get_allocator_backend(),
+    }
+    write_json(output / "allocator.json", allocator)
+
+    def observe_memory(event):
+        free, total = torch.cuda.mem_get_info()
+        record = {
+            **event,
+            "elapsed_seconds": now() - started,
+            "allocated_bytes": torch.cuda.memory_allocated(),
+            "reserved_bytes": torch.cuda.memory_reserved(),
+            "peak_allocated_bytes": torch.cuda.max_memory_allocated(),
+            "peak_reserved_bytes": torch.cuda.max_memory_reserved(),
+            "device_free_bytes": free,
+            "device_total_bytes": total,
+        }
+        with (output / "memory.jsonl").open("a") as stream:
+            stream.write(json.dumps(record) + "\n")
+            stream.flush()
+
+    health = update_batch(
+        trainer,
+        groups,
+        max_length=65536,
+        segment_loader=segments,
+        observe_memory=observe_memory if config["grpo"].get("record_memory") else None,
+    )
     metadata = {
         "protocol": identity(),
         "stage": REVISION,
@@ -183,6 +219,7 @@ def update(config, request, output):
         "gpu_peak_allocated_bytes": torch.cuda.max_memory_allocated(),
         "gpu_peak_reserved_bytes": torch.cuda.max_memory_reserved(),
         "config_sha256": digest(config),
+        "cuda_allocator": allocator,
     }
     ids = segments(groups[0][0]["directory"], groups[0][0]["policy"])[0]["prompt_ids"][
         :128
