@@ -53,4 +53,4 @@ Static/Full 对齐 Student 训练预算，额外 Teacher 成本分列。任务�
 
 优先确认真实 CodeAct 业务执行、跨轮变量和实例隔离；原始题官方评分不回传给模型；多轮 mask 与梯度计算正确。CPU测试、真实Teacher/AppWorld、真实GPU更新和学习收益分别报告。
 
-当前交付以[重启报告](reports/codeact_reboot_20261119.md)、[S0训练报告](reports/codeact_s0_training_20261119.md)及 STATUS 为准。11月19日16:20已收齐256条合格成功示范并自动停止，最终导出252条64K内完整多轮样本、4条超长deferred，未截断。L40S上真实短/长训练及重载检查已通过，正式1 epoch正在运行；下一项是完成新S0保存/重载与备份。本地采集不再继续，旧 GRPO 不自动恢复。
+当前交付以[重启报告](reports/codeact_reboot_20261119.md)、[S0训练报告](reports/codeact_s0_training_20261119.md)及 STATUS 为准。11月19日16:20收齐256条合格成功示范并停止，导出252条64K内完整多轮样本、4条超长deferred。新S0已于17:27完成全部252样本/1 epoch/32次正式更新，0 OOM；短/长及正式模型保存重载通过，18:19本地备份完成。下一项是固定CodeAct协议下的新S0官方dev评价；当前尚无任务成功率结论，不自动恢复旧GRPO。

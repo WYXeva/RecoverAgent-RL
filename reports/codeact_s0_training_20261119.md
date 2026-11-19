@@ -1,6 +1,6 @@
 # CodeAct 新S0训练（2026-11-19）
 
-本轮由用户在采集完成后明确授权，使用现有L40S 48GB。当前状态：**短/长真实训练与重载检查通过，正式1 epoch运行中，未宣称完成或效果提升。** 训练源码 `fb2d793`，采集完成记录 `8d46738`，分支 `reboot/codeact`。
+本轮由用户在采集完成后明确授权，使用现有L40S 48GB。**2026-11-19 17:27:31正式1 epoch/32次更新完成，18:19:11本地回传完成，18:28再次核验通过。** 新S0保存/重载成功；尚未进行Student评价，不宣称能力提升。训练源码 `fb2d793`，采集完成记录 `8d46738`，分支 `reboot/codeact`。
 
 ## 输入与配置
 
@@ -18,7 +18,26 @@
 
 均为真实9B前后向，有限非零梯度，参数哈希变化并保存/重载一致，0 OOM。训练秒数不含模型加载、权重SHA扫描及重载校验耗时。两项检查各自加载全新基座；正式阶段再次全新加载，不把这3步记入正式32步。
 
-正式第1/32步已完成：8条完整样本、157,193输入token，loss0.394276，裁剪前梯度norm0.507634，实际lr5e-5，87.81秒，0 OOM。其余步骤继续运行；这些训练损失不是验证成绩。
+## 正式训练最终结果
+
+| 指标 | 结果 |
+| --- | ---: |
+| 完整样本 / epoch / 正式optimizer updates | 252 / 1 / 32 |
+| 实际输入 / Assistant目标token | 4,421,765 / 371,172 |
+| OOM / 跳过 / 截断 | 0 / 0 / 0 |
+| 实际学习率（全部32步） | 5e-5 |
+| 首步 / 末步训练loss | 0.394276 / 0.291118 |
+| 前8步 / 后8步平均训练loss | 0.288827 / 0.231203 |
+| 全32步平均训练loss | 0.252941 |
+| 裁剪前梯度norm范围 | 0.212029–0.507634 |
+| 正式训练计算耗时 | 2522.44秒（42分02秒） |
+| 02作业含核验、检查、加载重载 | 2727.93秒（45分28秒） |
+| 正式峰值allocated / reserved | 39.98 / 42.98 GiB |
+| 重载probe最大logits差 | 0（逐值一致） |
+
+252个不同任务各呈现一次，31步每步8样本、末步4样本，目标恰好覆盖；4条初始超64Kdeferred不属于本次OOM。完整[逐步训练loss及梯度CSV](codeact_s0_training_20261119_loss.csv)仅含运行统计，不含私有任务文本。各步样本不同，loss也非单调；这些训练损失不等于验证成功率。
+
+LoRA训练前哈希 `c6e5ce82ed72d7bf17de8dd0ef0eae72b5a3077dc04398f74899fd14edff4033`，训练后及重载哈希 `c6eef44984ba5da42b7d2e58f5852bbee7d04b65905b26e5dff6c6a3794ff6f7`，确认真实参数更新。全部梯度有限且非零；最终adapter回执8个文件SHA已在本地再次核验。
 
 ## OOM规则与验证
 
@@ -30,9 +49,9 @@ CPU测试实际执行：`tests/test_codeact_reboot.py tests/test_codeact_collect
 
 ## 运行位置、命令与剩余项
 
-远端 `/root/gpufree-data/recoveragent_codeact_s0_20261119_02/`，训练监督PID684、worker706；本地部署及进度在 `runs/codeact_s0_20261119_02/`。第一次01启动在收到OOM指示后、正式0步时停止，日志与原件保留；02为独立目录，未覆盖01。
+远端 `/root/gpufree-data/recoveragent_codeact_s0_20261119_02/`，原监督PID684、worker706均已结束；本地部署及进度在 `runs/codeact_s0_20261119_02/`。第一次01启动在收到OOM指示后、正式0步时停止，日志与原件保留；02为独立目录，未覆盖01。
 
-当前已运行，不要重复启动。复现命令（新输出目录）为：
+当前已完成，不要重复启动。复现命令（新输出目录）为：
 
 ```bash
 cd /root/gpufree-data/recoveragent_codeact_s0_20261119_02/source
@@ -45,6 +64,8 @@ PYTHONPATH=/root/gpufree-data/recoveragent_append_probe_20261118_01/kernels:$PWD
   --dataset ../data --output ../training_reproduction
 ```
 
-正式输出 `training/S0_base/adapter/`，`updates/` 每步保存实际lr、loss、有限梯度、样本及耗时，结束时保存optimizer、参数SHA、峰值显存和重载回执。控制器完成或失败均打包原始训练产物；本地只读备份进程每分钟查进度，结束后下载并核验归档SHA。
+正式输出 `training/S0_base/adapter/`，`updates/` 每步保存实际lr、loss、有限梯度、样本及耗时，已保存optimizer、参数SHA、峰值显存和重载回执。本地完整备份为 `runs/codeact_s0_20261119_02/final_delivery/training/S0_base/`，模型为其 `adapter/` 子目录；从固定官方基座加载此LoRA，不能将临时smoke adapter作为S0。
 
-当前未完成正式训练，尚无最终S0成绩；未启动dev/test或下一阶段学习。GPU租赁实际账单未取得。下一项是完成本次1 epoch并核对真实更新/遗漏样本/可重载权重，再安排评价。
+本地归档721,873,951字节（含短/长/正式模型、优化器和回执），SHA `22c10553a4438ecf2e8aaf233820c91cfa37f0f6087e1595b0a3756bbd78aad3`。备份18:19完成，晚于17:27 GPU训练结束；传输等待不计入45分28秒作业计算总时长。再次检查GPU显存0 MiB、利用率0；平台实例未自动关闭，GPU租赁实际账单未取得。
+
+仅完成新S0训练与验收，未启动dev/test或下一阶段学习；尚无任务成功率。下一项是在相同CodeAct协议下进行官方dev评价，入口见README。

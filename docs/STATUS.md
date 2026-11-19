@@ -1,6 +1,15 @@
 # 项目状态
 
-## 当前摘要（2026-11-19，CodeAct新S0短/长检查通过，正式训练运行中）
+## 当前摘要（2026-11-19 18:28核验，CodeAct新S0训练与本地备份完成）
+
+- **新S0已于17:27:31完成**：官方Qwen3.5-9B新建LoRA，252条完整多轮样本、1 epoch、32次正式更新；371,172 Assistant目标token全部参与，0 OOM/0跳过/0截断。4条超64K原始成功示范继续deferred，不计为本次OOM。
+- L40S正式计算2522.44秒（42分02秒），含前置核验/短长检查/模型加载重载的02作业共2727.93秒（45分28秒）。正式峰值allocated39.98 GiB/reserved42.98 GiB；所有32步实际lr5e-5，梯度有限非零。前8步平均训练loss0.288827、后8步0.231203，均非验证成绩。
+- 正式LoRA参数哈希确有变化；保存后重载哈希一致，probe logits最大差0。远端 `recoveragent_codeact_s0_20261119_02/training/S0_base/adapter/`；**本地 `runs/codeact_s0_20261119_02/final_delivery/training/S0_base/adapter/` 已落盘**，同时保留optimizer、全部更新及检查回执。
+- 18:19:11自动回传完成，721,873,951字节归档SHA `22c10553a4438ecf2e8aaf233820c91cfa37f0f6087e1595b0a3756bbd78aad3`；本次再核验checkpoint 8个文件SHA、252任务恰好一次、全部目标数与32更新。18:28远端GPU显存0 MiB/利用率0，训练结束；未自动关闭平台实例。
+- 源码 `fb2d793`、配置 `codeact_s0_20261119.json`，原01启动/旧模型/旧数据保持原件。29项直接相关CPU测试与Ruff此前通过；真实短/长/正式训练及重载均完成，但真实OOM分支未触发。**未跑新S0 dev/test，尚无任务成功率或能力提升结论。**
+- 下一项是固定CodeAct协议下评价新S0，沿用已有官方评分入口，不恢复旧GRPO。模型加载、评价命令与完整loss序列见[训练报告](../reports/codeact_s0_training_20261119.md)及[README](../README.md)。以下为历史记录。
+
+## 前次摘要（2026-11-19，CodeAct新S0短/长检查通过，正式训练运行中）
 
 - 用户在256示范采集结束后已开机、授权开始新S0，并允许样本OOM跳过。源码 `fb2d793`、独立配置 `configs/codeact_s0_20261119.json`；官方9B原始权重、无parent adapter/optimizer，BF16、LoRA r16/alpha32、lr5e-5、micro1/acc8、1 epoch。252个完整多轮样本，4条超64K仍deferred；无OOM时正式32步。
 - 现有L40S 48GB：957份传输文件、256来源SHA/train归属、官方权重SHA、短/长3样本远端重新分词与mask一致性通过。复用causal-conv1d/FLA快速路径，未整体升级训练栈。
