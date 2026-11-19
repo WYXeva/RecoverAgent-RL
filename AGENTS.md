@@ -14,7 +14,7 @@
 - 围绕一个 Student、AppWorld 任务池、Recovery-SFT 和 GRPO 工作；模型与资源参数进入配置。
 - 复用执行器、状态恢复、示范过滤和训练部件。新代码优先解决当前学习运行的缺口，避免重写整个 Harness 或建立通用平台。
 - 当前主线为 `reboot/codeact`：固定原生 `appworld(code)`、全新 Teacher 数据和官方 9B 起点。旧动态工具控制流程、Teacher 轨迹、actor/adapter/optimizer 不进入新训练；历史原件保留。
-- 本轮先完成采集、多轮 SFT 与新 S0 入口；Recovery、CoEvolve、GRPO 后续接入，不先建设通用平台。
+- 新S0已完成。当前按用户授权直接从新S0运行一轮有界GRPO＋CoEvolve，暂跳过Recovery-SFT；新生成池从空开始，不复用旧示范或Solver。仍不建设通用平台。
 - 新 Base-SFT 建立 S0，Recovery-SFT 得到 S1；后续 Static 与 Full 从同一 S1 比较。SFT 后重新采样，Teacher 离线示范不充当 Student 在线 rollout。
 - 新任务须有实际变化的目标、对象、约束或状态，并配套可执行解法和对应验收规则。
 

@@ -262,7 +262,14 @@ def judge(engine, source, evaluation, directory, *, purpose):
             "input_sha256": digest(evaluation),
             "prompt_sha256": digest(JUDGE),
             "purpose": purpose,
-            **({"call_identity": call_identity()} if call_identity() else {}),
+            **(
+                {
+                    "call_identity": getattr(engine, "judge_identity", None)
+                    or call_identity()
+                }
+                if getattr(engine, "judge_identity", None) or call_identity()
+                else {}
+            ),
         },
     )
     output = directory / "judgment.json"

@@ -4,7 +4,7 @@
 
 ## 1. 目标与边界
 
-研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。本轮先实现它们共同依赖的基础：**固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0 入口**。
+研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；本轮按用户最新授权直接从新S0进行一次有界GRPO＋CoEvolve，暂跳过Recovery-SFT。
 
 主分支为 `reboot/codeact`，起点为原开发分支 `bdaf6a3`。原工作区未提交工作保持原样；旧执行协议、Teacher 数据、模型与运行记录只供历史追溯，不进入本轮训练。历史计划可在[重启前固定版本](https://github.com/WYXeva/RecoverAgent-RL/blob/bdaf6a3cead063f7aec29989bd5bb5000abf7afd/project.md)查看。
 
@@ -40,7 +40,7 @@ Student 从官方 `Qwen/Qwen3.5-9B`、revision `c202236235762e1c871ad0ccb60c8ee5
 
 11月19日采集完成后，用户已开机并授权开始新S0，使用独立 `configs/codeact_s0_20261119.json`；无OOM时252个完整样本、1 epoch、预计32步。按最新指示，样本前后向OOM时记录并跳过完整样本，清除该批部分梯度后重算剩余项；最长烟测可改试下一条较长样本，不静默截断。非有限梯度、参数未变化和重载失败仍停止。正式数据与更新量按实际成功参与训练的样本记录。
 
-## 5. 后续路线（本轮不实现）
+## 5. 长期比较路线与本轮先行实验
 
 1. S0：全新 CodeAct Teacher 数据的 Base-SFT。
 2. S1：Student 失败后 Teacher 在同一个仍可继续的实例接手；只监督有效恢复后缀，失败前缀作为上下文。
@@ -55,4 +55,32 @@ Static/Full 对齐 Student 训练预算，额外 Teacher 成本分列。任务�
 
 当前交付以[重启报告](reports/codeact_reboot_20261119.md)、[S0训练报告](reports/codeact_s0_training_20261119.md)及 STATUS 为准。11月19日16:20收齐256条合格成功示范并停止，导出252条64K内完整多轮样本、4条超长deferred。新S0已于17:27完成全部252样本/1 epoch/32次正式更新，0 OOM；短/长及正式模型保存重载通过，18:19本地备份完成。
 
-用户随后授权固定dev24：使用同一新S0、现有L40S、vLLM 0.19.0、固定CodeAct/non-thinking/64K，24题按既定顺序各执行一次，官方评分，成功/失败/未知分列。独立配置 `codeact_s0_dev24_20261119.json`，不扩到dev111/test，不调用Teacher或训练。19:24已完成，**8成功/16失败/0未知，33.33%**；8条“提交完成但业务失败”已核对，主要为遗漏目标、筛选对象错误和购物车已有状态未处理。下一项核验最终本地备份；后续S1从train采同类真实失败恢复示范，dev不回流。见[dev24报告](reports/codeact_s0_dev24_20261119.md)。旧接口历史成绩仅作参考，不直接当作本次同条件效果对照，不自动恢复旧GRPO。
+用户随后授权固定dev24：使用同一新S0、现有L40S、vLLM 0.19.0、固定CodeAct/non-thinking/64K，24题按既定顺序各执行一次，官方评分，成功/失败/未知分列。独立配置 `codeact_s0_dev24_20261119.json`，不扩到dev111/test，不调用Teacher或训练。19:24已完成，**8成功/16失败/0未知，33.33%**；8条“提交完成但业务失败”已核对，主要为遗漏目标、筛选对象错误和购物车已有状态未处理。最终本地备份已核验；用户最新授权按第7节直接从新S0进行一轮GRPO＋CoEvolve，dev不回流。见[dev24报告](reports/codeact_s0_dev24_20261119.md)。旧接口历史成绩仅作参考，不直接当作本次同条件效果对照，不自动恢复旧GRPO。
+
+
+## 7. 当前有界在线学习
+
+用户批准先跑1轮、最多24小时。使用新CodeAct S0（32次SFT更新）的现有权重，
+不承接旧接口14/15次GRPO的actor或optimizer。当前阶段新optimizer从0计数，
+最多40组×4次真实执行、最多20次有效更新，lr1e-5、beta0、temperature0.8/top_p1。
+同组干净初态、同一actor、不同种子；两组成败混合且四条评分有效的组积累后更新，
+积累期间actor不变，剩余单组可做尾批。0/4与4/4仍留反馈，未知不当作0。
+
+复用既定train100任务ID与原scenario划分，原始/生成优先槽交替；当前生成池从空开始，
+不足时原始任务补位。每8个实际采样组最多选4个context，沿用最新轻量出题提示、
+原题/父题/同源题面对照、可选一次探索、每context最多2候选。完整四次交互进入Teacher；
+全新CodeAct Solver从干净初态执行，shared Judge准入，Student奖励使用同题同初态Solver参考。
+最多4批、16context、32候选，最后一组结束后不新增出题批次；Teacher在后台运行，入池后参与尚未执行槽。
+
+Student保持64K、non-thinking、固定appworld(code)，vLLM记录真实token及processed behavior logprob；
+训练使用相同actor、相同序列和temperature，首次更新前做小量logprob核对。
+复用TRL clipped GRPO、完整轨迹目标归一化、兼容前缀合并、目标位置词表分块与已验收快速内核。
+beta0不加载参考adapter或执行参考前向。每次更新恢复optimizer动量并重设实际lr，
+保留参数变化、有限梯度、optimizer、可重载adapter与完整组消费状态。
+OOM跳过整批更新并保留上一actor及原始轨迹，不用部分梯度冒充完整组更新。
+
+配置 `codeact_grpo_coevolve_20261119.json`；新源码锁、独立目录和绑定保证新旧协议不混用。
+Teacher总预留有限：4096请求、250万输出token、约42.95亿输入token、100美元公开价估算上限，
+同时受24小时限制；它是现有套餐用量估算，不是新增采购或扣款授权。Judge保持Flash thinking/high/8192；
+Teacher窗口1M独立于Student64K。普通任务失败继续，系统性模型/参数校验失败保存后停止。
+本轮不跑Static/test；是否有学习收益仍需后续同协议固定dev比较，在线训练奖励不能替代dev成绩。

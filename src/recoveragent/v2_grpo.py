@@ -114,6 +114,22 @@ def trainer_class():
             if input_ids.shape[0] != 1 or not len(selected):
                 raise ValueError("Request scoring needs one nonempty target sequence")
             positions = input_ids.shape[1] - logits_to_keep - 1 + selected
+            if getattr(self, "recoveragent_chunk_lm_head", False):
+                from .codeact.online import target_logps
+
+                chosen, entropy = target_logps(
+                    model, input_ids, attention_mask, positions, self.temperature
+                )
+                if mask is not None:
+                    indices = selected.unsqueeze(0)
+                    chosen = chosen.new_zeros((1, logits_to_keep)).scatter(
+                        1, indices, chosen
+                    )
+                    entropy = entropy.new_zeros((1, logits_to_keep)).scatter(
+                        1, indices, entropy
+                    )
+                self.recoveragent_last_logps = chosen.detach()
+                return chosen, entropy, None
             outputs = model(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
@@ -198,6 +214,7 @@ def make_trainer(model, tokenizer, output, settings):
     trainer.current_gradient_accumulation_steps = 1
     trainer.recoveragent_activation_offload = settings.get("activation_offload")
     trainer.recoveragent_coalesce = settings.get("coalesce_exact_prefixes", False)
+    trainer.recoveragent_chunk_lm_head = settings.get("chunk_lm_head", False)
     trainer.recoveragent_max_chain_targets = settings.get(
         "coalesce_max_target_tokens", 4096
     )
@@ -216,6 +233,7 @@ def update_batch(
     optimizer_step=True,
     observe_gradients=None,
     measure_constant=False,
+    segment_loader=None,
 ):
     import torch
 
@@ -243,7 +261,7 @@ def update_batch(
         for episode, advantage in zip(episodes, advantages, strict=True):
             if advantage == 0 and trainer.beta == 0 and not measure_constant:
                 continue
-            rows = segments(
+            rows = (segment_loader or segments)(
                 episode["directory"], episode["policy"], max_length=max_length
             )
             tokens = sum(len(r["completion_ids"]) for r in rows)

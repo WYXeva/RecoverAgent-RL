@@ -119,3 +119,36 @@ PYTHONPATH="$CODEACT_EVAL/source/src" "$CODEACT_ENV/worker_env/bin/python" \
 新测试的模板检查使用上述已缓存官方 tokenizer。旧 S2 源码锁应继续拒绝当前修改，不重签旧锁；历史实验使用其绑定的旧提交复现。新主线不经过这些阶段锁。
 
 私有凭据、原始任务/轨迹、环境状态与权重位于 `runs/`、`data/`，不提交 GitHub。后续路线：新 S0 → 同实例 Teacher 恢复 S1 → 从相同 S1 比较 Static 与 CoEvolve Full；本轮不实施后三项。
+
+### CodeAct S0 → 一轮 GRPO + CoEvolve（2026-11-19）
+
+用户已批准直接从全新 CodeAct S0 开始，暂跳过 Recovery-SFT。独立配置
+`configs/codeact_grpo_coevolve_20261119.json`：最多40组×4次、20次有效更新、24小时；
+当前actor累积两组有效成败混合组再更新，lr1e-5/beta0。每8个实际采样组读取四条反馈，
+后台生成最多4个context×2候选；新池从空开始，只接受全新CodeAct Solver和共享Judge验收。
+原题继续官方评分，dev/test不参与。全同奖励组保留反馈，评分无效组不更新。
+
+现有实例的冻结运行目录为 `/root/gpufree-data/recoveragent_codeact_evolve_20261119_01/`。
+其 `deployment.json` 固定路径及开始后24小时的绝对截止时间；启动和同目录续跑均使用：
+
+```bash
+python3 /root/gpufree-data/recoveragent_codeact_evolve_20261119_01/launch.py
+```
+
+`launch.py` 是私有部署包装，设置已配置的HF缓存、Teacher tokenizer及凭据路径；
+公开执行入口是下面的命令，续跑仍用相同配置、deployment、输出目录及原截止时间：
+
+```bash
+python -m recoveragent.codeact.experiment run \
+  --config configs/codeact_grpo_coevolve_20261119.json \
+  --deployment /path/to/private/deployment.json \
+  --output /path/to/private/experiment
+```
+
+deployment包含 `source_root`、`deployment_file`、`s0`、`worker_python`、`training_python`、
+`vllm_python`、`base_path`、`kernel_overlay`、`port`、`appworld_root`、`credentials`、
+`teacher_ledger` 和 `deadline`。新源码锁为 `configs/codeact_online_source_20261119.lock.json`，
+旧锁保持原样。进度看 `experiment/summary.json`，逐组看 `groups/group_*/result.json`，
+更新看 `updates/attempt_*/result.json`，Teacher开销在 `teacher_ledger/`。
+同一目录禁止两个controller同时运行。达到采样、更新或时间上限会保存并关闭自身vLLM，
+不自动关平台机器、不租机续费，也不自动启动dev/test。

@@ -1,6 +1,15 @@
 # 项目状态
 
-## 当前摘要（2026-11-19 19:27核验，新CodeAct S0 dev24完成）
+## 当前摘要（2026-11-19 19:55，新CodeAct GRPO＋CoEvolve已启动）
+
+- 用户批准从刚完成的新CodeAct S0直接开始，暂跳过Recovery-SFT；**最多40组×4次、20次有效更新、24小时**。独立作业 `codeact_evolve_20261119_01` 于19:52:38正式启动，截止11月20日19:52:38；目前首组真实采样中，尚未完成组和参数更新，不能称为整轮完成。
+- 新S0参数SHA `c6eef449…f6f7`，固定官方9B、non-thinking/64K、L40S/vLLM0.19。lr1e-5/beta0，两组成败混合有效组再更新；首次更新前同actor/token的behavior logprob核验。旧FC actor/optimizer、旧Teacher/Solver和旧生成池未进入新实验。
+- 新CodeAct在线调度已接通当前actor采样、连续optimizer、兼容多轮合并训练、后台轻量出题和Solver/shared Judge入池。新池从空开始，train100任务ID沿用；每8实际组最多4context×2候选，原题官方评分，生成题共享thinking/high/8192 Judge；不跑Static/dev/test。
+- **97项相关CPU测试通过**（另3项旧入口测试排除，原因见报告）；合并/逐回复loss差1.49e-8，裁剪前梯度最大差7.45e-9，目标token全部保留。Ruff通过；真实S0/基座、train隔离、环境、Teacher凭据/tokenizer和快速内核核验通过。GPU首次真实GRPO更新尚待采样产生有效组。
+- 远端 `/root/gpufree-data/recoveragent_codeact_evolve_20261119_01/`，本地 `runs/codeact_evolve_20261119_01/`；进度和整轮退出后的原件下载/SHA核验后台已启用。新源码锁与配置独立，保留历史锁。启动/续跑见[README](../README.md)，事实与测试边界见[本轮报告](../reports/codeact_evolve_round1_20261119.md)。
+- 前次CodeAct S0 dev24已完成8/24，**完整本地备份已核验**：50,323,242字节，SHA `e321df2e7f7a1147cb6d5313ef247c4a3a2c845377e692469fb6c83ee261f801`。该dev轨迹不回流训练。下一项核验本轮首组官方结果及首次真实更新/重载，再按已授权上限继续。
+
+## 前次摘要（2026-11-19 19:27核验，新CodeAct S0 dev24完成）
 
 - **24/24完成：8成功、16失败、0未知，成功率33.33%**。新S0、固定CodeAct、L40S/vLLM 0.19.0，24题各一次，原任务官方评分；未调用Teacher、训练或扩到dev111/test。02作业18:46:37至19:24:59，共38分21秒；855请求、20,565,046累计输入/77,978生成token。最后一题14分14秒，其余23题平均60.24秒。
 - 8题提交完成但业务失败已逐题核对：取消会议闹钟3题分别漏1/3/2个；复购衣服3题为选错款式1题、旧购物车无关商品被一起买走2题；Venmo2题为对象筛选错误、漏9且错拒3条，以及未筛选而多批准8条。8题均0格式拒绝、无执行环境fault，完成接口成功并不表示业务成功。

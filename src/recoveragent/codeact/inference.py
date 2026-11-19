@@ -1,6 +1,7 @@
 """New S0 evaluation uses the same CodeAct loop and original official evaluator."""
 
 from pathlib import Path
+import math
 
 from recoveragent.io import digest, read_json, write_json
 from recoveragent.teacher import TeacherTransportError
@@ -96,7 +97,17 @@ class Student:
         elapsed = now() - started
         return self.finish(ids, generated, elapsed, directory, index)
 
-    def finish(self, ids, generated, elapsed, directory, index, *, finish_reason=None):
+    def finish(
+        self,
+        ids,
+        generated,
+        elapsed,
+        directory,
+        index,
+        *,
+        finish_reason=None,
+        behavior=None,
+    ):
         text = self.tokenizer.decode(generated, skip_special_tokens=False)
         ended = bool(generated) and generated[-1] in {
             self.tokenizer.eos_token_id,
@@ -114,6 +125,7 @@ class Student:
                 "seconds": elapsed,
                 "ended": ended,
                 "provider_finish_reason": finish_reason,
+                **({"behavior": behavior} if behavior is not None else {}),
             },
         )
         self.usage["requests"] += 1
@@ -153,7 +165,10 @@ class VLLMStudent(Student):
         proof = read_json(server_receipt)
         if (
             checkpoint.get("protocol") != identity()
-            or not checkpoint.get("formal_s0")
+            or not (
+                checkpoint.get("formal_s0")
+                or checkpoint.get("stage") == "codeact_grpo_v1"
+            )
             or proof.get("protocol") != identity()
             or proof.get("base") != config["model"]
             or proof.get("adapter_receipt_sha256") != digest(checkpoint)
@@ -175,6 +190,12 @@ class VLLMStudent(Student):
             "backend": proof,
         }
         self.reset_usage()
+        self.policy = {
+            **config["model"],
+            "checkpoint_id": digest(
+                {"adapter_sha256": checkpoint["adapter_sha256_after"]}
+            ),
+        }
 
     def generate(self, messages, directory, index, remaining_tokens):
         import requests
@@ -198,6 +219,16 @@ class VLLMStudent(Student):
             "ignore_eos": False,
             "stream": False,
         }
+        if stage.get("record_behavior"):
+            if (
+                stage["temperature"] <= 0
+                or stage["top_p"] != 1.0
+                or self.server.get("logprobs_mode") != "processed_logprobs"
+            ):
+                raise ValueError(
+                    "GRPO requires temperature-scaled full-distribution behavior logprobs"
+                )
+            payload["logprobs"] = 1
         write_json(directory / f"{index:03d}.backend_request.json", payload)
         started = now()
         try:
@@ -225,6 +256,26 @@ class VLLMStudent(Student):
             or choices[0].get("finish_reason") not in ("stop", "length")
         ):
             raise ValueError("Invalid CodeAct vLLM token/model/usage receipt")
+        behavior = None
+        if stage.get("record_behavior"):
+            logprobs = choices[0].get("logprobs", {}).get("token_logprobs")
+            if (
+                not isinstance(logprobs, list)
+                or len(logprobs) != len(generated)
+                or any(
+                    type(v) not in (int, float) or not math.isfinite(v)
+                    for v in logprobs
+                )
+            ):
+                raise ValueError("Invalid CodeAct behavior logprobs")
+            behavior = {
+                "policy": self.policy,
+                "logprobs": logprobs,
+                "temperature": stage["temperature"],
+                "top_p": stage["top_p"],
+                "logprob_contract": "vllm_processed_logprobs_temperature_top_p1_top_k_all",
+                "protocol": identity(),
+            }
         return self.finish(
             ids,
             generated,
@@ -232,6 +283,7 @@ class VLLMStudent(Student):
             directory,
             index,
             finish_reason=choices[0]["finish_reason"],
+            behavior=behavior,
         )
 
 

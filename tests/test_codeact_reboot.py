@@ -167,14 +167,21 @@ def test_dev24_selector_and_once_only_evaluation_resume(config, tmp_path, monkey
         )
 
 
+@pytest.mark.parametrize("behavior", [False, True])
 def test_codeact_vllm_real_template_and_shared_execution_loop(
-    config, tokenizer, tmp_path, monkeypatch
+    config, tokenizer, tmp_path, monkeypatch, behavior
 ):
     import requests
     from recoveragent.codeact import inference
     from recoveragent.io import digest, write_json
 
-    checkpoint = {"protocol": protocol.identity(), "formal_s0": True}
+    checkpoint = {
+        "protocol": protocol.identity(),
+        "formal_s0": True,
+        "adapter_sha256_after": "synthetic",
+    }
+    if behavior:
+        config["student_inference"].update(record_behavior=True, temperature=0.8)
     proof = {
         "protocol": protocol.identity(),
         "base": config["model"],
@@ -184,6 +191,7 @@ def test_codeact_vllm_real_template_and_shared_execution_loop(
         "vllm_version": "0.19.0",
         "url": "http://127.0.0.1:18019",
         "model_name": "new_codeact_s0",
+        "logprobs_mode": "processed_logprobs",
     }
     write_json(tmp_path / "server.json", proof)
     monkeypatch.setattr(inference, "verify_checkpoint", lambda *args: checkpoint)
@@ -220,14 +228,24 @@ def test_codeact_vllm_real_template_and_shared_execution_loop(
 
     def post(self, url, *, json, timeout):
         assert json["prompt"] == prompt and json["model"] == proof["model_name"]
-        assert json["temperature"] == 0 and json["max_tokens"] == 4096
+        assert (
+            json["temperature"] == (0.8 if behavior else 0)
+            and json["max_tokens"] == 4096
+        )
+        assert json.get("logprobs") == (1 if behavior else None)
         assert 0 < timeout <= config["limits"]["wall_seconds"]
         sent.append(json)
         return SimpleNamespace(
             raise_for_status=lambda: None,
             json=lambda: {
                 "model": proof["model_name"],
-                "choices": [{"token_ids": generated, "finish_reason": "stop"}],
+                "choices": [
+                    {
+                        "token_ids": generated,
+                        "finish_reason": "stop",
+                        "logprobs": {"token_logprobs": [-0.1] * len(generated)},
+                    }
+                ],
                 "usage": {
                     "prompt_tokens": len(prompt),
                     "completion_tokens": len(generated),
@@ -251,6 +269,12 @@ def test_codeact_vllm_real_template_and_shared_execution_loop(
         read_json(tmp_path / "episode/requests/000.request.json")["tools"]
         == protocol.TOOLS
     )
+    if behavior:
+        from recoveragent.codeact.online import segments
+
+        rows = segments(tmp_path / "episode", client.policy)
+        assert rows[0]["completion_ids"] == generated
+        assert rows[0]["logprobs"] == [-0.1] * len(generated)
     checkpoint["formal_s0"] = False
     with pytest.raises(ValueError, match="identity mismatch"):
         inference.VLLMStudent(
@@ -636,7 +660,7 @@ def test_legacy_lock_is_not_resigned_for_new_codeact(monkeypatch):
     monkeypatch.setenv(
         "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_text_final_20261118"
     )
-    with pytest.raises(ValueError, match="source changed: src/recoveragent/teacher.py"):
+    with pytest.raises(ValueError, match="source changed: src/recoveragent/"):
         verify_lock(S2_RUNTIME)
 
 

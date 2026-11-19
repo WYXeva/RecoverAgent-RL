@@ -119,7 +119,18 @@ def loop(world, client, config, directory):
     }
 
 
-def run(task_id, attempt, directory, root, config, client, *, training=True):
+def run(
+    task_id,
+    attempt,
+    directory,
+    root,
+    config,
+    client,
+    *,
+    training=True,
+    generated_task=None,
+    instruction=None,
+):
     from freezegun import configure
 
     # AppWorld freezes business time. Its scan must not resolve Transformers'
@@ -132,6 +143,18 @@ def run(task_id, attempt, directory, root, config, client, *, training=True):
     write_json(directory / "worker.json", {"pid": os.getpid()})
     (directory / "requests").mkdir()
     context = context_for(task_id, training=training)
+    if (generated_task is not None or instruction is not None) and not training:
+        raise ValueError("Generated tasks and exploration must remain train-only")
+    if generated_task is not None:
+        from recoveragent.coevolve_llm import validate_task
+
+        validate_task(generated_task, require_validation=False)
+        if (
+            generated_task["source_task_id"] != task_id
+            or generated_task.get("execution_protocol") != identity()
+        ):
+            raise ValueError("Generated CodeAct task/source identity differs")
+        instruction = generated_task["instruction"]
     environment = verify_environment(ENV_REVISION)
     package = json.loads(
         importlib.metadata.distribution("appworld").read_text("direct_url.json")
@@ -170,6 +193,31 @@ def run(task_id, attempt, directory, root, config, client, *, training=True):
         timeout_seconds=config["limits"]["code_timeout_seconds"],
     )
     try:
+        # Control-side identity only; no state records or scoring material reach Actor.
+        if (
+            config.get("online")
+            or generated_task is not None
+            or instruction is not None
+        ):
+            binding["initial_state_hash"] = digest(
+                {
+                    "task_id": task_id,
+                    "model_hashes": world.models.model_hashes(),
+                    "datetime": str(world.task.datetime),
+                }
+            )
+            binding["original_instruction"] = world.task.instruction
+            binding["trajectory_id"] = str(directory)
+            binding["generated_task_id"] = (
+                generated_task["task_id"] if generated_task else None
+            )
+        if instruction is not None:
+            rows = world.models["supervisor"]["Task"].find_all()
+            if len(rows) != 1 or rows[0].status is not None:
+                raise ValueError("Derived task requires clean active initial state")
+            rows[0].instruction = instruction
+            rows[0].save()
+            world.task.instruction = instruction
         episode = loop(world, client, config, directory)
         world.save()
         api_calls = list(world.requester.request_tracker.requests)
@@ -183,16 +231,32 @@ def run(task_id, attempt, directory, root, config, client, *, training=True):
             ),
             "supervisor": sum("/supervisor/" in r["url"] for r in api_calls),
         }
+        if generated_task is not None or instruction is not None:
+            terminal = world.requester.request(
+                "supervisor", "show_active_task", track=False
+            )
+            episode["coevolve_terminal"] = {
+                k: terminal.get(k) for k in ("instruction", "status", "answer")
+            }
+        episode["status"] = "valid" if episode["fault"] is None else "invalid"
     finally:
         world.close()
     # Full messages are persisted before official evaluation, never amended with labels.
     write_json(directory / "trajectory.json", binding | episode)
-    try:
-        evaluation = evaluate_isolated(
-            task_id, experiment, root, directory, research=context
-        )
-    except Exception as exc:
-        evaluation = {"status": "evaluation_error", "success": None, "error": repr(exc)}
+    if instruction is not None:
+        # Derived public goal is judged independently; never use source official score.
+        evaluation = {"status": "pending_judge", "success": None}
+    else:
+        try:
+            evaluation = evaluate_isolated(
+                task_id, experiment, root, directory, research=context
+            )
+        except Exception as exc:
+            evaluation = {
+                "status": "evaluation_error",
+                "success": None,
+                "error": repr(exc),
+            }
     valid = evaluation["status"] == "valid" and episode["fault"] is None
     result = {
         "task_id": task_id,

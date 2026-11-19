@@ -3,14 +3,16 @@
 from .v2_grpo import segments
 
 
-def audit_behavior(trainer, groups, settings):
+def audit_behavior(trainer, groups, settings, *, segment_loader=None):
     import torch
 
     model = trainer.model
     model.eval()
     checks = []
     for episode in groups[0]:
-        for row in segments(episode["directory"], episode["policy"], max_length=65536):
+        for row in (segment_loader or segments)(
+            episode["directory"], episode["policy"], max_length=65536
+        ):
             if (
                 row["temperature"] != trainer.temperature
                 or row["top_p"] != 1.0
