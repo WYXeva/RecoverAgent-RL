@@ -22,12 +22,21 @@ def main():
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--adapter")
     parser.add_argument("--split", choices=["dev", "train"], default="dev")
+    parser.add_argument("--target-successes", type=int)
+    parser.add_argument("--skip-scoring-errors", action="store_true", default=None)
     args = parser.parse_args()
     config = read_json(args.config)
     if args.command == "collect":
         from .collect import collect
 
-        collect(config, args.output, args.root, args.credentials)
+        collect(
+            config,
+            args.output,
+            args.root,
+            args.credentials,
+            target_successes=args.target_successes,
+            skip_scoring_errors=args.skip_scoring_errors,
+        )
     elif args.command == "episode":
         from recoveragent.teacher import read_credentials
         from .client import Teacher

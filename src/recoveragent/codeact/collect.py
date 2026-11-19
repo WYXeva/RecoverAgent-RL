@@ -103,6 +103,10 @@ def summary(directory):
     finished = {
         a["task_id"] for a in attempts if a.get("success") is True or a["attempt"] == 2
     }
+    skipped = {
+        read_json(p)["task_id"] for p in Path(directory).glob("scoring_skips/*.json")
+    }
+    finished |= skipped
     totals = {
         k: sum(a.get("usage", {}).get(k, 0) for a in attempts)
         for k in (
@@ -122,8 +126,100 @@ def summary(directory):
         "attempted_tasks": len({a["task_id"] for a in attempts}),
         "valid_failed_attempts": sum(a.get("success") is False for a in attempts),
         "invalid_attempts": sum(a.get("success") is None for a in attempts),
+        "skipped_scoring_tasks": len(skipped),
         "usage": totals,
     }
+
+
+def official_scoring_error(target, result):
+    """Skip evaluator exceptions only, never credential or execution faults."""
+    evaluation = result.get("evaluation", {})
+    trajectory_path = target / "trajectory.json"
+    if (
+        result.get("valid") is not False
+        or result.get("success") is not None
+        or evaluation.get("status") != "evaluation_error"
+        or evaluation.get("category") not in (None, "unknown")
+        or not trajectory_path.exists()
+    ):
+        return False
+    trajectory = read_json(trajectory_path)
+    return (
+        "fault" in trajectory
+        and trajectory["fault"] is None
+        and digest(trajectory) == result.get("trajectory_sha256")
+    )
+
+
+def skip_scoring_task(directory, target, result):
+    """Separate audit receipt; original official result and trajectory stay intact."""
+    receipt = {
+        "task_id": result["task_id"],
+        "attempt": result["attempt"],
+        "reason": "official_scoring_exception_skip_task",
+        "success": None,
+        "eligible": False,
+        "result": str(target / "result.json"),
+        "result_sha256": digest(result),
+        "trajectory_sha256": result["trajectory_sha256"],
+        "evaluation": result["evaluation"],
+    }
+    path = directory / "scoring_skips" / f"{result['task_id']}.json"
+    if path.exists():
+        if read_json(path) != receipt:
+            raise ValueError("Skipped scoring evidence changed")
+    else:
+        write_json(path, receipt)
+
+
+def collection_controls(directory, target_successes, skip_scoring_errors):
+    """Scheduling is independent of immutable model/episode configuration."""
+    path = directory / "collection_controls.json"
+    controls = (
+        read_json(path)
+        if path.exists()
+        else {
+            "revision": "codeact_collection_controls_v1",
+            "target_successes": None,
+            "skip_scoring_errors": False,
+        }
+    )
+    requested = dict(controls)
+    if target_successes is not None:
+        if target_successes <= 0:
+            raise ValueError("target_successes must be positive")
+        requested["target_successes"] = target_successes
+    if skip_scoring_errors is not None:
+        requested["skip_scoring_errors"] = skip_scoring_errors
+    if path.exists():
+        if requested != controls:
+            raise ValueError("Collection controls differ from the saved continuation")
+    else:
+        write_json(path, requested)
+    return requested
+
+
+def finish_at_target(directory, config, controls):
+    target = controls["target_successes"]
+    totals = summary(directory)
+    if target is None or totals["eligible_tasks"] < target:
+        return False
+    status = totals | {"status": "target_reached", "controls": controls}
+    replace_json(directory / "progress.json", status)
+    from .data import export
+
+    try:
+        status["export"] = export(
+            directory, directory / f"target_{target}_data", config
+        )
+    except Exception as exc:
+        replace_json(
+            directory / "progress.json",
+            status | {"status": "target_reached_export_error", "error": repr(exc)},
+        )
+        raise
+    replace_json(directory / "progress.json", status)
+    return True
 
 
 def audit_first_batch(directory, rows):
@@ -140,7 +236,10 @@ def audit_first_batch(directory, rows):
         trajectory = read_json(p / "trajectory.json")
         if trajectory["protocol"] != identity() or trajectory.get("fault"):
             problems.append(f"{attempt['task_id']}: protocol/infrastructure fault")
-        if not attempt["valid"]:
+        skip_path = Path(directory) / "scoring_skips" / f"{attempt['task_id']}.json"
+        if not attempt["valid"] and not (
+            skip_path.exists() and official_scoring_error(p, attempt)
+        ):
             problems.append(f"{attempt['task_id']}: invalid official evaluation")
         for request in (p / "requests").glob("*.request.json"):
             if read_json(request)["tools"] != TOOLS:
@@ -163,7 +262,15 @@ def audit_first_batch(directory, rows):
     }
 
 
-def collect(config, directory, root, credentials):
+def collect(
+    config,
+    directory,
+    root,
+    credentials,
+    *,
+    target_successes=None,
+    skip_scoring_errors=None,
+):
     directory = Path(directory).resolve()
     directory.mkdir(parents=True, exist_ok=True)
     with (directory / "collector.lock").open("a") as lock:
@@ -185,9 +292,12 @@ def collect(config, directory, root, credentials):
             write_json(directory / "binding.json", binding)
             if not config_path.exists():
                 write_json(config_path, config)
+        controls = collection_controls(directory, target_successes, skip_scoring_errors)
         for position, row in enumerate(
             binding["queue"][: config["collection"]["max_tasks"]]
         ):
+            if finish_at_target(directory, config, controls):
+                return
             for attempt in range(1, config["collection"]["max_attempts_per_task"] + 1):
                 target = directory / "episodes" / row["task_id"] / f"attempt_{attempt}"
                 if target.exists() and not (target / "result.json").exists():
@@ -195,7 +305,13 @@ def collect(config, directory, root, credentials):
                         target, config["collection"]["worker_timeout_seconds"]
                     )
                 if (target / "result.json").exists():
-                    if read_json(target / "result.json").get("success") is True:
+                    result = read_json(target / "result.json")
+                    if controls["skip_scoring_errors"] and official_scoring_error(
+                        target, result
+                    ):
+                        skip_scoring_task(directory, target, result)
+                        break
+                    if result.get("success") is True:
                         break
                     continue
                 if target.exists():
@@ -232,6 +348,7 @@ def collect(config, directory, root, credentials):
                         "attempt": attempt,
                         "queue_position": position,
                         "pid": os.getpid(),
+                        "controls": controls,
                     },
                 )
                 command = [
@@ -285,6 +402,11 @@ def collect(config, directory, root, credentials):
                             )
                 result = read_json(target / "result.json")
                 if not result["valid"]:
+                    if controls["skip_scoring_errors"] and official_scoring_error(
+                        target, result
+                    ):
+                        skip_scoring_task(directory, target, result)
+                        break
                     # Do not burn the 510 queue on a common dependency/credential fault.
                     replace_json(
                         directory / "progress.json",
@@ -297,7 +419,11 @@ def collect(config, directory, root, credentials):
             replace_json(
                 directory / "progress.json",
                 summary(directory)
-                | {"status": "running", "completed_queue_positions": position + 1},
+                | {
+                    "status": "running",
+                    "completed_queue_positions": position + 1,
+                    "controls": controls,
+                },
             )
             if position + 1 == config["collection"]["first_batch_tasks"]:
                 audit_path = directory / "first_batch_audit.json"
@@ -315,6 +441,15 @@ def collect(config, directory, root, credentials):
                     )
                     return
             time.sleep(0.1)
+        if finish_at_target(directory, config, controls):
+            return
         replace_json(
-            directory / "progress.json", summary(directory) | {"status": "complete"}
+            directory / "progress.json",
+            summary(directory)
+            | {
+                "status": "queue_exhausted"
+                if controls["target_successes"]
+                else "complete",
+                "controls": controls,
+            },
         )

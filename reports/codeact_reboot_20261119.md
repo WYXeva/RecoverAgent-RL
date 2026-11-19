@@ -2,7 +2,22 @@
 
 分支 `reboot/codeact`，基于远端原开发分支 `bdaf6a3cead063f7aec29989bd5bb5000abf7afd`，独立工作区 `/home/eva/project/RecoverAgent-RL-codeact`。原工作区全部未提交工作保留；旧数据、模型、优化器与15步GRPO归档不进入新训练。
 
-**北京时间 2026-11-19T01:02:53.770668：首批20个不同训练场景已完成并通过自动验收，已实际进入第21题，继续train510。** 全队列仍在运行，不把启动或首批完成写成510题完成。实现提交 `a293de6`；本次报告更新随后单独提交。
+**最新：北京时间2026-11-19 11:17，累计79条合格成功示范，已按新规则恢复采集，目标256条。** 本次续跑结果如下；后文首批20的统计保留为历史原件。基础实现提交 `a293de6`，首批报告 `f9df583`。
+
+## 256条目标续跑（11:17快照）
+
+原进程03:02因第84题 `988af8e_1` 官方评分中的AttributeError停止，未一直运行。控制器保留 `success=null/eligible=false`，没有把异常伪装成普通失败或成功。用户指示继续、评分异常跳过并累计到256条后，本次只修改采集调度/CLI/启动器及针对性测试，没有修改模型提示、任务划分、预算、AppWorld或官方评分源码。
+
+- 已完成91次尝试：79官方成功、11有效失败、1未知；79条成功均符合原始示范资格。处置84题＝79成功＋4题两次失败＋1题评分异常跳过。现第85题 `fb05fed_3` 已收到9次真实Teacher响应，PID2944992在本地继续。
+- 评分异常单独保存 `scoring_skips/<task>.json`，引用原结果/轨迹SHA，跳过整题而非再次尝试。新旧续跑均遵循该规则；真实业务失败仍最多两次。凭据、Teacher与执行环境故障不被此规则吞掉。
+- 累计256条合格官方成功示范即停止新请求并导出 `target_256_data/`；最多原train510，不自动补任务、追加额度或训练。成功总数与64K可训练数分别统计，超长保留deferred、不截断。
+- 调度保存于独立 `collection_controls.json`，新冻结源码 `runtime_target256_20261119/`；原模型配置、队列binding、首批验收、旧runtime manifest和异常轨迹/结果SHA已核验未变。续跑不重复成功题；同一命令见README。
+- **107项pytest通过，7.63秒**：`tests/test_codeact_collection_controls.py tests/test_codeact_reboot.py tests/test_teacher_collection.py tests/test_teacher_data.py tests/test_evaluation_classification.py`。Ruff check、13文件format check、diff check通过。新增8例采用模拟worker/导出，只验证调度；真实续跑与模拟测试分别记录。
+- 截至恢复前的完成尝试用量：1466请求、19,755,101输入/382,760输出/17,830,144缓存命中token，配置估价$1.143779964；订阅实际账单未知。恢复后的在途请求另记实时usage，未包含于该数值。
+
+AgentEvolver只作为固定代码执行接口的设计参考，未直接导入其模块或替换为其整体Harness。本项目 `codeact/episode.py` 调用AppWorld原生执行器、复用官方评分与已有基础组件；旧动态工具Harness不进入新链路。
+
+仍未完成256条、79条全量编码或任何9B GPU训练。下一动作继续当前队列到目标并检查最终数据清单；GPU仍按用户指示不开机。
 
 ## 实现与入口
 
@@ -60,4 +75,4 @@ Teacher为现有Flash/thinking，独立1M窗口，以匹配tokenizer估算完整
 - 另尝试旧S2上下文套件，6项在历史源码锁入口拒绝变更后的teacher.py；未重签旧锁。新测试明确保留该拒绝，未声称完整pytest全量通过。
 - 用户明确暂不开GPU：**9B真实前向/反向烟测、GPU保存重载、正式S0及Student dev/test尚未执行**，没有新S0 checkpoint或学习收益结论。采集完成后的正式S0仍是下一步，不由collector自动启动。
 
-准确的继续采集、导出、新S0短长检查/正式训练、dev111评价命令见 [README](../README.md)。当前后台无需再次启动，资源故障会保留具体日志；下一项是完成同一新队列并冻结最终成功/超长清单，然后安排GPU烟测与S0。后续S1、Static、Full路线只在主计划列出，本轮不实现或启动。
+准确的继续采集、导出、新S0短长检查/正式训练、dev111评价命令见 [README](../README.md)。当前续跑状态以上方11:17记录为准；下一项是沿同一新队列累计256条合格成功示范并冻结成功/超长清单，然后安排GPU烟测与S0。后续S1、Static、Full路线只在主计划列出，本轮不实现或启动。

@@ -26,7 +26,15 @@ def main():
     p.add_argument("--credentials", required=True)
     p.add_argument("--output", required=True)
     p.add_argument("--config", default="configs/codeact_reboot_20261119.json")
+    p.add_argument("--runtime-name", default="runtime")
+    p.add_argument("--target-successes", type=int)
+    p.add_argument("--skip-scoring-errors", action="store_true")
     args = p.parse_args()
+    if (
+        not args.runtime_name.startswith("runtime")
+        or Path(args.runtime_name).name != args.runtime_name
+    ):
+        p.error("runtime-name must be a local directory name starting with runtime")
     root = Path(__file__).resolve().parents[1]
     output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -42,8 +50,8 @@ def main():
                 json.dumps({"already_running": True, "pid": pid, "output": str(output)})
             )
             return
-    snapshot = output / "runtime"
-    receipt = output / "runtime_manifest.json"
+    snapshot = output / args.runtime_name
+    receipt = output / f"{args.runtime_name}_manifest.json"
     if receipt.exists():
         if manifest(snapshot) != json.loads(receipt.read_text()):
             raise ValueError("Frozen runtime changed")
@@ -78,6 +86,10 @@ def main():
         "--credentials",
         str(Path(args.credentials).resolve()),
     ]
+    if args.target_successes is not None:
+        command.extend(["--target-successes", str(args.target_successes)])
+    if args.skip_scoring_errors:
+        command.append("--skip-scoring-errors")
     with (output / "collector.log").open("a") as log:
         process = subprocess.Popen(
             command,

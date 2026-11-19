@@ -490,3 +490,23 @@ def test_detached_launcher_preserves_venv_python_path(tmp_path, monkeypatch, con
         venv_python
     )  # Resolving this symlink loses the venv packages.
     assert not (tmp_path / "out/runtime/.env").exists()
+    original = (tmp_path / "out/runtime_manifest.json").read_bytes()
+    (project / "src/new_collector.py").write_text("# New scheduling only\n")
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        sys.argv
+        + [
+            "--runtime-name",
+            "runtime_target256",
+            "--target-successes",
+            "256",
+            "--skip-scoring-errors",
+        ],
+    )
+    command.clear()
+    launcher.main()
+    assert (tmp_path / "out/runtime_manifest.json").read_bytes() == original
+    assert not (tmp_path / "out/runtime/src/new_collector.py").exists()
+    assert (tmp_path / "out/runtime_target256/src/new_collector.py").exists()
+    assert command[-3:] == ["--target-successes", "256", "--skip-scoring-errors"]
