@@ -291,6 +291,106 @@ def test_new_s0_rejects_parent_before_gpu_or_dataset(config, tmp_path):
         training.train(config, tmp_path / "missing", tmp_path / "out")
 
 
+@pytest.mark.parametrize("fail_during_backward", [False, True])
+def test_oom_discards_partial_gradients_and_replays_survivors(
+    monkeypatch, fail_during_backward
+):
+    torch = pytest.importorskip("torch")
+    model = torch.nn.Linear(1, 1, bias=False).double()
+    model.weight.data.fill_(0.5)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+    rows = [
+        {"task_id": str(i), "input_ids": [1, 2], "target_tokens": 1, "target": float(i)}
+        for i in range(3)
+    ]
+    calls, events = [], []
+
+    def backward(model, row, stage, denominator):
+        calls.append(row["task_id"])
+        loss = (model.weight - row["target"]).square().sum() / denominator
+        if row["task_id"] != "1" or fail_during_backward:
+            loss.backward()
+        if row["task_id"] == "1":
+            raise torch.cuda.OutOfMemoryError("synthetic OOM, not a GPU test")
+        return float(loss.detach())
+
+    monkeypatch.setattr(training, "_backward_example", backward)
+    active, skipped, loss = training.accumulate_batch(
+        model, optimizer, rows, [0, 1, 2], {"skip_oom": True}, events.append
+    )
+    expected = sum((0.5 - rows[i]["target"]) ** 2 for i in [0, 2]) / 2
+    expected_grad = sum(2 * (0.5 - rows[i]["target"]) for i in [0, 2]) / 2
+    assert active == [0, 2] and skipped == [1]
+    assert calls == ["0", "1", "0", "2"]
+    assert loss == pytest.approx(expected)
+    assert model.weight.grad.item() == pytest.approx(expected_grad)
+    optimizer.step()
+    assert model.weight.item() == pytest.approx(0.5 - 0.1 * expected_grad)
+    assert events[0]["task_id"] == "1" and not events[0]["truncated"]
+    assert events[0]["discarded_partial_batch_gradients"]
+
+
+def test_all_oom_has_no_update_and_nonfinite_is_not_swallowed(monkeypatch):
+    torch = pytest.importorskip("torch")
+    model = torch.nn.Linear(1, 1)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+    rows = [{"task_id": "a", "input_ids": [1, 2], "target_tokens": 1}]
+
+    def oom(*args):
+        model.weight.sum().backward()
+        raise torch.cuda.OutOfMemoryError("synthetic")
+
+    monkeypatch.setattr(training, "_backward_example", oom)
+    active, skipped, loss = training.accumulate_batch(
+        model, optimizer, rows, [0], {"skip_oom": True}, lambda e: None
+    )
+    assert active == [] and skipped == [0] and loss == 0
+    assert model.weight.grad is None
+    with pytest.raises(torch.cuda.OutOfMemoryError):
+        training.accumulate_batch(model, optimizer, rows, [0], {}, lambda e: None)
+
+    def nonfinite(*args):
+        raise ValueError("Nonfinite SFT loss")
+
+    monkeypatch.setattr(training, "_backward_example", nonfinite)
+    with pytest.raises(ValueError, match="Nonfinite"):
+        training.accumulate_batch(
+            model, optimizer, rows, [0], {"skip_oom": True}, lambda e: None
+        )
+
+
+def test_smoke_oom_selection_preserves_full_samples_and_fresh_formal(
+    monkeypatch, config, tmp_path
+):
+    torch = pytest.importorskip("torch")
+    rows = [{"task_id": str(i), "input_ids": [1] * (i + 2)} for i in range(4)]
+    monkeypatch.setattr(training, "load_dataset", lambda *args: (rows, {}))
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(torch.cuda, "is_bf16_supported", lambda: True)
+    stages = []
+
+    def fake_pass(config, selected, manifest, output, profile):
+        stages.append((profile, selected))
+        assert config["training"]["parent_adapter"] is None
+        assert not config["training"]["resume_optimizer"]
+        return {
+            "optimizer_steps": 1,
+            "skipped_samples": [{"task_id": "3"}] if profile == "long" else [],
+        }
+
+    monkeypatch.setattr(training, "_pass", fake_pass)
+    training.train(config, "unused", tmp_path / "training")
+    assert [r["task_id"] for r in stages[1][1]] == ["3", "2", "1", "0"]
+    assert stages[2][1] == rows[:3]
+    assert len(rows[3]["input_ids"]) == 5
+    assert read_json(tmp_path / "training/sample_selection.json") == {
+        "original_samples": 4,
+        "selected_samples": 3,
+        "smoke_oom_excluded_tasks": ["3"],
+        "truncated": False,
+    }
+
+
 def test_actual_tiny_qwen_lora_body_chunk_loss_and_gradient_equivalence():
     torch = pytest.importorskip("torch")
     from peft import LoraConfig, get_peft_model

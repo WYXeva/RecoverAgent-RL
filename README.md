@@ -57,16 +57,18 @@ python3 scripts/run_codeact_collection.py \
 
 GPU 环境复用 [已验证训练依赖](requirements/v2-learning.txt)，AppWorld 使用 [固定环境版本](requirements/appworld-evaluation-20261113.lock.txt)。评价进程同时需要这两类能力；不要让升级破坏历史环境。将本分支源码、全新数据集及私有 AppWorld 数据放到 GPU 实例，`PYTHONPATH=src`。只下载官方基座到 HF cache，不拷贝旧 adapter：
 
+当前训练配置 `configs/codeact_s0_20261119.json` 按用户要求启用完整样本OOM跳过：清空该累积批梯度后重算剩余样本；不截断，不吞非有限梯度或重载错误。最长烟测OOM时按长度递减尝试，首次通过即停止烟测；烟测OOM样本不再进入本批正式训练。`oom_skips/`、`sample_selection.json` 和实际更新回执分别记录遗漏样本及更新数。原采集配置、数据和失败原件不改。
+
 ```bash
 python -c 'from huggingface_hub import snapshot_download; snapshot_download("Qwen/Qwen3.5-9B",revision="c202236235762e1c871ad0ccb60c8ee5ba337b9a")'
 
 CODEACT_DATA=runs/codeact_train510_20261119_01/target_256_data
 
 # 少量完整短样本＋最长样本，各自从官方基座重新创建 LoRA。
-PYTHONPATH=src python -m recoveragent.codeact.cli train   --dataset "$CODEACT_DATA" --output runs/codeact_training_smoke_01 --smoke
+PYTHONPATH=src python -m recoveragent.codeact.cli train   --config configs/codeact_s0_20261119.json --dataset "$CODEACT_DATA" --output runs/codeact_training_smoke_01 --smoke
 
 # 正式命令包含独立短/长检查，再重新加载官方基座做1 epoch。
-PYTHONPATH=src python -m recoveragent.codeact.cli train   --dataset "$CODEACT_DATA" --output runs/codeact_s0_01
+PYTHONPATH=src python -m recoveragent.codeact.cli train   --config configs/codeact_s0_20261119.json --dataset "$CODEACT_DATA" --output runs/codeact_s0_01
 
 # 全部固定 dev111，每题一次，CodeAct共享loop，官方评分；可续跑已完成项。
 PYTHONPATH=src python -m recoveragent.codeact.cli evaluate   --adapter runs/codeact_s0_01/S0_base/adapter   --root /path/to/private/appworld --split dev --output runs/codeact_s0_dev111_01

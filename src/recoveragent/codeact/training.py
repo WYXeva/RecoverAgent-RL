@@ -47,6 +47,70 @@ def sequence_loss(model, inputs, chunk_size=128):
     return total / len(positions) * inputs["example_weight"][0]
 
 
+def _backward_example(model, row, stage, denominator):
+    import torch
+
+    inputs = {k: v.to(model.device) for k, v in collate([row]).items()}
+    context = (
+        torch.autograd.graph.save_on_cpu(pin_memory=True)
+        if stage["activation_offload"] == "cpu"
+        else nullcontext()
+    )
+    with (
+        context,
+        torch.autocast(
+            model.device.type, dtype=torch.bfloat16, enabled=model.device.type == "cuda"
+        ),
+    ):
+        loss = sequence_loss(model, inputs)
+    if not torch.isfinite(loss):
+        raise ValueError("Nonfinite SFT loss")
+    value = float(loss.detach()) / denominator
+    (loss / denominator).backward()
+    return value
+
+
+def accumulate_batch(model, optimizer, rows, batch, stage, on_oom):
+    """Discard partial gradients on OOM and replay surviving complete examples."""
+    import torch
+
+    active, skipped = list(batch), []
+    while active:
+        optimizer.zero_grad(set_to_none=True)
+        batch_loss, failed = 0.0, None
+        for index in active:
+            try:
+                batch_loss += _backward_example(model, rows[index], stage, len(active))
+            except torch.cuda.OutOfMemoryError as exc:
+                if not stage.get("skip_oom", False):
+                    raise
+                failed = index
+                row = rows[index]
+                on_oom(
+                    {
+                        "row_index": index,
+                        "task_id": row["task_id"],
+                        "input_tokens": len(row["input_ids"]),
+                        "target_tokens": row["target_tokens"],
+                        "error": str(exc),
+                        "reason": "sample_forward_or_backward_oom",
+                        "discarded_partial_batch_gradients": True,
+                        "batch_row_indices": list(active),
+                        "truncated": False,
+                    }
+                )
+                break
+        if failed is None:
+            return active, skipped, batch_loss
+        # The exception and its tensor-holding traceback are out of scope here.
+        optimizer.zero_grad(set_to_none=True)
+        gc.collect()
+        torch.cuda.empty_cache()
+        skipped.append(failed)
+        active = [index for index in active if index != failed]
+    return [], skipped, 0.0
+
+
 def _pass(config, rows, manifest, output, profile):
     import torch
     from peft import get_peft_model_state_dict
@@ -72,9 +136,10 @@ def _pass(config, rows, manifest, output, profile):
     )
     accumulation = stage["gradient_accumulation_steps"] if profile == "formal" else 1
     order = list(range(len(rows)))
-    random.Random(seed).shuffle(order)
+    if profile != "long":
+        random.Random(seed).shuffle(order)
     order *= stage["epochs"] if profile == "formal" else 1
-    expected = math.ceil(len(order) / accumulation)
+    scheduled = 1 if profile == "long" else math.ceil(len(order) / accumulation)
     metadata = {
         "protocol": identity(),
         "profile": profile,
@@ -84,33 +149,34 @@ def _pass(config, rows, manifest, output, profile):
         "parent": None,
         "optimizer_restored": False,
         "optimizer": {"name": "AdamW", "weight_decay": 0.0, "lr_schedule": "constant"},
-        "expected_optimizer_steps": expected,
+        "expected_optimizer_steps_before_oom": scheduled,
         "loss_normalization": manifest["loss"],
     }
     write_json(output / "training_config.json", metadata)
     started = now()
     torch.cuda.reset_peak_memory_stats()
-    steps, gradients, losses = 0, [], []
+    steps, gradients, losses, skipped = 0, [], [], []
+    excluded, empty_batches = set(), 0
+    trained_samples, trained_targets = 0, 0
+
+    def on_oom(event):
+        event = event | {"optimizer_steps_before_skip": steps, "profile": profile}
+        write_json(output / "oom_skips" / f"{len(skipped):05d}.json", event)
+        skipped.append(event)
+
     try:
         for offset in range(0, len(order), accumulation):
-            batch = order[offset : offset + accumulation]
-            optimizer.zero_grad(set_to_none=True)
-            step_start, batch_loss = now(), 0.0
-            for index in batch:
-                inputs = {
-                    k: v.to(model.device) for k, v in collate([rows[index]]).items()
-                }
-                context = (
-                    torch.autograd.graph.save_on_cpu(pin_memory=True)
-                    if stage["activation_offload"] == "cpu"
-                    else nullcontext()
-                )
-                with context, torch.autocast("cuda", dtype=torch.bfloat16):
-                    loss = sequence_loss(model, inputs)
-                if not torch.isfinite(loss):
-                    raise ValueError("Nonfinite SFT loss")
-                batch_loss += float(loss.detach()) / len(batch)
-                (loss / len(batch)).backward()
+            batch = [
+                i for i in order[offset : offset + accumulation] if i not in excluded
+            ]
+            step_start = now()
+            batch, failed, batch_loss = accumulate_batch(
+                model, optimizer, rows, batch, stage, on_oom
+            )
+            excluded.update(failed)
+            if not batch:
+                empty_batches += 1
+                continue
             health = gradient_health(model)
             torch.nn.utils.clip_grad_norm_(
                 (p for p in model.parameters() if p.requires_grad),
@@ -119,28 +185,51 @@ def _pass(config, rows, manifest, output, profile):
             )
             optimizer.step()
             steps += 1
+            trained_samples += len(batch)
+            trained_targets += sum(rows[i]["target_tokens"] for i in batch)
             event = {
                 "step": steps,
                 "loss": batch_loss,
                 **health,
                 "seconds": now() - step_start,
                 "learning_rates": [g["lr"] for g in optimizer.param_groups],
+                "samples": len(batch),
+                "task_ids": [rows[i]["task_id"] for i in batch],
+                "input_tokens": sum(len(rows[i]["input_ids"]) for i in batch),
             }
             write_json(output / "updates" / f"{steps:05d}.json", event)
             gradients.append(health)
             losses.append(batch_loss)
+            if profile == "long":
+                break  # First longest sample that fits; formal reloads official base.
+        expected = (
+            min(1, len(rows) - empty_batches)
+            if profile == "long"
+            else scheduled - empty_batches
+        )
         if steps != expected:
             raise ValueError(
                 "Actual optimizer updates differ from the dataloader schedule"
             )
         metadata.update(
+            expected_optimizer_steps=expected,
             optimizer_steps=steps,
+            skipped_samples=skipped,
+            trained_samples=trained_samples,
+            trained_target_tokens=trained_targets,
             losses=losses,
             gradients=gradients,
             seconds=now() - started,
             gpu_peak_allocated_bytes=torch.cuda.max_memory_allocated(),
             gpu_peak_reserved_bytes=torch.cuda.max_memory_reserved(),
         )
+        if not steps:
+            metadata.update(status="all_samples_skipped_oom", reload_passed=False)
+            write_json(output / "result.json", metadata)
+            del model, optimizer
+            gc.collect()
+            torch.cuda.empty_cache()
+            return metadata
         checkpoint_dir = output / "adapter"
         probe_ids = rows[0]["input_ids"][:128]
         after, probe = finish_checkpoint(
@@ -154,7 +243,7 @@ def _pass(config, rows, manifest, output, profile):
             probe_ids=probe_ids,
         )
         torch.save(optimizer.state_dict(), output / "optimizer.pt")
-        del model, optimizer, inputs, loss
+        del model, optimizer
         gc.collect()
         torch.cuda.empty_cache()
         receipt = finalize_reload(
@@ -200,13 +289,33 @@ def train(config, dataset, output, *, smoke=False):
     if output.exists():
         raise FileExistsError("Use a new training output directory")
     short = sorted(rows, key=lambda r: len(r["input_ids"]))[:2]
-    _pass(config, short, manifest, output / "short_smoke", "short")
-    _pass(
+    short_result = _pass(config, short, manifest, output / "short_smoke", "short")
+    if not short_result["optimizer_steps"]:
+        raise ValueError("No short smoke sample fits; formal training not started")
+    excluded = {r["task_id"] for r in short_result["skipped_samples"]}
+    long_result = _pass(
         config,
-        [max(rows, key=lambda r: len(r["input_ids"]))],
+        sorted(
+            (r for r in rows if r["task_id"] not in excluded),
+            key=lambda r: len(r["input_ids"]),
+            reverse=True,
+        ),
         manifest,
         output / "long_smoke",
         "long",
     )
+    if not long_result["optimizer_steps"]:
+        raise ValueError("No long smoke sample fits; formal training not started")
+    excluded.update(r["task_id"] for r in long_result["skipped_samples"])
+    selected = [r for r in rows if r["task_id"] not in excluded]
+    write_json(
+        output / "sample_selection.json",
+        {
+            "original_samples": len(rows),
+            "selected_samples": len(selected),
+            "smoke_oom_excluded_tasks": sorted(excluded),
+            "truncated": False,
+        },
+    )
     if not smoke:
-        _pass(config, rows, manifest, output / "S0_base", "formal")
+        _pass(config, selected, manifest, output / "S0_base", "formal")
