@@ -22,6 +22,9 @@ def main():
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--adapter")
     parser.add_argument("--split", choices=["dev", "train"], default="dev")
+    parser.add_argument("--task-set", choices=["all", "dev24"], default="all")
+    parser.add_argument("--vllm-url")
+    parser.add_argument("--server-receipt")
     parser.add_argument("--target-successes", type=int)
     parser.add_argument("--skip-scoring-errors", action="store_true", default=None)
     args = parser.parse_args()
@@ -66,7 +69,16 @@ def main():
     else:
         from .inference import evaluate
 
-        evaluate(config, args.output, args.root, args.adapter, args.split)
+        evaluate(
+            config,
+            args.output,
+            args.root,
+            args.adapter,
+            args.split,
+            task_set=args.task_set,
+            vllm_url=args.vllm_url,
+            server_receipt=args.server_receipt,
+        )
 
 
 if __name__ == "__main__":

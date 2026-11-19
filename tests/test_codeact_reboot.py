@@ -55,6 +55,156 @@ def test_frozen_queue_scenario_round_robin():
     assert {r["role"] for r in rows} == {"train"}
 
 
+def test_dev24_selector_and_once_only_evaluation_resume(config, tmp_path, monkeypatch):
+    from recoveragent.codeact import inference
+    from recoveragent.io import write_json
+    from recoveragent.v2_tasks import plan
+
+    tasks = inference.evaluation_tasks("dev", "dev24")
+    assert tasks == plan()["dev24"] and len(tasks) == 24
+    assert not set(tasks) & {r["task_id"] for r in queue()}
+    with pytest.raises(ValueError, match="only evaluate"):
+        inference.evaluation_tasks("train", "dev24")
+    monkeypatch.setattr(inference, "verify_checkpoint", lambda *args: {"sha": "new_s0"})
+    monkeypatch.setattr(
+        inference, "Student", lambda *args: SimpleNamespace(reset_usage=lambda: None)
+    )
+    calls = []
+
+    def run(task, attempt, target, root, config, client, *, training):
+        assert not training and attempt == 1
+        assert not target.exists()
+        calls.append(task)
+        result = {
+            "task_id": task,
+            "success": [True, False, None][len(calls) % 3],
+            "termination": "task_completed",
+            "seconds": 1.0,
+            "usage": {"requests": 2},
+        }
+        write_json(target / "result.json", result)
+        return result
+
+    monkeypatch.setattr(inference, "run", run)
+    for _ in range(2):
+        inference.evaluate(
+            config,
+            tmp_path / "eval",
+            "unused",
+            tmp_path / "adapter",
+            "dev",
+            task_set="dev24",
+        )
+    assert calls == tasks
+    result = read_json(tmp_path / "eval/summary.json")
+    assert result["status"] == "complete" and result["tasks"] == 24
+    assert result["success"] == result["failure"] == result["unknown"] == 8
+    assert result["usage"]["requests"] == 48
+    monkeypatch.setattr(
+        inference, "verify_checkpoint", lambda *args: {"sha": "different_s0"}
+    )
+    with pytest.raises(ValueError, match="binding mismatch"):
+        inference.evaluate(
+            config,
+            tmp_path / "eval",
+            "unused",
+            tmp_path / "adapter",
+            "dev",
+            task_set="dev24",
+        )
+
+
+def test_codeact_vllm_real_template_and_shared_execution_loop(
+    config, tokenizer, tmp_path, monkeypatch
+):
+    import requests
+    from recoveragent.codeact import inference
+    from recoveragent.io import digest, write_json
+
+    checkpoint = {"protocol": protocol.identity(), "formal_s0": True}
+    proof = {
+        "protocol": protocol.identity(),
+        "base": config["model"],
+        "adapter_receipt_sha256": digest(checkpoint),
+        "max_model_len": 65536,
+        "dtype": "bfloat16",
+        "vllm_version": "0.19.0",
+        "url": "http://127.0.0.1:18019",
+        "model_name": "new_codeact_s0",
+    }
+    write_json(tmp_path / "server.json", proof)
+    monkeypatch.setattr(inference, "verify_checkpoint", lambda *args: checkpoint)
+    monkeypatch.setattr(inference, "load_tokenizer", lambda *args: tokenizer)
+
+    class World:
+        task = SimpleNamespace(
+            instruction="Synthetic public task", supervisor={}, datetime="2020-01-01"
+        )
+        done = False
+
+        def execute(self, code):
+            assert code == "x = 7\nprint(x)"
+            self.done = True
+            return "7"
+
+        def task_completed(self):
+            return self.done
+
+    world = World()
+    history = protocol.public_messages(world)
+    from recoveragent.teacher import normalize_message
+
+    message = normalize_message(response("x = 7\nprint(x)"), allow_reasoning=True)
+    kw = dict(
+        tools=protocol.TOOLS, tokenize=True, return_dict=False, enable_thinking=False
+    )
+    prompt = tokenizer.apply_chat_template(history, add_generation_prompt=True, **kw)
+    full = tokenizer.apply_chat_template(
+        history + [message], add_generation_prompt=False, **kw
+    )
+    generated = full[len(prompt) :]
+    sent = []
+
+    def post(self, url, *, json, timeout):
+        assert json["prompt"] == prompt and json["model"] == proof["model_name"]
+        assert json["temperature"] == 0 and json["max_tokens"] == 4096
+        assert 0 < timeout <= config["limits"]["wall_seconds"]
+        sent.append(json)
+        return SimpleNamespace(
+            raise_for_status=lambda: None,
+            json=lambda: {
+                "model": proof["model_name"],
+                "choices": [{"token_ids": generated, "finish_reason": "stop"}],
+                "usage": {
+                    "prompt_tokens": len(prompt),
+                    "completion_tokens": len(generated),
+                },
+            },
+        )
+
+    monkeypatch.setattr(requests.Session, "post", post)
+    client = inference.VLLMStudent(
+        config, tmp_path / "adapter", proof["url"], tmp_path / "server.json"
+    )
+    result = episode.loop(world, client, config, tmp_path / "episode")
+    assert len(sent) == 1 and result["termination"] == "task_completed"
+    assert not result["fault"] and not result["format_rejections"]
+    assert result["usage"]["generated_tokens"] == len(generated)
+    assert (
+        read_json(tmp_path / "episode/requests/000.tokens.json")["generated_ids"]
+        == generated
+    )
+    assert (
+        read_json(tmp_path / "episode/requests/000.request.json")["tools"]
+        == protocol.TOOLS
+    )
+    checkpoint["formal_s0"] = False
+    with pytest.raises(ValueError, match="identity mismatch"):
+        inference.VLLMStudent(
+            config, tmp_path / "adapter", proof["url"], tmp_path / "server.json"
+        )
+
+
 def test_loop_fixed_tools_persistent_environment_and_no_hidden_labels(tmp_path, config):
     class World:
         task = SimpleNamespace(

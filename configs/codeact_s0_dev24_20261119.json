@@ -1,0 +1,145 @@
+{
+  "revision": "codeact_s0_dev24_vllm_20261119",
+  "appworld_revision": "42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+  "split": "configs/v2_scenario_split_20261109.json",
+  "teacher": {
+    "provider": "opencode_go",
+    "base_url": "https://opencode.ai/inference/go/openai/v1",
+    "allowed_host": "opencode.ai",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-v4.1-flash",
+    "revision": "OpenCode Go deepseek-v4.1-flash service alias; response ID/model retained; successful native tools probe 2026-11-11. No immutable weight attestation.",
+    "revision_is_immutable": false,
+    "revision_source": "https://opencode.ai/docs/console/go/",
+    "thinking": true,
+    "reasoning_protocol": "provider_reasoning_audit_only_v1",
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": 1,
+    "max_request_bytes": 4194304,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "USD",
+      "input_per_million": 0.3,
+      "cached_input_per_million": 0.006,
+      "output_per_million": 1.2,
+      "source": "https://opencode.ai/docs/console/go/#usage-limits",
+      "checked_at": "2026-11-11",
+      "basis": "Conservative published DeepSeek V4.1 Flash peak-rate Go allowance estimate. Not actual subscription charge. No billing or subscription settings changed."
+    },
+    "http_user_agent": "RecoverAgent-RL/0.2",
+    "response_identity_protocol": "model_response_id_v1",
+    "response_model_aliases": [],
+    "http_error_diagnostics": "keyword_hash_v1",
+    "http_transport": "requests_session_v1"
+  },
+  "teacher_context": {
+    "revision": "s2_teacher_context_v1",
+    "provider": "opencode_go",
+    "model": "deepseek-v4.1-flash",
+    "max_sequence_tokens": 1000000,
+    "scope": [
+      "s2_text",
+      "s2_exploration",
+      "s2_solver"
+    ],
+    "counting_method": "matching_tokenizer_json_estimate_v1",
+    "framing_allowance_tokens": 1024,
+    "tokenizer": {
+      "repo": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "revision": "08c8657f02291e11b6f6b63e0e16014f8e748518",
+      "sha256": "c90dfa01249db1be4245780a052ede752e1361c612ac6d08e2bdada7d599476b"
+    },
+    "basis": {
+      "url": "https://opencode.ai/inference/go/openai/v1/models",
+      "model_id": "deepseek-v4.1-flash",
+      "canonical_id": "deepseek/deepseek-v4.1-flash-1017",
+      "limit": {
+        "context": 1000000,
+        "output": 384000
+      },
+      "checked_at": "2026-11-17",
+      "docs": "https://models.opencode.ai/providers/opencode-go/"
+    },
+    "note": "Full request messages, provider reasoning history and tool schemas are counted using the matching tokenizer over JSON plus an explicit framing allowance. OpenCode server rendering is not exposed; this is an estimate. Response usage is authoritative. Billing reservation, max_new_tokens and max_request_bytes unchanged."
+  },
+  "model": {
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "thinking": false,
+    "tool_format": "qwen_xml"
+  },
+  "lora": {
+    "r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.0,
+    "bias": "none",
+    "task_type": "CAUSAL_LM",
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
+  },
+  "seed": 20261119,
+  "limits": {
+    "max_requests": 80,
+    "max_generated_tokens": 32768,
+    "wall_seconds": 1200,
+    "code_timeout_seconds": 60,
+    "max_api_calls_per_execution": 1000,
+    "format_corrections": 2,
+    "request_retries": 2,
+    "attempt_price_cap_usd": 2.0
+  },
+  "collection": {
+    "first_batch_tasks": 20,
+    "max_tasks": 510,
+    "max_attempts_per_task": 2,
+    "worker_timeout_seconds": 1500,
+    "resource_backoff_seconds": 300,
+    "max_resource_retries": 12
+  },
+  "training": {
+    "max_sequence_tokens": 65536,
+    "epochs": 1,
+    "learning_rate": 5e-05,
+    "micro_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "max_grad_norm": 1.0,
+    "bf16": true,
+    "activation_offload": "cpu",
+    "parent_adapter": null,
+    "resume_optimizer": false,
+    "loss": "mean_per_trajectory_assistant_token_ce",
+    "seed": 20261119,
+    "skip_oom": true
+  },
+  "student_inference": {
+    "thinking": false,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_new_tokens": 4096,
+    "max_sequence_tokens": 65536,
+    "backend": "vllm_0.19.0"
+  },
+  "authorization": {
+    "approved": true,
+    "currency": "USD",
+    "max_cost": 2040.0,
+    "reference": "User authorized fresh train510, at most two clean attempts each, existing Teacher subscription; no purchase or renewal. Per-attempt bound is $2 published-rate estimate."
+  },
+  "evaluation": {
+    "task_set": "dev24",
+    "attempts_per_task": 1,
+    "original_clean_initial_state": true,
+    "scoring": "original_appworld_official",
+    "training": false
+  }
+}
