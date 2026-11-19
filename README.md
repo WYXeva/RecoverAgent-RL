@@ -55,7 +55,7 @@ python3 scripts/run_codeact_collection.py \
 
 ## 新 S0 训练与评价
 
-新S0已完成252样本/1 epoch/32次更新，0 OOM，重载通过。远端模型：`/root/gpufree-data/recoveragent_codeact_s0_20261119_02/training/S0_base/adapter/`；本地备份：`runs/codeact_s0_20261119_02/final_delivery/training/S0_base/adapter/`。模型由固定官方基座加新LoRA加载，不是完整合并权重。以下训练命令供新目录复现，当前无需重复训练；dev评价尚未执行。
+新S0已完成252样本/1 epoch/32次更新，0 OOM，重载通过。远端模型：`/root/gpufree-data/recoveragent_codeact_s0_20261119_02/training/S0_base/adapter/`；本地备份：`runs/codeact_s0_20261119_02/final_delivery/training/S0_base/adapter/`。模型由固定官方基座加新LoRA加载，不是完整合并权重。以下训练命令供新目录复现，当前无需重复训练；最新授权评价范围为固定dev24，见下文。
 
 GPU 环境复用 [已验证训练依赖](requirements/v2-learning.txt)，AppWorld 使用 [固定环境版本](requirements/appworld-evaluation-20261113.lock.txt)。评价进程同时需要这两类能力；不要让升级破坏历史环境。将本分支源码、全新数据集及私有 AppWorld 数据放到 GPU 实例，`PYTHONPATH=src`。只下载官方基座到 HF cache，不拷贝旧 adapter：
 
@@ -76,7 +76,7 @@ PYTHONPATH=src python -m recoveragent.codeact.cli train   --config configs/codea
 PYTHONPATH=src python -m recoveragent.codeact.cli evaluate   --adapter runs/codeact_s0_01/S0_base/adapter   --root /path/to/private/appworld --split dev --output runs/codeact_s0_dev111_01
 ```
 
-正式 adapter 在 `S0_base/adapter`，含身份/文件哈希和重载回执；smoke 权重不能进入正式评价入口。现有评价后端为 Transformers，64K/non-thinking；本轮真实9B训练已完成、Student评价尚未执行。后续可复用现有 vLLM 部件，但本轮不额外部署服务。
+正式 adapter 在 `S0_base/adapter`，含身份/文件哈希和重载回执；smoke 权重不能进入正式评价入口。评价支持 Transformers 与 vLLM 0.19.0，均使用固定CodeAct共享loop、Qwen原生模板、64K/non-thinking与官方评分。`--task-set dev24` 读取既定24题及顺序；默认 `all` 仍为对应split全部任务。已完成项不重复执行，绑定不符拒绝续跑。
 
 当前已备份S0的本地评价命令（需安排GPU和AppWorld环境，不自动运行）：
 
@@ -85,8 +85,28 @@ PYTHONPATH=src python -m recoveragent.codeact.cli evaluate \
   --config configs/codeact_s0_20261119.json \
   --adapter runs/codeact_s0_20261119_02/final_delivery/training/S0_base/adapter \
   --root /home/eva/project/RecoverAgent-RL/data/appworld \
-  --split dev --output runs/codeact_s0_dev111_01
+  --split dev --task-set dev24 --output runs/codeact_s0_dev24_local_01
 ```
+
+11月19日现有L40S上的固定dev24采用独立配置 `configs/codeact_s0_dev24_20261119.json`：每题一次、最多80请求/32768累计生成token/1200秒，单回复4096，temperature=0。私有监督脚本 `runs/codeact_s0_dev24_20261119_02/controller.py` 负责启动vLLM、核验已注册adapter及实际logits变化、运行24题、退出服务并归档；运行状态见[dev24报告](reports/codeact_s0_dev24_20261119.md)。不调用Teacher，不训练，不跑dev111/test。
+
+以下是监督进程实际调用的评价命令，服务及 `server_receipt.json` 必须先就绪；不要与正在运行的同批进程重复启动：
+
+```bash
+CODEACT_EVAL=/root/gpufree-data/recoveragent_codeact_s0_dev24_20261119_02
+CODEACT_ENV=/root/gpufree-data/recoveragent_s1_retrain_20261114_01
+export HF_HOME="$CODEACT_ENV/hf_cache" HF_HUB_OFFLINE=1
+PYTHONPATH="$CODEACT_EVAL/source/src" "$CODEACT_ENV/worker_env/bin/python" \
+  -m recoveragent.codeact.cli evaluate \
+  --config "$CODEACT_EVAL/source/configs/codeact_s0_dev24_20261119.json" \
+  --adapter /root/gpufree-data/recoveragent_codeact_s0_20261119_02/training/S0_base/adapter \
+  --root "$CODEACT_ENV/appworld_root" --split dev --task-set dev24 \
+  --vllm-url http://127.0.0.1:18019 \
+  --server-receipt "$CODEACT_EVAL/server_receipt.json" \
+  --output "$CODEACT_EVAL/evaluation"
+```
+
+回执绑定官方基座revision、新S0的checkpoint SHA、CodeAct协议、64K/BF16与实际服务模型名。每次请求保存真实输入/输出token及vLLM原始响应，业务轨迹与官方评分分开记录；控制侧统计成功/失败/未知，不以训练loss冒充任务成绩。
 
 ## 相关软件验证
 

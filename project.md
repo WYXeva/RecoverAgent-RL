@@ -53,4 +53,6 @@ Static/Full 对齐 Student 训练预算，额外 Teacher 成本分列。任务�
 
 优先确认真实 CodeAct 业务执行、跨轮变量和实例隔离；原始题官方评分不回传给模型；多轮 mask 与梯度计算正确。CPU测试、真实Teacher/AppWorld、真实GPU更新和学习收益分别报告。
 
-当前交付以[重启报告](reports/codeact_reboot_20261119.md)、[S0训练报告](reports/codeact_s0_training_20261119.md)及 STATUS 为准。11月19日16:20收齐256条合格成功示范并停止，导出252条64K内完整多轮样本、4条超长deferred。新S0已于17:27完成全部252样本/1 epoch/32次正式更新，0 OOM；短/长及正式模型保存重载通过，18:19本地备份完成。下一项是固定CodeAct协议下的新S0官方dev评价；当前尚无任务成功率结论，不自动恢复旧GRPO。
+当前交付以[重启报告](reports/codeact_reboot_20261119.md)、[S0训练报告](reports/codeact_s0_training_20261119.md)及 STATUS 为准。11月19日16:20收齐256条合格成功示范并停止，导出252条64K内完整多轮样本、4条超长deferred。新S0已于17:27完成全部252样本/1 epoch/32次正式更新，0 OOM；短/长及正式模型保存重载通过，18:19本地备份完成。
+
+用户随后授权固定dev24：使用同一新S0、现有L40S、vLLM 0.19.0、固定CodeAct/non-thinking/64K，24题按既定顺序各执行一次，官方评分，成功/失败/未知分列。独立配置 `codeact_s0_dev24_20261119.json`，不扩到dev111/test，不调用Teacher或训练。18:48已完成首题且官方成功，整批尚未完成；下一项核验完整结果与本地备份，见[dev24报告](reports/codeact_s0_dev24_20261119.md)。旧接口历史成绩仅作参考，不直接当作本次同条件效果对照，不自动恢复旧GRPO。
