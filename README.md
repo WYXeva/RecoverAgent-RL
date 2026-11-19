@@ -88,7 +88,7 @@ PYTHONPATH=src python -m recoveragent.codeact.cli evaluate \
   --split dev --task-set dev24 --output runs/codeact_s0_dev24_local_01
 ```
 
-11月19日现有L40S上的固定dev24采用独立配置 `configs/codeact_s0_dev24_20261119.json`：每题一次、最多80请求/32768累计生成token/1200秒，单回复4096，temperature=0。私有监督脚本 `runs/codeact_s0_dev24_20261119_02/controller.py` 负责启动vLLM、核验已注册adapter及实际logits变化、运行24题、退出服务并归档；运行状态见[dev24报告](reports/codeact_s0_dev24_20261119.md)。不调用Teacher，不训练，不跑dev111/test。
+11月19日现有L40S上的固定dev24采用独立配置 `configs/codeact_s0_dev24_20261119.json`：每题一次、最多80请求/32768累计生成token/1200秒，单回复4096，temperature=0。**已于19:24完成，8/24成功、16失败、0未知，vLLM已退出。** 私有监督脚本 `runs/codeact_s0_dev24_20261119_02/controller.py` 负责启动vLLM、核验已注册adapter及实际logits变化、运行24题、退出服务并归档；逐题结果与失败分析见[dev24报告](reports/codeact_s0_dev24_20261119.md)。不调用Teacher，不训练，不跑dev111/test。
 
 以下是监督进程实际调用的评价命令，服务及 `server_receipt.json` 必须先就绪；不要与正在运行的同批进程重复启动：
 
