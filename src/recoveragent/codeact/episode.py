@@ -120,6 +120,11 @@ def loop(world, client, config, directory):
 
 
 def run(task_id, attempt, directory, root, config, client, *, training=True):
+    from freezegun import configure
+
+    # AppWorld freezes business time. Its scan must not resolve Transformers'
+    # lazy model imports in the tokenizer-only vLLM client process.
+    configure(extend_ignore_list=["transformers", "torch", "huggingface_hub"])
     from appworld import AppWorld, update_root
 
     directory = Path(directory).resolve()

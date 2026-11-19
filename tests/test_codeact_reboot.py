@@ -55,6 +55,59 @@ def test_frozen_queue_scenario_round_robin():
     assert {r["role"] for r in rows} == {"train"}
 
 
+def test_episode_clock_skips_lazy_model_modules(config, tmp_path, monkeypatch):
+    import datetime
+    import sys
+    import types
+
+    from freezegun import freeze_time
+
+    class LazyModel(types.ModuleType):
+        def __dir__(self):
+            return ["MissingTorchModel"]
+
+        def __getattr__(self, name):
+            if name == "MissingTorchModel":
+                raise NameError("torch is not defined")
+            raise AttributeError(name)
+
+    class ClockChecked(Exception):
+        pass
+
+    def world(**kwargs):
+        assert kwargs["load_ground_truth"] is False
+        with freeze_time("2023-01-02"):
+            assert datetime.datetime.now() == datetime.datetime(2023, 1, 2)
+        raise ClockChecked
+
+    monkeypatch.setitem(
+        sys.modules, "transformers.lazy_probe", LazyModel("transformers.lazy_probe")
+    )
+    monkeypatch.setitem(
+        sys.modules,
+        "appworld",
+        SimpleNamespace(AppWorld=world, update_root=lambda _: None),
+    )
+    monkeypatch.setattr(episode, "verify_environment", lambda _: {})
+    monkeypatch.setattr(episode, "authorize_task", lambda *args: None)
+    monkeypatch.setattr(
+        episode.importlib.metadata,
+        "distribution",
+        lambda _: SimpleNamespace(
+            read_text=lambda _: json.dumps({"revision": config["appworld_revision"]})
+        ),
+    )
+    with pytest.raises(ClockChecked):
+        episode.run(
+            queue()[0]["task_id"],
+            1,
+            tmp_path / "episode",
+            tmp_path,
+            config,
+            SimpleNamespace(),
+        )
+
+
 def test_dev24_selector_and_once_only_evaluation_resume(config, tmp_path, monkeypatch):
     from recoveragent.codeact import inference
     from recoveragent.io import write_json
