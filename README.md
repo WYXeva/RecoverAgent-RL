@@ -10,7 +10,7 @@
 固定dev24为 **16成功/8失败/0未知（66.7%）**。实际lr1e-5、beta0；对应optimizer及重载回执一并保留。
 
 - 远端独立副本：`/root/gpufree-data/recoveragent_codeact_evolve_20261120_09/retained_models/codeact_evolve_u040_dev16of24_20261120/`。
-- 本地D盘备份目标：`/mnt/d/RecoverAgent-RL-private/retained_models/codeact_evolve_u040_dev16of24_20261120/`；完整核验状态见STATUS和该目录的 `backup_verified.json`。
+- 本地D盘备份已完整核验：`/mnt/d/RecoverAgent-RL-private/retained_models/codeact_evolve_u040_dev16of24_20261120/`；44份文件全部SHA通过，回执为该目录的 `backup_verified.json`。
 - 模型加载使用目录内 `actor/` 的LoRA及tokenizer，加官方 `Qwen/Qwen3.5-9B` revision `c202236235762e1c871ad0ccb60c8ee5ba337b9a`；non-thinking、64K、CodeAct固定工具及保存的重复错误规则。它不是合并后的全量9B权重。
 - `optimizer.pt` 对应这一版权重；`retention_manifest.json` 保存逐文件SHA与来源，`DO_NOT_DELETE` 标记禁止清理。后续训练另存新checkpoint，不覆盖这份模型。
 
