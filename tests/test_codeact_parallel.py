@@ -162,15 +162,23 @@ def synthetic_member(config, deployment, request, directory, member):
         return experiment.sample_member(config, deployment, request, directory, member)
 
 
-def test_two_parallel_environments_refill_resume_and_policy_binding(
-    tmp_path, monkeypatch
+@pytest.mark.parametrize("width", [2, 4])
+def test_parallel_environments_refill_resume_and_policy_binding(
+    tmp_path, monkeypatch, width
 ):
     cfg = settings()
+    if width == 4:
+        four = read_json(ROOT / "configs/codeact_grpo_coevolve_parallel4_20261120.json")
+        expected = copy.deepcopy(cfg)
+        expected["revision"] = four["revision"]
+        expected["online"]["sampling_concurrency"] = 4
+        assert four == expected
+        cfg = four
     req = {
         "index": 3,
         "actor": "same_actor",
         "selection": {"task_id": cfg["online"]["train_tasks"][0]},
-        "server": {"url": "mock", "max_num_seqs": 2},
+        "server": {"url": "mock", "max_num_seqs": width},
         "server_receipt": "mock",
     }
     dep = {"deadline": time.time() + 60, "appworld_root": "mock"}
@@ -189,7 +197,7 @@ def test_two_parallel_environments_refill_resume_and_policy_binding(
     for _, delta in events:
         active += delta
         peak = max(active, peak)
-    assert peak == 2
+    assert peak == width
     assert len({r["seed"] for r in rows}) == 4
     assert all(
         r["policy"] == rows[0]["policy"]
