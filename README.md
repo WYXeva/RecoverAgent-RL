@@ -218,7 +218,7 @@ export PYTHONPATH="$PWD/src"
   --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_05/experiment
 ```
 
-只用于同授权期续跑，正在运行时不重复启动。截止仍为11月20日19:52:38，
+上述为05历史目录的同授权期续跑命令，正在运行时不重复启动。最新09截止已延至11月21日07:52:38，
 最大200个采样组是独立上限，不保证一定完成100次更新。
 
 ### 独立环境并发采样
@@ -240,5 +240,19 @@ Student在相同代码/错误/状态连续出现时第3次提醒、第5次结束
 后续08使用 `codeact_grpo_coevolve_adaptive4_20261120.json` 与
 `codeact_online_adaptive4_20261120.lock.json`：每题4路，采样容量故障只对受影响尝试降2路补跑一次，
 下一题仍4路。原始尝试和补跑分别保存，正常业务失败不触发降级；命令见上述并发报告。
+
+最新09在完整组边界继承08，使用 `codeact_grpo_coevolve_extend12_20261120.json`
+及 `codeact_online_extend12_20261120.lock.json`，只追加12小时至11月21日07:52:38。
+采样200组/更新100次及Teacher预算保持不变；当前已运行，不重复启动：
+
+```bash
+cd /root/gpufree-data/recoveragent_codeact_evolve_20261120_09/source
+PYTHONPATH=src /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python \
+  -m recoveragent.codeact.experiment run \
+  --config configs/codeact_grpo_coevolve_extend12_20261120.json \
+  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261120_09/deployment.json \
+  --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_09/experiment
+```
+
 旧高层运行器和对应测试已退出当前分支，可在 `74f9a28` 找回；仍复用的训练/执行组件保留。
 安装本项目后，`recoveragent` 命令对应 CodeAct 入口。清理范围及验证见[清理报告](reports/codeact_cleanup_20261120.md)。

@@ -81,9 +81,9 @@ beta0不加载参考adapter或执行参考前向。每次更新恢复optimizer�
 保留参数变化、有限梯度、optimizer、可重载adapter与完整组消费状态。
 OOM跳过整批更新并保留上一actor及原始轨迹，不用部分梯度冒充完整组更新。
 
-当前配置 `codeact_grpo_coevolve_updates20_20261120.json`；新源码锁、独立目录和绑定保证新旧运行不混用。
+当前配置 `codeact_grpo_coevolve_extend12_20261120.json`；新源码锁、独立目录和绑定保证新旧运行不混用。
 Teacher总预留有限：4096请求、250万输出token、约42.95亿输入token、100美元公开价估算上限，
-同时受24小时限制；它是现有套餐用量估算，不是新增采购或扣款授权。Judge保持Flash thinking/high/8192；
+同时受已授权墙钟限制（当前总计36小时）；它是现有套餐用量估算，不是新增采购或扣款授权。Judge保持Flash thinking/high/8192；
 Teacher窗口1M独立于Student64K。普通任务失败继续，系统性模型/参数校验失败保存后停止。
 本轮不跑Static/test；是否有学习收益仍需后续同协议固定dev比较，在线训练奖励不能替代dev成绩。
 
@@ -92,7 +92,7 @@ Teacher窗口1M独立于Student64K。普通任务失败继续，系统性模型/
 
 用户确认改为连续5轮，每轮40组×4次、最多20次有效更新，轮末跑固定dev24后继续当前actor及optimizer。
 总目标200组/最多100次更新；不重置本轮已经完成的组、更新、任务池或采样队列。
-**本批仍截止11月20日19:52:38，包含已用时间**；未跑完的轮次和评价保存后等待后续资源授权。
+当时截止11月20日19:52:38；11月20日用户追加12小时后，**当前截止11月21日07:52:38，包含已用时间**。未跑完的轮次和评价保存后等待后续资源授权。
 Teacher的4096请求/250万输出token/100美元公开价估算上限保持不变，不因五轮目标自动扩费。
 
 新配置 `codeact_grpo_coevolve_five_rounds_20261119.json` 使用官方结果分类v3，补齐明确数字答案为None导致float转换TypeError的有效失败分类。
@@ -133,6 +133,11 @@ Student采样改为两个独立AppWorld子进程共享vLLM，位置空出后补�
 正常执行、状态变化和无法确认无进展时不提前终止。官方评分/Judge与Teacher设置不变。
 新执行身份进入回执/训练绑定，切换前收尾旧有效组；保留原actor、optimizer和原截止。
 CPU与真实AppWorld控制检查已通过，GPU并发情况以当前STATUS和[报告](reports/codeact_parallel_progress_20261120.md)为准。
+
+11月20日追加12小时采用09独立目录、`codeact_grpo_coevolve_extend12_20261120.json` 和
+`codeact_online_extend12_20261120.lock.json`，从完整组边界继承32次更新和未消费组，
+不重置actor、optimizer、任务池、反馈或队列。总墙钟129600秒，截止11月21日07:52:38；
+200组/100更新及Teacher有限预算不扩张，可能先触及采样上限而未达到100更新。
 
 
 当前仓库已清理CodeAct依赖链外的旧高层执行器及配套入口、测试；历史版本留在Git，
