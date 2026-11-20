@@ -6,6 +6,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from jsonschema import ValidationError
 
 from recoveragent.codeact import client, data, episode, protocol, training
 from recoveragent.codeact.collect import queue
@@ -168,13 +169,22 @@ def test_dev24_selector_and_once_only_evaluation_resume(config, tmp_path, monkey
 
 
 @pytest.mark.parametrize("behavior", [False, True])
+@pytest.mark.parametrize("bounded", [False, True])
 def test_codeact_vllm_real_template_and_shared_execution_loop(
-    config, tokenizer, tmp_path, monkeypatch, behavior
+    config, tokenizer, tmp_path, monkeypatch, behavior, bounded
 ):
     import requests
+
     from recoveragent.codeact import inference
+    from recoveragent.codeact.progress import execution_identity
     from recoveragent.io import digest, write_json
 
+    if bounded:
+        config["student_execution"] = {
+            "revision": "codeact_repeated_error_v1",
+            "warn_after": 3,
+            "stop_after": 5,
+        }
     checkpoint = {
         "protocol": protocol.identity(),
         "formal_s0": True,
@@ -202,6 +212,7 @@ def test_codeact_vllm_real_template_and_shared_execution_loop(
             instruction="Synthetic public task", supervisor={}, datetime="2020-01-01"
         )
         done = False
+        shell = SimpleNamespace(user_ns={})
 
         def execute(self, code):
             assert code == "x = 7\nprint(x)"
@@ -216,9 +227,12 @@ def test_codeact_vllm_real_template_and_shared_execution_loop(
     from recoveragent.teacher import normalize_message
 
     message = normalize_message(response("x = 7\nprint(x)"), allow_reasoning=True)
-    kw = dict(
-        tools=protocol.TOOLS, tokenize=True, return_dict=False, enable_thinking=False
-    )
+    kw = {
+        "tools": protocol.TOOLS,
+        "tokenize": True,
+        "return_dict": False,
+        "enable_thinking": False,
+    }
     prompt = tokenizer.apply_chat_template(history, add_generation_prompt=True, **kw)
     full = tokenizer.apply_chat_template(
         history + [message], add_generation_prompt=False, **kw
@@ -272,7 +286,14 @@ def test_codeact_vllm_real_template_and_shared_execution_loop(
     if behavior:
         from recoveragent.codeact.online import segments
 
-        rows = segments(tmp_path / "episode", client.policy)
+        rows = segments(
+            tmp_path / "episode",
+            client.policy,
+            expected_execution=execution_identity(config),
+        )
+        if bounded:
+            with pytest.raises(ValueError, match="contract mismatch"):
+                segments(tmp_path / "episode", client.policy)
         assert rows[0]["completion_ids"] == generated
         assert rows[0]["logprobs"] == [-0.1] * len(generated)
     checkpoint["formal_s0"] = False
@@ -287,7 +308,9 @@ def test_loop_fixed_tools_persistent_environment_and_no_hidden_labels(tmp_path, 
         task = SimpleNamespace(
             instruction="Synthetic task", supervisor={}, datetime="2020-01-01"
         )
-        state = {}
+
+        def __init__(self):
+            self.state = {}
 
         def execute(self, code):
             if code == "x = 7":
@@ -300,8 +323,9 @@ def test_loop_fixed_tools_persistent_environment_and_no_hidden_labels(tmp_path, 
             return getattr(self, "done", False)
 
     class Fake:
-        usage = {"generated_tokens": 0}
-        recorded = []
+        def __init__(self):
+            self.usage = {"generated_tokens": 0}
+            self.recorded = []
 
         def generate(self, messages, directory, index, remaining):
             self.recorded.append(copy.deepcopy(messages))
@@ -330,7 +354,7 @@ def test_loop_fixed_tools_persistent_environment_and_no_hidden_labels(tmp_path, 
 def test_only_native_string_code(args):
     m = response("print(1)")["choices"][0]["message"]
     m["tool_calls"][0]["function"]["arguments"] = json.dumps(args)
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         protocol.codes(m, [])
 
 
@@ -463,6 +487,7 @@ def test_student_native_template_preserves_multiline_python_string(tokenizer, co
 def test_chunked_sequence_ce_and_gradients_equal_reference():
     torch = pytest.importorskip("torch")
     from torch import nn
+
     from recoveragent.sft_recipe import collate, selected_token_loss
 
     class Body(nn.Module):
@@ -621,7 +646,8 @@ def test_smoke_oom_selection_preserves_full_samples_and_fresh_formal(
 def test_actual_tiny_qwen_lora_body_chunk_loss_and_gradient_equivalence():
     torch = pytest.importorskip("torch")
     from peft import LoraConfig, get_peft_model
-    from test_v2_training_cpu import tiny, inputs
+    from test_v2_training_cpu import inputs, tiny
+
     from recoveragent.sft_recipe import selected_token_loss
 
     model = get_peft_model(
@@ -655,7 +681,7 @@ def test_actual_tiny_qwen_lora_body_chunk_loss_and_gradient_equivalence():
 
 
 def test_legacy_lock_is_not_resigned_for_new_codeact(monkeypatch):
-    from recoveragent.v2_runtime import verify_lock, S2_RUNTIME
+    from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
 
     monkeypatch.setenv(
         "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_text_final_20261118"

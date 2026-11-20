@@ -1,16 +1,18 @@
 """Shared native-tool agent loop. Official scoring stays outside model history."""
 
 import copy
+import hashlib
 import importlib.metadata
 import json
-from pathlib import Path
-import hashlib
 import os
+from pathlib import Path
 
 from jsonschema import ValidationError
 
 from recoveragent.appworld_environment import (
     REVISION as ENV_REVISION,
+)
+from recoveragent.appworld_environment import (
     execution_environment_error,
     verify_environment,
 )
@@ -19,6 +21,7 @@ from recoveragent.io import digest, write_json
 from recoveragent.teacher import TeacherTransportError, normalize_message
 from recoveragent.v2_tasks import authorize_task, context_for
 
+from .progress import NOTICE, RepeatedError
 from .protocol import TOOLS, BudgetExhausted, codes, identity, now, public_messages
 
 
@@ -27,6 +30,8 @@ def loop(world, client, config, directory):
     messages = public_messages(world)
     write_json(directory / "initial.json", {"messages": messages, "tools": TOOLS})
     observations, corrections, fault = [], 0, None
+    execution = getattr(client, "execution", None)
+    progress = RepeatedError(world, execution) if execution else None
     started = now()
     reason = "request_limit"
     for index in range(config["limits"]["max_requests"]):
@@ -53,6 +58,8 @@ def loop(world, client, config, directory):
             message = normalize_message(response, max_calls=1, allow_reasoning=True)
             call, code = codes(message, messages)
         except (ValueError, KeyError, TypeError, ValidationError) as exc:
+            if progress:
+                progress.key, progress.count = None, 0
             write_json(
                 directory / "rejections" / f"{index:03d}.json",
                 {"error": str(exc), "response": response},
@@ -90,6 +97,16 @@ def loop(world, client, config, directory):
         messages.append(
             {"role": "tool", "tool_call_id": call["id"], "content": observation}
         )
+        fault = execution_environment_error(observation)
+        completed = world.task_completed() if not fault else False
+        if progress and not fault and not completed:
+            control = progress.observe(code, observation)
+            event["loop_control"] = control
+            write_json(directory / "actions" / f"{index:03d}.progress.json", control)
+            if control["warn"]:
+                messages.append({"role": "user", "content": NOTICE})
+            if control["stop"]:
+                reason = "repeated_error_limit"
         from .collect import replace_json
 
         replace_json(
@@ -101,12 +118,13 @@ def loop(world, client, config, directory):
                 "agent_seconds": now() - started,
             },
         )
-        fault = execution_environment_error(observation)
         if fault:
             reason = "environment_error"
             break
-        if world.task_completed():
+        if completed:
             reason = "task_completed"
+            break
+        if reason == "repeated_error_limit":
             break
     return {
         "messages": messages,
@@ -115,6 +133,7 @@ def loop(world, client, config, directory):
         "fault": fault,
         "format_rejections": corrections,
         "usage": copy.deepcopy(client.usage),
+        "student_execution": execution,
         "agent_seconds": now() - started,
     }
 
@@ -251,7 +270,7 @@ def run(
             evaluation = evaluate_isolated(
                 task_id, experiment, root, directory, research=context
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 — isolate official evaluator faults
             evaluation = {
                 "status": "evaluation_error",
                 "success": None,

@@ -1,7 +1,7 @@
 """New S0 evaluation uses the same CodeAct loop and original official evaluator."""
 
-from pathlib import Path
 import math
+from pathlib import Path
 
 from recoveragent.io import digest, read_json, write_json
 from recoveragent.teacher import TeacherTransportError
@@ -10,6 +10,7 @@ from recoveragent.v2_tasks import plan
 from recoveragent.v2_training import verify_checkpoint
 
 from .episode import run
+from .progress import execution_identity
 from .protocol import TOOLS, BudgetExhausted, identity, now
 
 
@@ -23,6 +24,7 @@ class Student:
                 "Evaluation requires this new main line's formal S0, not old or smoke weights"
             )
         self.config = config
+        self.execution = execution_identity(config)
         self.model = PeftModel.from_pretrained(
             load_base(config["model"]), adapter
         ).eval()
@@ -180,6 +182,7 @@ class VLLMStudent(Student):
         ):
             raise ValueError("CodeAct vLLM server/checkpoint identity mismatch")
         self.config, self.url, self.server = config, url, proof
+        self.execution = execution_identity(config)
         self.tokenizer = load_tokenizer(config["model"])
         self.http = requests.Session()
         self.http.trust_env = False
@@ -275,6 +278,7 @@ class VLLMStudent(Student):
                 "top_p": stage["top_p"],
                 "logprob_contract": "vllm_processed_logprobs_temperature_top_p1_top_k_all",
                 "protocol": identity(),
+                "student_execution": self.execution,
             }
         return self.finish(
             ids,

@@ -24,6 +24,7 @@ from .episode import run
 from .evolution import Engine, epoch, generate_batch, reward
 from .inference import VLLMStudent, evaluate
 from .online import REVISION, policy, update
+from .progress import execution_identity
 from .protocol import identity
 
 
@@ -118,7 +119,7 @@ def summary(state, deployment):
     }
 
 
-def sample_group(config, deployment, request, directory):
+def sample_member(config, deployment, request, directory, member):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     expected = policy(verify_checkpoint(request["actor"], config["model"]), config)
@@ -127,99 +128,139 @@ def sample_group(config, deployment, request, directory):
     context_for(task, training=True)
     if generated:
         validate_task(generated)
-    episodes = []
-    for member in range(4):
-        target = directory / f"member_{member}"
-        if (target / "online_episode.json").exists():
-            cached = read_json(target / "online_episode.json")
-            if (
-                cached["policy"] != expected
-                or cached["task_id"] != task
-                or cached["generated_task_id"]
-                != (generated["task_id"] if generated else None)
-                or cached["seed"] != config["seed"] + request["index"] * 4 + member
-            ):
-                raise ValueError("Cached rollout policy/task/seed differs")
-            episodes.append(cached)
-            continue
-        cfg = copy.deepcopy(config)
-        cfg["seed"] = config["seed"] + request["index"] * 4 + member
-        row = {
-            "task_id": task,
-            "generated_task_id": generated["task_id"] if generated else None,
-            "policy": expected,
-            "seed": cfg["seed"],
-            "directory": str(target),
-            "success": None,
-            "reward_valid": False,
-            "initial_state_hash": None,
-            "classification": "infrastructure_error",
-            "fault": None,
-        }
-        try:
-            if epoch() >= deployment["deadline"]:
-                raise TimeoutError("Authorized wall-clock deadline")
-            if not target.exists():
-                client = VLLMStudent(
-                    cfg,
-                    request["actor"],
-                    request["server"]["url"],
-                    request["server_receipt"],
-                )
-                run(
-                    task,
-                    member + 1,
-                    target,
-                    deployment["appworld_root"],
-                    cfg,
-                    client,
-                    generated_task=generated,
-                )
-            if not (target / "trajectory.json").exists():
-                raise ValueError("Interrupted attempt preserved without resampling")
-            trajectory = read_json(target / "trajectory.json")
-            result = read_json(target / "result.json")
-            write_history = target / "history.json"
-            if not write_history.exists():
-                write_json(write_history, {"messages": trajectory["messages"]})
-            row.update(
-                initial_state_hash=trajectory["initial_state_hash"],
-                termination=result["termination"],
-                usage=result["usage"],
-                seconds=result["seconds"],
-                fault=trajectory["fault"],
+    target = directory / f"member_{member}"
+    if (target / "online_episode.json").exists():
+        cached = read_json(target / "online_episode.json")
+        if (
+            cached["policy"] != expected
+            or cached["task_id"] != task
+            or cached["generated_task_id"]
+            != (generated["task_id"] if generated else None)
+            or cached["seed"] != config["seed"] + request["index"] * 4 + member
+            or cached.get("student_execution") != execution_identity(config)
+        ):
+            raise ValueError("Cached rollout policy/task/seed differs")
+        return cached
+    cfg = copy.deepcopy(config)
+    cfg["seed"] = config["seed"] + request["index"] * 4 + member
+    row = {
+        "task_id": task,
+        "generated_task_id": generated["task_id"] if generated else None,
+        "policy": expected,
+        "seed": cfg["seed"],
+        "directory": str(target),
+        "success": None,
+        "reward_valid": False,
+        "initial_state_hash": None,
+        "classification": "infrastructure_error",
+        "fault": None,
+        "student_execution": execution_identity(config),
+        "worker_pid": os.getpid(),
+        "started": epoch(),
+    }
+    try:
+        if epoch() >= deployment["deadline"]:
+            raise TimeoutError("Authorized wall-clock deadline")
+        if not target.exists():
+            client = VLLMStudent(
+                cfg,
+                request["actor"],
+                request["server"]["url"],
+                request["server_receipt"],
             )
-            if generated:
-                judged = reward(
-                    Engine(
-                        config, deployment, read_credentials(deployment["credentials"])
-                    ),
-                    generated,
-                    trajectory,
-                    target / "judge",
-                )
-                row.update(
-                    success=judged["success"],
-                    reward_valid=judged["reward_valid"],
-                    classification="valid" if judged["reward_valid"] else "scoring_gap",
-                )
-            else:
-                row.update(
-                    success=result["success"],
-                    reward_valid=result["valid"],
-                    classification="valid"
-                    if result["valid"]
-                    else "infrastructure_error",
-                )
-        except (ValueError, RuntimeError, OSError, TimeoutError) as exc:
-            row.update(fault=str(exc), success=None, reward_valid=False)
-        write_json(target / "online_episode.json", row)
-        episodes.append(row)
+            run(
+                task,
+                member + 1,
+                target,
+                deployment["appworld_root"],
+                cfg,
+                client,
+                generated_task=generated,
+            )
+        if not (target / "trajectory.json").exists():
+            raise ValueError("Interrupted attempt preserved without resampling")
+        trajectory = read_json(target / "trajectory.json")
+        if trajectory.get("student_execution") != execution_identity(config):
+            raise ValueError("Interrupted rollout execution settings differ")
+        result = read_json(target / "result.json")
+        write_history = target / "history.json"
+        if not write_history.exists():
+            write_json(write_history, {"messages": trajectory["messages"]})
+        row.update(
+            initial_state_hash=trajectory["initial_state_hash"],
+            termination=result["termination"],
+            usage=result["usage"],
+            seconds=result["seconds"],
+            fault=trajectory["fault"],
+        )
+        if generated:
+            judged = reward(
+                Engine(config, deployment, read_credentials(deployment["credentials"])),
+                generated,
+                trajectory,
+                target / "judge",
+            )
+            row.update(
+                success=judged["success"],
+                reward_valid=judged["reward_valid"],
+                classification="valid" if judged["reward_valid"] else "scoring_gap",
+            )
+        else:
+            row.update(
+                success=result["success"],
+                reward_valid=result["valid"],
+                classification="valid" if result["valid"] else "infrastructure_error",
+            )
+    except (ValueError, RuntimeError, OSError, TimeoutError) as exc:
+        row.update(fault=str(exc), success=None, reward_valid=False)
+    row["finished"] = epoch()
+    write_json(target / "online_episode.json", row)
+    return row
+
+
+def sampling_concurrency(config):
+    count = config.get("online", {}).get("sampling_concurrency", 1)
+    if type(count) is not int or not 1 <= count <= 4:
+        raise ValueError("Sampling concurrency must be an integer from 1 to 4")
+    return count
+
+
+def sample_group(config, deployment, request, directory):
+    """One actor, four fresh processes, at most N simultaneous environments."""
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
+
+    directory = Path(directory)
+    directory.mkdir(parents=True, exist_ok=True)
+    width = sampling_concurrency(config)
+    if request["server"].get("max_num_seqs", 1) < width:
+        raise ValueError("vLLM server concurrency is below requested sampling width")
+    started = epoch()
+    if width == 1:
+        episodes = [
+            sample_member(config, deployment, request, directory, i) for i in range(4)
+        ]
+    else:
+        # AppWorld patches process globals (including time). Never use threads or fork.
+        # A fresh process per episode also isolates Python variables and DB caches.
+        with ProcessPoolExecutor(
+            max_workers=width,
+            mp_context=multiprocessing.get_context("spawn"),
+            max_tasks_per_child=1,
+        ) as workers:
+            futures = [
+                workers.submit(sample_member, config, deployment, request, directory, i)
+                for i in range(4)
+            ]
+            episodes = [f.result() for f in futures]
     result = {
         "index": request["index"],
         "selection": request["selection"],
         "episodes": episodes,
         "effective": effective(episodes),
+        "sampling_concurrency": width,
+        "student_execution": execution_identity(config),
+        "sampling_wall_seconds": epoch() - started,
     }
     write_json(directory / "result.json", result)
     return result
@@ -240,6 +281,7 @@ class Server:
             "max_model_len": 65536,
             "dtype": "bfloat16",
             "vllm_version": "0.19.0",
+            "max_num_seqs": sampling_concurrency(config),
             "url": "http://127.0.0.1:" + str(deployment["port"]),
             "model_name": "codeact_" + checkpoint["adapter_sha256_after"][:16],
             "actor": actor,
@@ -262,7 +304,7 @@ class Server:
             "--max-model-len",
             "65536",
             "--max-num-seqs",
-            "1",
+            str(sampling_concurrency(config)),
             "--max-num-batched-tokens",
             "4096",
             "--gpu-memory-utilization",

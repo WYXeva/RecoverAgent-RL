@@ -4,6 +4,7 @@ import gc
 import json
 import math
 import os
+from functools import partial
 from pathlib import Path
 
 from recoveragent.demonstrations import sha256
@@ -18,6 +19,7 @@ from recoveragent.v2_training import (
     verify_checkpoint,
 )
 
+from .progress import execution_identity
 from .protocol import identity, now
 
 REVISION = "codeact_grpo_v1"
@@ -31,7 +33,7 @@ def policy(receipt, config):
     }
 
 
-def segments(directory, expected_policy, *, max_length=65536):
+def segments(directory, expected_policy, *, max_length=65536, expected_execution=None):
     rows = []
     for path in sorted((Path(directory) / "requests").glob("*.tokens.json")):
         row = read_json(path)
@@ -48,6 +50,7 @@ def segments(directory, expected_policy, *, max_length=65536):
         lp = behavior.get("logprobs")
         if (
             behavior.get("policy") != expected_policy
+            or behavior.get("student_execution") != expected_execution
             or behavior.get("protocol") != identity()
             or behavior.get("logprob_contract") != LOGPROBS
             or behavior.get("top_p") != 1.0
@@ -137,6 +140,12 @@ def update(config, request, output):
         raise ValueError("Only one or two complete varying groups may update")
     if any(e["policy"] != policy(parent, config) for g in groups for e in g):
         raise ValueError("Pending groups do not belong to the unchanged current actor")
+    if any(
+        e.get("student_execution") != execution_identity(config)
+        for g in groups
+        for e in g
+    ):
+        raise ValueError("Pending groups use a different Student execution policy")
     if config["grpo"]["beta"] != 0:
         raise ValueError("This bounded CodeAct run uses the approved zero-KL recipe")
     kernels = inspect_kernels(required=True)
@@ -166,7 +175,12 @@ def update(config, request, output):
         group["lr"] = config["grpo"]["learning_rate"]
     if request["optimizer_steps"] == 0:
         audit = audit_behavior(
-            trainer, groups, config["online"]["logprob_audit"], segment_loader=segments
+            trainer,
+            groups,
+            config["online"]["logprob_audit"],
+            segment_loader=partial(
+                segments, expected_execution=execution_identity(config)
+            ),
         )
         write_json(output / "behavior_audit.json", audit)
         if not audit["passed"]:
@@ -203,7 +217,7 @@ def update(config, request, output):
         trainer,
         groups,
         max_length=65536,
-        segment_loader=segments,
+        segment_loader=partial(segments, expected_execution=execution_identity(config)),
         observe_memory=observe_memory if config["grpo"].get("record_memory") else None,
     )
     metadata = {
@@ -219,11 +233,14 @@ def update(config, request, output):
         "gpu_peak_allocated_bytes": torch.cuda.max_memory_allocated(),
         "gpu_peak_reserved_bytes": torch.cuda.max_memory_reserved(),
         "config_sha256": digest(config),
+        "student_execution": execution_identity(config),
         "cuda_allocator": allocator,
     }
-    ids = segments(groups[0][0]["directory"], groups[0][0]["policy"])[0]["prompt_ids"][
-        :128
-    ]
+    ids = segments(
+        groups[0][0]["directory"],
+        groups[0][0]["policy"],
+        expected_execution=execution_identity(config),
+    )[0]["prompt_ids"][:128]
     actor = output / "actor"
     after, probe = finish_checkpoint(
         model,

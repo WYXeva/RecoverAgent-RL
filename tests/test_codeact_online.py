@@ -601,7 +601,7 @@ def test_new_source_lock_and_tamper_rejection(tmp_path):
     assert experiment.verify_source(
         {
             "source_root": str(ROOT),
-            "source_lock": "configs/codeact_online_updates20_20261120.lock.json",
+            "source_lock": "configs/codeact_online_parallel_20261120.lock.json",
         }
     )
     with pytest.raises(ValueError, match="source changed"):
@@ -611,6 +611,13 @@ def test_new_source_lock_and_tamper_rejection(tmp_path):
             {
                 "source_root": str(ROOT),
                 "source_lock": "configs/codeact_online_eval_v3_20261119.lock.json",
+            }
+        )
+    with pytest.raises(ValueError, match="source changed"):
+        experiment.verify_source(
+            {
+                "source_root": str(ROOT),
+                "source_lock": "configs/codeact_online_updates20_20261120.lock.json",
             }
         )
     from recoveragent.demonstrations import sha256

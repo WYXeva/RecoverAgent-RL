@@ -220,3 +220,11 @@ export PYTHONPATH="$PWD/src"
 
 只用于同授权期续跑，正在运行时不重复启动。截止仍为11月20日19:52:38，
 最大200个采样组是独立上限，不保证一定完成100次更新。
+
+### 两个独立环境并发采样
+
+新配置 `configs/codeact_grpo_coevolve_parallel_20261120.json` 的
+`online.sampling_concurrency=2`（可设1–4），同步配置共享vLLM并发。
+Student在相同代码/错误/状态连续出现时第3次提醒、第5次结束，Teacher不受影响。
+新规则使用独立目录，不能直接覆盖旧run的配置或混用旧未消费回执。
+启动/续跑命令及真实验证见[并发报告](reports/codeact_parallel_progress_20261120.md)。
