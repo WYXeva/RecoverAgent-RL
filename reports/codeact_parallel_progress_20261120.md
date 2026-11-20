@@ -55,6 +55,37 @@ PYTHONPATH=src /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env
 
 第一版只覆盖可确认的重复错误，不是通用无进展判定；不终止正常重复查询或无法可靠追踪变量状态的代码。清理后完整339项CPU测试通过，具体见清理报告。
 
+## 四路试跑（16:41完成首组）
+
+用户授权后只将并发2改为4，新增 `codeact_grpo_coevolve_parallel4_20261120.json` 和297文件 `codeact_online_parallel4_20261120.lock.json`，实现提交 `af000ad`。模型、采样分布、重复错误规则、训练参数、Teacher/Judge、任务队列、原19:52:38截止不变。CPU并发测试同时覆盖2/4路真实spawn、4独立PID、同策略/初态、四seed及缓存续读：**13 passed，1.96秒**，Ruff check/format通过。
+
+07在完整组边界继承06的102组、25更新、74题生成池，以及未消费的零基组ID `[100,101]`。两组的actor/执行身份相同，继续按原规则消费，未强制单组尾批、未丢弃采样。继承optimizer SHA `c60dae43d75b8e815c295cf0c164043c40487629ebf8c1689f770662543f6de0`，队列核验未变。
+
+这两组真实完成第26次更新：训练74.27秒、实际lr为两参数组均1e-5、beta0、梯度L2约0.18595、重载通过。156个回复合并9段，9,743目标token全部计算。它们是先前双路采样，不写成四路产生的数据。
+
+随后使用第26步actor，首个四路组（总第103组，原始train任务 `21abae1_2`）从同一干净初态开始，四个PID起始相差不足2毫秒。**整组108.644秒，官方奖励[0,1,0,1]，四条有效**：
+
+| 尝试 | 请求数 | 目标token | 结束与评分 |
+|---|---:|---:|---|
+| 0 | 22 | 2733 | 提交完成，但官方业务验收失败 |
+| 1 | 14 | 1318 | 提交完成，官方成功 |
+| 2 | 80 | 3197 | 请求预算耗尽，官方失败 |
+| 3 | 12 | 1109 | 提交完成，官方成功 |
+
+实际GRPO读取器核验128份请求、8,357个目标token及其behavior logprob通过；同actor、初态、四seed及执行身份全部一致。5秒间隔测量中最大运行请求数4、等待请求0、缓存抢占0；KV缓存最高约5.30%，显存采样最高41,077MiB（约40.11GiB，非连续采样/框架峰值）。未见本组OOM或基础设施无效奖励。未做4条同时达到64K的压力试验，也未重采同任务作双路对照，不报告速度倍数。
+
+16:41完成103组/26更新，第103组作为有效组等待配对，四路继续后续组；不是已经完成五轮。私有回执位于本地 `runs/codeact_evolve_20261120_07/` 及远端同名运行目录，包括handoff、真实行为读取核验、逐5秒容量测量。退出后的归档监护已切到07，覆盖01–07原件并流式写D盘；原预算不延长。
+
+当前07冻结源码中的启动/续跑命令（已运行，不重复启动）：
+
+```bash
+PYTHONPATH=src /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python \
+  -m recoveragent.codeact.experiment run \
+  --config configs/codeact_grpo_coevolve_parallel4_20261120.json \
+  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261120_07/deployment.json \
+  --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_07/experiment
+```
+
 ## 空间
 
 六份远端压缩包与已有本地副本逐个SHA及大小核验一致后删除，释放 **4,795,065,658字节（4.47GiB）**。另外核验两个停用的历史Function Calling目录与本地原件后，删除27份远端重复大文件，释放860,480,724字节；共 **5.27GiB**。当前S0、actor、optimizer和CodeAct原始轨迹保留。原计划的04 optimizer迁移取消，未完成临时包已清；不与已核验的历史重复文件清理混淆。后续大归档写入D盘，原始数据仍私有，详细清单见[清理报告](codeact_cleanup_20261120.md)。

@@ -221,17 +221,20 @@ export PYTHONPATH="$PWD/src"
 只用于同授权期续跑，正在运行时不重复启动。截止仍为11月20日19:52:38，
 最大200个采样组是独立上限，不保证一定完成100次更新。
 
-### 两个独立环境并发采样
+### 独立环境并发采样
 
 新配置 `configs/codeact_grpo_coevolve_parallel_20261120.json` 的
 `online.sampling_concurrency=2`（可设1–4），同步配置共享vLLM并发。
 Student在相同代码/错误/状态连续出现时第3次提醒、第5次结束，Teacher不受影响。
 新规则使用独立目录，不能直接覆盖旧run的配置或混用旧未消费回执。
+用户随后授权四路试跑，独立配置 `configs/codeact_grpo_coevolve_parallel4_20261120.json`
+设置并发4，配套 `configs/codeact_online_parallel4_20261120.lock.json`；四条依然共享一份9B权重。
 启动/续跑命令及真实验证见[并发报告](reports/codeact_parallel_progress_20261120.md)。
 
 ### 当前仓库清理后的源码锁
 
-当前 checkout 的新部署使用 `configs/codeact_online_compact_20261120.lock.json`。
-已运行的06目录仍使用自己的 `74f9a28` 冻结源码和 parallel 锁，续跑命令不变；不要覆盖它。
+清理后的双路部署使用 `configs/codeact_online_compact_20261120.lock.json`，
+四路部署使用上述独立 parallel4 锁。06历史目录保留自己的 `74f9a28` 冻结源码和 parallel 锁；
+07从06的完整组边界接续，沿用原截止和预算，不覆盖原运行。
 旧高层运行器和对应测试已退出当前分支，可在 `74f9a28` 找回；仍复用的训练/执行组件保留。
 安装本项目后，`recoveragent` 命令对应 CodeAct 入口。清理范围及验证见[清理报告](reports/codeact_cleanup_20261120.md)。

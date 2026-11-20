@@ -123,6 +123,9 @@ Teacher的4096请求/250万输出token/100美元公开价估算上限保持不�
 Student采样改为两个独立AppWorld子进程共享vLLM，位置空出后补入下一次尝试；
 同组四次依然同actor、同初态、不同seed，全部结束后汇总并按原有效组规则更新。
 新配置 `codeact_grpo_coevolve_parallel_20261120.json`，并发数可配置1–4。
+用户随后授权四路试跑，采用独立 `codeact_grpo_coevolve_parallel4_20261120.json` 和07目录，
+从06的完整组边界继承当前actor、optimizer、未消费有效组、队列和池；
+只有并发数改为4，执行协议及原19:52:38截止不变，实测结果见STATUS。
 仅对相同代码、确定性错误和可核验状态重复的情形，三次提醒、五次结束；
 正常执行、状态变化和无法确认无进展时不提前终止。官方评分/Judge与Teacher设置不变。
 新执行身份进入回执/训练绑定，切换前收尾旧有效组；保留原actor、optimizer和原截止。
