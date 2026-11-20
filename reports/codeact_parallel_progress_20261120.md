@@ -86,6 +86,41 @@ PYTHONPATH=src /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env
   --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_07/experiment
 ```
 
+## 每题独立4→2降级
+
+用户随后要求每题先4路，容量故障时仅本题降至2路，下一题恢复4路。新增配置
+`codeact_grpo_coevolve_adaptive4_20261120.json` 与299文件独立源码锁；历史配置/锁不修改。
+代码提交 `c3dc9c3`、`6b2e7dc`。
+
+- 新采样路径在 `experiment.resilient_group` / `sampling.sample_with_fallback`。4路正常结果留在 `primary/`；只对OOM、vLLM连接/服务故障、进程崩溃等采样基础设施故障补跑，正常业务失败、格式预算耗尽、Judge故障及官方评分异常均不触发重采。
+- 失败阶段原件保留；受影响成员在 `retry_2/` 使用同actor、同seed、同任务干净初态补跑一次，不声称恢复中断的Python解释器。已经完成的有效成功/失败保留，不通过多次重试选择好结果。
+- 降级会同步重建2路vLLM容量；下一题重新请求4路服务，没有全局永久降级。2路仍失败时记录无效奖励、整组不更新/不作为all_failed或forgetting；其他任务继续。未知契约/配置错误不借降并发绕过检查。
+- 预先保存phase intent、retry plan及actor/任务/config绑定；中断续跑不增加第三次干净尝试。进程池崩溃后先停止其遗留子进程，再读取原件；截止时间阻止新增补跑。
+- 汇总继续以四条最终有效性判定组奖励，另外记录补跑次数和被替换的基础设施失败记录，其已知token/请求计入总成本。崩溃导致用量不完整时明确标记unknown，不假定零成本。
+- 切换时可按PID生命周期与实际命令身份接管现有Teacher worker，继续等待它原输出目录的结果，不重新发起同一生成批次。Teacher提示、配置和评分逻辑不变。
+
+实际本地命令：
+
+```bash
+PYTHONPATH=src /home/eva/project/RecoverAgent-RL/.venv-v2/bin/python -m pytest \
+  tests/test_codeact_sampling_fallback.py tests/test_codeact_parallel.py \
+  tests/test_codeact_online.py tests/test_codeact_schedule.py tests/test_codeact_reboot.py -q
+```
+
+**89 passed，9.73秒**，修改范围Ruff check/format和diff通过。包含实际CPU子进程退出引起的BrokenProcessPool、模拟容量故障4→2、有效结果保留、同协议续跑不重复、下一题恢复4、成本累计、截止和评分无效边界。未为验证故意制造真实GPU OOM；模拟故障不冒充真实降级。
+
+17:00已切换至08，继承106组/27更新及未消费零基组 `[104,105]`；原窗口104的Teacher进程保持运行并接管结果等待。当前正常更新仍在进行，未发生真实容量故障降级。原件及回传监护覆盖01–08，原截止不变。
+
+08的启动/续跑命令：
+
+```bash
+PYTHONPATH=src /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python \
+  -m recoveragent.codeact.experiment run \
+  --config configs/codeact_grpo_coevolve_adaptive4_20261120.json \
+  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261120_08/deployment.json \
+  --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_08/experiment
+```
+
 ## 空间
 
 六份远端压缩包与已有本地副本逐个SHA及大小核验一致后删除，释放 **4,795,065,658字节（4.47GiB）**。另外核验两个停用的历史Function Calling目录与本地原件后，删除27份远端重复大文件，释放860,480,724字节；共 **5.27GiB**。当前S0、actor、optimizer和CodeAct原始轨迹保留。原计划的04 optimizer迁移取消，未完成临时包已清；不与已核验的历史重复文件清理混淆。后续大归档写入D盘，原始数据仍私有，详细清单见[清理报告](codeact_cleanup_20261120.md)。
