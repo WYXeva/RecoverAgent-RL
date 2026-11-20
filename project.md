@@ -4,7 +4,7 @@
 
 ## 1. 目标与边界
 
-研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；当前按用户最新授权直接从新S0运行GRPO＋CoEvolve，目标5轮，每轮结束dev24；暂跳过Recovery-SFT，保留既有24小时作业截止。
+研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；当前按用户最新授权直接从新S0运行GRPO＋CoEvolve，目标5个训练轮次，每累计新增20次有效更新后dev24；暂跳过Recovery-SFT，保留既有24小时作业截止。
 
 主分支为 `reboot/codeact`，起点为原开发分支 `bdaf6a3`。原工作区未提交工作保持原样；旧执行协议、Teacher 数据、模型与运行记录只供历史追溯，不进入本轮训练。历史计划可在[重启前固定版本](https://github.com/WYXeva/RecoverAgent-RL/blob/bdaf6a3cead063f7aec29989bd5bb5000abf7afd/project.md)查看。
 
@@ -60,9 +60,11 @@ Static/Full 对齐 Student 训练预算，额外 Teacher 成本分列。任务�
 
 ## 7. 当前有界在线学习
 
-用户批准先跑1轮、最多24小时。使用新CodeAct S0（32次SFT更新）的现有权重，
-不承接旧接口14/15次GRPO的actor或optimizer。当前阶段新optimizer从0计数，
-最多40组×4次真实执行、最多20次有效更新，lr1e-5、beta0、temperature0.8/top_p1。
+使用新CodeAct S0（32次SFT更新）的现有权重，不承接旧接口14/15次GRPO。
+本阶段optimizer从0计数并连续继承；用户最新定义每20次有效optimizer更新为一个训练轮次，
+在累计20/40/60/80/100次更新后跑dev24。已有18次计入第一轮，旧7/18次更新时的评测保留为历史。
+原预算仍为最多200采样组×4次、最多100次更新、原24小时绝对截止；
+可能先触及采样或时间上限，不为凑满5轮增加预算。lr1e-5、beta0、temperature0.8/top_p1不变。
 同组干净初态、同一actor、不同种子；两组成败混合且四条评分有效的组积累后更新，
 积累期间actor不变，剩余单组可做尾批。0/4与4/4仍留反馈，未知不当作0。
 
@@ -70,7 +72,7 @@ Static/Full 对齐 Student 训练预算，额外 Teacher 成本分列。任务�
 不足时原始任务补位。每8个实际采样组最多选4个context，沿用最新轻量出题提示、
 原题/父题/同源题面对照、可选一次探索、每context最多2候选。完整四次交互进入Teacher；
 全新CodeAct Solver从干净初态执行，shared Judge准入，Student奖励使用同题同初态Solver参考。
-最多4批、16context、32候选，最后一组结束后不新增出题批次；Teacher在后台运行，入池后参与尚未执行槽。
+最多24批、96context、192候选，最后一组结束后不新增出题批次；Teacher在后台运行，入池后参与尚未执行槽。
 
 Student保持64K、non-thinking、固定appworld(code)，vLLM记录真实token及processed behavior logprob；
 训练使用相同actor、相同序列和temperature，首次更新前做小量logprob核对。
@@ -79,7 +81,7 @@ beta0不加载参考adapter或执行参考前向。每次更新恢复optimizer�
 保留参数变化、有限梯度、optimizer、可重载adapter与完整组消费状态。
 OOM跳过整批更新并保留上一actor及原始轨迹，不用部分梯度冒充完整组更新。
 
-配置 `codeact_grpo_coevolve_20261119.json`；新源码锁、独立目录和绑定保证新旧协议不混用。
+当前配置 `codeact_grpo_coevolve_updates20_20261120.json`；新源码锁、独立目录和绑定保证新旧运行不混用。
 Teacher总预留有限：4096请求、250万输出token、约42.95亿输入token、100美元公开价估算上限，
 同时受24小时限制；它是现有套餐用量估算，不是新增采购或扣款授权。Judge保持Flash thinking/high/8192；
 Teacher窗口1M独立于Student64K。普通任务失败继续，系统性模型/参数校验失败保存后停止。
@@ -105,3 +107,13 @@ Teacher的4096请求/250万输出token/100美元公开价估算上限保持不�
 同批全部36,188目标、9段真实更新及重载通过，峰值42.17 GiB。诊断从当时的旧actor独立开始，
 其权重不并入主实验。主线在04目录继承02的23组/2更新，原24小时截止不变；
 不截断、换模型或扩预算。继续观察新配置实际更新，不能将单批通过当成全部长序列保证。
+
+### 11月20日：有效更新定义训练轮次
+
+从05目录继续04的80组/18更新，轮次按累计20次有效更新计数。
+只有成功更新计数；全同奖励、评分无效、OOM跳过不增加更新数。
+旧40采样组轮末评测不冒充新的更新里程碑；新评测另存 `evaluations/updates_000020` 等目录。
+40采样组仍为任务队列窗口，仅控制生成题每窗口一次，窗口切换不清空待更新有效组。
+原100题先打乱覆盖，再重新打乱循环；生成题优先未采样题，后续窗口可再次使用。
+每次选题都由当前actor从干净初态独立运行4次；不复用旧采样token或logprob。
+本次两份旧dev24均9/24，新20更新评价尚待发生。截止和Teacher预算保持原样。

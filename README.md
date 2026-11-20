@@ -174,7 +174,7 @@ python -m recoveragent.codeact.experiment run \
 轮末评价在 `experiment/evaluations/round_01..05/`；摘要的 `round_evaluations` 保存逐轮结果。
 空答案分类更正证据在 `reward_audit/`，未重采模型或覆写旧奖励。
 
-### 训练显存调整后的当前入口（11月20日）
+### 训练显存调整后的历史04入口（11月20日）
 
 当前04目录从02的23组/2次有效更新继续，使用
 `codeact_grpo_coevolve_memory_20261120.json`和`codeact_online_memory_20261120.lock.json`。
@@ -197,3 +197,26 @@ export RECOVERAGENT_TEACHER_TOKENIZER_DIR=/root/gpufree-data/recoveragent_codeac
 此命令用于同一授权期内续跑，已有controller运行时不要再启动第二个。
 原截止11月20日19:52:38不变；03目录独立OOM复测权重不是主训练actor。
 复测命令、真实数据和限制见[报告](reports/codeact_grpo_oom_retest_20261120.md)。
+
+### 当前05入口：每20次有效更新后评测
+
+当前使用 `configs/codeact_grpo_coevolve_updates20_20261120.json` 和
+`configs/codeact_online_updates20_20261120.lock.json`。
+已有80采样组/18次更新及两份9/24旧评价保留；新增评价目录为
+`experiment/evaluations/updates_000020`、`updates_000040`等，不混用旧 `round_01`/`round_02`。
+40采样组仍作为生成题限频窗口，不再定义训练轮次。
+
+沿用上文的worker Python、HF缓存和Teacher tokenizer环境，改用05冻结源码：
+
+```bash
+cd /root/gpufree-data/recoveragent_codeact_evolve_20261120_05/source
+export PYTHONPATH="$PWD/src"
+/root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python \
+  -m recoveragent.codeact.experiment run \
+  --config configs/codeact_grpo_coevolve_updates20_20261120.json \
+  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261120_05/deployment.json \
+  --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_05/experiment
+```
+
+只用于同授权期续跑，正在运行时不重复启动。截止仍为11月20日19:52:38，
+最大200个采样组是独立上限，不保证一定完成100次更新。

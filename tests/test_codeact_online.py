@@ -314,14 +314,21 @@ def test_body_chunk_and_merged_grpo_match_reference(tmp_path):
     )
 
 
-@pytest.mark.parametrize("rounds", [1, 5])
+@pytest.mark.parametrize("rounds", [1, 5, "updates", "updates_oom"])
 def test_controller_effective_accumulation_new_pool_and_resume(
     config, tmp_path, monkeypatch, rounds
 ):
-    config["online"].update(max_groups=10 if rounds == 1 else 20, s0_sha256="s0")
+    update_rounds = isinstance(rounds, str)
+    config["online"].update(max_groups=20 if rounds == 5 else 10, s0_sha256="s0")
     if rounds == 5:
         config["grpo"]["groups_per_round"] = 4
         config["online"]["round_evaluation"] = {"task_set": "dev24"}
+    if update_rounds:
+        config["grpo"]["groups_per_round"] = 2
+        config["online"]["round_evaluation"] = {
+            "task_set": "dev24",
+            "every_optimizer_updates": 2,
+        }
     dep = {
         "s0": "s0",
         "deadline": evolution.epoch() + 100,
@@ -353,7 +360,15 @@ def test_controller_effective_accumulation_new_pool_and_resume(
         req = read_json(request_path)
         observed.append((kind, req))
         if kind == "evaluate":
-            assert req["round"] * 4 == len([k for k, _ in observed if k == "sample"])
+            if update_rounds:
+                assert req["evaluation_basis"] == "optimizer_updates"
+                assert req["target_updates"] == req["round"] * 2
+                assert req["actor"] == f"updated_{req['target_updates']}"
+                assert Path(output).name == f"updates_{req['target_updates']:06d}"
+            else:
+                assert req["round"] * 4 == len(
+                    [k for k, _ in observed if k == "sample"]
+                )
             write_json(
                 Path(output) / "summary.json",
                 {
@@ -409,6 +424,22 @@ def test_controller_effective_accumulation_new_pool_and_resume(
                 "optimizer": "saved",
                 "optimizer_sha256": "sha",
             }
+            if (
+                rounds == "updates_oom"
+                and len([k for k, _ in observed if k == "update"]) == 1
+            ):
+                result.update(
+                    updated=False,
+                    **{
+                        k: req[k]
+                        for k in (
+                            "actor",
+                            "optimizer",
+                            "optimizer_sha256",
+                            "optimizer_steps",
+                        )
+                    },
+                )
         else:
             assert len(req["contexts"]) <= 4
             result = {"accepted": [task], "attempts": [{"accepted": True}]}
@@ -423,12 +454,34 @@ def test_controller_effective_accumulation_new_pool_and_resume(
         state["status"] == "complete"
         and len(state["groups"]) == config["online"]["max_groups"]
     )
-    assert state["optimizer_steps"] == (4 if rounds == 1 else 9)
-    assert len(state["consumed"]) == (7 if rounds == 1 else 17)
+    assert state["optimizer_steps"] == (
+        9 if rounds == 5 else 3 if rounds == "updates_oom" else 4
+    )
+    assert len(state["consumed"]) == (
+        17 if rounds == 5 else 5 if rounds == "updates_oom" else 7
+    )
     assert not state["pending"] and len(set(state["consumed"])) == len(
         state["consumed"]
     )
-    assert len(state["round_evaluations"]) == (0 if rounds == 1 else 5)
+    assert len(state["round_evaluations"]) == (
+        5
+        if rounds == 5
+        else 2
+        if rounds == "updates"
+        else 1
+        if rounds == "updates_oom"
+        else 0
+    )
+    if update_rounds:
+        assert [len(req["groups"]) for kind, req in observed if kind == "update"] == [
+            2,
+            2,
+            2,
+            1,
+        ]
+        progress = read_json(root / "summary.json")["learning_round_progress"]
+        assert progress["completed_rounds"] == state["optimizer_steps"] // 2
+        assert progress["updates_in_round"] == state["optimizer_steps"] % 2
     for item in state["round_evaluations"]:
         assert item["actor"] == "updated_" + str(item["optimizer_steps"])
     assert not {0, 2, 4} & set(state["consumed"])
@@ -548,7 +601,7 @@ def test_new_source_lock_and_tamper_rejection(tmp_path):
     assert experiment.verify_source(
         {
             "source_root": str(ROOT),
-            "source_lock": "configs/codeact_online_memory_20261120.lock.json",
+            "source_lock": "configs/codeact_online_updates20_20261120.lock.json",
         }
     )
     with pytest.raises(ValueError, match="source changed"):
@@ -731,4 +784,37 @@ def test_memory_config_changes_only_allocator_and_measurement():
     new = read_json(ROOT / "configs/codeact_grpo_coevolve_memory_20261120.json")
     assert new["grpo"].pop("cuda_allocator") == "expandable_segments:True"
     assert new["grpo"].pop("record_memory") is True
+    assert new == old
+
+
+def test_update_milestones_keep_legacy_evaluations_separate(config):
+    config["online"]["round_evaluation"] = {"every_optimizer_updates": 20}
+    state = {
+        "groups": ["synthetic"] * 80,
+        "optimizer_steps": 18,
+        "round_evaluations": [
+            {"round": 1, "optimizer_steps": 7},
+            {"round": 2, "optimizer_steps": 18},
+        ],
+    }
+    assert experiment.evaluation_due(config, state) is None
+    state["optimizer_steps"] = 20
+    expected = {
+        "evaluation_basis": "optimizer_updates",
+        "round": 1,
+        "target_updates": 20,
+    }
+    assert experiment.evaluation_due(config, state) == expected
+    state["round_evaluations"].append({**expected, "optimizer_steps": 20})
+    assert experiment.evaluation_due(config, state) is None
+    state["optimizer_steps"] = 21
+    assert experiment.evaluation_due(config, state) is None
+    state["optimizer_steps"] = 40
+    assert experiment.evaluation_due(config, state)["round"] == 2
+
+
+def test_update_round_config_keeps_existing_resource_limits():
+    old = read_json(ROOT / "configs/codeact_grpo_coevolve_memory_20261120.json")
+    new = read_json(ROOT / "configs/codeact_grpo_coevolve_updates20_20261120.json")
+    assert new["online"]["round_evaluation"].pop("every_optimizer_updates") == 20
     assert new == old

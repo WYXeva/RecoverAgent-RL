@@ -35,6 +35,37 @@ def effective(episodes):
         return False
 
 
+def evaluation_due(config, state):
+    """Keep sampling windows separate from successful-update evaluation rounds."""
+    settings = config["online"].get("round_evaluation")
+    if not settings:
+        return None
+    interval = settings.get("every_optimizer_updates")
+    if interval is not None:
+        if type(interval) is not int or interval < 1:
+            raise ValueError("Evaluation update interval must be a positive integer")
+        count = state["optimizer_steps"]
+        if not count or count % interval:
+            return None
+        due = {
+            "evaluation_basis": "optimizer_updates",
+            "round": count // interval,
+            "target_updates": count,
+        }
+    else:
+        count, size = len(state["groups"]), config["grpo"]["groups_per_round"]
+        if not count or count % size:
+            return None
+        due = {"evaluation_basis": "sampled_groups", "round": count // size}
+    if any(
+        r.get("evaluation_basis", "sampled_groups") == due["evaluation_basis"]
+        and r["round"] == due["round"]
+        for r in state.get("round_evaluations", [])
+    ):
+        return None
+    return due
+
+
 def summary(state, deployment):
     groups = [read_json(p) for p in state["groups"]]
     rows = [e for g in groups for e in g["episodes"]]
@@ -59,6 +90,18 @@ def summary(state, deployment):
         "pending_groups": state["pending"],
         "generated_pool": len(state["pool"]),
         "round_evaluations": state.get("round_evaluations", []),
+        "learning_round_progress": (
+            {
+                "basis": "optimizer_updates",
+                "updates_per_round": state["updates_per_round"],
+                "completed_rounds": state["optimizer_steps"]
+                // state["updates_per_round"],
+                "updates_in_round": state["optimizer_steps"]
+                % state["updates_per_round"],
+            }
+            if state.get("updates_per_round")
+            else None
+        ),
         "success": sum(e["success"] is True for e in rows),
         "failure": sum(e["success"] is False for e in rows),
         "unknown": sum(e["success"] is None for e in rows),
@@ -398,6 +441,12 @@ def experiment(config, deployment, config_path, output):
         }
         replace_json(state_path, state)
     state.setdefault("round_evaluations", [])
+    interval = (
+        config["online"].get("round_evaluation", {}).get("every_optimizer_updates")
+    )
+    if interval is not None:
+        evaluation_due(config, state)  # Validate before launching any workers.
+        state["updates_per_round"] = interval
     queue = TaskQueue(config["online"]["train_tasks"], config["seed"], state["queue"])
     feedback = GroupFeedback(config["online"]["signals"], state["feedback"])
     server, background = None, None
@@ -525,20 +574,21 @@ def experiment(config, deployment, config_path, output):
 
     def evaluate_round():
         nonlocal server
-        settings = config["online"].get("round_evaluation")
-        size = config["grpo"]["groups_per_round"]
-        count = len(state["groups"])
-        if not settings or not count or count % size:
-            return False
-        number = count // size
-        if any(r["round"] == number for r in state["round_evaluations"]):
+        due = evaluation_due(config, state)
+        if due is None:
             return False
         if (
-            state["pending"]
+            due["evaluation_basis"] == "sampled_groups"
+            and state["pending"]
             and state["optimizer_steps"] < config["online"]["max_updates"]
         ):
             apply_update()  # Flush the last valid group before the round's evaluation.
-        target = output / "evaluations" / f"round_{number:02d}"
+        name = (
+            f"updates_{due['target_updates']:06d}"
+            if due["evaluation_basis"] == "optimizer_updates"
+            else f"round_{due['round']:02d}"
+        )
+        target = output / "evaluations" / name
         if server is None:
             server = Server(
                 config,
@@ -547,7 +597,7 @@ def experiment(config, deployment, config_path, output):
                 output / "servers" / str(time.time_ns()),
             )
         request = {
-            "round": number,
+            **due,
             "actor": state["actor"],
             "server": server.proof,
             "server_receipt": str(server.receipt),
@@ -571,7 +621,7 @@ def experiment(config, deployment, config_path, output):
             raise ValueError("Round dev24 incomplete; do not advance the round")
         state["round_evaluations"].append(
             {
-                "round": number,
+                **due,
                 "actor": state["actor"],
                 "directory": str(target),
                 "optimizer_steps": state["optimizer_steps"],
@@ -644,6 +694,8 @@ def experiment(config, deployment, config_path, output):
             and epoch() < deployment["deadline"]
         ):
             apply_update()
+            if interval is not None and epoch() < deployment["deadline"]:
+                evaluate_round()  # A final single-group update may reach a milestone.
         state["status"] = (
             "complete"
             if len(state["groups"]) >= config["online"]["max_groups"]
