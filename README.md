@@ -228,3 +228,10 @@ export PYTHONPATH="$PWD/src"
 Student在相同代码/错误/状态连续出现时第3次提醒、第5次结束，Teacher不受影响。
 新规则使用独立目录，不能直接覆盖旧run的配置或混用旧未消费回执。
 启动/续跑命令及真实验证见[并发报告](reports/codeact_parallel_progress_20261120.md)。
+
+### 当前仓库清理后的源码锁
+
+当前 checkout 的新部署使用 `configs/codeact_online_compact_20261120.lock.json`。
+已运行的06目录仍使用自己的 `74f9a28` 冻结源码和 parallel 锁，续跑命令不变；不要覆盖它。
+旧高层运行器和对应测试已退出当前分支，可在 `74f9a28` 找回；仍复用的训练/执行组件保留。
+安装本项目后，`recoveragent` 命令对应 CodeAct 入口。清理范围及验证见[清理报告](reports/codeact_cleanup_20261120.md)。

@@ -22,7 +22,7 @@ PYTHONPATH=src .venv-v2/bin/python -m pytest \
 
 ## 衔接与命令
 
-使用独立配置 `configs/codeact_grpo_coevolve_parallel_20261120.json`、338文件锁 `configs/codeact_online_parallel_20261120.lock.json`，远端新目录 `recoveragent_codeact_evolve_20261120_06`。05旧配置尾批收尾后已累计97组/24更新；切换时等待已有Teacher窗口结束，不复采旧任务，不将旧循环规则的未消费组混入新规则更新。
+使用独立配置 `configs/codeact_grpo_coevolve_parallel_20261120.json`、338文件锁 `configs/codeact_online_parallel_20261120.lock.json`，远端新目录 `recoveragent_codeact_evolve_20261120_06`。05旧配置尾批收尾后累计97组/24更新；已有Teacher窗口完成后已切换，继承74题生成池及采样队列，不复采旧任务，不将旧循环规则的未消费组混入新规则更新。
 
 在新目录冻结源码内，启动/续跑命令相同：
 
@@ -34,8 +34,27 @@ PYTHONPATH=src /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env
   --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_06/experiment
 ```
 
-现阶段CPU通过，GPU并发/真实组耗时在切换后补记；不将两个不同任务的耗时比写成加速比。第一版只覆盖可确认的重复错误，不是通用无进展判定；不终止正常重复查询或无法可靠追踪变量状态的代码。
+本命令已在06运行，不应重复启动控制器。当前checkout清理后采用compact锁建立新目录；正在运行的冻结源码和锁不变。
+
+## 真实并发证据
+
+第98组（`group_097`）从同一24步actor、同一初态、四个不同seed执行，组墙钟 **437.635秒**，奖励 **[0,0,0,1]**，全部有效：
+
+| 尝试 | 请求数 | 目标token | 结束原因 |
+|---|---:|---:|---|
+| 0 | 80 | 4552 | request_limit |
+| 1 | 80 | 15338 | request_limit |
+| 2 | 17 | 875 | repeated_error_limit |
+| 3 | 9 | 631 | task_completed，成功 |
+
+0和1同时启动；0结束后2开始，2结束后3开始，此时1仍在运行。四个独立PID及起止时间已记录。2在同代码、同错误、同状态第三次时收到一次提醒，第五次结束。0的代码持续改变、1的可见变量/业务状态改变，按保守规则未强停；仍可能耗尽80请求，这是当前限制。
+
+使用实际训练读取器核验186次请求、21,396个目标token：actor、初态、seed、原始token、behavior logprob、实际请求及执行身份一致。私有证据为06的 `parallel_live_evidence.json`、`real_receipt_validation.json` 和原始组目录。16:21时完成98组/24更新，首个新有效组待配对；尚未把它写成新规则下已完成的参数更新。
+
+观测到vLLM同时执行2个请求、抢占0次，GPU占用41,039MiB（瞬时值，非峰值），未见本组OOM。缓存使用率一次读数约10%。现有实现允许1–4路，当前配置为2；这些读数支持后续四路试验，但不能保证长上下文四路不抢占或OOM。未做同批串行对照，不报告加速倍数。
+
+第一版只覆盖可确认的重复错误，不是通用无进展判定；不终止正常重复查询或无法可靠追踪变量状态的代码。清理后完整339项CPU测试通过，具体见清理报告。
 
 ## 空间
 
-六份远端压缩包与已有本地副本逐个SHA及大小核验一致后删除，仅释放重复包 **4,795,065,658字节（4.47GiB）**；未删除任何模型、optimizer或轨迹。原计划的optimizer迁移取消，未完成临时包已清。后续大归档写入D盘，原始数据仍私有。仓库旧实现清理另按当前依赖链核验。
+六份远端压缩包与已有本地副本逐个SHA及大小核验一致后删除，释放 **4,795,065,658字节（4.47GiB）**。另外核验两个停用的历史Function Calling目录与本地原件后，删除27份远端重复大文件，释放860,480,724字节；共 **5.27GiB**。当前S0、actor、optimizer和CodeAct原始轨迹保留。原计划的04 optimizer迁移取消，未完成临时包已清；不与已核验的历史重复文件清理混淆。后续大归档写入D盘，原始数据仍私有，详细清单见[清理报告](codeact_cleanup_20261120.md)。

@@ -776,7 +776,7 @@ def verify_source(deployment):
         )
     )
     for name, expected in manifest["files"].items():
-        if sha256(root / name) != expected:
+        if not (root / name).is_file() or sha256(root / name) != expected:
             raise ValueError("CodeAct online source changed: " + name)
     return digest(manifest)
 

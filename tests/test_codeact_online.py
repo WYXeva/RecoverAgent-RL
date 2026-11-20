@@ -601,7 +601,7 @@ def test_new_source_lock_and_tamper_rejection(tmp_path):
     assert experiment.verify_source(
         {
             "source_root": str(ROOT),
-            "source_lock": "configs/codeact_online_parallel_20261120.lock.json",
+            "source_lock": "configs/codeact_online_compact_20261120.lock.json",
         }
     )
     with pytest.raises(ValueError, match="source changed"):

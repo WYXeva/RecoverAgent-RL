@@ -64,22 +64,6 @@ def test_kernel_check_detects_resolved_fallback_not_only_package_name():
     assert implementation(dispatch(backend, False))["optimized"] is False
 
 
-def test_efficiency_release_lock_and_historical_refusal(monkeypatch):
-    from recoveragent.v2_runtime import S2_RUNTIME, verify_lock
-
-    monkeypatch.setenv(
-        "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_text_final_20261118"
-    )
-    assert (
-        verify_lock(S2_RUNTIME)["execution_revision"]
-        == "v2_s2_append_teacher_text_final_20261118"
-    )
-    for historical in ("v2_s2_effective_segment_20261118", "v2_s2_efficiency_20261118"):
-        monkeypatch.setenv("RECOVERAGENT_S2_EXECUTION", historical)
-        with pytest.raises(ValueError, match="source lock|source changed"):
-            verify_lock(S2_RUNTIME)
-
-
 @pytest.mark.parametrize("offload", [None, "cpu", {"cpu_above_tokens": 5}])
 def test_real_tiny_model_coalescing_preserves_loss_gradients_and_update(
     tmp_path, monkeypatch, offload
@@ -159,6 +143,7 @@ def test_real_tiny_model_coalescing_preserves_loss_gradients_and_update(
     comparison = gradient_comparison(gradients[0], gradients[1])
     # Optional private numerical receipt; no test fixtures are published as real runs.
     import os
+
     from recoveragent.io import write_json
 
     if os.environ.get("RECOVERAGENT_CPU_NUMERIC_OUTPUT"):
@@ -197,9 +182,10 @@ def test_diagnostic_constant_group_backward_without_optimizer_step(
     pytest.importorskip("torch")
     peft = pytest.importorskip("peft")
     from test_v2_training_cpu import tiny, tokenizer
+
     from recoveragent import v2_grpo
-    from recoveragent.v2_grpo import make_trainer, update_batch
     from recoveragent.sft_recipe import tensor_hash
+    from recoveragent.v2_grpo import make_trainer, update_batch
 
     model = peft.get_peft_model(
         tiny(),

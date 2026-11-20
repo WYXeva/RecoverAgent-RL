@@ -686,7 +686,7 @@ def test_legacy_lock_is_not_resigned_for_new_codeact(monkeypatch):
     monkeypatch.setenv(
         "RECOVERAGENT_S2_EXECUTION", "v2_s2_append_teacher_text_final_20261118"
     )
-    with pytest.raises(ValueError, match="source changed: src/recoveragent/"):
+    with pytest.raises(ValueError, match="source changed:"):
         verify_lock(S2_RUNTIME)
 
 
