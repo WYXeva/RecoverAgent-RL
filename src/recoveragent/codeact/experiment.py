@@ -16,7 +16,7 @@ from recoveragent.io import digest, read_json, write_json
 from recoveragent.s2_schedule import GroupFeedback, TaskQueue, select_contexts
 from recoveragent.teacher import read_credentials
 from recoveragent.v2_grpo import group_advantages
-from recoveragent.v2_tasks import context_for
+from recoveragent.v2_tasks import context_for, plan
 from recoveragent.v2_training import verify_checkpoint
 
 from .collect import replace_json
@@ -40,6 +40,56 @@ def effective(episodes):
         return values is not None and any(values)
     except ValueError:
         return False
+
+
+def sampling_limit_reached(config, count):
+    limit = config["online"]["max_groups"]
+    if limit is not None and (type(limit) is not int or limit < 1):
+        raise ValueError("max_groups must be a positive integer or null")
+    return limit is not None and count >= limit
+
+
+def generation_windows(config, state):
+    if state["optimizer_steps"] >= config["online"]["max_updates"]:
+        return range(0)
+    end = len(state["groups"]) + 1
+    limit = config["online"]["max_groups"]
+    if limit is not None:
+        end = min(end, limit)
+    return range(8, end, config["online"]["feedback_every_groups"])
+
+
+def validate_training_pool(config, s0):
+    settings = config["online"].get("task_pool")
+    if not settings:
+        return
+    frozen = plan()
+    train = {r["task_id"] for r in frozen["rows"] if r["role"] == "train"}
+    allowed = config["online"]["train_tasks"]
+    excluded = settings["excluded_sft_tasks"]
+    if (
+        settings["s0_receipt_sha256"] != digest(s0)
+        or settings["split_manifest_sha256"] != frozen["manifest_sha256"]
+        or len(set(allowed)) != len(allowed)
+        or len(set(excluded)) != len(excluded)
+        or not set(excluded) <= train
+        or set(allowed) != train - set(excluded)
+    ):
+        raise ValueError("SFT exclusion or train pool provenance mismatch")
+
+
+def retire_ineligible_pending(config, state):
+    allowed = set(config["online"]["train_tasks"])
+    for index in list(state["pending"]):
+        group = read_json(state["groups"][index])
+        if (
+            not group["selection"].get("generated_task")
+            and group["selection"]["task_id"] not in allowed
+        ):
+            state["pending"].remove(index)
+            state.setdefault("retired_pending", []).append(
+                {"group_id": index, "reason": "source_task_excluded_by_sft_policy"}
+            )
 
 
 def evaluation_due(config, state):
@@ -141,6 +191,8 @@ def sample_member(config, deployment, request, directory, member, *, interrupted
     generated = request["selection"].get("generated_task")
     task = request["selection"]["task_id"]
     context_for(task, training=True)
+    if not generated and task not in config["online"]["train_tasks"]:
+        raise ValueError("Sampling task is excluded from the current train pool")
     if generated:
         validate_task(generated)
     target = directory / f"member_{member}"
@@ -634,6 +686,8 @@ def experiment(config, deployment, config_path, output):
     state_path = output / "state.json"
     use_fallback = fallback_enabled(config)
     s0 = verify_checkpoint(deployment["s0"], config["model"])
+    sampling_limit_reached(config, 0)
+    validate_training_pool(config, s0)
     if (
         s0.get("protocol") != identity()
         or not s0.get("formal_s0")
@@ -737,12 +791,17 @@ def experiment(config, deployment, config_path, output):
         nonlocal background
         collect_generation()
         existing = {b["window"] for b in state["generation_batches"]}
-        for count in range(
-            8, min(len(state["groups"]) + 1, config["online"]["max_groups"]), 8
-        ):
+        for count in generation_windows(config, state):
             if count in existing:
                 continue
-            contexts = select_contexts(state["events"][count - 8 : count])
+            contexts = select_contexts(
+                [
+                    e
+                    for e in state["events"][count - 8 : count]
+                    if e.get("generated_task_id")
+                    or e["task_id"] in config["online"]["train_tasks"]
+                ]
+            )
             destination = output / "generation" / f"window_{count:03d}"
             request_path = destination.with_suffix(".request.json")
             if not request_path.exists():
@@ -896,7 +955,7 @@ def experiment(config, deployment, config_path, output):
             if evaluate_round():
                 continue
             if (
-                len(state["groups"]) >= config["online"]["max_groups"]
+                sampling_limit_reached(config, len(state["groups"]))
                 or state["optimizer_steps"] >= config["online"]["max_updates"]
             ):
                 break
@@ -907,7 +966,10 @@ def experiment(config, deployment, config_path, output):
             if not state["active"]:
                 size = config["grpo"]["groups_per_round"]
                 state["active"] = queue.take(
-                    index // size, index % size, state["pool"], set()
+                    index // size,
+                    index % size,
+                    state["pool"],
+                    set(),
                 )
                 save()
             if use_fallback:
@@ -980,7 +1042,7 @@ def experiment(config, deployment, config_path, output):
                 evaluate_round()  # A final single-group update may reach a milestone.
         state["status"] = (
             "complete"
-            if len(state["groups"]) >= config["online"]["max_groups"]
+            if sampling_limit_reached(config, len(state["groups"]))
             or state["optimizer_steps"] >= config["online"]["max_updates"]
             else "deadline"
         )

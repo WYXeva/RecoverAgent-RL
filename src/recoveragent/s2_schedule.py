@@ -1,8 +1,8 @@
 """Deterministic five-round sampling and complete-group feedback, without models."""
 
-from collections import Counter
 import copy
 import random
+from collections import Counter
 from pathlib import Path
 
 from .coevolve_signals import action_patterns, interaction_triplets
@@ -36,7 +36,31 @@ class TaskQueue:
             }
         )
         if state:
+            if state.get("original_pool", self.originals) != self.originals:
+                raise ValueError(
+                    "Original pool changed without explicit queue migration"
+                )
             self.rng.setstate(tuples(state["rng"]))
+
+    def reconfigure(self, originals, seen):
+        """Keep the consumed prefix; prioritize eligible unseen tasks on migration."""
+        if not originals or len(set(originals)) != len(originals):
+            raise ValueError("Original queue must contain unique task IDs")
+        if list(originals) == self.originals:
+            return
+        allowed, seen = set(originals), set(seen)
+        cursor = self.state["cursor"]
+        tail = [t for t in self.state["queue"][cursor:] if t in allowed]
+        added = [t for t in originals if t not in self.originals]
+        self.rng.shuffle(added)
+        pending = tail + added
+        # Stable partition: preserve relative order inside each priority tier.
+        pending = [t for t in pending if t not in seen] + [
+            t for t in pending if t in seen
+        ]
+        self.state["queue"] = self.state["queue"][:cursor] + pending
+        self.originals = list(originals)
+        self.state["original_pool"] = self.originals.copy()
 
     def original(self):
         if self.state["cursor"] == len(self.state["queue"]):

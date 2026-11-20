@@ -67,16 +67,20 @@ Static/Full 对齐 Student 训练预算，额外 Teacher 成本分列。任务�
 使用新CodeAct S0（32次SFT更新）的现有权重，不承接旧接口14/15次GRPO。
 本阶段optimizer从0计数并连续继承；用户最新定义每20次有效optimizer更新为一个训练轮次，
 在累计20/40/60/80/100次更新后跑dev24。已有18次计入第一轮，旧7/18次更新时的评测保留为历史。
-预算仍为最多200采样组×4次、最多100次更新，墙钟按当前授权截止；
-可能先触及采样或时间上限，不为凑满5轮增加预算。lr1e-5、beta0、temperature0.8/top_p1不变。
+最新授权取消200采样组上限；继续以100次有效更新完成5轮，墙钟按当前授权截止；
+可能先触及时间/Teacher预算，不为凑满5轮增加时长或费用。lr1e-5、beta0、temperature0.8/top_p1不变。
 同组干净初态、同一actor、不同种子；两组成败混合且四条评分有效的组积累后更新，
 积累期间actor不变，剩余单组可做尾批。0/4与4/4仍留反馈，未知不当作0。
 
-复用既定train100任务ID与原scenario划分，原始/生成优先槽交替；当前生成池从空开始，
-不足时原始任务补位。每8个实际采样组最多选4个context，沿用最新轻量出题提示、
+沿用原scenario划分，原始题池改为train510扣除新S0正式SFT实际使用的252题，剩258题。
+原始/生成优先槽仍交替；优先未采样题只作用于原始槽，不先跑完原始题。
+SFT排除按原始任务ID，不扩大为排除同一场景或不同公开目标的新生成题。
+生成池从本轮空池累积，已有合格新题保留；生成题不足时原始题补位。
+每8个实际采样组最多选4个context，沿用最新轻量出题提示、
 原题/父题/同源题面对照、可选一次探索、每context最多2候选。完整四次交互进入Teacher；
 全新CodeAct Solver从干净初态执行，shared Judge准入，Student奖励使用同题同初态Solver参考。
-最多24批、96context、192候选，最后一组结束后不新增出题批次；Teacher在后台运行，入池后参与尚未执行槽。
+取消随旧200组预算附带的24批/96context/192候选计数上限；每批仍最多4context/8候选，
+全部Teacher调用继续受原有限请求、token、费用及截止约束。Teacher在后台运行，入池后参与尚未执行槽。
 
 Student保持64K、non-thinking、固定appworld(code)，vLLM记录真实token及processed behavior logprob；
 训练使用相同actor、相同序列和temperature，首次更新前做小量logprob核对。
@@ -85,7 +89,7 @@ beta0不加载参考adapter或执行参考前向。每次更新恢复optimizer�
 保留参数变化、有限梯度、optimizer、可重载adapter与完整组消费状态。
 OOM跳过整批更新并保留上一actor及原始轨迹，不用部分梯度冒充完整组更新。
 
-当前配置 `codeact_grpo_coevolve_extend5_20261120.json`；新源码锁、独立目录和绑定保证新旧运行不混用。
+当前配置 `codeact_grpo_coevolve_non_sft_20261120.json`；新源码锁、独立目录和绑定保证新旧运行不混用。
 Teacher总预留有限：4096请求、250万输出token、约42.95亿输入token、100美元公开价估算上限，
 同时受已授权墙钟限制（当前总计41小时）；它是现有套餐用量估算，不是新增采购或扣款授权。Judge保持Flash thinking/high/8192；
 Teacher窗口1M独立于Student64K。普通任务失败继续，系统性模型/参数校验失败保存后停止。
@@ -146,6 +150,13 @@ CPU与真实AppWorld控制检查已通过，GPU并发情况以当前STATUS和[�
 随后再加5小时采用10独立目录、`codeact_grpo_coevolve_extend5_20261120.json` 和
 `codeact_online_extend5_20261120.lock.json`，继承166组/44更新及未消费组、actor/optimizer和全部队列反馈。
 总墙钟147600秒，截止11月21日12:52:38；其余预算和执行协议保持不变。
+
+随后用户取消采样组上限、允许拓展train原始题，并明确排除SFT用过的题。
+11目录采用non_sft配置/源码锁，按正式S0的32份更新回执与训练文件核对252个任务ID，
+从train510选取其余258题；原train100中34题退出后续原题采样，另加入192题。
+只重排未消费原始队列，保留生成题槽、限频/RNG续跑状态及已有actor/optimizer。
+已经完成的旧采样/更新原件不改写；尚未更新的SFT原题组单独标记退出待更新队列。
+五轮目标、每20更新dev24、原时间和Teacher预算不变，禁止dev/test回流。
 
 
 当前仓库已清理CodeAct依赖链外的旧高层执行器及配套入口、测试；历史版本留在Git，

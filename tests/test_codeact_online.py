@@ -314,12 +314,15 @@ def test_body_chunk_and_merged_grpo_match_reference(tmp_path):
     )
 
 
-@pytest.mark.parametrize("rounds", [1, 5, "updates", "updates_oom"])
+@pytest.mark.parametrize("rounds", [1, 5, "updates", "updates_oom", "unbounded"])
 def test_controller_effective_accumulation_new_pool_and_resume(
     config, tmp_path, monkeypatch, rounds
 ):
     update_rounds = isinstance(rounds, str)
     config["online"].update(max_groups=20 if rounds == 5 else 10, s0_sha256="s0")
+    unbounded = rounds == "unbounded"
+    if unbounded:
+        config["online"].update(max_groups=None, max_updates=104)
     if rounds == 5:
         config["grpo"]["groups_per_round"] = 4
         config["online"]["round_evaluation"] = {"task_set": "dev24"}
@@ -450,21 +453,22 @@ def test_controller_effective_accumulation_new_pool_and_resume(
     root = tmp_path / "run"
     experiment.experiment(config, dep, "unused", root)
     state = read_json(root / "state.json")
-    assert (
-        state["status"] == "complete"
-        and len(state["groups"]) == config["online"]["max_groups"]
+    assert state["status"] == "complete" and len(state["groups"]) == (
+        211 if unbounded else config["online"]["max_groups"]
     )
     assert state["optimizer_steps"] == (
-        9 if rounds == 5 else 3 if rounds == "updates_oom" else 4
+        104 if unbounded else 9 if rounds == 5 else 3 if rounds == "updates_oom" else 4
     )
     assert len(state["consumed"]) == (
-        17 if rounds == 5 else 5 if rounds == "updates_oom" else 7
+        208 if unbounded else 17 if rounds == 5 else 5 if rounds == "updates_oom" else 7
     )
     assert not state["pending"] and len(set(state["consumed"])) == len(
         state["consumed"]
     )
     assert len(state["round_evaluations"]) == (
-        5
+        52
+        if unbounded
+        else 5
         if rounds == 5
         else 2
         if rounds == "updates"
@@ -473,12 +477,9 @@ def test_controller_effective_accumulation_new_pool_and_resume(
         else 0
     )
     if update_rounds:
-        assert [len(req["groups"]) for kind, req in observed if kind == "update"] == [
-            2,
-            2,
-            2,
-            1,
-        ]
+        assert [len(req["groups"]) for kind, req in observed if kind == "update"] == (
+            [2] * 104 if unbounded else [2, 2, 2, 1]
+        )
         progress = read_json(root / "summary.json")["learning_round_progress"]
         assert progress["completed_rounds"] == state["optimizer_steps"] // 2
         assert progress["updates_in_round"] == state["optimizer_steps"] % 2
@@ -601,9 +602,16 @@ def test_new_source_lock_and_tamper_rejection(tmp_path):
     assert experiment.verify_source(
         {
             "source_root": str(ROOT),
-            "source_lock": "configs/codeact_online_adaptive4_20261120.lock.json",
+            "source_lock": "configs/codeact_online_non_sft_20261120.lock.json",
         }
     )
+    with pytest.raises(ValueError, match="source changed"):
+        experiment.verify_source(
+            {
+                "source_root": str(ROOT),
+                "source_lock": "configs/codeact_online_extend5_20261120.lock.json",
+            }
+        )
     with pytest.raises(ValueError, match="source changed"):
         experiment.verify_source(
             {
