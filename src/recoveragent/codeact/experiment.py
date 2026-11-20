@@ -512,6 +512,43 @@ def wait_process(process, deadline):
         raise RuntimeError(f"Worker exited {code}; inspect its log")
 
 
+def process_identity(pid):
+    """Bind an inherited worker to its PID lifetime and exact command."""
+    root = Path("/proc") / str(pid)
+    try:
+        stat = (root / "stat").read_text().rsplit(")", 1)[1].split()
+        if stat[0] == "Z":
+            return None
+        return digest(
+            {"start_ticks": stat[19], "command": (root / "cmdline").read_bytes().hex()}
+        )
+    except FileNotFoundError:
+        return None
+
+
+class InheritedGeneration:
+    """Wait for the existing Teacher process; never launch its work twice."""
+
+    def __init__(self, binding, output):
+        self.pid, self.identity = binding["pid"], binding["identity"]
+        self.output, self.returncode = Path(output), None
+
+    def poll(self):
+        if (self.output / "result.json").exists():
+            self.returncode = 0
+        elif process_identity(self.pid) != self.identity:
+            self.returncode = 1
+        return self.returncode
+
+    def wait(self, timeout):
+        until = time.monotonic() + timeout
+        while self.poll() is None:
+            if time.monotonic() >= until:
+                raise subprocess.TimeoutExpired("inherited Teacher", timeout)
+            time.sleep(0.2)
+        return self.returncode
+
+
 def resilient_group(config, deployment, config_path, request, target, ensure_server):
     """Run one task at four, with at most one task-local two-way capacity retry."""
     target = Path(target)
@@ -646,6 +683,16 @@ def experiment(config, deployment, config_path, output):
     queue = TaskQueue(config["online"]["train_tasks"], config["seed"], state["queue"])
     feedback = GroupFeedback(config["online"]["signals"], state["feedback"])
     server, background = None, None
+    inherited = [
+        b
+        for b in state["generation_batches"]
+        if b.get("running") and b.get("inherited_process") and not b.get("merged")
+    ]
+    if len(inherited) > 1:
+        raise ValueError("Only one existing Teacher generation worker can be inherited")
+    if inherited:
+        b = inherited[0]
+        background = InheritedGeneration(b["inherited_process"], b["output"])
 
     def save():
         state["queue"], state["feedback"] = queue.export(), feedback.state

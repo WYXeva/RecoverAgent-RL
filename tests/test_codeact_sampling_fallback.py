@@ -276,3 +276,20 @@ def test_actual_broken_process_pool_emits_recoverable_receipt(tmp_path, monkeypa
             tmp_path,
         )
     assert read_json(tmp_path / "phase_error.json")["type"] == "SamplingCapacityError"
+
+
+def test_handoff_waits_existing_teacher_without_duplicate_calls(tmp_path, monkeypatch):
+    identity = experiment.process_identity(os.getpid())
+    assert identity
+    worker = experiment.InheritedGeneration(
+        {"pid": os.getpid(), "identity": identity}, tmp_path
+    )
+    assert worker.poll() is None
+    with pytest.raises(experiment.subprocess.TimeoutExpired):
+        worker.wait(timeout=0)
+    write_json(tmp_path / "result.json", {"accepted": [], "attempts": []})
+    assert worker.wait(timeout=0) == 0
+    other = experiment.InheritedGeneration(
+        {"pid": os.getpid(), "identity": "wrong-lifetime"}, tmp_path / "other"
+    )
+    assert other.poll() == 1
