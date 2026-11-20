@@ -26,6 +26,12 @@ from .inference import VLLMStudent, evaluate
 from .online import REVISION, policy, update
 from .progress import execution_identity
 from .protocol import identity
+from .sampling import (
+    SamplingCapacityError,
+    fallback_enabled,
+    resource_error,
+    sample_with_fallback,
+)
 
 
 def effective(episodes):
@@ -70,6 +76,11 @@ def evaluation_due(config, state):
 def summary(state, deployment):
     groups = [read_json(p) for p in state["groups"]]
     rows = [e for g in groups for e in g["episodes"]]
+    discarded = [
+        e
+        for g in groups
+        for e in g.get("sampling_fallback", {}).get("discarded_attempts", [])
+    ]
     sources = {}
     for g in groups:
         item = sources.setdefault(
@@ -106,9 +117,13 @@ def summary(state, deployment):
         "success": sum(e["success"] is True for e in rows),
         "failure": sum(e["success"] is False for e in rows),
         "unknown": sum(e["success"] is None for e in rows),
+        "sampling_retries": len(discarded),
+        "discarded_sampling_usage_unknown": sum(
+            e.get("usage_unknown", False) for e in discarded
+        ),
         "sources": sources,
         "student_usage": {
-            k: sum(e.get("usage", {}).get(k, 0) for e in rows)
+            k: sum(e.get("usage", {}).get(k, 0) for e in rows + discarded)
             for k in ("requests", "prompt_tokens", "generated_tokens", "seconds")
         },
         "generation_batches": state["generation_batches"],
@@ -119,7 +134,7 @@ def summary(state, deployment):
     }
 
 
-def sample_member(config, deployment, request, directory, member):
+def sample_member(config, deployment, request, directory, member, *, interrupted=None):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     expected = policy(verify_checkpoint(request["actor"], config["model"]), config)
@@ -157,7 +172,21 @@ def sample_member(config, deployment, request, directory, member):
         "student_execution": execution_identity(config),
         "worker_pid": os.getpid(),
         "started": epoch(),
+        "failure_stage": "sampling",
     }
+    if interrupted and not (
+        (target / "trajectory.json").exists() and (target / "result.json").exists()
+    ):
+        live = target / "live.json"
+        row.update(
+            fault=interrupted,
+            failure_type="SamplingCapacityError",
+            usage=read_json(live).get("usage", {}) if live.exists() else {},
+            usage_unknown=True,
+            finished=epoch(),
+        )
+        write_json(target / "online_episode.json", row)
+        return row
     try:
         if epoch() >= deployment["deadline"]:
             raise TimeoutError("Authorized wall-clock deadline")
@@ -193,7 +222,10 @@ def sample_member(config, deployment, request, directory, member):
             seconds=result["seconds"],
             fault=trajectory["fault"],
         )
-        if generated:
+        if trajectory["fault"]:
+            row.update(success=None, reward_valid=False)
+        elif generated:
+            row["failure_stage"] = "judging"
             judged = reward(
                 Engine(config, deployment, read_credentials(deployment["credentials"])),
                 generated,
@@ -206,13 +238,25 @@ def sample_member(config, deployment, request, directory, member):
                 classification="valid" if judged["reward_valid"] else "scoring_gap",
             )
         else:
+            row["failure_stage"] = "evaluation"
             row.update(
                 success=result["success"],
                 reward_valid=result["valid"],
                 classification="valid" if result["valid"] else "infrastructure_error",
             )
-    except (ValueError, RuntimeError, OSError, TimeoutError) as exc:
-        row.update(fault=str(exc), success=None, reward_valid=False)
+    except (ValueError, RuntimeError, OSError, TimeoutError, MemoryError) as exc:
+        row.update(
+            fault=str(exc),
+            success=None,
+            reward_valid=False,
+            failure_type=type(exc).__name__,
+        )
+        if row["failure_stage"] == "sampling":
+            live = target / "live.json"
+            row.setdefault(
+                "usage", read_json(live).get("usage", {}) if live.exists() else {}
+            )
+            row["usage_unknown"] = True
     row["finished"] = epoch()
     write_json(target / "online_episode.json", row)
     return row
@@ -229,35 +273,64 @@ def sample_group(config, deployment, request, directory):
     """One actor, four fresh processes, at most N simultaneous environments."""
     import multiprocessing
     from concurrent.futures import ProcessPoolExecutor
+    from concurrent.futures.process import BrokenProcessPool
 
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
-    width = sampling_concurrency(config)
+    width = request.get("sampling_concurrency", sampling_concurrency(config))
+    members = request.get("members", list(range(4)))
+    if (
+        type(width) is not int
+        or width not in (1, 2, 3, 4)
+        or not members
+        or len(set(members)) != len(members)
+        or any(type(i) is not int or i not in range(4) for i in members)
+        or (
+            (width != sampling_concurrency(config) or members != list(range(4)))
+            and not fallback_enabled(config)
+        )
+    ):
+        raise ValueError("Invalid sampling phase width/member selection")
     if request["server"].get("max_num_seqs", 1) < width:
         raise ValueError("vLLM server concurrency is below requested sampling width")
     started = epoch()
-    if width == 1:
-        episodes = [
-            sample_member(config, deployment, request, directory, i) for i in range(4)
-        ]
-    else:
-        # AppWorld patches process globals (including time). Never use threads or fork.
-        # A fresh process per episode also isolates Python variables and DB caches.
-        with ProcessPoolExecutor(
-            max_workers=width,
-            mp_context=multiprocessing.get_context("spawn"),
-            max_tasks_per_child=1,
-        ) as workers:
-            futures = [
-                workers.submit(sample_member, config, deployment, request, directory, i)
-                for i in range(4)
+    try:
+        if width == 1:
+            episodes = [
+                sample_member(config, deployment, request, directory, i)
+                for i in members
             ]
-            episodes = [f.result() for f in futures]
+        else:
+            # AppWorld changes process globals. Each episode needs a fresh process.
+            with ProcessPoolExecutor(
+                max_workers=width,
+                mp_context=multiprocessing.get_context("spawn"),
+                max_tasks_per_child=1,
+            ) as workers:
+                futures = [
+                    workers.submit(
+                        sample_member, config, deployment, request, directory, i
+                    )
+                    for i in members
+                ]
+                episodes = [f.result() for f in futures]
+    except (BrokenProcessPool, MemoryError, OSError) as exc:
+        if isinstance(exc, OSError) and not resource_error(exc):
+            raise
+        write_json(
+            directory / "phase_error.json",
+            {
+                "type": "SamplingCapacityError",
+                "error": repr(exc),
+            },
+        )
+        raise SamplingCapacityError(str(exc)) from exc
     result = {
         "index": request["index"],
         "selection": request["selection"],
         "episodes": episodes,
-        "effective": effective(episodes),
+        "effective": len(episodes) == 4 and effective(episodes),
+        "members": members,
         "sampling_concurrency": width,
         "student_execution": execution_identity(config),
         "sampling_wall_seconds": epoch() - started,
@@ -267,7 +340,7 @@ def sample_group(config, deployment, request, directory):
 
 
 class Server:
-    def __init__(self, config, deployment, actor, directory):
+    def __init__(self, config, deployment, actor, directory, *, concurrency=None):
         import requests
 
         self.process = None
@@ -281,7 +354,7 @@ class Server:
             "max_model_len": 65536,
             "dtype": "bfloat16",
             "vllm_version": "0.19.0",
-            "max_num_seqs": sampling_concurrency(config),
+            "max_num_seqs": concurrency or sampling_concurrency(config),
             "url": "http://127.0.0.1:" + str(deployment["port"]),
             "model_name": "codeact_" + checkpoint["adapter_sha256_after"][:16],
             "actor": actor,
@@ -304,7 +377,7 @@ class Server:
             "--max-model-len",
             "65536",
             "--max-num-seqs",
-            str(sampling_concurrency(config)),
+            str(self.proof["max_num_seqs"]),
             "--max-num-batched-tokens",
             "4096",
             "--gpu-memory-utilization",
@@ -342,6 +415,9 @@ class Server:
         try:
             while epoch() < until:
                 if self.process.poll() is not None:
+                    text = (self.directory / "server.log").read_text(errors="replace")
+                    if resource_error(text) or self.process.returncode in (-9, 137):
+                        raise SamplingCapacityError("vLLM capacity failure at startup")
                     raise RuntimeError("vLLM exited at startup")
                 try:
                     response = http.get(self.proof["url"] + "/v1/models", timeout=5)
@@ -436,12 +512,90 @@ def wait_process(process, deadline):
         raise RuntimeError(f"Worker exited {code}; inspect its log")
 
 
+def resilient_group(config, deployment, config_path, request, target, ensure_server):
+    """Run one task at four, with at most one task-local two-way capacity retry."""
+    target = Path(target)
+    started = epoch()
+
+    def check_deadline():
+        if epoch() >= deployment["deadline"]:
+            raise TimeoutError("Authorized sampling deadline; no retry beyond budget")
+
+    def execute(width, members, path):
+        server = ensure_server(width)
+        req = {
+            **request,
+            "server": server.proof,
+            "server_receipt": str(server.receipt),
+            "sampling_concurrency": width,
+            "members": members,
+        }
+        rp = path.with_suffix(".request.json")
+        write_json(rp, req)
+        process = launch(deployment, "sample", config_path, rp, path)
+        try:
+            wait_process(process, deployment["deadline"])
+        except RuntimeError as exc:
+            fault = path / "phase_error.json"
+            if (
+                fault.exists()
+                and read_json(fault).get("type") == "SamplingCapacityError"
+            ) or process.returncode in (-9, 137):
+                # A killed group worker can leave child worlds alive. Stop that
+                # isolated process group before reading partials or starting retry.
+                try:
+                    os.killpg(process.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                raise SamplingCapacityError(str(exc)) from exc
+            raise
+        return read_json(path / "result.json")["episodes"]
+
+    def recover(path, members, fault):
+        # Completed receipts are reused, including valid failures and judge gaps.
+        # Incomplete records get an explicit invalid outcome; original files stay put.
+        return [
+            sample_member(config, deployment, request, path, i, interrupted=fault)
+            for i in members
+        ]
+
+    binding = {
+        "index": request["index"],
+        "actor": request["actor"],
+        "selection_sha256": digest(request["selection"]),
+        "config_sha256": digest(config),
+    }
+    outcome = sample_with_fallback(target, binding, execute, recover, check_deadline)
+    rows = outcome["episodes"]
+    expected = policy(verify_checkpoint(request["actor"], config["model"]), config)
+    for i, row in enumerate(rows):
+        if (
+            row["policy"] != expected
+            or row["seed"] != config["seed"] + request["index"] * 4 + i
+        ):
+            raise ValueError("Fallback changed actor or member seed")
+    hashes = {r["initial_state_hash"] for r in rows if r.get("reward_valid")}
+    if len(hashes) > 1:
+        raise ValueError("Fallback initial environment differs")
+    result = {
+        **outcome,
+        "index": request["index"],
+        "selection": request["selection"],
+        "effective": effective(rows),
+        "student_execution": execution_identity(config),
+        "sampling_wall_seconds": epoch() - started,
+    }
+    write_json(target / "result.json", result)
+    return result
+
+
 def experiment(config, deployment, config_path, output):
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=True)
     lock = (output / "controller.lock").open("a")
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     state_path = output / "state.json"
+    use_fallback = fallback_enabled(config)
     s0 = verify_checkpoint(deployment["s0"], config["model"])
     if (
         s0.get("protocol") != identity()
@@ -498,6 +652,21 @@ def experiment(config, deployment, config_path, output):
         state["last_saved"] = epoch()
         replace_json(state_path, state)
         replace_json(output / "summary.json", summary(state, deployment))
+
+    def ensure_sampling_server(width):
+        nonlocal server
+        if server is not None and server.proof.get("max_num_seqs") != width:
+            server.close()
+            server = None
+        if server is None:
+            server = Server(
+                config,
+                deployment,
+                state["actor"],
+                output / "servers" / str(time.time_ns()),
+                concurrency=width,
+            )
+        return server
 
     def collect_generation():
         for batch in state["generation_batches"]:
@@ -694,6 +863,30 @@ def experiment(config, deployment, config_path, output):
                     index // size, index % size, state["pool"], set()
                 )
                 save()
+            if use_fallback:
+                target = output / "groups" / f"group_{index:03d}"
+                if not (target / "result.json").exists():
+                    resilient_group(
+                        config,
+                        deployment,
+                        config_path,
+                        {
+                            "index": index,
+                            "actor": state["actor"],
+                            "selection": state["active"],
+                        },
+                        target,
+                        ensure_sampling_server,
+                    )
+                group = read_json(target / "result.json")
+                state["groups"].append(str(target / "result.json"))
+                state["events"].append(feedback.observe(str(target), group["episodes"]))
+                if effective(group["episodes"]):
+                    state["pending"].append(index)
+                state["active"] = None
+                save()
+                pump_generation()
+                continue
             if server is None:
                 server = Server(
                     config,
