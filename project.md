@@ -4,7 +4,11 @@
 
 ## 1. 目标与边界
 
-研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；当前按用户最新授权直接从新S0运行GRPO＋CoEvolve，目标5个训练轮次，每累计新增20次有效更新后dev24；暂跳过Recovery-SFT，保留既有24小时作业截止。
+研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；当前按用户最新授权直接从新S0运行GRPO＋CoEvolve，目标5个训练轮次，每累计新增20次有效更新后dev24；暂跳过Recovery-SFT，已授权截止为11月21日07:52:38。
+
+用户指定保留累计40次GRPO更新、dev24为16/24的版本 `codeact_evolve_u040_dev16of24_20261120`。
+独立保留LoRA、对应optimizer、模板、配置及评测回执，后续更新不得覆盖或自动清理这一版；位置见README。
+其余训练按原预算继续，保留模型不意味着恢复旧任务或增加评测。
 
 主分支为 `reboot/codeact`，起点为原开发分支 `bdaf6a3`。原工作区未提交工作保持原样；旧执行协议、Teacher 数据、模型与运行记录只供历史追溯，不进入本轮训练。历史计划可在[重启前固定版本](https://github.com/WYXeva/RecoverAgent-RL/blob/bdaf6a3cead063f7aec29989bd5bb5000abf7afd/project.md)查看。
 
