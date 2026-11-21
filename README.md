@@ -4,6 +4,19 @@
 
 不使用旧 Teacher 轨迹、actor、adapter 或优化器。旧实验与源码锁保留在历史分支及报告中，不是新主线的运行入口。
 
+## 最新完成结果（2026-11-22）
+
+新CodeAct S0之后的五轮GRPO＋CoEvolve已完成：387组、1548条轨迹、100次有效更新。
+20/40/60/80/100步dev24为10/16/18/17/17题成功；最佳60步75%，最终100步70.83%，均无评分未知。
+314道生成题入池，188道实际采样，108道贡献更新。控制器与推理服务已退出，不自动启动后续实验。
+完整限制、成本、逐题比较和备份见[五轮报告](reports/codeact_evolve_five_rounds_20261122.md)。
+
+最佳模型为远端 `recoveragent_codeact_evolve_20261121_13/experiment/updates/attempt_060/actor/`，
+最终模型为 `recoveragent_codeact_evolve_20261121_14/experiment/updates/attempt_100/actor/`，均位于 `/root/gpufree-data/`。
+本地核验镜像位于 `/mnt/d/RecoverAgent-RL-private/codeact_evolve_checkpoints_20261121/` 下的相同相对目录，
+对应 `optimizer.pt` 在actor的上级目录。加载固定官方9B基座加对应LoRA；不是合并后的全量权重。
+下面的历史运行入口供复现和查阅，本批已完成，不应重新启动。
+
 ## 用户指定保留的模型
 
 `codeact_evolve_u040_dev16of24_20261120`：新CodeAct S0之后累计40次GRPO有效更新，
@@ -167,9 +180,9 @@ deployment包含 `source_root`、`deployment_file`、`s0`、`worker_python`、`t
 不自动关平台机器、不租机续费，也不自动启动dev/test。
 
 
-### 五轮接续与评分分类v3
+### 历史五轮接续与评分分类v3
 
-最新授权目标为 **40组训练→dev24，重复5轮**；当前实例仍使用原24小时绝对截止时间，
+11月19日当时授权目标为 **40组训练→dev24，重复5轮**；当时实例使用原24小时绝对截止时间，
 到期保存，等待后续授权，不自动延长。新配置和新锁分别为
 `configs/codeact_grpo_coevolve_five_rounds_20261119.json`、`configs/codeact_online_eval_v3_20261119.lock.json`。
 02目录继承01的actor/optimizer、组计数、未消费组、池和队列；01原件保留。
@@ -211,7 +224,7 @@ export RECOVERAGENT_TEACHER_TOKENIZER_DIR=/root/gpufree-data/recoveragent_codeac
 原截止11月20日19:52:38不变；03目录独立OOM复测权重不是主训练actor。
 复测命令、真实数据和限制见[报告](reports/codeact_grpo_oom_retest_20261120.md)。
 
-### 当前05入口：每20次有效更新后评测
+### 历史05入口：每20次有效更新后评测
 
 当前使用 `configs/codeact_grpo_coevolve_updates20_20261120.json` 和
 `configs/codeact_online_updates20_20261120.lock.json`。
@@ -257,9 +270,9 @@ Student在相同代码/错误/状态连续出现时第3次提醒、第5次结束
 最新14使用 `codeact_grpo_coevolve_completion_budget_20261121.json` 和 `codeact_online_completion_budget_20261121.lock.json`，
 在反馈筛选修复后继续已有actor/optimizer及反馈，不重置更新数。
 原始题池为train510扣除252个正式SFT任务后的258题，原始/生成槽保持交替；
-新增题不会挤占生成题槽，同环境不同目标的生成题保留独立身份。
+扩充的原始题不会挤占生成题槽，同环境不同目标的生成题保留独立身份。
 采样组及作业墙钟不设上限，仍以100次更新为5轮目标；Teacher请求次数预留8192，
-原token/费用上限、既有账本及单题限制不变。60更新dev24已完成18/24，正在继续第四轮。当前运行不重复启动：
+原token/费用上限、既有账本及单题限制不变。100更新及最后dev24已完成，最新结果见本文顶部。以下为原续跑命令，本批不重复启动：
 
 ```bash
 cd /root/gpufree-data/recoveragent_codeact_evolve_20261121_14/source
