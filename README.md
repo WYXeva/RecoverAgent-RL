@@ -33,6 +33,25 @@ export HF_HOME=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache
 
 运行中不要重复启动；控制器持有排他锁。相同命令用于退出后的续跑，完成结果不重采，故障两路机会不重置。`evaluation/<模型>/summary.json` 和 `comparison.json` 保存进度/逐题比较；每题原始轨迹、API诊断和官方子检查留在私有目录。源码用独立 `codeact_final_test111_unknown_retry_20261122.lock.json` 核验。
 
+## Test111 离线质量与汇总
+
+私有输入索引每行包含 `model`、`split=test111`、`directory`（该次选定episode原件目录）。
+用同一配置和缓存目录续跑，已完成Judge不重复调用；每条最多一次，超时/截断等记Rubric unavailable，不改变官方结果。
+
+```bash
+export PYTHONPATH=src
+export RECOVERAGENT_TEACHER_TOKENIZER_DIR=/path/to/verified/deepseek-tokenizer
+python -m recoveragent.codeact.agent_evaluation judge \
+  --inputs /private/final_inputs.json --judges /private/final_judges \
+  --config configs/codeact_final_rubric_20261122.json --credentials /private/teacher.env
+python -m recoveragent.codeact.agent_evaluation report \
+  --inputs /private/final_inputs.json --judges /private/final_judges \
+  --output reports/final_test111_s0_u060_u100
+python scripts/summarize_codeact_test111.py
+```
+
+只将公开CSV/简短Rubric理由/报告提交；输入、请求、完整响应、私有证据和权重不提交。汇总保留实际覆盖率，不把进行中的阶段快照写成最终333题。
+
 ## 用户指定保留的模型
 
 `codeact_evolve_u040_dev16of24_20261120`：新CodeAct S0之后累计40次GRPO有效更新，

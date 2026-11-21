@@ -1,0 +1,136 @@
+{
+  "status": "in_progress",
+  "official_protocol": "codeact_paired_test111_v1",
+  "test_set": "codeact_test111_20261122",
+  "split_manifest_sha256": "ff24d1c05f16e82795e0baa4dd855c03d8482bb32d6e2e07ce386a9af59bfe6b",
+  "appworld_revision": "42b5bcf3cd334fee33f0c37c02070a9f5807add5",
+  "model": {
+    "model": "Qwen/Qwen3.5-9B",
+    "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "thinking": false,
+    "tool_format": "qwen_xml"
+  },
+  "student_inference": {
+    "thinking": false,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "max_new_tokens": 4096,
+    "max_sequence_tokens": 65536,
+    "backend": "vllm_0.19.0",
+    "record_behavior": false
+  },
+  "limits": {
+    "max_requests": 80,
+    "max_generated_tokens": 32768,
+    "wall_seconds": 1200,
+    "code_timeout_seconds": 60,
+    "max_api_calls_per_execution": 1000,
+    "format_corrections": 2,
+    "request_retries": 2,
+    "attempt_price_cap_usd": 2.0
+  },
+  "student_execution": {
+    "revision": "codeact_repeated_error_v1",
+    "warn_after": 3,
+    "stop_after": 5
+  },
+  "checkpoints": [
+    {
+      "name": "S0",
+      "adapter_sha256_after": "c6eef44984ba5da42b7d2e58f5852bbee7d04b65905b26e5dff6c6a3794ff6f7",
+      "adapter_file_sha256": "a6fedc8ece67c7db3b9fdccb865c90fe461f264a1fd3d0f795b923a5d20b2205"
+    },
+    {
+      "name": "u060",
+      "adapter_sha256_after": "c1764ae4f23ab30ce5a034513a034be2452733589242cc56e6e8da2baa636551",
+      "adapter_file_sha256": "f9e0f7b8c60cf657ff424ac69285e7fdb9486cd08725fb59f4329f799d18e806"
+    },
+    {
+      "name": "u100",
+      "adapter_sha256_after": "d22bdea9db0006e905f7e96f29a254376d7e265ba2217d91198079801c749b1e",
+      "adapter_file_sha256": "1ff4ebb4168a2923172a56e820f5cdc73b4c2bacce0cb036167dfed3be287f9f"
+    }
+  ],
+  "official_evaluation_revision": "official_result_integrity_20261122_v4",
+  "authorized_S0_unknown_rerun": [
+    "1b2bae9_1",
+    "1b2bae9_2",
+    "3fcc458_1",
+    "3fcc458_3",
+    "998908e_1",
+    "998908e_3"
+  ],
+  "saved_state_scoring_audit": [
+    {
+      "task_id": "998908e_1",
+      "original_episode": "/root/gpufree-data/recoveragent_codeact_test111_20261122_02/evaluation/S0/tasks/998908e_1/attempt_1/episode",
+      "old_status": "evaluation_error",
+      "new_status": "valid",
+      "old_success": null,
+      "new_success": false,
+      "official_report_unchanged": true,
+      "old_report_sha256": "531f490c68777ff7b01da2a40b9eb5e074bd4dd2986b1830e8deaf03370e9d14",
+      "new_report_sha256": "531f490c68777ff7b01da2a40b9eb5e074bd4dd2986b1830e8deaf03370e9d14",
+      "observations": [
+        {
+          "exception_type": "ValueError",
+          "category": "task_answer_failure"
+        },
+        {
+          "exception_type": "AssertionError",
+          "category": "task_assertion"
+        },
+        {
+          "exception_type": "AssertionError",
+          "category": "task_assertion"
+        }
+      ],
+      "classification_revision": "official_result_integrity_20261122_v4",
+      "model_requests": 0,
+      "business_actions": 0
+    },
+    {
+      "task_id": "998908e_3",
+      "original_episode": "/root/gpufree-data/recoveragent_codeact_final_test111_20261122_03/evaluation/S0/tasks/998908e_3/attempt_1/episode",
+      "old_status": "evaluation_error",
+      "new_status": "valid",
+      "old_success": null,
+      "new_success": false,
+      "official_report_unchanged": true,
+      "old_report_sha256": "531f490c68777ff7b01da2a40b9eb5e074bd4dd2986b1830e8deaf03370e9d14",
+      "new_report_sha256": "531f490c68777ff7b01da2a40b9eb5e074bd4dd2986b1830e8deaf03370e9d14",
+      "observations": [
+        {
+          "exception_type": "ValueError",
+          "category": "task_answer_failure"
+        },
+        {
+          "exception_type": "AssertionError",
+          "category": "task_assertion"
+        },
+        {
+          "exception_type": "AssertionError",
+          "category": "task_assertion"
+        }
+      ],
+      "classification_revision": "official_result_integrity_20261122_v4",
+      "model_requests": 0,
+      "business_actions": 0
+    }
+  ],
+  "selected_result_rule": "one primary attempt; task-local infrastructure retry once; fixed six user-authorized S0 Unknown reruns use attempt 2 regardless of result, never best-of",
+  "test_used": true,
+  "training_or_prompt_tuning_using_test": false,
+  "rubric_protocol": {
+    "revision": "codeact_execution_rubric_20261122_v1",
+    "model": "deepseek-v4.1-flash",
+    "thinking": {
+      "type": "enabled"
+    },
+    "reasoning_effort": "high",
+    "max_tokens": 8192,
+    "prompt_sha256": "90983d55ee3d6e1a048b8e7bea1272d1fefe0a264c7d38d608b150bac83aa739"
+  },
+  "rubric_max_calls": 333
+}
