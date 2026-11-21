@@ -254,19 +254,20 @@ Student在相同代码/错误/状态连续出现时第3次提醒、第5次结束
 `codeact_online_adaptive4_20261120.lock.json`：每题4路，采样容量故障只对受影响尝试降2路补跑一次，
 下一题仍4路。原始尝试和补跑分别保存，正常业务失败不触发降级；命令见上述并发报告。
 
-最新13使用 `codeact_grpo_coevolve_until_complete_20261121.json` 和 `codeact_online_until_complete_20261121.lock.json`，
+最新14使用 `codeact_grpo_coevolve_completion_budget_20261121.json` 和 `codeact_online_completion_budget_20261121.lock.json`，
 在反馈筛选修复后继续已有actor/optimizer及反馈，不重置更新数。
 原始题池为train510扣除252个正式SFT任务后的258题，原始/生成槽保持交替；
 新增题不会挤占生成题槽，同环境不同目标的生成题保留独立身份。
-采样组及作业墙钟不设上限，仍以100次更新为5轮目标；Teacher用量预算及单题限制不变。当前运行不重复启动：
+采样组及作业墙钟不设上限，仍以100次更新为5轮目标；Teacher请求次数预留8192，
+原token/费用上限、既有账本及单题限制不变。60更新dev24已完成18/24，正在继续第四轮。当前运行不重复启动：
 
 ```bash
-cd /root/gpufree-data/recoveragent_codeact_evolve_20261121_13/source
+cd /root/gpufree-data/recoveragent_codeact_evolve_20261121_14/source
 PYTHONPATH=src /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python \
   -m recoveragent.codeact.experiment run \
-  --config configs/codeact_grpo_coevolve_until_complete_20261121.json \
-  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261121_13/deployment.json \
-  --output /root/gpufree-data/recoveragent_codeact_evolve_20261121_13/experiment
+  --config configs/codeact_grpo_coevolve_completion_budget_20261121.json \
+  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261121_14/deployment.json \
+  --output /root/gpufree-data/recoveragent_codeact_evolve_20261121_14/experiment
 ```
 
 旧高层运行器和对应测试已退出当前分支，可在 `74f9a28` 找回；仍复用的训练/执行组件保留。
