@@ -1,5 +1,5 @@
 {
-  "status": "in_progress",
+  "status": "complete",
   "official_protocol": "codeact_paired_test111_v1",
   "test_set": "codeact_test111_20261122",
   "split_manifest_sha256": "ff24d1c05f16e82795e0baa4dd855c03d8482bb32d6e2e07ce386a9af59bfe6b",
@@ -132,5 +132,412 @@
     "max_tokens": 8192,
     "prompt_sha256": "90983d55ee3d6e1a048b8e7bea1272d1fefe0a264c7d38d608b150bac83aa739"
   },
-  "rubric_max_calls": 333
+  "rubric_max_calls": 333,
+  "S0_completed": {
+    "success": 28,
+    "failure": 83,
+    "unknown": 0,
+    "coverage": 1.0,
+    "pass_rate": 0.25225225225225223
+  },
+  "S0_rerun_results": {
+    "1b2bae9_1": {
+      "success": true,
+      "termination": "task_completed",
+      "requests": 15
+    },
+    "1b2bae9_2": {
+      "success": true,
+      "termination": "task_completed",
+      "requests": 17
+    },
+    "3fcc458_1": {
+      "success": false,
+      "termination": "client_budget",
+      "requests": 18
+    },
+    "3fcc458_3": {
+      "success": false,
+      "termination": "request_limit",
+      "requests": 80
+    },
+    "998908e_1": {
+      "success": false,
+      "termination": "client_budget",
+      "requests": 43
+    },
+    "998908e_3": {
+      "success": true,
+      "termination": "task_completed",
+      "requests": 25
+    }
+  },
+  "S0_backup": {
+    "model": "S0",
+    "files": 28586,
+    "archive_sha256": "743adf80f3b9f70eb6ea009e0514e5b7f3a4ad960da9f2ccf50f51343d059e40",
+    "archive_bytes": 238259660,
+    "uncompressed_bytes": 2797184054,
+    "verified_at": 1795285196.3472037
+  },
+  "S0_all_attempt_costs": {
+    "model": "S0",
+    "physical_attempts": 125,
+    "invalid_logger_attempts": 4,
+    "known_usage": {
+      "requests": 3071,
+      "prompt_tokens": 60913030,
+      "generated_tokens": 215269
+    },
+    "usage_unknown_attempts": 4,
+    "known_episode_seconds": 8301.05670740828
+  },
+  "U060_completed": {
+    "success": 58,
+    "failure": 53,
+    "unknown": 0,
+    "coverage": 1.0,
+    "pass_rate": 0.5225225225225225
+  },
+  "U060_backup": {
+    "model": "u060",
+    "files": 24236,
+    "archive_sha256": "5724a606d0893dda244ec3e5ae0faeae2288fa778d3e2e080345dfe9cf4b6248",
+    "archive_bytes": 171032893,
+    "uncompressed_bytes": 1668319172,
+    "verified_at": 1795287931.6156156
+  },
+  "U060_all_attempt_costs": {
+    "model": "u060",
+    "physical_attempts": 111,
+    "invalid_logger_attempts": 0,
+    "known_usage": {
+      "requests": 2595,
+      "prompt_tokens": 35914063,
+      "generated_tokens": 254328
+    },
+    "usage_unknown_attempts": 0,
+    "known_episode_seconds": 9307.398489132524
+  },
+  "completed_at": "2026-11-21T19:43:42.095061+00:00",
+  "integrity_audit": {
+    "selected_episodes": 333,
+    "per_model": {
+      "S0": 111,
+      "U060": 111,
+      "U100": 111
+    },
+    "tasks": 111,
+    "scenarios": 37,
+    "variants_per_scenario": 3,
+    "same_initial_state": true,
+    "same_public_initial_messages_tools": true,
+    "same_actor_inference_limits_prompt": true,
+    "checkpoint_receipts_and_backend_ids_verified": true,
+    "rubric_requests_verified": 333,
+    "rubric_valid": 317,
+    "original_evaluation_classification_versions": {
+      "official_result_integrity_20261119_v3": 39,
+      "official_result_integrity_20261122_v4": 294
+    },
+    "original_episode_config_versions": {
+      "codeact_test111_s0_u060_u100_20261122": 23,
+      "codeact_final_test111_unknown_retry_20261122": 294,
+      "codeact_final_test111_20261122": 16
+    },
+    "official_source_splits": {
+      "test_challenge": 198,
+      "train": 72,
+      "dev": 36,
+      "test_normal": 27
+    },
+    "source_file_sets": {
+      "13de407dc81b3b556dc492cc071f5b7a3d189d2ce2796916ef51b7fc5d7398ee": 16,
+      "d7f312449ef3041839f9a004e259801076dcc1a6ad070d72f42b6d12e0e64392": 18,
+      "5c90fcf8a841c6d181f0d50dc965bb2b7d3f589592b7bbea00fc81ee6507100f": 18
+    },
+    "legacy_result_identity_recovered_from_binding": {
+      "S0": 23
+    },
+    "task_order_sha256": "397015982422624ee1570ce8bcffd235afbd1847218c9207e0f1b5583a348474",
+    "protocol": {
+      "revision": "codeact_reboot_v1",
+      "system_sha256": "171d69724046cf1ac3440e8978b40b55334c2a462d51b3128118779dbb1f557b",
+      "tools_sha256": "5352e2497f0a982c312006175d476bb042cf69918d67b2615cdf460daa5a0812"
+    },
+    "note": "Original config/source bindings retained; selected imported rows additionally bound to current assessment. Classification v4 changes controller fault attribution only, never official assertions."
+  },
+  "remote_completion": {
+    "exit": {
+      "returncode": 0,
+      "started": 1795283492.3859818,
+      "finished": 1795289670.7232938
+    },
+    "models": {
+      "S0": {
+        "status": "complete",
+        "success": 28,
+        "failure": 83,
+        "unknown": 0,
+        "task_seconds": 7716.873341917992,
+        "attempts": 117,
+        "capacity_retries": 6,
+        "adapter_file_sha256": "a6fedc8ece67c7db3b9fdccb865c90fe461f264a1fd3d0f795b923a5d20b2205"
+      },
+      "u060": {
+        "status": "complete",
+        "success": 58,
+        "failure": 53,
+        "unknown": 0,
+        "task_seconds": 9307.398489132524,
+        "attempts": 111,
+        "capacity_retries": 0,
+        "adapter_file_sha256": "f9e0f7b8c60cf657ff424ac69285e7fdb9486cd08725fb59f4329f799d18e806"
+      },
+      "u100": {
+        "status": "complete",
+        "success": 65,
+        "failure": 46,
+        "unknown": 0,
+        "task_seconds": 8394.290344446898,
+        "attempts": 111,
+        "capacity_retries": 0,
+        "adapter_file_sha256": "1ff4ebb4168a2923172a56e820f5cdc73b4c2bacce0cb036167dfed3be287f9f"
+      }
+    },
+    "same_initial_states": 111,
+    "gpu": "0 MiB, 0 %",
+    "remaining_compute": []
+  },
+  "rubric_costs": {
+    "completed_results": 333,
+    "actual_ledger_entries": 333,
+    "known_usage_entries": 333,
+    "unknown_usage_reservation": {
+      "requests": 0,
+      "prompt_tokens": 0,
+      "generated_tokens": 0,
+      "priced_cost": 0
+    },
+    "usage": {
+      "requests": 333,
+      "prompt_tokens": 7063744,
+      "generated_tokens": 1116115,
+      "priced_cost": 3.4422041759999997
+    },
+    "sum_call_seconds": 10583.55610460299,
+    "provider_cost": 0,
+    "provider_go_list_cost": 1.7211025,
+    "provider_go_allowance": 1.03266109,
+    "reasoning_tokens": 1009398,
+    "statuses": {
+      "valid": 317,
+      "unavailable": 16
+    },
+    "unavailable_reasons": {
+      "Truncated, filtered or unsupported completion": 15,
+      "Expecting ',' delimiter: line 1 column 800 (char 799)": 1
+    },
+    "by_model": {
+      "S0": {
+        "valid": 107,
+        "unavailable": 4
+      },
+      "U060": {
+        "valid": 104,
+        "unavailable": 7
+      },
+      "U100": {
+        "valid": 106,
+        "unavailable": 5
+      }
+    },
+    "note": "Ledger priced_cost is configured conservative public-rate estimate; Go list_cost/allowance are provider-returned accounting fields, not a subscription invoice. Completion token count includes reasoning; never added again."
+  },
+  "configuration_file_sha256": {
+    "codeact_final_test111_unknown_retry_20261122.json": "aa8974e57baef0d34811b85ec2a7e6570c1eae408e72056dfd4a1b6a839144ac",
+    "codeact_final_test111_unknown_retry_20261122.lock.json": "5ce7326cb1bccf0a0a24f1566163144c1be54bce1ea7c28009ba2eac41fb5e46",
+    "codeact_final_rubric_20261122.json": "8ddf760ec409bb99e8ff4f586b2644ef80e6b617c454d70591bab4e0fc661de1"
+  },
+  "U100_backup": {
+    "model": "u100",
+    "files": 22349,
+    "archive_sha256": "2439d1f0c2bc8e11dd872359c08392636eb53d1831391ce4752df2e49243bf5d",
+    "archive_bytes": 144350818,
+    "uncompressed_bytes": 1267658705,
+    "verified_at": 1795289892.1370773
+  },
+  "U100_all_attempt_costs": {
+    "model": "u100",
+    "physical_attempts": 111,
+    "invalid_logger_attempts": 0,
+    "known_usage": {
+      "requests": 2360,
+      "prompt_tokens": 26870474,
+      "generated_tokens": 231674
+    },
+    "usage_unknown_attempts": 0,
+    "known_episode_seconds": 8394.290344446898
+  },
+  "U100_completed": {
+    "success": 65,
+    "failure": 46,
+    "unknown": 0,
+    "coverage": 1.0,
+    "pass_rate": 0.5855855855855856
+  },
+  "private_rubric_evidence_backup": {
+    "archive": "rubric_evidence.tar.gz",
+    "archive_sha256": "0528e1a63b17c8f854f90131b5e1eab5965a5bf3f6915381807319758459004b",
+    "archive_bytes": 22764275,
+    "files": 5061,
+    "uncompressed_bytes": 152079144,
+    "verified_at": 1795290023.3298564
+  },
+  "retry_counter_note": "The historical summary field capacity_retries=6 for S0 counts the six explicitly authorized Unknown reruns; it does not mean six GPU OOMs. U060/U100 have no retries.",
+  "source_commits": [
+    "408a555",
+    "1b0f5eb",
+    "94fc0fb"
+  ],
+  "final_reporting_revision": "test111_measured_api_attempt_cost_v2",
+  "S0_first_attempt_sensitivity": {
+    "success": 25,
+    "failure": 82,
+    "unknown": 4,
+    "note": "v4 read-only classification audit on original terminal states, prior to six explicitly authorized clean reruns; not selected best-of."
+  },
+  "paired": {
+    "S0_U060": {
+      "gained": [
+        "07bb666_1",
+        "09b0ee6_1",
+        "09b0ee6_3",
+        "1b2bae9_3",
+        "245cb43_1",
+        "245cb43_2",
+        "287e338_3",
+        "302c169_1",
+        "302c169_2",
+        "302c169_3",
+        "396c5a2_3",
+        "3c13f5a_1",
+        "3c13f5a_3",
+        "5800354_1",
+        "5800354_2",
+        "5800354_3",
+        "60d0b5b_1",
+        "60d0b5b_2",
+        "60d0b5b_3",
+        "690d51b_1",
+        "690d51b_3",
+        "998908e_1",
+        "998908e_2",
+        "9ef798c_1",
+        "a53a8fd_1",
+        "a53a8fd_3",
+        "b08d5ef_2",
+        "b9c5c9a_3",
+        "dc5c5c6_1",
+        "dcb2559_2",
+        "f99d726_2",
+        "fac291d_1"
+      ],
+      "regressed": [
+        "dcb2559_1",
+        "fac291d_2"
+      ],
+      "exact_mcnemar_p": 6.938353180885315e-08,
+      "note": "Exploratory paired test treating tasks independent; variants share scenarios, no multiplicity/cluster correction."
+    },
+    "S0_U100": {
+      "gained": [
+        "07b42fd_1",
+        "07bb666_1",
+        "09b0ee6_1",
+        "09b0ee6_3",
+        "0d8a4ee_3",
+        "1b2bae9_3",
+        "287e338_3",
+        "302c169_1",
+        "302c169_2",
+        "302c169_3",
+        "396c5a2_3",
+        "3c13f5a_1",
+        "3c13f5a_3",
+        "3fcc458_1",
+        "3fcc458_3",
+        "5800354_1",
+        "5800354_2",
+        "5800354_3",
+        "60d0b5b_1",
+        "60d0b5b_3",
+        "690d51b_1",
+        "690d51b_3",
+        "692c77d_2",
+        "998908e_1",
+        "998908e_2",
+        "9ef798c_1",
+        "9ef798c_2",
+        "9ef798c_3",
+        "a53a8fd_3",
+        "b05f69a_3",
+        "b08d5ef_1",
+        "b9c5c9a_1",
+        "b9c5c9a_2",
+        "b9c5c9a_3",
+        "dcb2559_2",
+        "e85d92a_2",
+        "f99d726_2",
+        "fac291d_1",
+        "fac291d_3"
+      ],
+      "regressed": [
+        "c9458ed_1",
+        "dcb2559_1"
+      ],
+      "exact_mcnemar_p": 7.839844329282641e-10,
+      "note": "Exploratory paired test treating tasks independent; variants share scenarios, no multiplicity/cluster correction."
+    },
+    "U060_U100": {
+      "gained": [
+        "07b42fd_1",
+        "0d8a4ee_3",
+        "3fcc458_1",
+        "3fcc458_3",
+        "692c77d_2",
+        "9ef798c_2",
+        "9ef798c_3",
+        "b05f69a_3",
+        "b08d5ef_1",
+        "b9c5c9a_1",
+        "b9c5c9a_2",
+        "e85d92a_2",
+        "fac291d_2",
+        "fac291d_3"
+      ],
+      "regressed": [
+        "245cb43_1",
+        "245cb43_2",
+        "60d0b5b_2",
+        "a53a8fd_1",
+        "b08d5ef_2",
+        "c9458ed_1",
+        "dc5c5c6_1"
+      ],
+      "exact_mcnemar_p": 0.18924713134765625,
+      "note": "Exploratory paired test treating tasks independent; variants share scenarios, no multiplicity/cluster correction."
+    }
+  },
+  "public_artifact_sha256": {
+    "evaluation_report.md": "364e24d452f5136850a88a6715f4d4793872dd958261285a96f0f397949a6ba4",
+    "rubric_results.jsonl": "035babe47c7bee5c96e16585a1e52e608ce9f979db86a467b60c491c90aaa223",
+    "metrics.json": "b9399ab28313730796e260968ab37d73825efd3bfcac4821a73271f1efa8f533",
+    "episode_metrics.csv": "b7a7bfbf124679c27f2a9e636aca223ab3da812f2d2f2a9e8acb6ce3835ef346",
+    "task_level_comparison.csv": "0b3d46b11fe1a4358aa2e9b490f64fd68cf9db7eb91bf83f5151623ac2cf11db",
+    "harness_synthetic_tests.json": "63d5b2e4ab5500e3fbfd2f5079a8659e3c12ee0d1ad65be9991a6b8da5f7ba32",
+    "harness_failure_breakdown.csv": "0778c7df3d27ba44388407de0089d2bb820cb1a0e4658697996075058e43c35e",
+    "findings.md": "c979be44458c7a3a0d981de2f11408623a53d7459b6b720cc6a6772a0f741141",
+    "model_comparison.csv": "7a48c3a3df5c14c5eec55a86d1ee7d4b70535b7131b3377599bffb14986241a4"
+  }
 }
