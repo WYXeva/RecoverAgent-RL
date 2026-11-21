@@ -4,7 +4,7 @@
 
 ## 1. 目标与边界
 
-研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；当前按用户最新授权直接从新S0运行GRPO＋CoEvolve，目标5个训练轮次，每累计新增20次有效更新后dev24；暂跳过Recovery-SFT，已授权截止为11月21日12:52:38。
+研究三项相互衔接的能力：Student 失败后的 Badcase 回流 SFT、反馈驱动的 CoEvolve 任务演化、真实环境奖励下的 GRPO 自进化。基础 **固定 CodeAct → 全新 Teacher 数据 → 官方验收 → 多轮 SFT → 全新 S0** 已完成；当前按用户最新授权直接从新S0运行GRPO＋CoEvolve，目标5个训练轮次，每累计新增20次有效更新后dev24；暂跳过Recovery-SFT。11月21日用户明确取消原12:52:38截止，要求持续监督直到100次有效更新及其dev24完成。
 
 用户指定保留累计40次GRPO更新、dev24为16/24的版本 `codeact_evolve_u040_dev16of24_20261120`。
 独立保留LoRA、对应optimizer、模板、配置及评测回执，后续更新不得覆盖或自动清理这一版；位置见README。
@@ -67,8 +67,8 @@ Static/Full 对齐 Student 训练预算，额外 Teacher 成本分列。任务�
 使用新CodeAct S0（32次SFT更新）的现有权重，不承接旧接口14/15次GRPO。
 本阶段optimizer从0计数并连续继承；用户最新定义每20次有效optimizer更新为一个训练轮次，
 在累计20/40/60/80/100次更新后跑dev24。已有18次计入第一轮，旧7/18次更新时的评测保留为历史。
-最新授权取消200采样组上限；继续以100次有效更新完成5轮，墙钟按当前授权截止；
-可能先触及时间/Teacher预算，不为凑满5轮增加时长或费用。lr1e-5、beta0、temperature0.8/top_p1不变。
+最新授权取消200采样组上限及作业墙钟截止；继续以100次有效更新及里程碑dev24完成5轮。
+单题请求/token/时限及Teacher有限费用预算保留，异常不冒充业务失败。lr1e-5、beta0、temperature0.8/top_p1不变。
 同组干净初态、同一actor、不同种子；两组成败混合且四条评分有效的组积累后更新，
 积累期间actor不变，剩余单组可做尾批。0/4与4/4仍留反馈，未知不当作0。
 
@@ -80,7 +80,7 @@ SFT排除按原始任务ID，不扩大为排除同一场景或不同公开目标
 原题/父题/同源题面对照、可选一次探索、每context最多2候选。完整四次交互进入Teacher；
 全新CodeAct Solver从干净初态执行，shared Judge准入，Student奖励使用同题同初态Solver参考。
 取消随旧200组预算附带的24批/96context/192候选计数上限；每批仍最多4context/8候选，
-全部Teacher调用继续受原有限请求、token、费用及截止约束。Teacher在后台运行，入池后参与尚未执行槽。
+全部Teacher调用继续受原有限请求、token、费用约束。Teacher在后台运行，入池后参与尚未执行槽。
 
 Student保持64K、non-thinking、固定appworld(code)，vLLM记录真实token及processed behavior logprob；
 训练使用相同actor、相同序列和temperature，首次更新前做小量logprob核对。
@@ -89,9 +89,9 @@ beta0不加载参考adapter或执行参考前向。每次更新恢复optimizer�
 保留参数变化、有限梯度、optimizer、可重载adapter与完整组消费状态。
 OOM跳过整批更新并保留上一actor及原始轨迹，不用部分梯度冒充完整组更新。
 
-当前配置 `codeact_grpo_coevolve_non_sft_20261120.json`；新源码锁、独立目录和绑定保证新旧运行不混用。
+当前配置 `codeact_grpo_coevolve_until_complete_20261121.json`；新源码锁、独立目录和绑定保证新旧运行不混用。
 Teacher总预留有限：4096请求、250万输出token、约42.95亿输入token、100美元公开价估算上限，
-同时受已授权墙钟限制（当前总计41小时）；它是现有套餐用量估算，不是新增采购或扣款授权。Judge保持Flash thinking/high/8192；
+作业墙钟按11月21日最新授权不设截止；上述费用是现有套餐用量估算，不是新增采购或扣款授权。Judge保持Flash thinking/high/8192；
 Teacher窗口1M独立于Student64K。普通任务失败继续，系统性模型/参数校验失败保存后停止。
 本轮不跑Static/test；是否有学习收益仍需后续同协议固定dev比较，在线训练奖励不能替代dev成绩。
 

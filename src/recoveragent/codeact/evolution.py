@@ -7,33 +7,34 @@ import time
 import uuid
 from pathlib import Path
 
+from recoveragent.coevolve_generation import json_object
 from recoveragent.coevolve_light import (
     duplicate_of,
     public_instruction,
     same_source_tasks,
 )
 from recoveragent.coevolve_llm import (
-    candidate,
+    JudgeError,
     admit,
+    candidate,
+    evidence,
+    finish,
     judge,
     pending,
-    finish,
-    JudgeError,
-    evidence,
 )
-from recoveragent.coevolve_prompts import GENERATION, EXPLORATION, JUDGE
+from recoveragent.coevolve_prompts import EXPLORATION, GENERATION, JUDGE
 from recoveragent.coevolve_tasks import identify
-from recoveragent.coevolve_generation import json_object
 from recoveragent.io import digest, read_json, write_json
 from recoveragent.teacher import (
     TeacherPolicy,
     normalize_message,
-    response_usage,
     response_model_matches,
+    response_usage,
     usage_cost,
 )
 from recoveragent.teacher_context import receipt
 from recoveragent.v2_tasks import context_for
+
 from .client import Teacher
 from .collect import replace_json
 from .episode import run
@@ -68,7 +69,7 @@ class Budget:
                 d = read_json(p)["usage"]
                 for k in total:
                     total[k] += d[k]
-            if epoch() >= self.deadline or any(
+            if (self.deadline is not None and epoch() >= self.deadline) or any(
                 total[k] + reserved[k] > self.config["online"]["teacher_budget"][k]
                 for k in total
             ):

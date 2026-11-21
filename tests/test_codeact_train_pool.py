@@ -3,13 +3,36 @@
 import copy
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from recoveragent.codeact import experiment
 from recoveragent.io import read_json, write_json
-from recoveragent.s2_schedule import TaskQueue
+from recoveragent.s2_schedule import TaskQueue, select_contexts
 from recoveragent.v2_tasks import ROOT, plan
+
+
+def test_completion_bounded_run_keeps_old_deadlines(monkeypatch):
+    monkeypatch.setattr(experiment, "epoch", lambda: 100)
+    assert experiment.within_deadline({"deadline": None})
+    assert experiment.within_deadline({"deadline": 101})
+    assert not experiment.within_deadline({"deadline": 100})
+    timeouts = []
+    worker = SimpleNamespace(wait=lambda **kw: timeouts.append(kw["timeout"]) or 0)
+    experiment.wait_process(worker, None)
+    experiment.wait_process(worker, 105)
+    assert timeouts == [None, 5]
+    inherited = experiment.InheritedGeneration(
+        {"pid": 1, "identity": "synthetic"}, "/unused"
+    )
+
+    def done():
+        inherited.returncode = 0
+        return 0
+
+    monkeypatch.setattr(inherited, "poll", done)
+    experiment.wait_process(inherited, None)
 
 
 def test_queue_migration_keeps_generated_slots_and_resume():
@@ -57,6 +80,35 @@ def test_uncapped_sampling_feedback_and_update_stop():
     cfg["online"]["max_groups"] = 0
     with pytest.raises(ValueError, match="max_groups"):
         experiment.sampling_limit_reached(cfg, 0)
+
+
+@pytest.mark.parametrize("eligible_count", [0, 1, 4, 8])
+def test_excluded_originals_keep_eight_feedback_slots(eligible_count):
+    window = [
+        {
+            "group_id": i,
+            "task_id": f"t{i}",
+            "task_key": f"t{i}",
+            "complete": True,
+            "signals": ["all_failed"] if i == 7 else ["boundary"],
+        }
+        for i in range(8)
+    ]
+    original = copy.deepcopy(window)
+    allowed = {f"t{i}" for i in range(8 - eligible_count, 8)}
+    selected = select_contexts(window, eligible_originals=allowed)
+    assert len(selected) == min(eligible_count, 4)
+    assert all(e["task_id"] in allowed for e in selected)
+    if eligible_count:
+        assert selected[0]["task_id"] == "t7"
+    assert window == original
+    # Different generated goal in an excluded source environment remains eligible.
+    window[0].update(generated_task_id="new_goal", task_key="new_goal")
+    assert [
+        e["task_key"] for e in select_contexts(window, eligible_originals=set())
+    ] == ["new_goal"]
+    with pytest.raises(ValueError, match="eight completed"):
+        select_contexts(window[:7], eligible_originals=allowed)
 
 
 def test_retire_only_unconsumed_sft_original_preserve_raw(tmp_path):

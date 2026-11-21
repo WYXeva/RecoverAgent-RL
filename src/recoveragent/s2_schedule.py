@@ -215,14 +215,19 @@ class GroupFeedback:
         return event
 
 
-def select_contexts(window):
+def select_contexts(window, *, eligible_originals=None):
     if len(window) != 8:
         raise ValueError(
             "Feedback selection requires exactly eight completed group slots"
         )
     latest = {}
     for event in window:
-        if event["complete"]:
+        eligible = (
+            eligible_originals is None
+            or event.get("generated_task_id")
+            or event["task_id"] in eligible_originals
+        )
+        if event["complete"] and eligible:
             latest[event["task_key"]] = event
 
     def rank(event):

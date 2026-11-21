@@ -132,8 +132,9 @@ def test_same_judge_reference_and_invalid_group(config, tmp_path, outcome):
         assert not experiment.effective(rows) and not event["signals"]
 
 
+@pytest.mark.parametrize("deadline_seconds", [100, None])
 def test_actual_text_transport_thinking_and_shared_budget(
-    config, tmp_path, monkeypatch
+    config, tmp_path, monkeypatch, deadline_seconds
 ):
     from recoveragent.teacher import TeacherPolicy
 
@@ -166,7 +167,9 @@ def test_actual_text_transport_thinking_and_shared_budget(
         config,
         {
             "teacher_ledger": str(tmp_path / "budget"),
-            "deadline": evolution.epoch() + 100,
+            "deadline": None
+            if deadline_seconds is None
+            else evolution.epoch() + deadline_seconds,
         },
         {config["teacher"]["api_key_env"]: "synthetic-key"},
     )
@@ -314,7 +317,9 @@ def test_body_chunk_and_merged_grpo_match_reference(tmp_path):
     )
 
 
-@pytest.mark.parametrize("rounds", [1, 5, "updates", "updates_oom", "unbounded"])
+@pytest.mark.parametrize(
+    "rounds", [1, 5, "updates", "updates_oom", "unbounded", "filtered_feedback"]
+)
 def test_controller_effective_accumulation_new_pool_and_resume(
     config, tmp_path, monkeypatch, rounds
 ):
@@ -334,7 +339,7 @@ def test_controller_effective_accumulation_new_pool_and_resume(
         }
     dep = {
         "s0": "s0",
-        "deadline": evolution.epoch() + 100,
+        "deadline": None if unbounded else evolution.epoch() + 100,
         "teacher_ledger": str(tmp_path / "ledger"),
     }
     task, _ = accepted(config, tmp_path / "new_task")
@@ -358,6 +363,18 @@ def test_controller_effective_accumulation_new_pool_and_resume(
             pass
 
     monkeypatch.setattr(experiment, "Server", Server)
+
+    if rounds == "filtered_feedback":
+        original_observe = experiment.GroupFeedback.observe
+
+        def observe(self, group_id, episodes):
+            event = original_observe(self, group_id, episodes)
+            # Historical first seven slots after an explicit SFT-pool migration.
+            if len(self.state["seen"]) <= 7:
+                event.update(task_id="excluded_sft_original", generated_task_id=None)
+            return event
+
+        monkeypatch.setattr(experiment.GroupFeedback, "observe", observe)
 
     def launch(deploy, kind, config_path, request_path, output):
         req = read_json(request_path)
@@ -445,6 +462,11 @@ def test_controller_effective_accumulation_new_pool_and_resume(
                 )
         else:
             assert len(req["contexts"]) <= 4
+            if rounds == "filtered_feedback":
+                assert len(req["contexts"]) == 1
+                assert all(
+                    e["task_id"] != "excluded_sft_original" for e in req["contexts"]
+                )
             result = {"accepted": [task], "attempts": [{"accepted": True}]}
         write_json(Path(output) / "result.json", result)
         return SimpleNamespace(wait=lambda **kw: 0, poll=lambda: 0, returncode=0)
@@ -471,7 +493,7 @@ def test_controller_effective_accumulation_new_pool_and_resume(
         else 5
         if rounds == 5
         else 2
-        if rounds == "updates"
+        if rounds in ("updates", "filtered_feedback")
         else 1
         if rounds == "updates_oom"
         else 0
@@ -602,9 +624,16 @@ def test_new_source_lock_and_tamper_rejection(tmp_path):
     assert experiment.verify_source(
         {
             "source_root": str(ROOT),
-            "source_lock": "configs/codeact_online_non_sft_20261120.lock.json",
+            "source_lock": "configs/codeact_online_until_complete_20261121.lock.json",
         }
     )
+    with pytest.raises(ValueError, match="source changed"):
+        experiment.verify_source(
+            {
+                "source_root": str(ROOT),
+                "source_lock": "configs/codeact_online_non_sft_20261120.lock.json",
+            }
+        )
     with pytest.raises(ValueError, match="source changed"):
         experiment.verify_source(
             {

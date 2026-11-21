@@ -231,8 +231,8 @@ export PYTHONPATH="$PWD/src"
   --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_05/experiment
 ```
 
-上述为05历史目录的同授权期续跑命令，正在运行时不重复启动。最新11沿用11月21日12:52:38截止，
-取消200采样组上限；继续至100次有效更新或既有时间/Teacher预算边界。
+上述为05历史目录的续跑命令，正在运行时不重复启动。11月21日用户取消作业墙钟截止，
+最新13继续至100次有效更新及里程碑dev24完成；单题及Teacher有限用量预算保留。
 
 ### 独立环境并发采样
 
@@ -254,19 +254,19 @@ Student在相同代码/错误/状态连续出现时第3次提醒、第5次结束
 `codeact_online_adaptive4_20261120.lock.json`：每题4路，采样容量故障只对受影响尝试降2路补跑一次，
 下一题仍4路。原始尝试和补跑分别保存，正常业务失败不触发降级；命令见上述并发报告。
 
-最新11使用 `codeact_grpo_coevolve_non_sft_20261120.json` 和 `codeact_online_non_sft_20261120.lock.json`，
-从10的完整组边界继续已有actor/optimizer及反馈，不重置更新数。
+最新13使用 `codeact_grpo_coevolve_until_complete_20261121.json` 和 `codeact_online_until_complete_20261121.lock.json`，
+在反馈筛选修复后继续已有actor/optimizer及反馈，不重置更新数。
 原始题池为train510扣除252个正式SFT任务后的258题，原始/生成槽保持交替；
 新增题不会挤占生成题槽，同环境不同目标的生成题保留独立身份。
-取消采样组上限，仍以100次更新为5轮目标；时间与Teacher预算不变。当前运行不重复启动：
+采样组及作业墙钟不设上限，仍以100次更新为5轮目标；Teacher用量预算及单题限制不变。当前运行不重复启动：
 
 ```bash
-cd /root/gpufree-data/recoveragent_codeact_evolve_20261120_11/source
+cd /root/gpufree-data/recoveragent_codeact_evolve_20261121_13/source
 PYTHONPATH=src /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python \
   -m recoveragent.codeact.experiment run \
-  --config configs/codeact_grpo_coevolve_non_sft_20261120.json \
-  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261120_11/deployment.json \
-  --output /root/gpufree-data/recoveragent_codeact_evolve_20261120_11/experiment
+  --config configs/codeact_grpo_coevolve_until_complete_20261121.json \
+  --deployment /root/gpufree-data/recoveragent_codeact_evolve_20261121_13/deployment.json \
+  --output /root/gpufree-data/recoveragent_codeact_evolve_20261121_13/experiment
 ```
 
 旧高层运行器和对应测试已退出当前分支，可在 `74f9a28` 找回；仍复用的训练/执行组件保留。

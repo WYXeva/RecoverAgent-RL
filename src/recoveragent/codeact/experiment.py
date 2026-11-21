@@ -34,6 +34,11 @@ from .sampling import (
 )
 
 
+def within_deadline(deployment):
+    deadline = deployment["deadline"]
+    return deadline is None or epoch() < deadline
+
+
 def effective(episodes):
     try:
         values = group_advantages(episodes)
@@ -240,7 +245,7 @@ def sample_member(config, deployment, request, directory, member, *, interrupted
         write_json(target / "online_episode.json", row)
         return row
     try:
-        if epoch() >= deployment["deadline"]:
+        if not within_deadline(deployment):
             raise TimeoutError("Authorized wall-clock deadline")
         if not target.exists():
             client = VLLMStudent(
@@ -463,7 +468,9 @@ class Server:
             )
         http = requests.Session()
         http.trust_env = False
-        until = min(epoch() + 600, deployment["deadline"])
+        until = epoch() + 600
+        if deployment["deadline"] is not None:
+            until = min(until, deployment["deadline"])
         try:
             while epoch() < until:
                 if self.process.poll() is not None:
@@ -549,9 +556,9 @@ def launch(deployment, kind, config_path, request_path, output):
 
 
 def wait_process(process, deadline):
-    remaining = deadline - epoch()
+    timeout = None if deadline is None else max(0.01, deadline - epoch())
     try:
-        code = process.wait(timeout=max(0.01, remaining))
+        code = process.wait(timeout=timeout)
     except subprocess.TimeoutExpired:
         os.killpg(process.pid, signal.SIGTERM)
         try:
@@ -593,9 +600,9 @@ class InheritedGeneration:
         return self.returncode
 
     def wait(self, timeout):
-        until = time.monotonic() + timeout
+        until = None if timeout is None else time.monotonic() + timeout
         while self.poll() is None:
-            if time.monotonic() >= until:
+            if until is not None and time.monotonic() >= until:
                 raise subprocess.TimeoutExpired("inherited Teacher", timeout)
             time.sleep(0.2)
         return self.returncode
@@ -607,7 +614,7 @@ def resilient_group(config, deployment, config_path, request, target, ensure_ser
     started = epoch()
 
     def check_deadline():
-        if epoch() >= deployment["deadline"]:
+        if not within_deadline(deployment):
             raise TimeoutError("Authorized sampling deadline; no retry beyond budget")
 
     def execute(width, members, path):
@@ -795,12 +802,8 @@ def experiment(config, deployment, config_path, output):
             if count in existing:
                 continue
             contexts = select_contexts(
-                [
-                    e
-                    for e in state["events"][count - 8 : count]
-                    if e.get("generated_task_id")
-                    or e["task_id"] in config["online"]["train_tasks"]
-                ]
+                state["events"][count - 8 : count],
+                eligible_originals=set(config["online"]["train_tasks"]),
             )
             destination = output / "generation" / f"window_{count:03d}"
             request_path = destination.with_suffix(".request.json")
@@ -828,7 +831,7 @@ def experiment(config, deployment, config_path, output):
                 b.pop("running", None)
             background = None
             save()
-        if background is None and epoch() < deployment["deadline"]:
+        if background is None and within_deadline(deployment):
             for batch in state["generation_batches"]:
                 if not batch["merged"] and not batch.get("failed"):
                     background = launch(
@@ -950,7 +953,7 @@ def experiment(config, deployment, config_path, output):
         return True
 
     try:
-        while epoch() < deployment["deadline"]:
+        while within_deadline(deployment):
             pump_generation()
             if evaluate_round():
                 continue
@@ -1035,10 +1038,10 @@ def experiment(config, deployment, config_path, output):
         if (
             state["pending"]
             and state["optimizer_steps"] < config["online"]["max_updates"]
-            and epoch() < deployment["deadline"]
+            and within_deadline(deployment)
         ):
             apply_update()
-            if interval is not None and epoch() < deployment["deadline"]:
+            if interval is not None and within_deadline(deployment):
                 evaluate_round()  # A final single-group update may reach a milestone.
         state["status"] = (
             "complete"
@@ -1058,7 +1061,7 @@ def experiment(config, deployment, config_path, output):
             try:
                 wait_process(background, deployment["deadline"])
                 pump_generation()
-                if epoch() >= deployment["deadline"]:
+                if not within_deadline(deployment):
                     break
             except (RuntimeError, TimeoutError) as exc:
                 state["generation_error"] = str(exc)
