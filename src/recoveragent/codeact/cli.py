@@ -21,13 +21,19 @@ def main():
     parser.add_argument("--dataset")
     parser.add_argument("--smoke", action="store_true")
     parser.add_argument("--adapter")
-    parser.add_argument("--split", choices=["dev", "train"], default="dev")
-    parser.add_argument("--task-set", choices=["all", "dev24"], default="all")
+    parser.add_argument("--split", choices=["dev", "train", "test"], default="dev")
+    parser.add_argument(
+        "--task-set", choices=["all", "dev24", "test111"], default="all"
+    )
     parser.add_argument("--vllm-url")
     parser.add_argument("--server-receipt")
     parser.add_argument("--target-successes", type=int)
     parser.add_argument("--skip-scoring-errors", action="store_true", default=None)
     args = parser.parse_args()
+    if args.command != "evaluate" and (
+        args.split == "test" or args.task_set == "test111"
+    ):
+        parser.error("Test111 is evaluation-only")
     config = read_json(args.config)
     if args.command == "collect":
         from .collect import collect

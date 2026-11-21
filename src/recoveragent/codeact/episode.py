@@ -19,7 +19,7 @@ from recoveragent.appworld_environment import (
 from recoveragent.evaluation import evaluate_isolated
 from recoveragent.io import digest, write_json
 from recoveragent.teacher import TeacherTransportError, normalize_message
-from recoveragent.v2_tasks import authorize_task, context_for
+from recoveragent.v2_tasks import CODEACT_TEST, authorize_task, context_for
 
 from .progress import NOTICE, RepeatedError
 from .protocol import TOOLS, BudgetExhausted, codes, identity, now, public_messages
@@ -306,5 +306,12 @@ def run(
         "seconds": now() - started,
         "trajectory_sha256": digest(binding | episode),
     }
+    if final_test:
+        result["final_test_protocol"] = (
+            CODEACT_TEST
+            if final_test == CODEACT_TEST
+            else context["final_test_protocol"]
+        )
+        result["split_manifest_sha256"] = context["split_manifest_sha256"]
     write_json(directory / "result.json", result)
     return result

@@ -249,6 +249,7 @@ def evaluate_model(config, deployment, model, directory):
     tasks = config["evaluation"]["tasks"]
     actor = deployment["models"][model["name"]]
     server = None
+    primary_only = config["evaluation"].get("primary_attempt_only", False)
 
     def ensure_server(width):
         nonlocal server
@@ -310,7 +311,7 @@ def evaluate_model(config, deployment, model, directory):
             if row["binding"] != attempt_binding(config, model, task):
                 raise ValueError("Worker returned a different evaluation identity")
             should_retry = retryable(row)
-            if attempt == 2 or not should_retry:
+            if primary_only or attempt == 2 or not should_retry:
                 select(task, attempt, row)
             return should_retry
 
@@ -346,7 +347,7 @@ def evaluate_model(config, deployment, model, directory):
                     path,
                     "Interrupted evaluation process; original attempt retained",
                 )
-                if attempt == 2 or not retryable(row):
+                if primary_only or attempt == 2 or not retryable(row):
                     select(task, attempt, row)
         while True:
             pending = [
@@ -356,6 +357,13 @@ def evaluate_model(config, deployment, model, directory):
             ]
             if not pending:
                 return model_summary(directory, tasks, "complete")
+            if primary_only:
+                remaining = phase(pending, 4, 1)
+                if remaining:
+                    # Capacity failure stays Unknown. Reduce concurrency for the
+                    # next two unstarted tasks, then return to four; never replay.
+                    phase(remaining[:2], 2, 1)
+                continue
             retries = [
                 task
                 for task in pending
@@ -402,6 +410,105 @@ def comparison(directory, config):
     )
 
 
+def import_primary_attempts(config, deployment, output):
+    """Carry immutable primary attempts into a stricter reporting scope; no replay.
+
+    The actual old configuration/binding stays in the origin receipt. Only runs
+    with identical model-visible configuration, task order and model identities
+    may be carried forward. Diagnostic retry attempts are explicitly excluded.
+    """
+    origin = deployment.get("import_primary_run")
+    if not origin:
+        return
+    origin = Path(origin)
+    original_binding = read_json(origin / "binding.json")
+    original = original_binding["config"]
+
+    def execution(cfg):
+        return {k: v for k, v in cfg.items() if k not in ("revision", "evaluation")}
+
+    if (
+        not config["evaluation"].get("primary_attempt_only")
+        or execution(original) != execution(config)
+        or original["evaluation"]["tasks"] != config["evaluation"]["tasks"]
+        or original_binding["protocol"] != identity()
+        or original_binding["student_execution"] != execution_identity(config)
+    ):
+        raise ValueError("Primary import execution conditions differ")
+    expected = {m["name"]: m for m in config["evaluation"]["models"]}
+    old_models = {m["name"]: m for m in original["evaluation"]["models"]}
+    imports = []
+    for name, model in expected.items():
+        if model["adapter_sha256_after"] != old_models[name]["adapter_sha256_after"]:
+            raise ValueError("Primary import model differs")
+        for task in config["evaluation"]["tasks"]:
+            path = origin / name / "tasks" / task / "attempt_1"
+            if not (path / "intent.json").exists():
+                continue
+            worker = (
+                read_json(path / "worker.json")
+                if (path / "worker.json").exists()
+                else None
+            )
+            if (
+                worker
+                and process_identity(worker["pid"]) == worker["identity"]
+                and not (path / "evaluation_row.json").exists()
+            ):
+                raise ValueError("Drain active primary workers before importing")
+            row = recover_attempt(
+                original,
+                old_models[name],
+                task,
+                path,
+                "Interrupted primary attempt retained as Unknown",
+            )
+            target = Path(output) / name / "tasks" / task / "attempt_1"
+            record = {
+                **row,
+                "binding": attempt_binding(config, model, task),
+                "directory": str(target),
+                "episode_directory": str(path / "episode"),
+                "imported_primary": {
+                    "row_path": str(path / "evaluation_row.json"),
+                    "row_sha256": digest(row),
+                    "original_binding": row["binding"],
+                    "source_lock_sha256": original_binding["source_lock_sha256"],
+                    "same_execution_conditions": True,
+                    "retry_results_excluded": True,
+                },
+            }
+            result_path = target / "evaluation_row.json"
+            if result_path.exists():
+                if read_json(result_path) != record:
+                    raise ValueError("Imported primary changed")
+            else:
+                write_json(result_path, record)
+            selected = target.parent / "selected.json"
+            selection = {
+                "attempt": 1,
+                "row_path": str(result_path),
+                "row_sha256": digest(record),
+            }
+            if selected.exists():
+                if read_json(selected) != selection:
+                    raise ValueError("Imported selection changed")
+            else:
+                write_json(selected, selection)
+            imports.append(record["imported_primary"])
+    receipt = {
+        "origin": str(origin),
+        "origin_binding_sha256": digest(original_binding),
+        "primary_attempts": imports,
+    }
+    path = Path(output) / "primary_import.json"
+    if path.exists():
+        if read_json(path) != receipt:
+            raise ValueError("Primary import source changed")
+    else:
+        write_json(path, receipt)
+
+
 def suite(config, deployment, output):
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=True)
@@ -413,7 +520,7 @@ def suite(config, deployment, output):
             "attempts_per_task": 1,
             "concurrency": 4,
             "fallback_concurrency": 2,
-            "max_capacity_retries": 1,
+            "max_capacity_retries": 0 if settings.get("primary_attempt_only") else 1,
             "record_api_outcomes": True,
             "teacher_calls": 0,
             "parameter_updates": 0,
@@ -431,16 +538,31 @@ def suite(config, deployment, output):
     ):
         raise ValueError("Test111/rubric identity differs")
     identities = {}
+    checkpoint_files = {}
     for model in config["evaluation"]["models"]:
         receipt = verify_checkpoint(
             deployment["models"][model["name"]], config["model"]
         )
         if receipt["adapter_sha256_after"] != model["adapter_sha256_after"]:
             raise ValueError("Frozen evaluation weights differ")
+        if model.get("adapter_file_sha256"):
+            from recoveragent.demonstrations import sha256
+
+            value = sha256(
+                Path(deployment["models"][model["name"]]) / "adapter_model.safetensors"
+            )
+            if value != model["adapter_file_sha256"] or (
+                model["name"] == "S0" and receipt.get("formal_s0") is not True
+            ):
+                raise ValueError("Adapter file SHA/formal S0 receipt differs")
+            checkpoint_files[model["name"]] = value
         identities[model["name"]] = digest(receipt)
     binding = {
         "config": config,
         "checkpoints": identities,
+        "checkpoint_files": checkpoint_files,
+        "final_test_protocol": CODEACT_TEST,
+        "appworld_revision": config["appworld_revision"],
         "protocol": identity(),
         "student_execution": execution_identity(config),
         "split_sha256": plan()["manifest_sha256"],
@@ -453,6 +575,7 @@ def suite(config, deployment, output):
                 raise ValueError("Test comparison binding changed")
         else:
             write_json(output / "binding.json", binding)
+        import_primary_attempts(config, deployment, output)
         start = (
             read_json(output / "summary.json").get("started", time.time())
             if (output / "summary.json").exists()

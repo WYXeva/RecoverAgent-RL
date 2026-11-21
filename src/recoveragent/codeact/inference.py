@@ -6,7 +6,7 @@ from pathlib import Path
 from recoveragent.io import digest, read_json, write_json
 from recoveragent.teacher import TeacherTransportError
 from recoveragent.v2_model import load_base, load_tokenizer, parse_native
-from recoveragent.v2_tasks import plan
+from recoveragent.v2_tasks import CODEACT_TEST, context_for, plan
 from recoveragent.v2_training import verify_checkpoint
 
 from .episode import run
@@ -293,6 +293,27 @@ class VLLMStudent(Student):
 
 def evaluation_tasks(split, task_set):
     frozen = plan()
+    if split == "test" or task_set == "test111":
+        if split != "test" or task_set not in ("test111", "all"):
+            raise ValueError("test111 requires split=test")
+        from collections import Counter
+
+        rows = [r for r in frozen["rows"] if r["role"] == "test"]
+        ids = [r["task_id"] for r in rows]
+        scenarios = Counter(r["scenario_id"] for r in rows)
+        others = [r for r in frozen["rows"] if r["role"] != "test"]
+        if (
+            len(ids) != 111
+            or len(set(ids)) != 111
+            or len(scenarios) != 37
+            or set(scenarios.values()) != {3}
+            or set(ids) & {r["task_id"] for r in others}
+            or set(scenarios) & {r["scenario_id"] for r in others}
+        ):
+            raise ValueError("Frozen Test111 scenario isolation invalid")
+        for task in ids:
+            context_for(task, training=False, final_test=CODEACT_TEST)
+        return ids
     if task_set == "dev24":
         if split != "dev":
             raise ValueError("dev24 may only evaluate the frozen dev tasks")
@@ -317,6 +338,8 @@ def evaluate(
 
     directory = Path(output).resolve()
     tasks = evaluation_tasks(split, task_set)
+    if split == "test" and task_set != "test111":
+        raise ValueError("Use explicit --split test --task-set test111")
     checkpoint = verify_checkpoint(adapter, config["model"])
     binding = {
         "protocol": identity(),
@@ -327,6 +350,16 @@ def evaluate(
         "adapter_receipt_sha256": digest(checkpoint),
         "backend": read_json(server_receipt) if vllm_url else "transformers",
     }
+    if split == "test":
+        from recoveragent.demonstrations import sha256
+
+        binding.update(
+            final_test_protocol=CODEACT_TEST,
+            split_manifest_sha256=plan()["manifest_sha256"],
+            appworld_revision=config["appworld_revision"],
+            adapter_file_sha256=sha256(Path(adapter) / "adapter_model.safetensors"),
+            student_execution=execution_identity(config),
+        )
     if directory.exists():
         if read_json(directory / "binding.json") != binding:
             raise ValueError("Evaluation binding mismatch")
@@ -368,7 +401,9 @@ def evaluate(
         if (target / "result.json").exists():
             results.append(read_json(target / "result.json"))
             continue
-        if target.exists() and config.get("evaluation_resume_interrupted_as_unknown"):
+        if target.exists() and (
+            split == "test" or config.get("evaluation_resume_interrupted_as_unknown")
+        ):
             # A hard job deadline can interrupt an episode. Keep its evidence and
             # do not grant an unrecorded second attempt when finishing dev24 later.
             live = (
@@ -391,7 +426,16 @@ def evaluate(
             continue
         client.reset_usage()
         results.append(
-            run(task, 1, target, root, config, client, training=split == "train")
+            run(
+                task,
+                1,
+                target,
+                root,
+                config,
+                client,
+                training=split == "train",
+                **({"final_test": CODEACT_TEST} if split == "test" else {}),
+            )
         )
         progress("running")
         if results[-1]["termination"] == "teacher_service_error":

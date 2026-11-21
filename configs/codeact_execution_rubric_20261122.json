@@ -1,0 +1,102 @@
+{
+  "teacher": {
+    "provider": "opencode_go",
+    "base_url": "https://opencode.ai/inference/go/openai/v1",
+    "allowed_host": "opencode.ai",
+    "api_key_env": "DEEPSEEK_API_KEY",
+    "model": "deepseek-v4.1-flash",
+    "revision": "OpenCode Go deepseek-v4.1-flash service alias; response ID/model retained; successful native tools probe 2026-11-11. No immutable weight attestation.",
+    "revision_is_immutable": false,
+    "revision_source": "https://opencode.ai/docs/console/go/",
+    "thinking": true,
+    "reasoning_protocol": "provider_reasoning_audit_only_v1",
+    "temperature": 0.2,
+    "timeout_seconds": 120,
+    "max_new_tokens": 4096,
+    "max_tool_calls_per_turn": 1,
+    "max_request_bytes": 4194304,
+    "billing_context_tokens": 1048576,
+    "pricing": {
+      "currency": "USD",
+      "input_per_million": 0.3,
+      "cached_input_per_million": 0.006,
+      "output_per_million": 1.2,
+      "source": "https://opencode.ai/docs/console/go/#usage-limits",
+      "checked_at": "2026-11-11",
+      "basis": "Conservative published DeepSeek V4.1 Flash peak-rate Go allowance estimate. Not actual subscription charge. No billing or subscription settings changed."
+    },
+    "http_user_agent": "RecoverAgent-RL/0.2",
+    "response_identity_protocol": "model_response_id_v1",
+    "response_model_aliases": [],
+    "http_error_diagnostics": "keyword_hash_v1",
+    "http_transport": "requests_session_v1",
+    "judge_text": {
+      "revision": "codeact_execution_rubric_20261122_v1",
+      "model": "deepseek-v4.1-flash",
+      "thinking": {
+        "type": "enabled"
+      },
+      "reasoning_effort": "high",
+      "max_tokens": 8192,
+      "prompt_sha256": "90983d55ee3d6e1a048b8e7bea1272d1fefe0a264c7d38d608b150bac83aa739"
+    }
+  },
+  "teacher_context": {
+    "revision": "s2_teacher_context_v1",
+    "provider": "opencode_go",
+    "model": "deepseek-v4.1-flash",
+    "max_sequence_tokens": 1000000,
+    "scope": [
+      "s2_text",
+      "s2_exploration",
+      "s2_solver"
+    ],
+    "counting_method": "matching_tokenizer_json_estimate_v1",
+    "framing_allowance_tokens": 1024,
+    "tokenizer": {
+      "repo": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "revision": "08c8657f02291e11b6f6b63e0e16014f8e748518",
+      "sha256": "c90dfa01249db1be4245780a052ede752e1361c612ac6d08e2bdada7d599476b"
+    },
+    "basis": {
+      "url": "https://opencode.ai/inference/go/openai/v1/models",
+      "model_id": "deepseek-v4.1-flash",
+      "canonical_id": "deepseek/deepseek-v4.1-flash-1017",
+      "limit": {
+        "context": 1000000,
+        "output": 384000
+      },
+      "checked_at": "2026-11-17",
+      "docs": "https://models.opencode.ai/providers/opencode-go/"
+    },
+    "note": "Full request messages, provider reasoning history and tool schemas are counted using the matching tokenizer over JSON plus an explicit framing allowance. OpenCode server rendering is not exposed; this is an estimate. Response usage is authoritative. Billing reservation, max_new_tokens and max_request_bytes unchanged."
+  },
+  "revision": "codeact_execution_rubric_20261122_v1",
+  "authorization": {
+    "approved": true,
+    "currency": "USD",
+    "max_cost": 100.0,
+    "reference": "User requested shared five-dimension Judge for S0/U060/U100 evaluation, 2026-11-22; existing Teacher only, no training or task generation."
+  },
+  "online": {
+    "teacher_budget": {
+      "requests": 405,
+      "generated_tokens": 3317760,
+      "prompt_tokens": 424673280,
+      "priced_cost": 100.0
+    }
+  },
+  "scope": {
+    "models": [
+      "S0",
+      "U060",
+      "U100"
+    ],
+    "dev24_historical": 72,
+    "test111_new": 333,
+    "calls_per_record": 1,
+    "parallel_calls": 2,
+    "automatic_retries": 0,
+    "hidden_official_details": false
+  }
+}
