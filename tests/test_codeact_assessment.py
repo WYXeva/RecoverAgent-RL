@@ -122,7 +122,10 @@ def test_rolling_refills_without_batch_barrier():
     assert first.is_set() and fifth.is_set() and sorted(completed) == list(range(6))
 
 
-def test_capacity_fallback_resume_and_next_task_four(tmp_path, monkeypatch):
+@pytest.mark.parametrize("authorized_scoring_retry", [False, True])
+def test_capacity_fallback_resume_and_next_task_four(
+    tmp_path, monkeypatch, authorized_scoring_retry
+):
     cfg = settings()
     cfg["evaluation"]["tasks"] = [
         "oom",
@@ -132,6 +135,8 @@ def test_capacity_fallback_resume_and_next_task_four(tmp_path, monkeypatch):
         "later",
     ]
     model = cfg["evaluation"]["models"][0]
+    if authorized_scoring_retry:
+        cfg["evaluation"]["authorized_unknown_retry"] = {"S0": ["scoring_error"]}
     calls, widths = [], []
 
     class Server:
@@ -181,11 +186,15 @@ def test_capacity_fallback_resume_and_next_task_four(tmp_path, monkeypatch):
     monkeypatch.setattr(a, "rolling", rolling)
     result = a.evaluate_model(cfg, {"models": {"S0": "actor"}}, model, tmp_path)
     assert widths == [4, 2, 4]
-    assert result["tasks"] == 5 and result["attempts"] == 6
+    assert result["tasks"] == 5 and result["attempts"] == 6 + authorized_scoring_retry
     assert result["failure"] == 1 and result["unknown"] == 2
     assert ("oom", 2, 2) in calls and ("later", 1, 4) in calls
     assert sum(t == "normal_fail" for t, _, _ in calls) == 1
-    assert sum(t == "scoring_error" for t, _, _ in calls) == 1
+    assert (
+        sum(t == "scoring_error" for t, _, _ in calls) == 1 + authorized_scoring_retry
+    )
+    if authorized_scoring_retry:
+        assert ("scoring_error", 2, 2) in calls
     before = copy.deepcopy(calls)
     assert a.evaluate_model(cfg, {"models": {"S0": "actor"}}, model, tmp_path) == result
     assert calls == before

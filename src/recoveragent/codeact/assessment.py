@@ -26,6 +26,15 @@ from .sampling import resource_error, retryable
 REVISION = "codeact_paired_test111_v1"
 
 
+def may_retry(config, model, task, row):
+    explicit = config["evaluation"].get("authorized_unknown_retry", {})
+    return retryable(row) or (
+        row.get("success") is None
+        and row.get("reward_valid") is False
+        and task in explicit.get(model["name"], [])
+    )
+
+
 def attempt_binding(config, model, task):
     return {
         "revision": REVISION,
@@ -310,7 +319,7 @@ def evaluate_model(config, deployment, model, directory):
                 row = recover_attempt(config, model, task, path, str(row))
             if row["binding"] != attempt_binding(config, model, task):
                 raise ValueError("Worker returned a different evaluation identity")
-            should_retry = retryable(row)
+            should_retry = may_retry(config, model, task, row)
             if primary_only or attempt == 2 or not should_retry:
                 select(task, attempt, row)
             return should_retry
@@ -347,7 +356,11 @@ def evaluate_model(config, deployment, model, directory):
                     path,
                     "Interrupted evaluation process; original attempt retained",
                 )
-                if primary_only or attempt == 2 or not retryable(row):
+                if (
+                    primary_only
+                    or attempt == 2
+                    or not may_retry(config, model, task, row)
+                ):
                     select(task, attempt, row)
         while True:
             pending = [
@@ -425,10 +438,27 @@ def import_primary_attempts(config, deployment, output):
     original = original_binding["config"]
 
     def execution(cfg):
-        return {k: v for k, v in cfg.items() if k not in ("revision", "evaluation")}
+        return {
+            k: v
+            for k, v in cfg.items()
+            if k not in ("revision", "evaluation", "official_evaluation_revision")
+        }
+
+    classification = (
+        original.get("official_evaluation_revision"),
+        config.get("official_evaluation_revision"),
+    )
+    if classification[0] != classification[1] and classification != (
+        "official_result_integrity_20261119_v3",
+        "official_result_integrity_20261122_v4",
+    ):
+        raise ValueError("Primary import evaluation classification differs")
 
     if (
-        not config["evaluation"].get("primary_attempt_only")
+        not (
+            config["evaluation"].get("primary_attempt_only")
+            or config["evaluation"].get("preserve_imported_primary")
+        )
         or execution(original) != execution(config)
         or original["evaluation"]["tasks"] != config["evaluation"]["tasks"]
         or original_binding["protocol"] != identity()
@@ -443,7 +473,10 @@ def import_primary_attempts(config, deployment, output):
             raise ValueError("Primary import model differs")
         for task in config["evaluation"]["tasks"]:
             path = origin / name / "tasks" / task / "attempt_1"
-            if not (path / "intent.json").exists():
+            if (
+                not (path / "intent.json").exists()
+                and not (path / "evaluation_row.json").exists()
+            ):
                 continue
             worker = (
                 read_json(path / "worker.json")
@@ -468,7 +501,9 @@ def import_primary_attempts(config, deployment, output):
                 **row,
                 "binding": attempt_binding(config, model, task),
                 "directory": str(target),
-                "episode_directory": str(path / "episode"),
+                "episode_directory": row.get(
+                    "episode_directory", str(path / "episode")
+                ),
                 "imported_primary": {
                     "row_path": str(path / "evaluation_row.json"),
                     "row_sha256": digest(row),
@@ -476,6 +511,11 @@ def import_primary_attempts(config, deployment, output):
                     "source_lock_sha256": original_binding["source_lock_sha256"],
                     "same_execution_conditions": True,
                     "retry_results_excluded": True,
+                    "evaluation_classification": {
+                        "from": classification[0],
+                        "to": classification[1],
+                        "upstream_official_evaluator_unchanged": True,
+                    },
                 },
             }
             result_path = target / "evaluation_row.json"
@@ -485,6 +525,27 @@ def import_primary_attempts(config, deployment, output):
             else:
                 write_json(result_path, record)
             selected = target.parent / "selected.json"
+            explicit_retry = (
+                task
+                in config["evaluation"]
+                .get("authorized_unknown_retry", {})
+                .get(name, [])
+                and row["success"] is None
+            )
+            if explicit_retry:
+                intent = target / "intent.json"
+                if not intent.exists():
+                    write_json(
+                        intent,
+                        {
+                            "binding": attempt_binding(config, model, task),
+                            "attempt": 1,
+                            "concurrency": None,
+                            "imported_primary": True,
+                        },
+                    )
+                imports.append(record["imported_primary"])
+                continue
             selection = {
                 "attempt": 1,
                 "row_path": str(result_path),

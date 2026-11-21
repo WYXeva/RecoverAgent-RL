@@ -1,0 +1,122 @@
+{
+  "type": "CPU synthetic loop/Mock Client tests; no real model or environment requests",
+  "tests": 23,
+  "passed": 23,
+  "cases": [
+    {
+      "name": "test_format_rejection_never_executes_and_counted_once[wrong_name-wrong_outer_tool]",
+      "seconds": 0.017,
+      "passed": true
+    },
+    {
+      "name": "test_format_rejection_never_executes_and_counted_once[multiple-multiple_tool_calls]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_format_rejection_never_executes_and_counted_once[bad_json-invalid_arguments_json]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_format_rejection_never_executes_and_counted_once[missing_code-missing_code]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_format_rejection_never_executes_and_counted_once[empty-empty_code]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_format_rejection_never_executes_and_counted_once[wrong_type-code_not_string]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_format_rejection_never_executes_and_counted_once[no_call-no_appworld_call]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_format_rejection_never_executes_and_counted_once[missing_structure-missing_tool_structure]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_execution_error_is_not_format_rejection[Execution failed. SyntaxError: invalid syntax-SyntaxError-None]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_execution_error_is_not_format_rejection[Execution failed. NameError: missing-NameError-None]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_execution_error_is_not_format_rejection[Execution failed. Exception: Response status code is 422: missing required parameter-OtherExecutionError-missing_api_parameter]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_execution_error_is_not_format_rejection[Execution failed. Exception: Response status code is 401: invalid access token-OtherExecutionError-authentication_error]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_execution_error_is_not_format_rejection[Execution failed. Exception: Response status code is 404: object missing-OtherExecutionError-resource_not_found]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_completed_submission_does_not_override_official_result[True]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_completed_submission_does_not_override_official_result[False]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_budget_and_repeat_termination[requests-request_limit]",
+      "seconds": 0.002,
+      "passed": true
+    },
+    {
+      "name": "test_budget_and_repeat_termination[tokens-token_limit]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_budget_and_repeat_termination[wall-wall_limit]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_budget_and_repeat_termination[client-client_budget]",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_budget_and_repeat_termination[repeat-repeated_error_limit]",
+      "seconds": 0.003,
+      "passed": true
+    },
+    {
+      "name": "test_redaction_does_not_drop_ids_and_public_input_excludes_hidden",
+      "seconds": 0.001,
+      "passed": true
+    },
+    {
+      "name": "test_rubric_structure_and_no_success_reward",
+      "seconds": 0.0,
+      "passed": true
+    },
+    {
+      "name": "test_judge_real_request_and_parsing_mock_network",
+      "seconds": 0.001,
+      "passed": true
+    }
+  ]
+}

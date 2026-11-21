@@ -32,6 +32,21 @@ from .execution_audit import (
 
 def judge_one(item, config, credentials, output, stop):
     directory = Path(item["directory"])
+    if not (directory / "trajectory.json").exists():
+        target = (
+            Path(output)
+            / item["split"]
+            / item["model"]
+            / directory.name
+            / "result.json"
+        )
+        result = {
+            "status": "unavailable",
+            "reason": "Infrastructure interruption; complete trajectory unavailable; not scored as model failure",
+        }
+        if not target.exists():
+            write_json(target, result)
+        return result
     data = judge_input(directory)
     target = Path(output) / item["split"] / item["model"] / directory.name
     binding = {
@@ -190,6 +205,10 @@ def report(items, judges, output):
         def ratio(a, b):
             return a / b if b else None
 
+        def mean(k):
+            values = [r[k] for r in group if r[k] is not None]
+            return sum(values) / len(values) if values else None
+
         scores = [r["rubric_total"] for r in group if r["rubric_total"] is not None]
         complete_api = all(r["business_api_attempts"] is not None for r in group)
         summary = {
@@ -216,13 +235,21 @@ def report(items, judges, output):
             )
             if complete_api
             else None,
-            "Repeated Call Rate": ratio(total("repeat_code"), total("code_blocks")),
+            "Repeated Call Rate": ratio(
+                total("guard_confirmed_no_progress_repeats"), total("code_blocks")
+            ),
             "Budget Exhaustion Rate": ratio(total("budget_exhausted"), n),
-            "Mean Model Requests": total("requests") / n,
-            "Mean Business API Calls": total("business_calls") / n,
-            "Mean Input Tokens": total("input_tokens") / n,
-            "Mean Output Tokens": total("output_tokens") / n,
-            "Mean Execution Time": total("seconds") / n,
+            "Mean Model Requests": mean("requests"),
+            "Mean Business API Calls": mean("business_calls"),
+            "Mean Input Tokens": mean("input_tokens"),
+            "Mean Output Tokens": mean("output_tokens"),
+            "Mean Execution Time": mean("seconds"),
+            "Measured Business Call Episodes": sum(
+                r["business_calls"] is not None for r in group
+            ),
+            "Measured Time Episodes": sum(r["seconds"] is not None for r in group),
+            "Unknown Rate": (n - success - failure) / n,
+            "Coverage": (success + failure) / 111,
         }
         for dim in DIMENSIONS:
             vals = [r["rubric_scores"][dim] for r in group if dim in r["rubric_scores"]]
@@ -239,6 +266,7 @@ def report(items, judges, output):
             "documentation_calls",
             "repeat_documentation",
             "repeat_code",
+            "guard_confirmed_no_progress_repeats",
             "budget_exhausted",
         ]:
             summary[name] = (

@@ -153,8 +153,28 @@ def longest_repeat(values):
 
 def analyze(directory, model, split):
     directory = Path(directory)
-    trajectory = read_json(directory / "trajectory.json")
-    result = read_json(directory / "result.json")
+    complete = (directory / "trajectory.json").exists() and (
+        directory / "result.json"
+    ).exists()
+    if complete:
+        trajectory = read_json(directory / "trajectory.json")
+        result = read_json(directory / "result.json")
+    else:
+        source = read_json(directory / "evaluation_row.json")
+        trajectory = (
+            read_json(directory / "live.json")
+            if (directory / "live.json").exists()
+            else {"actions": []}
+        )
+        trajectory = {**trajectory, "task_id": source["task_id"]}
+        result = {
+            "success": None,
+            "valid": False,
+            "termination": source["termination"],
+            "usage": source.get("usage", {}),
+            "seconds": trajectory.get("agent_seconds"),
+            "api_counts": {},
+        }
     actions = trajectory["actions"]
     rejects = [
         (int(p.stem), read_json(p))
@@ -269,13 +289,17 @@ def analyze(directory, model, split):
         v is not None and i > 0 and v == errors[i - 1] for i, v in enumerate(errors)
     )
     same_result = [digest([a["code"], a["observation"]]) for a in actions]
-    no_business = [
-        bool(api_names(a["code"]))
-        and all(
-            n.startswith(("api_docs.", "supervisor.")) for n in api_names(a["code"])
-        )
+    business_indices = {r["request_index"] for r in business}
+    no_business = (
+        [a["request_index"] not in business_indices for a in actions]
+        if outcomes is not None
+        else None
+    )
+    guard_repeats = sum(
+        a.get("loop_control", {}).get("state_sha256") is not None
+        and a.get("loop_control", {}).get("consecutive_identical_errors", 0) >= 2
         for a in actions
-    ]
+    )
     usage = result["usage"]
     n_replies = len(actions) + len(rejects)
     invalid = sum(
@@ -300,10 +324,11 @@ def analyze(directory, model, split):
         "success": result["success"],
         "valid": result["valid"],
         "termination": result["termination"],
-        "requests": usage["requests"],
+        "capture_complete": complete,
+        "requests": usage.get("requests"),
         "replies": n_replies,
-        "input_tokens": usage["prompt_tokens"],
-        "output_tokens": usage["generated_tokens"],
+        "input_tokens": usage.get("prompt_tokens"),
+        "output_tokens": usage.get("generated_tokens"),
         "seconds": result["seconds"],
         "format_rejections": len(rejects),
         "invalid_tool_calls": invalid,
@@ -325,9 +350,15 @@ def analyze(directory, model, split):
         "consecutive_same_error": repeated_errors,
         "longest_same_error": longest_repeat(errors),
         "longest_same_code": longest_repeat(code_keys),
-        "longest_docs_or_supervisor_only_run": longest_repeat(
+        "guard_confirmed_no_progress_repeats": guard_repeats,
+        "no_business_api_requests": sum(no_business)
+        if no_business is not None
+        else None,
+        "longest_no_business_api_run": longest_repeat(
             [True if v else None for v in no_business]
-        ),
+        )
+        if no_business is not None
+        else None,
         "budget_exhausted": result["termination"]
         in {
             "request_limit",

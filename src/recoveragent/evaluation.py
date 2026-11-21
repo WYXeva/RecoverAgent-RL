@@ -5,13 +5,14 @@ import ast
 import importlib.metadata
 import json
 import linecache
+import math
 from pathlib import Path
 import subprocess
 import sys
 
 from .io import read_json, write_json
 
-CLASSIFICATION_REVISION = "official_result_integrity_20261119_v3"
+CLASSIFICATION_REVISION = "official_result_integrity_20261122_v4"
 
 
 def invalid_predicted_number(exc, tb):
@@ -52,10 +53,11 @@ def invalid_predicted_number(exc, tb):
 
 
 def invalid_normalized_answer(exc, tb, task_id):
-    """Pinned TestTracker.case(... normalize=float): only its right-hand operand.
+    """Pinned numeric comparison: identify the prediction in either argument order.
 
-    The left/reference conversion has already succeeded. Inspect code and object
-    identity only; never expose reference values or rerun the normalization.
+    Right-side prediction: reference conversion has already succeeded. Left-side
+    prediction: require a finite numeric reference so a broken reference cannot
+    be mislabeled as an agent failure. No values leave this controller check.
     """
     if not isinstance(exc, (ValueError, TypeError)) or tb is None:
         return False
@@ -70,10 +72,15 @@ def invalid_normalized_answer(exc, tb, task_id):
         != ("appworld", "common", "evaluation.py")
         or frame.f_code.co_name != "assert_plus"
         or frame.f_locals.get("normalize") is not float
-        or linecache.getline(frame.f_code.co_filename, leaf.tb_lineno).strip()
-        != "right = normalize(right)"
     ):
         return False
+    line = linecache.getline(frame.f_code.co_filename, leaf.tb_lineno).strip()
+    side = {"left = normalize(left)": "left", "right = normalize(right)": "right"}.get(
+        line
+    )
+    if side is None:
+        return False
+    prediction_index, reference_index = (0, 2) if side == "left" else (2, 0)
     for item in frames[:-1]:
         caller = item.tb_frame
         if Path(caller.f_code.co_filename).parts[-4:] != (
@@ -96,12 +103,12 @@ def invalid_normalized_answer(exc, tb, task_id):
                 and node.func.value.id == "test"
                 and node.func.attr == "case"
                 and len(node.args) == 3
-                and isinstance(node.args[0], ast.Name)
-                and node.args[0].id == "ground_truth_answer"
+                and isinstance(node.args[reference_index], ast.Name)
+                and node.args[reference_index].id == "ground_truth_answer"
                 and isinstance(node.args[1], ast.Constant)
                 and node.args[1].value == "=="
-                and isinstance(node.args[2], ast.Name)
-                and node.args[2].id == "predicted_answer"
+                and isinstance(node.args[prediction_index], ast.Name)
+                and node.args[prediction_index].id == "predicted_answer"
                 and any(
                     k.arg == "normalize"
                     and isinstance(k.value, ast.Name)
@@ -109,8 +116,16 @@ def invalid_normalized_answer(exc, tb, task_id):
                     for k in node.keywords
                 )
                 and "predicted_answer" in caller.f_locals
-                and frame.f_locals.get("right") is caller.f_locals["predicted_answer"]
+                and frame.f_locals.get(side) is caller.f_locals["predicted_answer"]
             ):
+                reference = caller.f_locals.get("ground_truth_answer")
+                if type(reference) not in (int, float, str):
+                    return False
+                try:
+                    if not math.isfinite(float(reference)):
+                        return False
+                except (ValueError, TypeError, OverflowError):
+                    return False
                 return True
     return False
 

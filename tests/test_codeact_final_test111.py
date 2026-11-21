@@ -159,3 +159,35 @@ def test_primary_import_never_uses_successful_retry(tmp_path):
     changed["limits"]["max_requests"] = 81
     with pytest.raises(ValueError, match="execution conditions"):
         a.import_primary_attempts(changed, dep, target)
+
+    retry = copy.deepcopy(new)
+    retry["official_evaluation_revision"] = "official_result_integrity_20261122_v4"
+    retry["evaluation"]["authorized_unknown_retry"] = {"S0": [task]}
+    retry_target = tmp_path / "authorized_retry"
+    a.import_primary_attempts(retry, dep, retry_target)
+    destination = retry_target / "S0/tasks" / task
+    assert (destination / "attempt_1/intent.json").exists()
+    assert not (destination / "selected.json").exists()
+    assert read_json(destination / "attempt_1/evaluation_row.json")["success"] is None
+    a.import_primary_attempts(retry, dep, retry_target)
+    retry["official_evaluation_revision"] = "unreviewed"
+    with pytest.raises(ValueError, match="classification differs"):
+        a.import_primary_attempts(retry, dep, tmp_path / "invalid_revision")
+
+
+def test_current_test_source_lock_and_historical_lock_rejection():
+    from recoveragent.codeact.experiment import verify_source
+
+    assert verify_source(
+        {
+            "source_root": str(ROOT),
+            "source_lock": "configs/codeact_final_test111_unknown_retry_20261122.lock.json",
+        }
+    )
+    with pytest.raises(ValueError, match="source changed"):
+        verify_source(
+            {
+                "source_root": str(ROOT),
+                "source_lock": "configs/codeact_final_test111_20261122.lock.json",
+            }
+        )
