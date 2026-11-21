@@ -53,6 +53,10 @@ def test_api_audit_preserves_calls_and_counts_caught_errors(tmp_path):
         requester._request("gmail", "bad")
     requester._request("admin", "show")
     requester._request("gmail", "show", track=False)
+    assert not (tmp_path / "api_outcomes.jsonl").exists()
+    assert len(audit.pending) == 2
+    audit.flush()
+    assert audit.pending == []
     assert calls[0] == (
         "gmail",
         "show",

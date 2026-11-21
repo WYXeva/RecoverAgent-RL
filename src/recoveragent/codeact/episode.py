@@ -87,6 +87,8 @@ def loop(world, client, config, directory):
         if getattr(world, "_evaluation_api_audit", None):
             world._evaluation_api_audit.request_index = index
         observation = world.execute(code)
+        if getattr(world, "_evaluation_api_audit", None):
+            world._evaluation_api_audit.flush()
         event = {
             "request_index": index,
             "code": code,

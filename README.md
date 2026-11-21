@@ -22,7 +22,7 @@
 用户于11月22日授权比较 S0、60步、100步，333条主尝试。四路滚动，容量故障最多两路重试一次；正常失败不重试。三者同协议、同顺序、同seed，官方评分与控制侧调用错误rubric分列，不调用Teacher或训练。
 
 ```bash
-CODEACT_TEST_ROOT=/root/gpufree-data/recoveragent_codeact_test111_20261122_01
+CODEACT_TEST_ROOT=/root/gpufree-data/recoveragent_codeact_test111_20261122_02
 export PYTHONPATH="$CODEACT_TEST_ROOT/source/src"
 export HF_HOME=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache
 /root/gpufree-data/recoveragent_s1_retrain_20261114_01/worker_env/bin/python -m recoveragent.codeact.assessment \
@@ -31,7 +31,7 @@ export HF_HOME=/root/gpufree-data/recoveragent_s1_retrain_20261114_01/hf_cache
   --output "$CODEACT_TEST_ROOT/evaluation"
 ```
 
-运行中不要重复启动；控制器持有排他锁。相同命令用于退出后的续跑，完成结果不重采，故障两路机会不重置。`evaluation/<模型>/summary.json` 和 `comparison.json` 保存进度/逐题比较；每题原始轨迹、API诊断和官方子检查留在私有目录。源码用独立 `codeact_test111_20261122.lock.json` 核验。
+运行中不要重复启动；控制器持有排他锁。相同命令用于退出后的续跑，完成结果不重采，故障两路机会不重置。`evaluation/<模型>/summary.json` 和 `comparison.json` 保存进度/逐题比较；每题原始轨迹、API诊断和官方子检查留在私有目录。源码用独立 `codeact_test111_20261122_audit_fix.lock.json` 核验。
 
 ## 用户指定保留的模型
 

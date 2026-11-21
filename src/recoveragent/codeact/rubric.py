@@ -21,6 +21,7 @@ class ApiAudit:
     def __init__(self, requester, directory):
         self.request_index = None
         self.path = Path(directory) / "api_outcomes.jsonl"
+        self.pending = []
         original = requester._request
 
         def request(
@@ -54,10 +55,16 @@ class ApiAudit:
                 raise
             finally:
                 if track and app != "admin":
-                    with self.path.open("a") as stream:
-                        stream.write(json.dumps(record, ensure_ascii=False) + "\n")
+                    self.pending.append(record)
 
         requester._request = request
+
+    def flush(self):
+        """Only call from the controller, after world.execute exits its sandbox."""
+        with self.path.open("a") as stream:
+            for record in self.pending:
+                stream.write(json.dumps(record, ensure_ascii=False) + "\n")
+        self.pending.clear()
 
 
 def diagnostics(directory, result):
