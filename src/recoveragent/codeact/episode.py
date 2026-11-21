@@ -84,6 +84,8 @@ def loop(world, client, config, directory):
             {"code": code, "call": call},
         )
         tick = now()
+        if getattr(world, "_evaluation_api_audit", None):
+            world._evaluation_api_audit.request_index = index
         observation = world.execute(code)
         event = {
             "request_index": index,
@@ -149,6 +151,7 @@ def run(
     training=True,
     generated_task=None,
     instruction=None,
+    final_test=False,
 ):
     from freezegun import configure
 
@@ -161,7 +164,11 @@ def run(
     directory.mkdir(parents=True, exist_ok=False)
     write_json(directory / "worker.json", {"pid": os.getpid()})
     (directory / "requests").mkdir()
-    context = context_for(task_id, training=training)
+    context = (
+        context_for(task_id, training=training, final_test=final_test)
+        if final_test
+        else context_for(task_id, training=training)
+    )
     if (generated_task is not None or instruction is not None) and not training:
         raise ValueError("Generated tasks and exploration must remain train-only")
     if generated_task is not None:
@@ -212,11 +219,16 @@ def run(
         timeout_seconds=config["limits"]["code_timeout_seconds"],
     )
     try:
+        if config.get("evaluation", {}).get("record_api_outcomes"):
+            from .rubric import ApiAudit
+
+            world._evaluation_api_audit = ApiAudit(world.requester, directory)
         # Control-side identity only; no state records or scoring material reach Actor.
         if (
             config.get("online")
             or generated_task is not None
             or instruction is not None
+            or final_test
         ):
             binding["initial_state_hash"] = digest(
                 {

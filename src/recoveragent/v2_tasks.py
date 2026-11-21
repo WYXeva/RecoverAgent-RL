@@ -14,6 +14,7 @@ SCOPE = "full732_scenario_isolated_v2_20261109"
 DEMO_FORMAT = "clean-teacher-v2-train-v1"
 RUNTIME = "v2_learning_64k_20261112"
 SEED = 20261109
+CODEACT_TEST = "codeact_test111_20261122"
 
 
 def rank(value):
@@ -77,8 +78,14 @@ def context_for(task_id, *, training=False, final_test=False):
     if final_test:
         from .v2_runtime import S2_RUNTIME
 
-        config = read_json(ROOT / f"configs/{S2_RUNTIME}.json")
-        if training or row["role"] != "test" or task_id not in config["test_task_ids"]:
+        if final_test is not True and final_test != CODEACT_TEST:
+            raise ValueError("Unknown final test protocol")
+        allowed = (
+            [r["task_id"] for r in frozen["rows"] if r["role"] == "test"]
+            if final_test == CODEACT_TEST
+            else read_json(ROOT / f"configs/{S2_RUNTIME}.json")["test_task_ids"]
+        )
+        if training or row["role"] != "test" or task_id not in allowed:
             raise ValueError(
                 "Final test is evaluation-only and must use the frozen list"
             )
@@ -89,14 +96,26 @@ def context_for(task_id, *, training=False, final_test=False):
         "source_row_sha256": digest(row),
         "public_redistribution": False,
         "official_benchmark_claim": False,
-        **({"final_test_protocol": S2_RUNTIME} if final_test else {}),
+        **(
+            {
+                "final_test_protocol": CODEACT_TEST
+                if final_test == CODEACT_TEST
+                else S2_RUNTIME
+            }
+            if final_test
+            else {}
+        ),
     }
 
 
 def validate_context(task_id, context, *, training=False):
     from .v2_runtime import S2_RUNTIME
 
-    final_test = context.get("final_test_protocol") == S2_RUNTIME
+    final_test = (
+        CODEACT_TEST
+        if context.get("final_test_protocol") == CODEACT_TEST
+        else context.get("final_test_protocol") == S2_RUNTIME
+    )
     expected = context_for(task_id, training=training, final_test=final_test)
     if context != expected:
         raise ValueError("v2 task identity/source/role mismatch")
